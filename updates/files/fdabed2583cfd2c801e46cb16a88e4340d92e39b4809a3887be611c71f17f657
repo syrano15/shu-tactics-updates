@@ -1,0 +1,484 @@
+import {openingPressureApplies,openingPressureOrders} from './opening-pressure.js';
+import {terrainProfile,terrainMovementCost,terrainPhysicalDefense,terrainFireMultiplier,troopPowerFactor,modernTerrain,TERRAIN_RULES} from './terrain-effects.js';
+import {initHuarongChase,huarongChaser,huarongReachable,decideHuarongEscape,escapeHuarongUnit} from './huarong-chase.js';
+import {casterProfile,tacticIntFactor,tacticAccuracyBonus,tacticDamage} from './tactics.js';
+import {criticalEnabled,criticalChance} from './critical.js';
+import {effectiveClass,classAptitude,classTrainingFactor,applyClassTraining} from './class-change.js';
+import {effectiveSpecialization,applySpecialization} from './specializations.js';
+import {ACT2_COMBAT_BALANCE,ACT1_ENEMY_PRESSURE,allyPreparationBonuses} from './balance.js';
+import {initCampaignEvents,objectiveForCampaignVersion,campaignEnemyOrder} from './campaign-events.js';
+import {initReinforcements} from './reinforcements.js';
+import {ENEMY_PROGRESSION_VERSION,ENEMY_HP_CAP,ACT2_ENEMY_HEALTH_VERSION,ACT2_ENEMY_DIFFICULTY_VERSION,CHIBI_FORMATION_VERSION,enemyFormationOrders,progressionEnemyOrder,applyEnemyProgression} from './enemy-progression.js';
+import {initTerrainEffects} from './terrain-effects.js';
+import {isAct2Battle,combatSkillAttackAllowed,combatAttackModifiers,applyAct2PhaseStart} from './combat-skills.js';
+import {initialBattleSeed,randomTransaction} from './battle-rng.js';
+import {getPromotionBonuses} from './promotion.js';
+import {initBattleRecords,recordBattleAction,recordBattleRound} from './battle-records.js';
+import {collectStoryEvents} from './story-events.js';
+import {baseSP,maxRange,hasFlash,consumeFlash,recoverAct2SP,spiritDefensePierce} from './spirits.js';
+import {traitOf,terrainDefense,physicalModifiers,consumeGuard,healingAmount,tacticBonus} from './traits.js';
+import {HERO_GROWTH,growthType,levelBonuses,validateProgress,awardExperience,GROWTH_RULES} from './growth.js';
+import {mapSize} from './maps.js';
+import {validateObjective,validateDefeat,battleOutcome,updateBattleOutcome,bossCleanupPending} from './objectives.js';
+export {chooseBossCleanup,updateBattleOutcome,bossCleanupPending} from './objectives.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import { DEFAULT_BALANCE, cloneBalance, validateBalance, normalizeBalance } from './balance.js';
+import { bonuses } from './equipment.js';
+import { CHAPTERS, sortieIds } from './campaign.js';
+import {validateDeploymentSlots} from './deployment.js';
+import { moraleFactor, effectiveAttack, movement, hitChance, battleMorale, MORALE, changeMorale } from './spirits.js';
+export const terrain = CHAPTERS[0].terrain;
+export const classes = DEFAULT_BALANCE.classes;
+export const key = (x, y) => `${x},${y}`;
+export const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+export const inside = (x, y, s={terrain}) => Number.isInteger(x)&&Number.isInteger(y)&&x>=0&&x<s.terrain[0].length&&y>=0&&y<s.terrain.length;
+export const forest = (u, s) => terrainProfile(s??{terrain},u.x,u.y).kind === 'forest';
+export const occupant = (s, x, y) => s.units.find(u => u.hp > 0 && u.x === x && u.y === y);
+export const SKILLS = { fire: '화공', confusion: '혼란', deception: '위보' };
+export const RATION_RANGE = 3;
+export const disabled = u => !!u.status && ['confusion', 'deception'].includes(u.status.type);
+export const effectiveDefense = (u,s) => (u.def+terrainDefense(u,s)) * moraleFactor(u) * (u.status?.type === 'confusion' ? .5 : 1);
+const roll = random => { const value = random(); if (!Number.isFinite(value) || value < 0 || value >= 1) throw new Error('유효하지 않은 확률 값입니다.'); return value; };
+
+export function createUnit(balance,id,team='ally',army=null,templateId=id,enemyLevel=1,enemyRank=0,combatTier=null,allyPreparationVersion=1,enemyPressureScale=1,growthBenefitsVersion=1,armyBalanceVersion=1,enemyHealthCap=10000){
+ if(![10000,40000].includes(enemyHealthCap))throw new Error('적 병력 상한이 올바르지 않습니다.');
+ const original=UNIT_TEMPLATES[templateId];if(!original)throw new Error('존재하지 않는 장수 원본입니다.');
+ const t=team==='ally'&&!original.extra?{...original,cls:effectiveClass(army,id,original.cls)}:original;
+ const c={...balance.classes[t.cls],...(t.cls===original.cls?t.baseStats:{})};
+ if(t.baseStats&&Object.entries(t.baseStats).some(([k,v])=>!['hp','atk','def','int','move'].includes(k)||!Number.isInteger(v)||v<(['hp','move'].includes(k)?1:0)||v>({hp:team==='enemy'?enemyHealthCap:10000,move:20}[k]??1000)))throw new Error('장수 기본 능력치 오류');
+ const bonus=bonuses(army,id,{growthBenefitsVersion,armyBalanceVersion}),generic=t.generic,preparation=team==='ally'&&!t.extra&&allyPreparationVersion===1?allyPreparationBonuses(id,t.cls):{hp:0,def:0,atk:0,baseAtk:0};
+ const gear={evasionBonus:bonus.evasion??0,criticalBonus:bonus.critical??0,moraleBonus:bonus.morale??0,tacticBonus:bonus.tactic??0};
+ if(t.extra){return {...(t.nonCombat?{nonCombat:true}:{}),...(t.protectedFromFaction?{protectedFromFaction:t.protectedFromFaction}:{}),id,name:t.name,han:t.han,cls:t.cls,team:'ally',extra:true,...(!id.includes('kongrong')&&!id.includes('zhoucang')&&!templateId.startsWith('act3_extra_')?{generic:true}:{}),faction:'shu',rank:0,promotion:0,cavalryDamageReceived:null,cavalryDamageDealt:null,baseAtk:c.atk,evasionBonus:0,criticalBonus:0,moraleBonus:0,tacticBonus:0,x:0,y:0,maxHp:c.hp,hp:c.hp,atk:c.atk,def:c.def,int:c.int,move:c.move,min:c.min,max:c.max,attackAfterMove:c.attackAfterMove,level:1,exp:0,startLevel:1,battleExp:0,sp:0,maxSp:0,morale:100,spirits:{},firstGuardUsed:false,confusionLost:false,ralliedRound:0,moveOrigin:null,status:null,done:false,moved:false};}
+ const progress=team==='ally'?(army?.heroes[id]?.growth??{level:1,exp:0}):{level:enemyLevel,exp:0},type=team==='ally'?growthType(id):'balanced';
+ validateProgress(progress,type);const growth=levelBonuses(progress.level,type);
+ const rank=team==='ally'?(army?.heroes[id]?.promotion??0):enemyRank;
+ if(!Number.isInteger(rank)||rank<0||rank>2)throw new Error('승급 단계가 올바르지 않습니다.');
+ const promotion=getPromotionBonuses(t.cls,rank);
+ const act2Enemy=team==='enemy'&&combatTier!==null;
+ if(act2Enemy&&!['troop','elite','officer','boss'].includes(combatTier))throw new Error('적 전투 등급이 올바르지 않습니다.');
+ const hpScale=act2Enemy?1:generic ? .55 : 1,atkScale=team==='ally'?1.6:act2Enemy?1:enemyPressureScale!==1?enemyPressureScale:generic ? .6 : 1;
+ const offense=t.cls!=='strategist'?growth.offense:0;
+ const maxHp=Math.min(team==='enemy'?enemyHealthCap:10000,Math.round((c.hp+t.hpBonus)*hpScale)+bonus.hp+growth.hp+promotion.hp+preparation.hp);
+ const unit={...(act2Enemy?{combatTier}:{}),...(generic?{generic:true}:{}),...(t.faction?{faction:t.faction}:{}),...gear,rank,promotion:rank,cavalryDamageReceived:promotion.cavalryDamageReceived,cavalryDamageDealt:promotion.cavalryDamageDealt,baseAtk:c.atk+t.atkBonus+bonus.atk+offense+promotion.atk+preparation.baseAtk,id,level:progress.level,exp:progress.exp,startLevel:progress.level,battleExp:0,name:t.name,han:t.han,cls:t.cls,team,x:0,y:0,maxHp,hp:maxHp,firstGuardUsed:false,confusionLost:false,ralliedRound:0,morale:Math.max(50,Math.min(150,100+(team==='ally'&&traitOf({id,team})?.type==='morale_start'?10:0)+gear.moraleBonus)),sp:team==='ally'?baseSP(id)+growth.sp:0,maxSp:team==='ally'?baseSP(id)+growth.sp:0,spirits:{},moveOrigin:null,int:(team==='ally'?(HERO_GROWTH[id]?.intellect??c.int):c.int)+bonus.int+(t.cls==='strategist'?growth.offense:0)+promotion.int,atk:Math.round((c.atk+t.atkBonus)*atkScale)+bonus.atk+offense+promotion.atk+preparation.atk,def:Math.round(c.def*(act2Enemy?1:generic ? .7 : 1))+(team==='ally'?4:0)+bonus.def+growth.def+promotion.def+preparation.def,move:c.move+bonus.move+promotion.move,min:c.min,max:c.max+promotion.rangeMax+(t.cls==='strategist'?promotion.tacticRangeMax:0),attackAfterMove:c.attackAfterMove,status:null,done:false,moved:false};
+ if(team==='ally'&&!t.extra&&t.cls!==original.cls){
+  unit.classAptitude=classAptitude(id,t.cls,allyPreparationVersion);unit.classTraining={factor:classTrainingFactor(id,t.cls,allyPreparationVersion),atkBase:unit.atk-offense,baseAtkBase:unit.baseAtk-offense,intBase:unit.int-(t.cls==='strategist'?growth.offense:0),defBase:unit.def-growth.def};applyClassTraining(unit,growth);
+ }
+ if(team==='ally'&&!t.extra)applySpecialization(unit,effectiveSpecialization(army,id,t.cls,growthBenefitsVersion===1));
+ return unit;
+}
+export function refreshHeroClassState(state,army,id){
+ const unit=state.units.find(u=>u.id===id&&u.team==='ally'&&!u.extra);if(!unit)return;
+ const next=createUnit(state.balance,id,'ally',army,id,1,0,null,state.allyPreparationVersion??0,1,state.growthBenefitsVersion??0,state.armyBalanceVersion??0),hp=unit.hp,sp=unit.sp;
+ for(const k of ['cls','atk','baseAtk','int','def','maxHp','move','min','max','attackAfterMove','maxSp','evasionBonus','criticalBonus','moraleBonus','tacticBonus','cavalryDamageReceived','cavalryDamageDealt','promotion','rank','classAptitude','classTraining','specialization']){if(Object.hasOwn(next,k))unit[k]=next[k];else delete unit[k];}
+ unit.hp=Math.min(hp,unit.maxHp);unit.sp=Math.min(sp,unit.maxSp);
+}
+export function createBattle(balance=DEFAULT_BALANCE,chapter=0,army=null,selection=null,{enemyProgressionVersion=ENEMY_PROGRESSION_VERSION,act2EnemyHealthVersion=ACT2_ENEMY_HEALTH_VERSION,act2EnemyDifficultyVersion=ACT2_ENEMY_DIFFICULTY_VERSION,enemyFormationVersion=null,allyPreparationVersion=1,lootVersion=2,terrainRulesVersion=1,campaignEventsVersion=1,growthBenefitsVersion=1,survivalBonusVersion=1,survivorRewardVersion=1,regularRewardsVersion=1,equipmentDropsVersion=1,armyBalanceVersion=1,bossCleanupVersion=1,huarongChaseVersion=1,openingPressureVersion=1,deploymentSlots:placementSlots=null}={}){
+ balance=normalizeBalance(balance);const scenario=CHAPTERS[chapter];if(!scenario)throw new Error('존재하지 않는 전투입니다.');
+ if(![0,1,2].includes(lootVersion))throw new Error('전리품 저장 버전이 올바르지 않습니다.');
+ if(![0,1].includes(allyPreparationVersion))throw new Error('아군 출전 수치 버전이 올바르지 않습니다.');
+ if(![0,1].includes(equipmentDropsVersion))throw new Error('조건부 장비 획득 버전이 올바르지 않습니다.');
+ if(![0,1].includes(survivalBonusVersion))throw new Error('전원 생존 보너스 버전이 올바르지 않습니다.');
+ if(![0,1].includes(survivorRewardVersion))throw new Error('생존 부대 보상 버전이 올바르지 않습니다.');
+ if(![0,1].includes(regularRewardsVersion))throw new Error('정규 부대 보상 버전이 올바르지 않습니다.');
+ if(![0,1].includes(growthBenefitsVersion))throw new Error('성장 보너스 버전이 올바르지 않습니다.');
+ if(![0,1].includes(armyBalanceVersion))throw new Error('군단 밸런스 버전이 올바르지 않습니다.');
+ if(![0,1].includes(bossCleanupVersion))throw new Error('보스 격파 후 선택 버전이 올바르지 않습니다.');
+ if(![0,1].includes(openingPressureVersion))throw new Error('초반 적 편성 버전이 올바르지 않습니다.');
+ const act2=scenario.act===2||scenario.combatProfile==='act2';
+ if(![1,2,3].includes(enemyProgressionVersion))throw new Error('적 성장 버전이 올바르지 않습니다.');
+ if(![0,1].includes(act2EnemyHealthVersion))throw new Error('2막 적 병력 버전이 올바르지 않습니다.');
+ if(![0,1].includes(act2EnemyDifficultyVersion)||scenario.act===2&&enemyProgressionVersion===3&&act2EnemyDifficultyVersion===1&&act2EnemyHealthVersion!==1)throw new Error('2막 적 난도 버전이 올바르지 않습니다.');
+ if(enemyFormationVersion!==null&&![1,2,3,4].includes(enemyFormationVersion))throw new Error('적 편성 버전이 올바르지 않습니다.');
+ const formationVersion=enemyFormationVersion??(scenario.id==='s15_chibi'&&enemyProgressionVersion===3?CHIBI_FORMATION_VERSION:null);
+ if(placementSlots!==null){validateDeploymentSlots(scenario,army,placementSlots);if(JSON.stringify(placementSlots.filter(id=>id!==null))!==JSON.stringify(sortieIds(scenario,army,selection)))throw new Error('출전 명단과 출발 위치가 다릅니다.');}
+ const allies=sortieIds(scenario,army,selection),units=[...allies.map((id,i)=>({...createUnit(balance,id,'ally',army,id,1,0,null,allyPreparationVersion,1,growthBenefitsVersion,armyBalanceVersion),x:scenario.allyPositions[placementSlots?placementSlots.indexOf(id):i]?.[0],y:scenario.allyPositions[placementSlots?placementSlots.indexOf(id):i]?.[1]})),...(scenario.extraAllies??[]).map(e=>({...createUnit(balance,e.id,'ally',null,e.templateId),x:e.position[0],y:e.position[1]})),...openingPressureOrders(scenario,enemyFormationOrders(scenario,formationVersion),openingPressureVersion).map(entry=>{const e=progressionEnemyOrder(scenario,campaignEnemyOrder(scenario,entry,campaignEventsVersion),enemyProgressionVersion,act2EnemyDifficultyVersion);return ({...applyEnemyProgression(createUnit(balance,e.id,'enemy',null,e.templateId,e.level??1,e.rank??e.promotion??0,act2?(e.combatTier??e.tier??UNIT_TEMPLATES[e.templateId]?.combatTier??(UNIT_TEMPLATES[e.templateId]?.generic?'troop':'officer')):null,1,!act2&&scenario.rosterMode==='story'?(UNIT_TEMPLATES[e.templateId]?.generic?(chapter<3?ACT1_ENEMY_PRESSURE.earlyTroopAttack:ACT1_ENEMY_PRESSURE.lateTroopAttack):ACT1_ENEMY_PRESSURE.officerAttack):1,growthBenefitsVersion,armyBalanceVersion,act2&&enemyProgressionVersion===3?ENEMY_HP_CAP:10000),scenario,enemyProgressionVersion,act2EnemyHealthVersion,act2EnemyDifficultyVersion),x:e.position[0],y:e.position[1],...(e.faction?{faction:e.faction,...(UNIT_TEMPLATES[e.templateId].generic?{name:({yellow:'황건군',dong:'동탁군',cao:'조조군',lu:'여포군',wei:'위군',wu:'오군',shu:'촉군',yuan:'원소군'}[e.faction]??e.faction)+' '+balance.classes[UNIT_TEMPLATES[e.templateId].cls].name}: {})}:{})});})];
+ mapSize(scenario.terrain,scenario.campaignLayoutVersion??0);
+ if(scenario.enemies.some(e=>!['charge','hold'].includes(e.aiMode??'charge')||e.advanceRound!==undefined&&(!act2||!Number.isInteger(e.advanceRound)||e.advanceRound<1||e.advanceRound>99)))throw new Error('적 AI 설정 오류');
+ const cells=new Set(),ids=new Set();for(const u of units){const k=key(u.x,u.y);if(ids.has(u.id)||cells.has(k)||!Number.isInteger(u.x)||!Number.isInteger(u.y)||!inside(u.x,u.y,scenario)||scenario.terrain[u.y][u.x]==='#')throw new Error('부대 배치 오류');ids.add(u.id);cells.add(k);}
+ if(scenario.unitOrder)units.sort((a,b)=>{const rank=u=>{const i=scenario.unitOrder.indexOf(u.id);return i<0?999:i};return rank(a)-rank(b)});
+ const objective=validateObjective(objectiveForCampaignVersion(scenario,campaignEventsVersion),units,scenario.terrain);const defeat=validateDefeat(scenario.defeat,units);
+ const initialSeed=initialBattleSeed(scenario);
+  const state={...(scenario.act===2&&enemyProgressionVersion===3&&act2EnemyDifficultyVersion===1?{act2EnemyDifficultyVersion:1}:{}),...(scenario.act===2&&enemyProgressionVersion===3&&act2EnemyHealthVersion===1?{act2EnemyHealthVersion:1}:{}),...(openingPressureVersion===1&&openingPressureApplies(scenario)?{openingPressureVersion:1}:{}),...(scenario.campaignLayoutVersion===1?{campaignLayoutVersion:1}:{}),...(armyBalanceVersion===1?{armyBalanceVersion:1}:{}),...(survivorRewardVersion===1?{survivorRewardVersion:1}:{}),...(regularRewardsVersion===1?{regularRewardsVersion:1}:{}),...(equipmentDropsVersion===1?{equipmentDropsVersion:1}:{}),...(survivalBonusVersion===1?{survivalBonusVersion:1}:{}),...(growthBenefitsVersion===1?{growthBenefitsVersion:1}:{}),...(placementSlots?{deploymentSlots:[...placementSlots]}:{}),...(lootVersion>0?{lootVersion}:{}),...(allyPreparationVersion===1?{allyPreparationVersion:1}:{}),initialSeed,rngState:initialSeed,...(defeat.length?{defeat}:{}),...(objective.type!=='defeatAll'?{objective}:{}),...(scenario.events?{storyEvents:{fired:[],pending:[]}}:{}),...(objective.type==='surviveRounds'?{completedRounds:0}:{}),growthSettled:false,benchGrowth:[],chapter,terrain:[...scenario.terrain],balance:cloneBalance(balance),round:1,weather:{kind:balance.weather.start,sinceRound:1,hold:balance.weather.minRounds},phase:'ally',items:3,result:null,units,spRecoveredRound:1};
+  if(act2){state.enemyProgressionVersion=enemyProgressionVersion;if(enemyProgressionVersion===3)state.enemyHpCap=ENEMY_HP_CAP;if(scenario.id==='s15_chibi'&&formationVersion===4)state.enemyFormationVersion=4;state.combatProfile='act2';state.indeokRound=0;state.spRecoveredRound=1;for(const unit of units)if(unit.team==='ally')unit.specialReadyRound=0;applyAct2PhaseStart(state);}
+  if(bossCleanupVersion===1&&scenario.rosterMode==='story'&&objective.type==='defeatUnit')state.bossCleanupVersion=1;
+  initTerrainEffects(state,scenario,terrainRulesVersion);initCampaignEvents(state,scenario,campaignEventsVersion);initReinforcements(state,scenario);initHuarongChase(state,scenario,huarongChaseVersion);initBattleRecords(state);return state;
+}
+export function reachable(s, u, limit = movement(u,s)) {
+  if(huarongChaser(s,u))return huarongReachable(s,u,limit);
+  const costs = new Map([[key(u.x, u.y), 0]]), queue = [{ x: u.x, y: u.y, cost: 0 }];
+  while (queue.length) {
+    queue.sort((a, b) => a.cost - b.cost);
+    const p = queue.shift();
+    if (p.cost !== costs.get(key(p.x, p.y))) continue;
+    for (const [dx, dy] of [[0, -1], [-1, 0], [1, 0], [0, 1]]) {
+      const x = p.x + dx, y = p.y + dy;
+      if (!inside(x, y,s) || s.terrain[y][x] === '#') continue;
+      const other = occupant(s, x, y);
+      if (other && other.team !== u.team) continue;
+      const cost = p.cost + terrainMovementCost(s,u,x,y), k = key(x, y);
+      if (cost > limit || cost >= (costs.get(k) ?? Infinity)) continue;
+      costs.set(k, cost); queue.push({ x, y, cost });
+    }
+  }
+  return new Map([...costs].filter(([k]) => {
+    const [x, y] = k.split(',').map(Number), o = occupant(s, x, y); return !o || o.id === u.id;
+  }));
+}
+export function inRange(a, b, counter=false) {
+  const d = distance(a, b);
+  return d >= a.min && d <= maxRange(a,counter) && (!['infantry', 'spear', 'cavalry'].includes(a.cls) || a.x === b.x || a.y === b.y);
+}
+export function canFire(a, b) {
+  return (!b.protectedFromFaction||a.faction!==b.protectedFromFaction) && !a.nonCombat && !disabled(a) && a.cls === 'strategist' && a.hp > 0 && b.hp > 0 && a.team !== b.team && inRange(a, b) && !(a.moved && !a.attackAfterMove);
+}
+export const canTarget = (a, b) => canAttack(a, b) || canFire(a, b);
+export function canAttack(a, b, counter=false) {
+  const d = distance(a, b);
+  return (!b.protectedFromFaction||a.faction!==b.protectedFromFaction) && !a.nonCombat && !disabled(a) && a.cls !== 'strategist' && a.hp > 0 && b.hp > 0 && a.team !== b.team && inRange(a, b,counter) && !(a.moved && !a.attackAfterMove);
+}
+export function matchupMultiplier(a,b,s){
+ const rules=s?.balance??DEFAULT_BALANCE;
+ return a.cls==='spear'&&b.cls==='cavalry'&&a.cavalryDamageDealt!=null?a.cavalryDamageDealt:a.cls==='cavalry'&&b.cls==='infantry'&&b.cavalryDamageReceived!=null?b.cavalryDamageReceived:rules.matchups[a.cls][b.cls];
+}
+export function damage(a, b, s, counter = false, critical = false, options = null) {
+  const rules = s?.balance ?? DEFAULT_BALANCE;
+  const matchup=matchupMultiplier(a,b,s),mods=options?combatAttackModifiers(s,a,b,options.skillId):{power:1,pierce:0};
+  const pierce=isAct2Battle(s)?Math.min(.6,(a.team==='enemy'&&matchup>1?ACT2_COMBAT_BALANCE.advantagePierce:0)+mods.pierce+(counter?0:spiritDefensePierce(a))):0;
+  const offense=effectiveAttack(a),defense=effectiveDefense(b,s)*(1-pierce)+terrainPhysicalDefense(s??{terrain,balance:rules},b);
+  // Campaign enemies retain a small part of their attack pressure against armor.
+  // Traits, class matchups, low troop strength and Iron Wall still reduce it.
+  const minimum=CHAPTERS[s?.chapter]?.rosterMode==='story'&&a.team==='enemy'&&!isAct2Battle(s)?Math.max(ACT1_ENEMY_PRESSURE.minimumBase,offense*ACT1_ENEMY_PRESSURE.minimumAttackRatio):1;
+  const base = Math.max(1,minimum,offense-defense);
+  const bossCounter=isAct2Battle(s)&&counter&&a.combatTier==='boss'?ACT2_COMBAT_BALANCE.bossCounterMultiplier:1;
+  return physicalModifiers(base*30*troopPowerFactor(s,a)*matchup*(counter?rules.counterMultiplier:1)*mods.power*bossCounter,a,b,counter,critical);
+}
+export function preview(a, b, s, skill = 'fire', options = null) {
+  if (a.cls === 'strategist') {
+    if (!Object.hasOwn(SKILLS, skill)) throw new Error('존재하지 않는 책략입니다.');
+    const rules = s?.balance ?? DEFAULT_BALANCE, config = skill === 'fire' ? rules.fire : rules.tactics;
+    const forestBonus = skill === 'fire' && forest(b, s) ? rules.fire.forestBonus : 0;
+    const rain = skill === 'fire' && s?.weather?.kind === 'rain';
+    const act2=isAct2Battle(s),chance = rain ? 0 : Math.max(config.minChance, Math.min(config.maxChance, config.baseChance + (a.int - b.int) * .5 + forestBonus + tacticBonus(a)+(a.tacticBonus??0)+(act2?tacticAccuracyBonus(a,skill):0))) / 100;
+    const mods=options?combatAttackModifiers(s,a,b,options.skillId):{power:1};
+    const baseHit = skill === 'fire' ? act2?tacticDamage(rules.fire.damage,a,b,mods.power,options?.skillId==='tactic-area-fire'):Math.round(rules.fire.damage*mods.power*(a.classTraining?Math.max(.1,a.int/85):options?Math.max(.75,a.int/85):1)) : 0;
+    const hit=Math.round(baseHit*(skill==='fire'?terrainFireMultiplier(s,b):1));
+    const profile=act2?casterProfile(a):null;
+    return { kind: skill, chance, forestBonus, rain, hit, counter: false, returnHit: 0, targetHp: Math.max(0, b.hp - hit), actorHp: a.hp, matchup: 1, counterMatchup: 1,...(act2?{intFactor:tacticIntFactor(a),tacticProfile:profile.name,tacticNote:profile.note}:{}) };
+  }
+  const attackCriticalChance=criticalChance(a,s,false,b),counterCriticalChance=criticalChance(b,s,true,a);
+  const hit = damage(a, b, s,false,attackCriticalChance===1,options), remaining = Math.max(0, b.hp - hit), d = distance(a, b);
+  const counter = remaining > 0 && !a.spirits?.ambush && canAttack({ ...b, moved: false }, a,true), returnHit = counter ? damage({ ...b, hp: remaining }, a, s, true,counterCriticalChance===1) : 0;
+  const rules = s?.balance ?? DEFAULT_BALANCE;
+  const counterIfMiss = !a.spirits?.ambush && canAttack({ ...b, moved: false }, a,true);
+  const result={hit,counter,returnHit,critical:attackCriticalChance===1,counterCritical:counter&&counterCriticalChance===1,criticalChance:attackCriticalChance,criticalHit:damage(a,b,s,false,true,options),returnCriticalChance:counter?counterCriticalChance:0,returnCriticalHit:counter?damage({...b,hp:remaining},a,s,true,true):0,chance:hitChance(a,b,s,options?combatAttackModifiers(s,a,b,options.skillId).accuracy??0:0), counterChance: hitChance(b,a,s), counterIfMiss, returnHitIfMiss: counterIfMiss ? damage(b,a,s,true,counterCriticalChance===1) : 0,returnCriticalChanceIfMiss:counterIfMiss?counterCriticalChance:0,returnCriticalHitIfMiss:counterIfMiss?damage(b,a,s,true,true):0, targetHp: remaining, actorHp: Math.max(0, a.hp - returnHit),
+    matchup:matchupMultiplier(a,b,s),counterMatchup:matchupMultiplier(b,a,s) };
+  if(isAct2Battle(s)&&b.combatTier==='boss'&&(counter||counterIfMiss))result.bossCounterWarning=b.name+' · 격렬한 반격: 피해 125%';
+  return result;
+}
+export const outcome = battleOutcome;
+export function attack(s, a, b, random = null, skill = 'fire', forced = false, options = null) {
+  const forcedValid = forced && a.status?.type === 'deception' && a.status.consumed;
+  const specialValid=options&&combatSkillAttackAllowed(s,a,b,options.skillId,options.areaOrigin);
+  if(options&&!specialValid)throw new Error('필살기 공격 대상이 올바르지 않습니다.');
+  const allowed = specialValid?true:forcedValid ? canTarget({ ...a, status: null }, { ...b, team: a.team === 'ally' ? 'enemy' : 'ally' }) : !forced && canTarget(a, b);
+  if (s.result || bossCleanupPending(s) || s.phase !== a.team || a.done || a.id === b.id || !allowed) throw new Error('공격할 수 없는 상태입니다.');
+  const result=preview(a,b,s,skill,options),rng=randomTransaction(s,random),beforeActorHP=a.hp,beforeTargetHP=b.hp;
+  if (forcedValid) { result.counter = false; result.returnHit = 0; result.actorHp = a.hp; }
+  if (result.kind) {
+    result.success = roll(rng.next) < result.chance;
+    if (!result.success) { result.hit = 0; result.targetHp = b.hp; }
+    else if (result.kind !== 'fire') { b.status = { type: result.kind, consumed: false }; b.confusionLost=false; }
+  } else {
+    // Draw the entire exchange before changing units. OFF retains the original two draws.
+    const firstRoll=roll(rng.next),enabled=criticalEnabled(s);
+    let secondRoll=enabled?null:roll(rng.next);
+    result.landed=firstRoll<result.chance;
+    const attackCriticalRoll=enabled&&result.landed?roll(rng.next):null;
+    result.critical=result.landed&&(result.criticalChance===1||enabled&&attackCriticalRoll<result.criticalChance);
+    result.hit=result.landed?damage(a,b,s,false,result.critical,options):0;
+    result.targetHp=Math.max(0,b.hp-result.hit);
+    result.counter=!forcedValid&&!a.spirits?.ambush&&result.targetHp>0&&canAttack({...b,hp:result.targetHp,moved:false},a,true);
+    if(enabled&&result.counter)secondRoll=roll(rng.next);
+    result.counterLanded=result.counter&&secondRoll<result.counterChance;
+    const counterCriticalRoll=enabled&&result.counterLanded&&s.balance.critical.counter?roll(rng.next):null;
+    const actualCounterCriticalChance=criticalChance(b,s,true,a);
+    result.counterCritical=result.counterLanded&&(actualCounterCriticalChance===1||counterCriticalRoll!==null&&counterCriticalRoll<actualCounterCriticalChance);
+    result.returnHit=result.counterLanded?damage({...b,hp:result.targetHp},a,s,true,result.counterCritical):0;
+    result.actorHp=Math.max(0,a.hp-result.returnHit);
+    if (hasFlash(b)) consumeFlash(b);
+    if (result.counter && hasFlash(a)) consumeFlash(a);
+    consumeGuard(b,result.hit);consumeGuard(a,result.returnHit);
+    delete a.spirits.fury;delete a.spirits.ambush;delete a.spirits.charge;delete a.spirits.penetrate;
+  }
+  rng.commit();
+  delete a.spirits.aim;if(result.kind){delete a.spirits.wisdom;delete a.spirits.chant;}a.confusionLost=false;
+  const beforeMorale = new Map(s.units.map(u=>[u.id,u.morale]));
+  b.hp = result.targetHp; a.hp = result.actorHp; a.done = true; a.moveOrigin = null;
+  battleMorale(s,a,b,result);
+  if(isAct2Battle(s)){
+    const encourage=(attacker,defender,landed)=>{if(attacker.team!=='ally'||defender.team==='ally'||attacker.hp<=0||!landed)return;changeMorale(attacker,ACT2_COMBAT_BALANCE.allyHitMorale-MORALE.hit);if(defender.hp===0)changeMorale(attacker,ACT2_COMBAT_BALANCE.allyKillMorale-(modernTerrain(s)?TERRAIN_RULES.killMorale:MORALE.kill));};
+    if(!result.kind){encourage(a,b,result.landed);if(result.counter)encourage(b,a,result.counterLanded);}else if(result.kind==='fire')encourage(a,b,result.success);
+  }
+  result.moraleChanges = s.units.filter(u=>u.morale!==beforeMorale.get(u.id)).map(u=>`${u.name} 사기 ${beforeMorale.get(u.id)}→${u.morale}`);
+  result.growth=[];
+  if(!forcedValid){
+    const aLevel=a.level,bLevel=b.level;
+    const points=result.kind?(result.success?GROWTH_RULES.tacticSuccess:GROWTH_RULES.tacticFail):(result.landed?GROWTH_RULES.hit:GROWTH_RULES.miss);
+    const actor=awardExperience(a,points+(b.hp===0?GROWTH_RULES.kill:0),bLevel);if(actor)result.growth.push(actor);
+    if(result.counterLanded){const defender=awardExperience(b,GROWTH_RULES.counter+(a.hp===0?GROWTH_RULES.kill:0),aLevel);if(defender)result.growth.push(defender);}
+  }
+  result.loot=recordBattleAction(s,a,b,result,beforeTargetHP);
+  if(result.counter)result.counterLoot=recordBattleAction(s,b,a,{landed:result.counterLanded,hit:result.returnHit,critical:result.counterCritical,counter:true},beforeActorHP);
+  recordBattleRound(s);
+  collectStoryEvents(s,CHAPTERS[s.chapter]?.events??[],'action',[a.id,b.id]);
+  updateBattleOutcome(s); return result;
+}
+export function rationTargetReason(s,a,b){
+ if(!s||!a||!b||!s.units?.includes(a)||!s.units.includes(b))return '전장에 있는 부대를 선택하세요.';
+ if(s.result)return '전투가 끝났습니다.';
+ if(bossCleanupPending(s))return '보스 격파 후 전투를 끝낼지 먼저 선택하세요.';
+ if(s.phase!==a.team)return '이 부대의 행동 차례에 사용할 수 있습니다.';
+ if(disabled(a)||a.done||a.hp<=0)return '행동 가능한 부대만 사용할 수 있습니다.';
+ if(a.moved)return '이동 전에 군량을 사용하세요.';
+ if(s.items<=0)return '남은 군량이 없습니다.';
+ if(b.hp<=0||a.team!==b.team)return '생존한 같은 편을 선택하세요.';
+ if(distance(a,b)>RATION_RANGE)return '자신 또는 거리 3칸 이내 아군에게 사용할 수 있습니다.';
+ if(b.hp>=b.maxHp)return '병력이 이미 가득 찼습니다.';
+ return '';
+}
+export const rationTargets=(s,a)=>(s?.units??[]).filter(b=>!rationTargetReason(s,a,b));
+export function heal(s, a, b) {
+  const reason=rationTargetReason(s,a,b);if(reason)throw new Error(reason);
+  const amount = Math.min(healingAmount(s,a), b.maxHp - b.hp); b.hp += amount; s.items--; a.done = true; a.confusionLost=false; awardExperience(a,GROWTH_RULES.ration); return amount;
+}
+export function moveUnit(s, u, x, y) {
+  if (s.result || bossCleanupPending(s) || s.phase !== u.team || disabled(u) || u.done || u.hp <= 0 || u.moved || !reachable(s, u).has(key(x, y))) throw new Error('이동할 수 없는 칸입니다.');
+  u.moved = x !== u.x || y !== u.y;
+  if (u.moved) { u.moveOrigin = {x:u.x,y:u.y,accel:!!u.spirits?.accel}; if(u.spirits?.accel) delete u.spirits.accel; }
+  u.x = x; u.y = y;
+  if(escapeHuarongUnit(s,u))s.result=outcome(s);
+}
+export function cancelMovement(s,u) {
+  if(s.result || bossCleanupPending(s) || s.phase!==u.team || u.done || !u.moveOrigin) return;
+  const start=u.moveOrigin;u.x=start.x;u.y=start.y;u.moved=false;
+  if(start.accel)u.spirits.accel=true;u.moveOrigin=null;
+}
+export function nextPhase(s, random = null) {return [...phaseSteps(s,random)].flat();}
+export function* phaseSteps(s, random = null, onCombat = null, onSupport = null, {resumeCurrentPhase=false}={}) {
+  if (s.result || bossCleanupPending(s)) return [];
+  const events=[],rng=randomTransaction(s,random);
+  if(!resumeCurrentPhase){
+  if(s.phase==='enemy'&&s.objective?.type==='surviveRounds'){s.completedRounds=s.round;s.result=outcome(s);if(s.result)return;}
+  for (const u of s.units.filter(u => u.team === s.phase)) if (u.status?.consumed) {u.status = null;u.confusionLost=false;}
+  s.phase = s.phase === 'ally' ? 'enemy' : 'ally';
+  if (s.phase === 'ally') {
+    s.round++;
+    const weather = s.weather, rules = s.balance.weather;
+    if (s.round >= weather.sinceRound + weather.hold && roll(rng.next) < rules.changeChance / 100) {
+      weather.kind = weather.kind === 'clear' ? 'rain' : 'clear'; weather.sinceRound = s.round;
+      weather.hold = rules.minRounds + Math.floor(roll(rng.next) * (rules.maxRounds - rules.minRounds + 1));
+      events.push(`날씨가 ${weather.kind === 'rain' ? '비' : '맑음'}로 바뀌었습니다. 최소 ${weather.hold}라운드 유지됩니다.`);
+    }
+  }
+  for (const u of s.units.filter(u => u.team === s.phase&&!u.escaped)) { u.done = false; u.moved = false; u.confusionLost=false; u.moveOrigin=null; delete u.spirits.strike; delete u.spirits.focus; delete u.spirits.wall; delete u.spirits.charge; delete u.spirits.protect; }
+  if(s.phase==='ally'){const support=recoverAct2SP(s);if(support.heals.length){for(const heal of support.heals)events.push('SP 회복 · '+heal.name+' +'+heal.amount);if(onSupport)onSupport(support);}}
+  if(isAct2Battle(s)&&s.phase==='ally'){const support=applyAct2PhaseStart(s);if(support.heals.length){for(const heal of support.heals)events.push('인덕 · '+heal.name+' 병력 '+heal.amount+' 회복');if(onSupport)onSupport(support);}}
+  if(s.phase==='ally')collectStoryEvents(s,CHAPTERS[s.chapter]?.events??[],'round');
+  recordBattleRound(s);if(s.bossCleanupVersion===1)updateBattleOutcome(s);rng.commit();yield events.splice(0);
+  }
+  for (const u of s.units.filter(u => u.team === s.phase && u.hp > 0 && u.status && (!resumeCurrentPhase||!u.status.consumed))) {
+    if (s.result || bossCleanupPending(s)) break;
+    if (u.hp <= 0) continue;
+    u.status.consumed = true;
+    if (u.status.type === 'confusion') { u.done = true; u.confusionLost=true; events.push(`${u.name} 부대 혼란 · 행동 불가 · 방어 50% · 물리 피격 시 치명타`); continue; }
+    if(huarongChaser(s,u)){u.done=true;events.push(`${u.name} 위보 · 도주 지연`);continue;}
+    const nearest = s.units.filter(v => v.hp > 0 && v.id !== u.id).sort((a,b) => distance(u,a)-distance(u,b) || a.id.localeCompare(b.id))[0];
+    if (!nearest) { u.done = true; continue; }
+    const ghost = { ...u, status: null }, copy = { ...s, units: s.units.map(v => v.id === u.id ? ghost : v) };
+    const decision = decideAI(copy, ghost, [nearest], true);
+    u.moved = decision.x !== u.x || decision.y !== u.y; if(u.moved)delete u.spirits.accel; u.x = decision.x; u.y = decision.y;
+    if (decision.targetId) {
+      const beforeA=onCombat?structuredClone(u):null,beforeB=onCombat?structuredClone(nearest):null;
+      const result = attack(s,u,nearest,rng.next,'fire',true);
+      if(onCombat)onCombat({actor:beforeA,target:beforeB,result:structuredClone(result)});
+      events.push(`${u.name} 위보 · ${nearest.team === u.team ? '아군' : '적군'} ${nearest.name} 부대 공격 · 병력 ${result.hit} 감소${result.kind && !result.success ? ' (화공 실패)' : ''}`);
+    } else { u.done = true; events.push(`${u.name} 위보 · ${nearest.name} 부대에 접근했지만 사거리 밖으로 대기`); updateBattleOutcome(s); }
+    collectStoryEvents(s,CHAPTERS[s.chapter]?.events??[],'action');rng.commit();yield events.splice(0);
+  }
+  rng.commit();yield events;
+}
+// Campaign enemies share the player's legal movement, range and combat preview.
+// Plans are read-only: target scoring never draws battle RNG or changes a unit.
+const DEFENSE_RADIUS = 2, TROOP_SUPPORT_ADVANCE_ROUND = 2, LEADER_SUPPORT_ADVANCE_ROUND = 3;
+// Story metadata scopes this change; independent prototype trials keep their AI.
+function campaignEnemyAI(s) { return CHAPTERS[s.chapter]?.rosterMode==='story'; }
+function releasedCampaignDefender(s,u,order) {
+  if(!campaignEnemyAI(s)||order?.aiMode!=='hold')return false;
+  if(CHAPTERS[s.chapter]?.id==='s10_thousand_li'&&['officer','boss'].includes(u.combatTier))return false;
+  const troop=u.generic||['troop','elite'].includes(u.combatTier);
+  return s.round>=(troop?TROOP_SUPPORT_ADVANCE_ROUND:LEADER_SUPPORT_ADVANCE_ROUND);
+}
+const targetRoleValue = target => target.nonCombat ? 350 : target.cls === 'strategist' ? 400 : ['archer','crossbow'].includes(target.cls) ? 250 : target.cls === 'infantry' ? 75 : 0;
+function enemyOrder(s,u) { return CHAPTERS[s.chapter]?.enemies.find(e=>e.id===u.id); }
+export function enemyAIHint(s,u) {
+  if(huarongChaser(s,u))return `패잔병 · 선공하지 않고 동쪽 ${s.huarongChase.exits.map(([x,y])=>String.fromCharCode(65+x)+(y+1)).join(' · ')}로 도주 · 탈출 시 전리품 없음`;
+  const order=enemyOrder(s,u);
+  if(!campaignEnemyAI(s))return order?.aiMode==='hold'?'수비 · 제자리 사거리 요격':'추격 · 격파 우선';
+  if(order?.advanceRound>s.round)return '예비대 · '+order.advanceRound+'턴부터 '+(order.aiMode==='hold'?'요격':'추격');
+  if(releasedCampaignDefender(s,u,order)&&distance(u,{x:order.position[0],y:order.position[1]})>DEFENSE_RADIUS)return '지원 추격 · 격파·취약 부대 우선';
+  if(order?.aiMode==='hold')return '수비 · 거점 주변 이동 요격'+(CHAPTERS[s.chapter]?.id==='s10_thousand_li'&&['officer','boss'].includes(u.combatTier)?' · 관문 방어':(u.generic||['troop','elite'].includes(u.combatTier)?' · 2턴부터 지원 추격':' · 3턴부터 지원 추격'));
+  return '추격 · 격파·취약 부대 우선';
+}
+function act2AttackValue(s,actor,target,skill='fire') {
+  const p=preview(actor,target,s,skill),chance=p.chance??1,critical=p.criticalChance??0;
+  const average=(normal,crit,rate)=>normal*(1-rate)+(crit??normal)*rate;
+  const expected=chance*average(Math.min(target.hp,p.hit),Math.min(target.hp,p.criticalHit??p.hit),critical);
+  const killChance=p.hit>=target.hp?chance:(p.criticalHit??0)>=target.hp?chance*critical:0;
+  const afterHit=p.counter?average(p.returnHit,p.returnCriticalHit,p.returnCriticalChance??0):0;
+  const afterMiss=p.counterIfMiss?average(p.returnHitIfMiss,p.returnCriticalHitIfMiss,p.returnCriticalChanceIfMiss??0):0;
+  const back=(chance*afterHit+(1-chance)*afterMiss)*(p.counterChance??1);
+  const lethal=(damage,crit,rate)=>damage>=actor.hp?1:(crit??damage)>=actor.hp?rate:0;
+  const counterDeath=(chance*(p.counter?lethal(p.returnHit,p.returnCriticalHit,p.returnCriticalChance??0):0)+(1-chance)*(p.counterIfMiss?lethal(p.returnHitIfMiss,p.returnCriticalHitIfMiss,p.returnCriticalChanceIfMiss??0):0))*(p.counterChance??1);
+  const wounded=1-target.hp/target.maxHp;
+  let disruption=skill==='confusion'?chance*(1000+Math.max(target.atk,target.int*.5)*3):0;
+  if(skill==='deception'){
+    const nearest=s.units.filter(unit=>unit.hp>0&&!unit.escaped&&!unit.withdrawn&&unit.id!==target.id)
+      .sort((a,b)=>distance(target,a)-distance(target,b)||a.id.localeCompare(b.id))[0];
+    // Deceiving a strong unit close to its own allies can cause friendly fire.
+    // Do not reward a plan that would merely send it toward this caster.
+    if(nearest?.team===target.team){
+      const friendlyDamage=target.cls==='strategist'?preview({...target,status:null},nearest,s).hit:damage({...target,status:null},nearest,s);
+      disruption=chance*(650+Math.min(3000,friendlyDamage)*.65);
+    }
+  }
+  return {productive:chance>0,kill:killChance>=(actor.cls==='strategist' ? .5 : .7),
+    score:expected*.55+expected/Math.max(1,target.hp)*1150+wounded*600+targetRoleValue(target)+killChance*850-back*.7-counterDeath*450+disruption};
+}
+function enemyTacticChoices(s,actor,target){
+  if(actor.cls!=='strategist')return [{skill:'fire',...act2AttackValue(s,actor,target)}];
+  const skills=target.status?['fire']:['fire','confusion','deception'];
+  return skills.map(skill=>({skill,...act2AttackValue(s,actor,target,skill)})).filter(choice=>choice.productive);
+}
+// Distances run backwards from legal firing cells. Entering a forest is weighted
+// in the forward direction, and occupied friendly cells allow transit but not landing.
+function distancesToEnemyRange(s,u,target,anchor=null) {
+  const costs=new Map(),queue=[];
+  const passable=(x,y)=>inside(x,y,s)&&s.terrain[y][x]!=='#'&&(!occupant(s,x,y)||occupant(s,x,y).team===u.team);
+  for(let y=0;y<s.terrain.length;y++)for(let x=0;x<s.terrain[0].length;x++) {
+    const at=occupant(s,x,y);
+    if(!passable(x,y)||(at&&at.id!==u.id)||(anchor&&distance({x,y},anchor)>DEFENSE_RADIUS)||!inRange({...u,x,y},target))continue;
+    costs.set(key(x,y),0);queue.push({x,y,cost:0});
+  }
+  while(queue.length) {
+    queue.sort((a,b)=>a.cost-b.cost||a.y-b.y||a.x-b.x);
+    const p=queue.shift();if(p.cost!==costs.get(key(p.x,p.y)))continue;
+    const enter=terrainMovementCost(s,u,p.x,p.y);
+    for(const [dx,dy] of [[0,-1],[-1,0],[1,0],[0,1]]) {
+      const x=p.x+dx,y=p.y+dy;if(!passable(x,y))continue;
+      const cost=p.cost+enter,k=key(x,y);if(cost>=(costs.get(k)??Infinity))continue;
+      costs.set(k,cost);queue.push({x,y,cost});
+    }
+  }
+  return costs;
+}
+// Visible opponent movement and exact min/max range inform a position's risk.
+// Attack plans still take a productive shot; this cannot create a retreat-only loop.
+function enemyPositionRisk(s,u,opponents) {
+  const threats=opponents.filter(foe=>!foe.nonCombat&&!disabled(foe));
+  const cached=new Map();
+  return pos=>{
+    const cell=key(pos.x,pos.y);if(cached.has(cell))return cached.get(cell);
+    const target={...u,x:pos.x,y:pos.y},hp=Math.max(1,u.hp);let risk=0;
+    // Vacate the old cell and block the proposed cell before forecasting legal pursuit.
+    const forecast={...s,units:s.units.map(unit=>unit.id===u.id?target:unit)};
+    for(const foe of threats){
+      const positions=[...reachable(forecast,foe)].map(([k])=>{const [x,y]=k.split(',').map(Number);return {x,y};});
+      let worst=0;
+      for(const at of positions){
+        const actor={...foe,...at,moved:at.x!==foe.x||at.y!==foe.y};
+        if(!canTarget(actor,target))continue;
+        const skill=foe.cls==='strategist'&&s.weather.kind==='rain'?'confusion':'fire',p=preview(actor,target,s,skill),chance=p.chance??1;
+        const value=skill==='confusion'?chance*150:chance*Math.min(hp,p.hit)/hp*550+(p.hit>=hp?chance*450:0);
+        worst=Math.max(worst,value);
+      }
+      risk+=worst;
+    }
+    cached.set(cell,risk);return risk;
+  };
+}
+function decideTacticalEnemy(s,u,supportPursuit=false) {
+  const idle={x:u.x,y:u.y,targetId:null},order=enemyOrder(s,u),reserve=order?.advanceRound>s.round;
+  const support=releasedCampaignDefender(s,u,order),post=order?.aiMode==='hold'?{x:order.position[0],y:order.position[1]}:null;
+  const anchor=post&&!supportPursuit&&!(support&&distance(u,post)>DEFENSE_RADIUS)?post:null;
+  const waitOrSupport=()=>anchor&&support&&!reserve&&!u.moved?decideTacticalEnemy(s,u,true):idle;
+  const choices=[...(reserve||u.moved?new Map([[key(u.x,u.y),0]]):reachable(s,u))].map(([k,cost])=>{const [x,y]=k.split(',').map(Number);return {x,y,cost};})
+    .filter(pos=>reserve||!anchor||distance(pos,anchor)<=DEFENSE_RADIUS);
+  const opponents=s.units.filter(v=>v.hp>0&&v.team!==u.team&&(!v.protectedFromFaction||v.protectedFromFaction!==u.faction));
+  const foes=opponents.filter(v=>!anchor||reserve||distance(v,anchor)<=DEFENSE_RADIUS+maxRange(u));
+  if(!foes.length||!choices.length)return waitOrSupport();
+  const positionRisk=enemyPositionRisk(s,u,opponents),attacks=[];
+  for(const pos of choices) {
+    const actor={...u,x:pos.x,y:pos.y,moved:u.moved||pos.x!==u.x||pos.y!==u.y};
+    for(const target of foes) {
+      if(!canTarget(actor,target))continue;
+      for(const value of enemyTacticChoices(s,actor,target))attacks.push({pos,target,...value,score:value.score-positionRisk(pos)*.2});
+    }
+  }
+  attacks.sort((a,b)=>Number(b.productive)-Number(a.productive)||Number(!!b.target.spirits?.wall)-Number(!!a.target.spirits?.wall)||Number(b.kill)-Number(a.kill)||b.score-a.score||a.pos.cost-b.pos.cost||a.target.id.localeCompare(b.target.id)||a.pos.y-b.pos.y||a.pos.x-b.pos.x);
+  if(attacks.length) {
+    const best=attacks[0];
+    return {x:best.pos.x,y:best.pos.y,targetId:best.target.id,...(best.skill!=='fire'?{skill:best.skill}:{})};
+  }
+  if(reserve||u.moved)return idle;
+  const stride=Math.max(1,movement(u,s)),approaches=[];
+  for(const target of foes) {
+    const paths=distancesToEnemyRange(s,u,target,anchor),before=paths.get(key(u.x,u.y))??Infinity;
+    const tactics=enemyTacticChoices(s,{...u,moved:false},target);
+    if(!tactics.length)continue;
+    const value=Math.max(...tactics.map(choice=>choice.score));
+    for(const pos of choices) {
+      const remaining=paths.get(key(pos.x,pos.y))??Infinity;
+      if(!Number.isFinite(remaining)||remaining>=before)continue;
+      approaches.push({pos,target,remaining,turns:Math.ceil(remaining/stride),value:value-positionRisk(pos)*.2});
+    }
+  }
+  approaches.sort((a,b)=>Number(!!b.target.spirits?.wall)-Number(!!a.target.spirits?.wall)||a.turns-b.turns||b.value-a.value||a.remaining-b.remaining||a.pos.cost-b.pos.cost||a.target.id.localeCompare(b.target.id)||a.pos.y-b.pos.y||a.pos.x-b.pos.x);
+  return approaches.length?{x:approaches[0].pos.x,y:approaches[0].pos.y,targetId:null}:waitOrSupport();
+}
+
+export function decideAI(s, u, forcedTargets = null, friendly = false) {
+  if (disabled(u) || u.done || u.hp <= 0) return { x: u.x, y: u.y, targetId: null };
+  if(huarongChaser(s,u))return decideHuarongEscape(s,u);
+  if(campaignEnemyAI(s)&&u.team==='enemy'&&!friendly&&!forcedTargets)return decideTacticalEnemy(s,u);
+  const enemyOrder=CHAPTERS[s.chapter]?.enemies.find(e=>e.id===u.id);
+  const hold=!friendly&&u.team==='enemy'&&(enemyOrder?.aiMode==='hold'||isAct2Battle(s)&&enemyOrder?.advanceRound>s.round);
+  const choices = [...(hold?new Map([[key(u.x,u.y),0]]):reachable(s, u))].map(([k, cost]) => { const [x, y] = k.split(',').map(Number); return { x, y, cost }; });
+  const foes = (forcedTargets ?? s.units.filter(v => v.team !== u.team && v.hp > 0)).filter(v=>!v.protectedFromFaction||v.protectedFromFaction!==u.faction), attacks = [];
+  const chooseEnemyTactics=u.team==='enemy'&&u.cls==='strategist'&&!friendly&&!forcedTargets;
+  for (const pos of choices) {
+    const actor = { ...u, ...pos, moved: pos.x !== u.x || pos.y !== u.y };
+    for (const target of foes) if (canTarget(actor, friendly ? { ...target, team: actor.team === 'ally' ? 'enemy' : 'ally' } : target)) {
+      if(chooseEnemyTactics){
+        for(const value of enemyTacticChoices(s,actor,target))attacks.push({pos,target,...value});
+      }else{
+        const p = preview(actor, target, s); attacks.push({ pos, target, kill: p.targetHp === 0 && p.chance > 0, hit:p.hit*(p.chance??1)*(1+(p.criticalChance===1?0:p.criticalChance??0)*.5),back:p.returnHit*(p.counterChance??1)*(1+(p.returnCriticalChance===1?0:p.returnCriticalChance??0)*.5) });
+      }
+    }
+  }
+  if(chooseEnemyTactics)attacks.sort((a,b)=>Number(b.kill)-Number(a.kill)||b.score-a.score||a.pos.cost-b.pos.cost||a.target.id.localeCompare(b.target.id)||a.pos.y-b.pos.y||a.pos.x-b.pos.x);
+  else if(isAct2Battle(s))attacks.sort((a,b)=>Number(b.kill)-Number(a.kill)||((b.hit*(matchupMultiplier(u,b.target,s)>1?1.2:1)+(b.target.maxHp-b.target.hp)*.12-b.back*.35)-(a.hit*(matchupMultiplier(u,a.target,s)>1?1.2:1)+(a.target.maxHp-a.target.hp)*.12-a.back*.35))||a.pos.cost-b.pos.cost||a.target.id.localeCompare(b.target.id)||a.pos.y-b.pos.y||a.pos.x-b.pos.x);
+  else attacks.sort((a, b) => Number(b.kill) - Number(a.kill) || b.hit - a.hit || a.back - b.back || a.pos.cost - b.pos.cost || a.target.id.localeCompare(b.target.id) || a.pos.y - b.pos.y || a.pos.x - b.pos.x);
+  if (attacks.length) return { x: attacks[0].pos.x, y: attacks[0].pos.y, targetId: attacks[0].target.id,...(attacks[0].skill&&attacks[0].skill!=='fire'?{skill:attacks[0].skill}:{}) };
+  if(hold)return {x:u.x,y:u.y,targetId:null};
+  let best = null;
+  for (const pos of choices) {
+    const ghost = { ...u, ...pos }, copy = { ...s, units: s.units.map(v => v.id === u.id ? ghost : v) }, paths = reachable(copy, ghost, Infinity);
+    let remaining = Infinity;
+    for (const [k, cost] of paths) {
+      const [x, y] = k.split(',').map(Number);
+      if (foes.some(f => inRange({ ...u, x, y }, f))) remaining = Math.min(remaining, cost);
+    }
+    if (!best || remaining < best.remaining || remaining === best.remaining && (pos.cost < best.cost || pos.cost === best.cost && (pos.y < best.y || pos.y === best.y && pos.x < best.x))) best = { ...pos, remaining };
+  }
+  return best && Number.isFinite(best.remaining) ? { x: best.x, y: best.y, targetId: null } : { x: u.x, y: u.y, targetId: null };
+}
