@@ -1,0 +1,84 @@
+export const CLASS_IDS = ['infantry', 'cavalry', 'spear', 'archer', 'crossbow', 'strategist'];
+export const CLASS_NAMES = Object.freeze({infantry:'보병',cavalry:'기병',spear:'창병',archer:'활병',crossbow:'석궁병',strategist:'책사'});
+export const classDisplayName = id => CLASS_NAMES[id] ?? id;
+export const DEFAULT_BALANCE = {
+  critical: { enabled: false, counter: true, morale: false },
+  classes: {
+    infantry: { name: CLASS_NAMES.infantry, hp: 3200, atk: 30, def: 12, move: 3, min: 1, max: 1, attackAfterMove: true },
+    cavalry: { name: CLASS_NAMES.cavalry, hp: 3400, atk: 34, def: 8, move: 5, min: 1, max: 1, attackAfterMove: true },
+    spear: { name: CLASS_NAMES.spear, hp: 3200, atk: 30, def: 10, move: 3, min: 1, max: 2, attackAfterMove: true },
+    archer: { name: CLASS_NAMES.archer, hp: 3000, atk: 28, def: 6, move: 3, min: 2, max: 3, attackAfterMove: true },
+    crossbow: { name: CLASS_NAMES.crossbow, hp: 3000, atk: 34, def: 7, move: 2, min: 2, max: 4, attackAfterMove: true },
+    strategist: { name: CLASS_NAMES.strategist, hp: 2400, atk: 0, def: 5, move: 2, min: 2, max: 4, attackAfterMove: true },
+  },
+  fire: { damage: 2200, baseChance: 45, minChance: 15, maxChance: 95, forestBonus: 20 },
+  tactics: { baseChance: 55, minChance: 20, maxChance: 90 },
+  weather: { start: 'clear', minRounds: 2, maxRounds: 4, changeChance: 30 },
+  matchups: {},
+  terrain: { forestCost: 2, forestDefense: 3 }, healing: 1000, counterMultiplier: 1,
+};
+for (const id of CLASS_IDS) {
+  DEFAULT_BALANCE.classes[id].int = { infantry: 45, cavalry: 65, spear: 60, archer: 55, crossbow: 55, strategist: 85 }[id];
+  DEFAULT_BALANCE.matchups[id] ??= {};
+  for (const other of CLASS_IDS) DEFAULT_BALANCE.matchups[id][other] = 1;
+}
+for (const [a, b] of [['spear','cavalry'], ['cavalry','infantry'], ['infantry','spear'], ['cavalry','crossbow']]) DEFAULT_BALANCE.matchups[a][b] = 1.6;
+for (const [a, b] of [['cavalry','spear'], ['infantry','cavalry'], ['spear','infantry']]) DEFAULT_BALANCE.matchups[a][b] = .65;
+export const cloneBalance = (value = DEFAULT_BALANCE) => structuredClone(value);
+export function normalizeBalance(value) {
+  if(value?.critical!==undefined&&(!value.critical||typeof value.critical!=='object'||Array.isArray(value.critical)))throw new Error('치명타 설정이 올바르지 않습니다.');
+  const normalized=cloneBalance(value);normalized.critical={...DEFAULT_BALANCE.critical,...normalized.critical};validateBalance(normalized);
+  // Class names are presentation labels; keep old balance imports and saved numeric tuning.
+  for(const id of CLASS_IDS)normalized.classes[id].name=CLASS_NAMES[id];
+  return normalized;
+}
+export function validateBalance(value) {
+  const check = (n, low, high, label, integer = false) => {
+    if (typeof n !== 'number' || !Number.isFinite(n) || n < low || n > high || integer && !Number.isInteger(n)) throw new Error(`${label}: ${low}~${high}${integer ? ' 사이의 정수' : ' 사이의 숫자'}를 입력하세요.`);
+  };
+  if (!value || !value.classes || !value.matchups || !value.terrain) throw new Error('밸런스 데이터가 올바르지 않습니다.');
+  for (const id of CLASS_IDS) {
+    const c = value.classes[id], label = DEFAULT_BALANCE.classes[id].name;
+    if (!c) throw new Error('병과 데이터가 누락되었습니다.');
+    check(c.int, 0, 200, `${label} 지력`, true);
+    check(c.hp, 1, 10000, `${label} 병력`, true);
+    for (const prop of ['atk', 'def']) check(c[prop], 0, 200, `${label} ${prop}`, true);
+    for (const prop of ['move', 'min', 'max']) check(c[prop], 1, 8, `${label} ${prop}`, true);
+    if (c.min > c.max) throw new Error(`${label}: 최소 사거리가 최대 사거리보다 큽니다.`);
+    if (typeof c.attackAfterMove !== 'boolean') throw new Error('이동 후 공격 설정이 올바르지 않습니다.');
+    for (const target of CLASS_IDS) check(value.matchups[id]?.[target], 0.25, 3, `${label} 상성 배율`);
+  }
+  check(value.terrain.forestCost, 1, 5, '숲 이동 비용', true);
+  check(value.terrain.forestDefense, 0, 50, '숲 방어', true);
+  check(value.healing, 1, 10000, '회복량', true);
+  check(value.counterMultiplier, 0.25, 2, '반격 배율');
+  if (!value.fire) throw new Error('화공 설정이 없습니다.');
+  check(value.fire.damage, 1, 10000, '화공 피해', true);
+  for (const prop of ['baseChance', 'minChance', 'maxChance']) check(value.fire[prop], 0, 100, '화공 성공률', true);
+  if (value.fire.minChance > value.fire.maxChance) throw new Error('화공 성공률 범위를 확인하세요.');
+  check(value.fire.forestBonus, 0, 100, '수풀 화공 보너스', true);
+  if (!value.tactics || !value.weather) throw new Error('책략/날씨 설정이 없습니다.');
+  for (const prop of ['baseChance','minChance','maxChance']) check(value.tactics[prop], 0, 100, '상태 책략 성공률', true);
+  if (value.tactics.minChance > value.tactics.maxChance) throw new Error('책략 성공률 범위 오류');
+  if (!['clear','rain'].includes(value.weather.start)) throw new Error('시작 날씨 오류');
+  check(value.weather.minRounds, 2, 6, '날씨 최소 유지', true);
+  check(value.weather.maxRounds, value.weather.minRounds, 8, '날씨 최대 유지', true);
+  check(value.weather.changeChance, 0, 100, '날씨 전환 확률', true);
+  if(value.critical!==undefined){
+    if(!value.critical||Object.keys(value.critical).some(k=>!['enabled','counter','morale'].includes(k))||['enabled','counter','morale'].some(k=>typeof value.critical[k]!=='boolean'))throw new Error('치명타 설정이 올바르지 않습니다.');
+  }
+  return true;
+}
+
+// Act 2 rules are separate so legacy balance/save payloads remain unchanged.
+export const ACT2_COMBAT_BALANCE=Object.freeze({physicalBaseHit:95,levelHitRate:2,levelHitCap:20,officerEvasion:3,bossEvasion:5,specialHitBonus:10,advantagePierce:.25,bossCounterMultiplier:1.25,specialMorale:120,specialMoraleCost:30,specialCooldown:2,allyHitMorale:3,allyKillMorale:5,supportMorale:3,supplySP:20,supplyRatio:.22,supplyMaxRatio:.30,indeokRatio:.04});
+
+// Regular frontline preparations apply only when a new battle is created.
+// Support officers retain their fragile identity even if a player changes class.
+const SUPPORT_OFFICERS=new Set(['mizhu','jianyong','sunqian','zhugeliang']);
+export function allyPreparationBonuses(id,cls){
+ const frontline=['infantry','cavalry','spear'].includes(cls)&&!SUPPORT_OFFICERS.has(id);
+ return {hp:frontline?400+(id==='zhaoyun'?200:0):0,def:frontline?6+(cls==='infantry'?4:0)+(['zhangfei','zhaoyun'].includes(id)?2:0):0,atk:frontline&&id==='zhaoyun'?2:0,baseAtk:frontline&&id==='zhaoyun'?1:0};
+}
+// Act 1 remains a brisk introduction, but enemy hits must not collapse to 1 base damage.
+export const ACT1_ENEMY_PRESSURE=Object.freeze({earlyTroopAttack:1.2,lateTroopAttack:1.35,officerAttack:1.1,minimumAttackRatio:.22,minimumBase:8});

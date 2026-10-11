@@ -1,0 +1,26 @@
+import {esc,paintPresentation,clearPresentation} from './release-ui.js';
+
+const timers=new WeakMap(),dismissers=new WeakMap();
+export function clearBattleBarks(host){
+ if(!host)return;
+ clearTimeout(timers.get(host));timers.delete(host);
+ const dismiss=dismissers.get(host);if(dismiss){host.removeEventListener?.('pointerdown',dismiss);dismissers.delete(host);}
+ host.querySelectorAll('.battle-words').forEach(node=>{clearPresentation(node);node.remove();});
+}
+
+// A short, non-modal line: it never blocks commands, changes state or advances the story.
+export function showBattleBarks(host,lines,chapter,{brief=false}={}){
+ clearBattleBarks(host);
+ if(!host||!lines?.length)return;
+ const panel=document.createElement('aside');panel.className='battle-words'+(brief?' is-brief':'');panel.setAttribute('aria-live','polite');panel.setAttribute('aria-label','전투 대사');
+ for(const line of lines){
+  const row=document.createElement('div');row.className='battle-word'+(line.team==='enemy'?' enemy-word':'');
+  row.innerHTML='<strong>'+esc(line.name)+'</strong><p>'+esc(line.text)+'</p>';
+  panel.append(row);
+ }
+ host.append(panel);
+ // Only the first speaker needs a small portrait; paired responses retain both names.
+ paintPresentation(panel,[{speaker:lines[0].speakerId,face:'normal',text:lines[0].text}],0,{...chapter,bg:{}},{event:true});
+ if(brief){const dismiss=()=>clearBattleBarks(host);host.addEventListener?.('pointerdown',dismiss,{once:true});dismissers.set(host,dismiss);}
+ timers.set(host,setTimeout(()=>clearBattleBarks(host),brief?900:2800));
+}

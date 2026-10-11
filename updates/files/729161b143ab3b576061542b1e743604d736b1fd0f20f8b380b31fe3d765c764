@@ -1,0 +1,16 @@
+import {confused} from './commander-panic.js';
+// Presentation preferences are applied by the app; raw saves retain their recorded flag.
+export const criticalEnabled = state => state?.balance?.critical?.enabled === true;
+// e_boss is reused, so an ID alone cannot identify Lu Bu. Old saved battles use these same fields.
+export const isLvbuCriticalUnit=unit=>unit?.team==='enemy'&&!unit.generic&&unit.name==='여포'&&unit.faction==='lu'&&unit.cls==='cavalry'&&['e_boss','e_lvbu','lvbu'].includes(unit.id);
+export function criticalRate(unit,state,counter=false,target=null){
+ if(unit.cls==='strategist')return 0;
+ // Confusion exposes a unit to a critical physical hit; accuracy and Flash
+ // still decide whether the hit lands. This is independent of random crits.
+ if(confused(target))return 100;
+ if(!criticalEnabled(state)||counter&&state.balance.critical.counter===false)return 0;
+ const base=unit.baseAtk??unit.atk??0,identityBonus=isLvbuCriticalUnit(unit)?28:0;
+ const rate=Math.max(0,Math.min(30,2+Math.floor(Math.max(0,base-20)/8)+Math.floor(((unit.morale??100)-100)/5)+(unit.criticalBonus??0)+identityBonus));
+ return counter?Math.floor(rate/2):rate;
+}
+export const criticalChance=(unit,state,counter=false,target=null)=>criticalRate(unit,state,counter,target)/100;

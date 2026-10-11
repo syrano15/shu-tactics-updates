@@ -1,0 +1,77 @@
+// Xiapi's route patch has its own marker: original battles are validated before
+// the live checkpoint receives the repaired river and two normal soldiers.
+export const XIAPI_ROUTES_VERSION=1;
+export const XIAPI_EXTRA_ENEMY_IDS=Object.freeze(['xiapi_route_infantry','xiapi_route_archer']);
+const historicalScenarios=new WeakMap();
+const pointKey=([x,y])=>x+','+y;
+const applies=chapter=>chapter?.id==='s07_xiapi'&&chapter.campaignLayoutVersion===1;
+
+export function installXiapiRoutes(chapter){
+ if(!applies(chapter)||chapter.xiapiRoutesVersion===1)return chapter;
+ historicalScenarios.set(chapter,structuredClone(chapter));
+ const bridges=new Set((chapter.bridgeCells??[]).map(pointKey));
+ const riverColumns=[...new Set((chapter.bridgeCells??[]).map(([x])=>x))];
+ if(riverColumns.length!==1)throw new Error('하비 강의 기준 열이 올바르지 않습니다.');
+ const riverX=riverColumns[0];
+ chapter.terrain=chapter.terrain.map((row,y)=>{
+  const cells=[...row];cells[riverX]=bridges.has(pointKey([riverX,y]))?'.':'#';return cells.join('');
+ });
+ chapter.enemies.push(
+  {id:XIAPI_EXTRA_ENEMY_IDS[0],templateId:'act2_lu_troop_infantry',position:[13,5],level:14,aiMode:'charge',advanceRound:2,faction:'lu',combatTier:'troop',rank:0,gold:70,introducedXiapiRouteVersion:1},
+  {id:XIAPI_EXTRA_ENEMY_IDS[1],templateId:'act2_lu_troop_archer',position:[13,9],level:14,aiMode:'charge',advanceRound:3,faction:'lu',combatTier:'troop',rank:0,gold:70,introducedXiapiRouteVersion:1},
+ );
+ chapter.xiapiRoutesVersion=1;
+ if(chapter.campaignLayout)chapter.campaignLayout.enemyTotal=chapter.enemies.length;
+ chapter.intermissionHint=(chapter.intermissionHint??'').replace(/적 24부대\./,'적 26부대.');
+ chapter.brief+=' 강은 다리에서만 건널 수 있습니다. 동쪽 강둑에 일반 보병·궁병 2부대가 추가 배치됩니다.';
+ return chapter;
+}
+
+// The same immutable original scenario is used for reference units and terrain.
+// Other chapters and the original 12×10 campaign never acquire this patch.
+export function xiapiScenario(chapter,version=XIAPI_ROUTES_VERSION){
+ if(![0,1].includes(version))throw new Error('하비 강·배치 버전이 올바르지 않습니다.');
+ if(!applies(chapter)||chapter.xiapiRoutesVersion!==1||version===1)return chapter;
+ const original=historicalScenarios.get(chapter);
+ if(!original)throw new Error('하비 원본 전장 기준이 없습니다.');
+ return original;
+}
+
+function closestOpen(terrain,origin,occupied,{minimumX=0}={}){
+ const cells=[];
+ for(let y=0;y<terrain.length;y++)for(let x=minimumX;x<terrain[0].length;x++)if(terrain[y][x]!=='#'&&!occupied.has(pointKey([x,y])))cells.push([x,y]);
+ cells.sort((a,b)=>Math.abs(a[0]-origin[0])+Math.abs(a[1]-origin[1])-Math.abs(b[0]-origin[0])-Math.abs(b[1]-origin[1])||Math.abs(a[1]-origin[1])-Math.abs(b[1]-origin[1])||a[1]-b[1]||a[0]-b[0]);
+ if(!cells.length)throw new Error('하비 강둑에 부대를 보존할 빈 칸이 없습니다.');
+ return cells[0];
+}
+
+export function upgradeValidatedXiapiRoutes(value,chapter,nextRefs){
+ const state=value?.state;
+ if(!applies(chapter)||state?.xiapiRoutesVersion===1||state?.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign?.stage))return false;
+ if(state.xiapiRoutesVersion!==undefined)throw new Error('하비 강·배치 이행 버전이 올바르지 않습니다.');
+ const additions=XIAPI_EXTRA_ENEMY_IDS.map(id=>nextRefs.find(u=>u.id===id));
+ if(additions.some(u=>!u||u.team!=='enemy'||u.rank!==0)||XIAPI_EXTRA_ENEMY_IDS.some(id=>state.units.some(u=>u.id===id)))throw new Error('하비 추가 일반 부대 원본이 올바르지 않습니다.');
+ const terrain=[...chapter.terrain];
+ const all=[...state.units,...(state.reinforcements?.pending??[]).flatMap(w=>w.units)];
+ const occupied=new Set(all.filter(u=>u.hp>0&&terrain[u.y]?.[u.x]!==undefined&&terrain[u.y][u.x]!=='#').map(u=>pointKey([u.x,u.y])));
+ const relocated=[];
+ // Usually no relocation occurs: all original starting and reserve positions
+ // already stand on banks or bridges. A save made in an old ground bypass is
+ // moved to the nearest empty bank instead of being rejected or restarted.
+ for(const unit of [...all.filter(u=>u.hp>0),...all.filter(u=>u.hp===0)])if(terrain[unit.y]?.[unit.x]==='#'){
+  const from=[unit.x,unit.y],place=closestOpen(terrain,from,occupied);
+  unit.x=place[0];unit.y=place[1];if(unit.hp>0)occupied.add(pointKey(place));
+  relocated.push({id:unit.id,from,to:place});
+ }
+ const inserted=[];
+ for(const ref of additions){
+  const unit=structuredClone(ref),place=closestOpen(terrain,[unit.x,unit.y],occupied,{minimumX:12});
+  unit.x=place[0];unit.y=place[1];state.units.push(unit);occupied.add(pointKey(place));inserted.push(unit);
+  if(state.battleRecords)state.battleRecords.minHpRatios[unit.id]=1;
+ }
+ // An outstanding commander-victory choice captures all current units. Extend
+ // only that pending snapshot; completed merit/history records stay intact.
+ if(state.bossCleanup?.status==='pending')for(const unit of inserted)state.bossCleanup.basis.units.push({id:unit.id,hp:unit.hp,maxHp:unit.maxHp});
+ state.terrain=terrain;state.xiapiRoutesVersion=1;
+ return {addedIds:inserted.map(u=>u.id),relocated};
+}

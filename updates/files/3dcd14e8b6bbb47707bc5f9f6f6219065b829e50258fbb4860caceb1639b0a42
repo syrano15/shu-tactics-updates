@@ -1,0 +1,14 @@
+.board-stage,.shop-scene{position:relative}
+.battle-words{position:absolute;right:12px;bottom:12px;z-index:12;pointer-events:none;width:min(390px,70%);padding:12px 16px;color:#eee5d1;background:#13231fee;border:1px solid #b59a63;box-shadow:0 8px 24px #0008;border-radius:5px}
+.battle-word strong{font-size:12px;color:#e3c585}.battle-word.enemy-word strong{color:#eeab8d}
+.battle-word p{font-size:16px;line-height:1.65;margin:3px 0 0;word-break:keep-all}
+.battle-word+.battle-word{margin-top:7px;border-top:1px solid #b59a6344;padding-top:5px}
+.battle-words .event-portrait{width:62px;margin:0 10px 5px 0}
+.battle-words .event-portrait .portrait-viewport{height:76px}
+.battle-words .event-portrait .framed-portrait{height:auto}
+@media(max-width:620px){.battle-words{right:6px;bottom:6px;width:88%;padding:9px 12px}.battle-word p{font-size:14px}.battle-words .event-portrait{width:48px}}
+
+/* Spirit flavour lines yield immediately to the next map click. */
+.battle-words.is-brief{width:min(300px,60%);padding:7px 11px;animation:spirit-bark-exit .9s linear both}.battle-words.is-brief .event-portrait{display:none}.battle-words.is-brief .battle-word p{font-size:13px;line-height:1.4}
+@keyframes spirit-bark-exit{0%,68%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.battle-words.is-brief{animation:none}}

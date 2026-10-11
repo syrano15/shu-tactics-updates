@@ -1,0 +1,28 @@
+// This upgrade is called only after the complete original save is validated.
+// It changes combat statistics, never actions, coordinates, random state,
+// experience, rewards, damage history or captured commander-victory records.
+const ACTIVE_STAGES=new Set(['preDialogue','deployment','battle']);
+const FIELDS=['generic','name','han','rank','promotion','combatTier','maxHp','baseAtk','atk','def','int','move','min','max','attackAfterMove','cavalryDamageReceived','cavalryDamageDealt','evasionBonus','criticalBonus','moraleBonus','tacticBonus'];
+export function upgradeValidatedAct2Difficulty(value,chapter,nextRefs){
+ const state=value.state;
+ if(chapter?.act!==2||state.enemyProgressionVersion!==3||![undefined,1].includes(state.act2EnemyDifficultyVersion)||state.result!==null||state.rewardsSettled||!ACTIVE_STAGES.has(value.campaign.stage))return false;
+ const refs=new Map(nextRefs.map(unit=>[unit.id,unit]));
+ const units=[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+ // Verify every destination before making any change, so no partial upgrade
+ // can escape even if a future formation omits a reference.
+ for(const unit of units.filter(u=>u.team==='enemy')){
+  const ref=refs.get(unit.id);
+  if(!ref||ref.team!=='enemy'||ref.cls!==unit.cls||!Number.isInteger(ref.maxHp)||ref.maxHp<1||!Number.isInteger(unit.maxHp)||unit.maxHp<1)throw new Error('2막 적 난도 이행 원본이 올바르지 않습니다.');
+ }
+ const sourceHealthVersion=state.act2EnemyDifficultySourceHealthVersion??state.act2EnemyHealthVersion??0;
+ for(const unit of units.filter(u=>u.team==='enemy')){
+  const ref=refs.get(unit.id),hp=unit.hp===0?0:Math.max(1,Math.min(ref.maxHp,Math.round(unit.hp/unit.maxHp*ref.maxHp)));
+  for(const field of FIELDS){if(Object.hasOwn(ref,field))unit[field]=ref[field];else delete unit[field];}
+  unit.hp=hp;
+ }
+ state.act2EnemyHealthVersion=1;state.act2EnemyDifficultyVersion=2;
+ // Provenance permits exact already-validated old capacities in historical
+ // terrain damage and captured commander-victory snapshots after this upgrade.
+ state.act2EnemyDifficultySourceHealthVersion=sourceHealthVersion;
+ return true;
+}

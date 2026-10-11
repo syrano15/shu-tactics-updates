@@ -1,0 +1,83 @@
+// Skill feedback is built from committed outcomes, never from a second attack or RNG draw.
+const active=new WeakMap();
+export const SKILL_EFFECTS=Object.freeze({
+ 'guanyu-cleave':{style:'dragon',glyph:'龍',detail:'청룡의 일격'},
+ 'zhangfei-roar':{style:'storm',glyph:'破',detail:'주변 동시 충격'},
+ 'liubei-oath':{style:'oath',glyph:'義',detail:'공격 +15% · 사기 상승'},
+ 'jianyong-relief':{style:'relief',glyph:'援',detail:'군심 회복'},
+ 'zhaoyun-breakthrough':{style:'spear',glyph:'突',detail:'용담 돌파'},
+ 'zhugeliang-fire':{style:'fire',glyph:'炎',detail:'팔진 화계'},
+ 'tactic-area-fire':{style:'fire',glyph:'火',detail:'범위 화공'},
+ 'supply':{style:'supply',glyph:'補',detail:'보급'}
+});
+const clone=unit=>unit?structuredClone(unit):null;
+const count=n=>Math.max(0,Math.round(Number.isFinite(n)?n:0)).toLocaleString('ko-KR');
+const point=unit=>unit&&Number.isInteger(unit.x)&&Number.isInteger(unit.y);
+/** Copy only actual recipients and actual strikes. A cancelled later exchange has no impact. */
+export function createCombatSkillPresentation(skill,actorBefore,targetBefore,result,beforeState){
+ const id=result?.skillId??skill?.id,effect=SKILL_EFFECTS[id];
+ if(!effect||!actorBefore||!result||result.reason)return null;
+ const source=Array.isArray(beforeState?.units)?beforeState.units:[],support=result.kind==='support',targets=[];
+ if(support){
+  const heals=result.heals??[],buffs=result.buffs??[],spHeals=result.spHeals??[];
+  for(const unitId of new Set([...heals,...buffs,...spHeals].map(row=>row.id))){
+   const unit=source.find(unit=>unit.id===unitId)??(actorBefore.id===unitId?actorBefore:targetBefore?.id===unitId?targetBefore:null);
+   if(!point(unit))continue;
+   const heal=heals.find(row=>row.id===unitId),buff=buffs.find(row=>row.id===unitId),sp=spHeals.find(row=>row.id===unitId);
+   const labels=[heal?.amount>0?'병력 +'+count(heal.amount):'',sp?.amount>0?'SP +'+count(sp.amount):'',buff?.type==='oath'?'공격 ↑':buff?.type==='relief'?'군심 회복':'',buff?.morale>0?'사기 +'+count(buff.morale):''].filter(Boolean);
+   targets.push({unit:clone(unit),landed:true,damage:0,label:labels.join(' · ')||effect.detail});
+  }
+ }else{
+  const exchanges=result.exchanges?.length?result.exchanges:[{actor:actorBefore,target:targetBefore,result}];
+  for(const exchange of exchanges){
+   const unit=exchange.target,strike=exchange.result;
+   if(!point(unit)||!strike||strike.skipped)continue;
+   const landed=strike.landed===true||strike.success===true;
+   targets.push({unit:clone(unit),landed,damage:landed?Math.max(0,strike.hit??0):0,label:landed?(strike.critical?'치명타 ':'')+'−'+count(strike.hit):'회피'});
+  }
+ }
+ return {id,name:result.skillName??skill.name,actor:clone(actorBefore),style:effect.style,glyph:effect.glyph,detail:effect.detail,support,area:!!skill.area,targets};
+}
+const node=(tag,className,text)=>{const el=document.createElement(tag);el.className=className;if(text!==undefined)el.textContent=text;return el;};
+function finish(host,entry,completed=false){
+ if(active.get(host)!==entry)return;
+ clearTimeout(entry.timer);entry.cleanup.forEach(clean=>clean());entry.nodes.forEach(el=>el.remove());active.delete(host);entry.resolve(completed);
+}
+export function clearCombatSkillPresentation(host){const entry=host&&active.get(host);if(entry)finish(host,entry,false);}
+/** A pointer-transparent layer, clipped to the map viewport and following its real cell positions. */
+export function playCombatSkillPresentation(host,model,{isCurrent=()=>true,fast=false,reducedMotion=!!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches}={}){
+ clearCombatSkillPresentation(host);
+ if(!host||!model||!isCurrent()||typeof document==='undefined')return Promise.resolve(false);
+ return new Promise(resolve=>{
+  const entry={nodes:[],cleanup:[],timer:null,resolve};active.set(host,entry);
+  const layer=node('div','skill-map-layer is-'+model.style+(reducedMotion?' is-reduced-motion':''));layer.dataset.skillId=model.id;layer.setAttribute('aria-hidden','true');host.append(layer);entry.nodes.push(layer);
+  const title=node('aside','skill-map-title');title.setAttribute('role','status');title.setAttribute('aria-live','polite');title.append(node('strong','',model.name),node('small','',model.support?model.detail:model.targets.length+'부대 공격'));host.append(title);entry.nodes.push(title);
+  const viewport=host.querySelector?.('.board-viewport')??host,marks=[];
+  const addMark=(unit,className,label,glyph)=>{
+   if(!point(unit))return;
+   const cell=host.querySelector?.('[data-x="'+unit.x+'"][data-y="'+unit.y+'"]');if(!cell)return;
+   const mark=node('span',className);mark.dataset.unitId=String(unit.id);mark.dataset.cellX=String(unit.x);mark.dataset.cellY=String(unit.y);
+   mark.append(node('i','skill-map-core'),node('i','skill-map-ray ray-one'),node('i','skill-map-ray ray-two'),node('i','skill-map-ray ray-three'),node('b','skill-map-glyph',glyph));
+   if(label)mark.append(node('strong','skill-map-value',label));layer.append(mark);marks.push({mark,cell});
+  };
+  addMark(model.actor,'skill-map-caster',null,model.glyph);
+  // Every recipient starts in this same frame; no per-target animation delay.
+  for(const target of model.targets)addMark(target.unit,'skill-map-impact'+(!target.landed?' is-miss':'')+(model.support?' is-support':''),target.label,model.support?model.glyph:'');
+  const reposition=()=>{
+   if(active.get(host)!==entry)return;
+   if(!isCurrent()){finish(host,entry,false);return;}
+   const frame=host.getBoundingClientRect?.(),view=viewport.getBoundingClientRect?.();if(!frame||!view)return;
+   const width=view.width??view.right-view.left,height=view.height??view.bottom-view.top;
+   layer.style.left=(view.left-frame.left)+'px';layer.style.top=(view.top-frame.top)+'px';layer.style.width=width+'px';layer.style.height=height+'px';
+   title.style.left=(view.left-frame.left+width/2)+'px';title.style.top=(view.top-frame.top+8)+'px';
+   for(const {mark,cell} of marks){const rect=cell.getBoundingClientRect?.();if(!rect)continue;
+    mark.style.left=(rect.left-view.left+rect.width/2)+'px';mark.style.top=(rect.top-view.top+rect.height/2)+'px';mark.style.width=Math.max(12,rect.width)+'px';mark.style.height=Math.max(12,rect.height)+'px';
+    mark.style.setProperty('--skill-label-size',Math.max(10,Math.min(17,rect.width*.28))+'px');
+   }
+  };
+  reposition();viewport.addEventListener?.('scroll',reposition,{passive:true});entry.cleanup.push(()=>viewport.removeEventListener?.('scroll',reposition));
+  if(globalThis.addEventListener){globalThis.addEventListener('resize',reposition);entry.cleanup.push(()=>globalThis.removeEventListener('resize',reposition));}
+  if(globalThis.ResizeObserver){const observer=new ResizeObserver(reposition);for(const observed of [host,viewport,host.querySelector?.('#board')].filter(Boolean))observer.observe(observed);entry.cleanup.push(()=>observer.disconnect());}
+  entry.timer=setTimeout(()=>finish(host,entry,isCurrent()),fast?450:reducedMotion?650:model.area?1000:800);
+ });
+}

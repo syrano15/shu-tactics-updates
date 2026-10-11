@@ -1,0 +1,9 @@
+// Call only after the source save has passed every historical validation.
+export const COMBAT_SKILL_RULES_VERSION=1;
+export function upgradeValidatedCombatSkillRules(value,chapter){
+ const state=value.state;
+ if(!(chapter?.act===2||chapter?.combatProfile==='act2')||state.combatSkillRulesVersion!==undefined||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return false;
+ for(const unit of state.units)if(unit.team==='ally'&&unit.specialReadyRound>state.round)unit.specialReadyRound=Math.max(state.round,unit.specialReadyRound-1);
+ state.combatSkillRulesVersion=COMBAT_SKILL_RULES_VERSION;
+ return true;
+}
