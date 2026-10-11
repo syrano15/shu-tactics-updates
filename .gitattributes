@@ -1,0 +1,3 @@
+updates/files/* -text
+updates/latest.json -text
+README.md text eol=lf
