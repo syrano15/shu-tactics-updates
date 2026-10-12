@@ -1,0 +1,12 @@
+// Call only after the source save has passed every historical validation.
+import {initializeLegendaryBattle} from './legendary-skills.js';
+export const COMBAT_SKILL_RULES_VERSION=2;
+export function upgradeValidatedCombatSkillRules(value,chapter){
+ const state=value.state;
+ if(!(chapter?.act===2||chapter?.combatProfile==='act2')||state.combatSkillRulesVersion===2||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return false;
+ if(state.combatSkillRulesVersion!==undefined&&state.combatSkillRulesVersion!==1)throw new Error('필살기 규칙 버전이 올바르지 않습니다.');
+ // Paid cooldown history is preserved exactly. Never subtract a round on reload.
+ initializeLegendaryBattle(state);
+ state.combatSkillRulesVersion=COMBAT_SKILL_RULES_VERSION;
+ return true;
+}

@@ -1,0 +1,77 @@
+import {HERO_DATA} from './heroes.js';
+export const HERO_MASTERY_VERSION=1;
+export const MAXIMUM_BONUS_DELTA=Object.freeze({hp:500,def:3});
+const records={
+ liubei:['인덕의 중심','최대 병력 +250 · 회피 +3%p',{hp:250,evasion:3}],
+ guanyu:['군신의 위세','공격 +4 · 치명타 +4%p',{atk:4,critical:4}],
+ zhangfei:['장판의 방벽','방어 +3 · 치명타 +3%p',{def:3,critical:3}],
+ zhaoyun:['상산의 기민함','회피 +5%p · 공격 +2',{evasion:5,atk:2}],
+ zhugeliang:['와룡의 계산','책략 성공 +6%p · 지력 +2',{tactic:6,int:2}],
+ huangzhong:['백발백중','치명타 +6%p · 공격 +2',{critical:6,atk:2}],
+ weiyan:['험로의 맹장','공격 +6 · 최대 병력 +150',{atk:6,hp:150}],
+ pangtong:['봉추의 묘책','지력 +6 · 책략 성공 +2%p',{int:6,tactic:2}],
+ machao:['금마초의 돌파','이동 +1 · 치명타 +2%p',{move:1,critical:2}],
+ jiangwei:['문무의 균형','방어 +2 · 책략 성공 +3%p',{def:2,tactic:3}],
+ chendao:['백이병의 방진','방어 +4',{def:4}],
+ guanping:['부장의 호위','방어 +2 · 공격 +3',{def:2,atk:3}],
+ masu:['지형의 통찰','지력 +4 · 책략 성공 +3%p',{int:4,tactic:3}],
+ liaohua:['역전의 끈기','최대 병력 +350 · 방어 +1',{hp:350,def:1}],
+ fazheng:['정밀한 책략','책략 성공 +5%p · 지력 +3',{tactic:5,int:3}],
+ madai:['측면의 칼날','회피 +4%p · 치명타 +3%p',{evasion:4,critical:3}],
+ yanyan:['노장의 침착함','방어 +3 · 공격 +2',{def:3,atk:2}],
+ huangquan:['치밀한 대비','지력 +3 · 회피 +4%p',{int:3,evasion:4}],
+ wangping:['무당군의 경계','방어 +2 · 회피 +3%p',{def:2,evasion:3}],
+ guanxing:['계승한 무용','공격 +3 · 치명타 +5%p',{atk:3,critical:5}],
+ zhangbao:['과감한 창끝','공격 +5 · 회피 +2%p',{atk:5,evasion:2}],
+ jianyong:['현명한 조율','책략 성공 +6%p · 회피 +2%p',{tactic:6,evasion:2}],
+ sunqian:['신속한 지원','이동 +1 · 회피 +3%p',{move:1,evasion:3}],
+ mizhu:['튼튼한 보급선','최대 병력 +300 · 이동 +1',{hp:300,move:1}],
+ zhoucang:['충직한 방패','최대 병력 +300 · 방어 +2',{hp:300,def:2}],
+ maliang:['백미의 식견','지력 +3 · 책략 성공 +4%p',{int:3,tactic:4}],
+ liufeng:['선봉의 기세','공격 +3 · 방어 +3',{atk:3,def:3}],
+ wuyi:['익주의 방진','방어 +2 · 최대 병력 +250',{def:2,hp:250}],
+ liyan:['수비의 지휘','방어 +3 · 회피 +3%p',{def:3,evasion:3}],
+ zhangyi:['질서 있는 사격','방어 +1 · 치명타 +4%p',{def:1,critical:4}],
+ wuban:['우회 기동','이동 +1 · 공격 +2',{move:1,atk:2}],
+ fengxi:['선제 기동','이동 +1 · 회피 +2%p',{move:1,evasion:2}],
+ fudong:['끝까지 버티는 진형','최대 병력 +250 · 방어 +3',{hp:250,def:3}],
+ dengzhi:['안정된 연락선','최대 병력 +200 · 회피 +4%p',{hp:200,evasion:4}],
+ zhangni:['변경의 수호','방어 +3 · 책략 성공 +2%p',{def:3,tactic:2}],
+ mazhong:['침착한 명궁','치명타 +4%p · 공격 +3',{critical:4,atk:3}],
+ gaoxiang:['견실한 부대','공격 +2 · 방어 +2 · 최대 병력 +150',{atk:2,def:2,hp:150}],
+};
+export const HERO_MASTERY_PASSIVES=Object.freeze(Object.fromEntries(Object.entries(records).map(([id,[name,description,bonuses]])=>[id,Object.freeze({id:'max_'+id,name,description,bonuses:Object.freeze(bonuses)})])));
+const fail=message=>{throw new Error('최대 강화 특성 기록 오류: '+message);};
+export function masteryLevels(hero){const m=hero?.modifications??{};return {weapon:(hero?.level??0)*2+(m.weapon??0),troops:Math.ceil((hero?.troopLevel??0)*2.5)+(m.troops??0),defense:m.defense??0};}
+export function heroMasteryStatus(army,id){const h=army?.heroes?.[id],definition=HERO_MASTERY_PASSIVES[id],levels=masteryLevels(h),eligible=!!h&&!!definition&&!HERO_DATA[id]?.guest,achieved=eligible&&Object.values(levels).every(n=>n>=15);return {id,eligible,achieved,levels,definition};}
+export function heroMasteryBonuses(army,id,version=1){return version===1&&heroMasteryStatus(army,id).achieved?HERO_MASTERY_PASSIVES[id].bonuses:{};}
+export function captureHeroMastery(unit,army,id=unit.id,version=1){if(version===1&&unit.team==='ally'&&!unit.extra&&heroMasteryStatus(army,id).achieved)unit.masteryPassive=HERO_MASTERY_PASSIVES[id].id;return unit;}
+export function validateHeroMasteryState(value){
+ const state=value.state,version=state.heroMasteryVersion;
+ if(version!==undefined&&version!==1)fail('지원하지 않는 버전');
+ if(state.allyHpVersion!==undefined&&state.allyHpVersion!==1)fail('아군 병력 버전');
+ const active=['preDialogue','deployment','battle'].includes(value.campaign.stage);
+ for(const unit of state.units){
+  if(unit.allyHpVersion!==undefined&&(unit.allyHpVersion!==1||state.allyHpVersion!==1||unit.team!=='ally'||unit.extra))fail('아군 병력 표식');
+  if(state.allyHpVersion===1&&unit.team==='ally'&&!unit.extra&&unit.allyHpVersion!==1)fail('출전 병력 표식 누락');
+  if(unit.masteryPassive!==undefined&&(version!==1||unit.team!=='ally'||unit.extra||HERO_DATA[unit.id]?.guest||unit.masteryPassive!==HERO_MASTERY_PASSIVES[unit.id]?.id))fail('장수 고유 특성');
+  if(version===1&&active&&unit.team==='ally'&&!unit.extra){const expected=heroMasteryStatus(value.army,unit.id).achieved?HERO_MASTERY_PASSIVES[unit.id].id:undefined;if(unit.masteryPassive!==expected)fail('강화 기록과 고유 특성 불일치');}
+ }
+}
+// Apply after validating the original snapshot. References supply the actual
+// class/gear-adjusted delta; capped troops never create an extra heal.
+export function upgradeValidatedHeroMastery(value,oldRefs,newRefs){
+ const state=value.state;if(state.heroMasteryVersion===1&&state.allyHpVersion===1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return false;
+ if(![undefined,1].includes(state.heroMasteryVersion)||![undefined,1].includes(state.allyHpVersion))fail('지원하지 않는 버전');
+ for(const unit of state.units.filter(u=>u.team==='ally'&&!u.extra)){
+  const before=oldRefs.find(u=>u.id===unit.id),after=newRefs.find(u=>u.id===unit.id);if(!before||!after)fail('이행 참조');
+  const hpDelta=after.maxHp-before.maxHp;
+  for(const key of ['maxHp','atk','baseAtk','def','int','move','evasionBonus','criticalBonus','moraleBonus','tacticBonus'])unit[key]+=after[key]-before[key];
+  if(unit.hp>0)unit.hp=Math.min(unit.maxHp,unit.hp+hpDelta);
+  if(after.classTraining)unit.classTraining=structuredClone(after.classTraining);
+  if(after.masteryPassive)unit.masteryPassive=after.masteryPassive;
+  if(after.allyHpVersion===1)unit.allyHpVersion=1;
+  if(state.bossCleanup?.status==='pending'){const saved=state.bossCleanup.basis.units.find(u=>u.id===unit.id);if(saved){saved.maxHp+=hpDelta;if(saved.hp>0)saved.hp+=hpDelta;}}
+ }
+ state.heroMasteryVersion=1;state.allyHpVersion=1;return true;
+}

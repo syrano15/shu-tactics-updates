@@ -1,0 +1,31 @@
+import {validateCommanderPanicSave} from './commander-panic.js';
+// Historical Act 1 slot/payload IDs remain stable so existing browser saves are found.
+// Act 2 combat metadata is validated against the current scenario and unit templates.
+const integer=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+const ensure=(ok,message)=>{if(!ok)throw new Error('2막 전투 저장 오류: '+message);};
+export function validateCombatSkillSave(state,scenario,refs){
+ validateCommanderPanicSave(state);
+ ensure(state.combatSkillRulesVersion===undefined||state.combatSkillRulesVersion===1&&(scenario?.act===2||scenario?.combatProfile==='act2')||state.combatSkillRulesVersion===2&&state.legendarySkillsVersion===1,'필살기 규칙 버전이 올바르지 않습니다.');
+ for(const u of state.units){const ref=refs?.find(r=>r.id===u.id);ensure((u.nonCombat??false)===(ref?.nonCombat??false),'비전투 호위 부대 설정이 다릅니다.');}
+ const act2=scenario?.combatProfile==='act2'||scenario?.act===2;
+ if(!act2){
+  ensure(state.combatProfile===undefined,'1막에 2막 규칙이 들어 있습니다.');
+  ensure(state.indeokRound===undefined,'1막에 인덕 기록이 들어 있습니다.');
+  for(const u of state.units)ensure(u.specialReadyRound===undefined&&u.oathUntilRound===undefined&&u.combatTier===undefined,'1막 부대에 2막 능력 기록이 들어 있습니다.');
+  return;
+ }
+ ensure(state.combatProfile==='act2','전장 규칙이 다릅니다.');
+ ensure(integer(state.indeokRound,0,state.round),'인덕 발동 라운드가 올바르지 않습니다.');
+ for(const u of state.units){
+  const ref=refs?.find(r=>r.id===u.id);
+  if(u.team==='enemy'){
+   ensure(['troop','elite','officer','boss'].includes(u.combatTier)&&(!ref||u.combatTier===ref.combatTier),'적 위협 계층이 다릅니다.');
+   ensure(u.specialReadyRound===undefined&&u.oathUntilRound===undefined,'적 부대에 아군 필살기 기록이 들어 있습니다.');
+  }else{
+   ensure(u.combatTier===undefined,'아군에 적 위협 계층이 들어 있습니다.');
+   if(Object.hasOwn(ref??{},'specialReadyRound'))ensure(integer(u.specialReadyRound,0,state.round+(state.combatSkillRulesVersion===1?2:3)),'필살기 재사용 라운드가 올바르지 않습니다.');
+   else ensure(u.specialReadyRound===undefined,'지원 부대에 필살기 기록이 들어 있습니다.');
+   if(u.oathUntilRound!==undefined)ensure(integer(u.oathUntilRound,state.round,state.round+1),'도원의 맹세 종료 라운드가 올바르지 않습니다.');
+  }
+ }
+}

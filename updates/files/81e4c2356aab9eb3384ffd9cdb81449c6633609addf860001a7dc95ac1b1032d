@@ -1,0 +1,8 @@
+.battle-unit-event{margin:7px 0 0;padding:7px 8px;border-left:2px solid #dfb969;background:#4b3c1c55;color:#f1d89f;font-size:11px;line-height:1.5}
+.battle-unit-event.is-complete{border-color:#809582;background:#243b2d55;color:#c3d3bd}
+.escort-follow-panel{margin:8px 0;padding:9px 10px;border:1px solid #9bae8a55;background:#172b20;color:#e2e5ce;border-radius:3px}
+.escort-follow-panel>strong{display:block;font-size:12px;color:#edcd89}
+.escort-follow-panel p{margin:5px 0;font-size:11px;line-height:1.5}
+.escort-follow-panel button{margin-top:4px;width:100%;min-height:31px;font-size:11px}
+.escort-follow-panel .escort-state{color:#a9d9b3}
+.escort-follow-panel .escort-state.is-stopped{color:#ffd2a0}

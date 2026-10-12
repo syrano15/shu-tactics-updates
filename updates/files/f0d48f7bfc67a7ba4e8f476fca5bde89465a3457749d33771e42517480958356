@@ -1,0 +1,58 @@
+import {maxRange} from './spirits.js';
+import {HERO_DATA} from './heroes.js';
+import {PARTS} from './equipment.js';
+import {createUnit} from './engine.js';
+import {effectiveClass,classAptitudes,classChangeReason} from './class-change.js';
+import {effectiveSkillDefinition} from './combat-skills.js';
+import {legendaryOwnerSkill} from './legendary-skills.js';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SPECIAL_IDS={guanyu:'guanyu-cleave',zhangfei:'zhangfei-roar',liubei:'liubei-oath',jianyong:'jianyong-relief',zhaoyun:'zhaoyun-breakthrough',zhugeliang:'zhugeliang-fire'};
+const STATS=[['병력','maxHp'],['공격','atk'],['방어','def'],['지력','int'],['이동','move']];
+export const className=(balance,cls)=>balance.classes[cls].name;
+export const unitRange=unit=>`${unit.min}~${maxRange(unit)}${maxRange(unit)===1?' · 직선 인접':''}`;
+export function classChangePreview(army,id,cls,balance,chapter){
+ const draft=structuredClone(army);draft.heroes[id].selectedClass=cls;
+ if(cls!==effectiveClass(army,id))delete draft.heroes[id].specialization;
+ const current=createUnit(balance,id,'ally',army),candidate=createUnit(balance,id,'ally',draft);
+ return {current,candidate,cls,reason:classChangeReason(army,id,cls,chapter),rows:classAptitudes(id),changed:current.cls!==cls};
+}
+export function classSkills(unit){
+ const ids=[...(unit.cls==='strategist'?['supply']:[]),...(SPECIAL_IDS[unit.id]?[SPECIAL_IDS[unit.id]]:[])];
+ const skills=ids.map(id=>({id,...effectiveSkillDefinition(unit,id)})),legendary=legendaryOwnerSkill(unit.id);
+ if(legendary&&!HERO_DATA[unit.id]?.guest)skills.push({...legendary,...(unit.level<50?{restriction:'Lv50 해금 · '+legendary.description}:{}),description:legendary.description+' · 사기 140 · SP '+legendary.spCost+' · 전투당 1회'});
+ return skills;
+}
+export function classChangePanel(army,id,selected,balance,chapter){
+ if(chapter?.act!==2&&chapter?.combatProfile!=='act2')return '';
+ const model=classChangePreview(army,id,selected??effectiveClass(army,id),balance,chapter),{current,candidate,rows,reason}=model;
+ const row=rows.find(r=>r.cls===candidate.cls),native=HERO_DATA[id].class;
+ const warning=row.grade==='D'?'적성 D · 공격·방어·지력이 크게 낮아집니다.':row.grade==='C'?'적성 C · 공격·방어·지력이 낮아집니다.':'';
+ const skills=classSkills(candidate);
+ return `<section class="class-change-panel" aria-label="병과 변경"><div class="class-change-heading"><div><span class="eyebrow gold">05 / 병과 변경</span><h4>${esc(current.name)} · ${esc(className(balance,current.cls))}</h4></div><span class="class-free">비용 없음</span></div><p>주병과 ${esc(className(balance,native))} · 적성에 따라 공격·방어·지력이 달라집니다. 증편 단계·SP·레벨·개조·승급·장비·개인 정신기는 유지됩니다. 정신기는 기본 3개와 Lv30부터 선택하는 1개, 최대 4개입니다. 병과 변경으로 선택 정신기를 사용할 수 없으면 선택을 보존하며 출전 준비에서 무료로 다시 고를 수 있습니다.</p><div class="class-choices" role="group" aria-label="병과와 적성">${rows.map(r=>`<button data-preview-class="${r.cls}" aria-pressed="${r.cls===candidate.cls}" class="${r.cls===candidate.cls?'class-preview-selected ':''}${r.cls===current.cls?'class-current':''}" ${reason&&classChangeReason(army,id,r.cls,chapter)?'disabled':''}><b>${esc(className(balance,r.cls))}</b><span class="aptitude grade-${r.grade}">적성 ${r.grade}</span><small>${r.cls===current.cls?'현재':r.cls===native?'주병과':r.grade==='S'?'추천':''}</small></button>`).join('')}</div><div class="class-preview" aria-live="polite"><h4>미리보기 · ${esc(className(balance,candidate.cls))} / 적성 ${row.grade}</h4>${warning?`<p class="class-warning">${warning}</p>`:''}<dl>${STATS.map(([name,key])=>`<div><dt>${name}</dt><dd>${current[key]} <span aria-hidden="true">→</span> <b class="${candidate[key]<current[key]?'stat-down':candidate[key]>current[key]?'stat-up':''}">${candidate[key]}</b></dd></div>`).join('')}<div><dt>사거리</dt><dd>${esc(unitRange(current))} → <b>${esc(unitRange(candidate))}</b></dd></div><div><dt>이동 후 공격</dt><dd>${candidate.attackAfterMove?'가능':'불가'}</dd></div></dl><div class="class-skill-preview"><b>이 병과의 전용 능력</b>${skills.length?skills.map(skill=>`<p class="${skill.restriction?'skill-restricted':''}">${esc(skill.name)} · ${esc(skill.restriction||skill.description)}</p>`).join(''):'<p>전용 필살기 없음 · 기존 정신기는 그대로 사용할 수 있습니다.</p>'}</div></div>${reason?`<p class="guest-note">${esc(reason)}</p>`:''}<button class="primary" data-shop="change-class" ${reason||!model.changed?'disabled':''}>${model.changed?'이 병과로 변경':'현재 병과입니다'}</button><p class="class-help">미리보기는 저장되지 않습니다. 변경을 확정하면 다음 출전에 적용되고 자동 저장됩니다.</p></section>`;
+}
+export function upgradeStatPreview(army,id,steps,balance){
+ const draft=structuredClone(army);draft.heroes[id].level+=steps;
+ return createUnit(balance,id,'ally',draft);
+}
+export function growthContributionRows(army,id,balance){
+ const original=army.heroes[id],draft=structuredClone(army),hero=draft.heroes[id];
+ Object.assign(hero,{growth:{level:1,exp:0},level:0,troopLevel:0,slots:[null,null],promotion:0});
+ delete hero.specialization;delete hero.modifications;
+ const withoutMastery=source=>createUnit(balance,id,'ally',source,id,1,0,null,1,1,1,1,10000,1,0,1);
+ const stages=[withoutMastery(draft)];
+ hero.growth=structuredClone(original.growth);stages.push(withoutMastery(draft));
+ hero.level=original.level;hero.troopLevel=original.troopLevel??0;if(original.modifications)hero.modifications=structuredClone(original.modifications);stages.push(withoutMastery(draft));
+ hero.slots=[...original.slots];stages.push(withoutMastery(draft));
+ hero.promotion=original.promotion??0;stages.push(withoutMastery(draft));
+ const final=createUnit(balance,id,'ally',army);
+ const prior=withoutMastery(army);
+ return STATS.slice(0,4).map(([label,key])=>({label,key,base:stages[0][key],level:stages[1][key]-stages[0][key],upgrade:stages[2][key]-stages[1][key],parts:stages[3][key]-stages[2][key],promotion:stages[4][key]-stages[3][key],specialization:prior[key]-stages[4][key],mastery:final[key]-prior[key],final:final[key]}));
+}
+export function equipmentEffectDescription(army,id,partId,balance){
+ const draft=structuredClone(army);draft.heroes[id].slots=[null,null];
+ const before=createUnit(balance,id,'ally',draft);draft.heroes[id].slots[0]=partId;
+ const after=createUnit(balance,id,'ally',draft),parts=STATS.map(([name,key])=>[name,after[key]-before[key]]).filter(([,n])=>n).map(([name,n])=>`${name} ${n>=0?'+':''}${n}`);
+ const part=PARTS[partId];for(const [key,name] of [['critical','치명'],['evasion','회피'],['tactic','책략 성공']])if(part[key])parts.push(`${name} +${part[key]}%p`);
+ if(part.morale)parts.push(`전투 시작 사기 +${part.morale}`);
+ return parts.join(' · ');
+}

@@ -1,0 +1,91 @@
+// Keep the full historical chapter formation for old saves and paid receipts.
+// Only never-arrived reserves are excluded from a continued battle.
+const fail=message=>{throw new Error('2막 증원·이탈 기록 오류: '+message);};
+const ensure=(ok,message)=>{if(!ok)fail(message);};
+const unique=ids=>Array.isArray(ids)&&new Set(ids).size===ids.length;
+const enabled=(state,wave)=>wave.campaignEventsVersion!==1||state.campaignEventsVersion===1;
+export const ACT2_MAX_REINFORCEMENT=4;
+export const GUANYU_WITHDRAWAL_ROUND=5;
+export const act2ReliefApplies=chapter=>chapter?.rosterMode==='story'&&chapter.act===2&&chapter.campaignLayoutVersion===1;
+export function installAct2ReliefPolicy(chapter){
+ if(!act2ReliefApplies(chapter))return;
+ chapter.act2ReliefPolicy={version:1,maximumEnemyWave:ACT2_MAX_REINFORCEMENT,...(chapter.id==='s08_xiaopei'?{guanyuWithdrawalRound:GUANYU_WITHDRAWAL_ROUND}:{})};
+}
+export function act2DefaultRemovedIds(chapter,state={campaignEventsVersion:1}){
+ if(!act2ReliefApplies(chapter))return [];
+ return (chapter.reinforcements??[]).filter(w=>w.team!=='ally'&&enabled(state,w)).flatMap(w=>w.unitIds.slice(ACT2_MAX_REINFORCEMENT));
+}
+export function act2ReliefWaves(state,chapter,waves=chapter?.reinforcements??[]){
+ if(state?.act2ReliefVersion!==1)return waves;
+ const removed=new Set(state.act2ReliefRemovedIds??[]);
+ return waves.map(w=>w.team==='ally'?w:{...w,unitIds:w.unitIds.filter(id=>!removed.has(id))});
+}
+export function act2ReliefEnemyOrders(state,chapter,orders=chapter?.enemies??[]){
+ if(state?.act2ReliefVersion!==1)return orders;
+ const removed=new Set(state.act2ReliefRemovedIds??[]);return orders.filter(e=>!removed.has(e.id));
+}
+export function initializeAct2Relief(state,chapter,{reinforcementVersion=1,removedIds=null,withdrawalVersion=1}={}){
+ ensure([0,1].includes(reinforcementVersion)&&[0,1].includes(withdrawalVersion),'지원하지 않는 버전');
+ if(!act2ReliefApplies(chapter))return;
+ if(reinforcementVersion===1&&chapter.battleEventsVersion===1){
+  const allowed=act2DefaultRemovedIds(chapter,state),ids=removedIds===null?allowed:[...removedIds];
+  ensure(unique(ids)&&ids.every(id=>allowed.includes(id)),'제외 가능한 미등장 증원');
+  state.act2ReliefVersion=1;state.act2ReliefRemovedIds=ids;
+  state.units=state.units.filter(u=>!ids.includes(u.id));
+ }
+ if(withdrawalVersion===1&&chapter.id==='s08_xiaopei'&&state.campaignEventsVersion===1)state.guanyuWithdrawalVersion=1;
+}
+function withdrawalEvent(event){return event?.withdrawal?.unit==='guanyu'&&event.trigger?.type==='roundStart';}
+export function act2EventForState(state,chapter,event){
+ if(!act2ReliefApplies(chapter)||chapter.id!=='s08_xiaopei'||state.guanyuWithdrawalVersion!==1)return event;
+ if(withdrawalEvent(event))return {...event,trigger:{...event.trigger,round:GUANYU_WITHDRAWAL_ROUND},lines:event.lines.map(line=>line.speaker==='guanyu'?{...line,text:'형님, 약속한 다섯째 턴입니다. 이제 하비로 갈라지겠습니다. 부디 무사하십시오!'}:line)};
+ if(event?.trigger?.type==='battleStart')return {...event,lines:event.lines.map(line=>line.speaker==='liubei'?{...line,text:'북쪽 출구로 함께 빠져나가세. 관우는 5턴 시작에 하비로 갈라질 것이니, 그 전에 힘을 모아 길을 열게!'}:line)};
+ return event;
+}
+export function act2BattleEvents(state,chapter,events=chapter?.events??[]){return events.map(event=>act2EventForState(state,chapter,event));}
+export function guanyuWithdrawalStatus(state,chapter){
+ if(!act2ReliefApplies(chapter)||chapter.id!=='s08_xiaopei'||state?.campaignEventsVersion!==1)return null;
+ const event=(chapter.events??[]).find(withdrawalEvent),record=state.storyWithdrawals?.find(r=>r.unit==='guanyu'),unit=state.units?.find(u=>u.id==='guanyu');
+ const round=record?.round??(state.guanyuWithdrawalVersion===1?GUANYU_WITHDRAWAL_ROUND:event?.trigger.round);
+ if(!Number.isInteger(round))return null;
+ return {unitId:'guanyu',round,completed:!!record,fallen:!record&&(unit?.hp??0)<=0,scheduled:!record&&(unit?.hp??0)>0,text:record?'관우 · '+round+'턴에 하비로 이탈 완료':(unit?.hp??0)>0?'관우 · '+round+'턴 시작에 하비로 이탈 예정':'관우 · 퇴각하여 예정 이탈 없음'};
+}
+export function validateAct2Relief(state,chapter){
+ const marker=state.act2ReliefVersion,removed=state.act2ReliefRemovedIds;
+ if(marker===undefined)ensure(removed===undefined,'구 전투에 제외 목록');
+ else {
+  ensure(marker===1&&act2ReliefApplies(chapter)&&state.battleEventsVersion===1,'증원 버전/전장');
+  const allowed=act2DefaultRemovedIds(chapter,state);
+  ensure(unique(removed)&&removed.every(id=>allowed.includes(id)),'제외 목록 원본·중복');
+  const all=[...state.units,...(state.reinforcements?.pending??[]).flatMap(w=>w.units)];ensure(removed.every(id=>!all.some(u=>u.id===id)),'제외한 증원의 등장');
+  for(const wave of state.reinforcements?.pending??[])if(wave.units.some(u=>u.team==='enemy'))ensure(wave.units.length<=ACT2_MAX_REINFORCEMENT,'대기 적 증원 상한');
+ }
+ const withdrawal=state.guanyuWithdrawalVersion;
+ if(withdrawal!==undefined){
+  ensure(withdrawal===1&&act2ReliefApplies(chapter)&&chapter.id==='s08_xiaopei'&&state.campaignEventsVersion===1,'관우 이탈 버전/전장');
+  const index=(chapter.events??[]).findIndex(withdrawalEvent),unit=state.units.find(u=>u.id==='guanyu'),record=state.storyWithdrawals?.find(r=>r.unit==='guanyu');
+  ensure(index>=0,'관우 이탈 이벤트');
+  if(record)ensure(record.round===GUANYU_WITHDRAWAL_ROUND,'관우 이탈 시점');
+  if(unit?.hp>0)ensure(!state.storyEvents?.fired.includes(index),'이탈 발동 뒤 관우 재등장');
+ }
+ return state;
+}
+// Invoke only after the entire original save, records and rewards validate.
+export function upgradeValidatedAct2Relief(value,chapter){
+ const state=value.state;
+ if(!act2ReliefApplies(chapter)||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const result={removedIds:[],withdrawalUpgraded:false,reinforcementUpgraded:false};
+ if(state.act2ReliefVersion===undefined&&state.battleEventsVersion===1){
+  const allowed=new Set(act2DefaultRemovedIds(chapter,state));
+  for(const wave of state.reinforcements?.pending??[]){
+   if(wave.units.some(u=>u.team==='enemy')){const removed=wave.units.filter(u=>allowed.has(u.id)).map(u=>u.id);result.removedIds.push(...removed);wave.units=wave.units.filter(u=>!allowed.has(u.id));}
+  }
+  state.act2ReliefVersion=1;state.act2ReliefRemovedIds=[...result.removedIds];
+  result.reinforcementUpgraded=true;
+ }
+ if(chapter.id==='s08_xiaopei'&&state.guanyuWithdrawalVersion===undefined&&state.campaignEventsVersion===1){
+  const unit=state.units.find(u=>u.id==='guanyu'),index=chapter.events.findIndex(withdrawalEvent);
+  if(unit?.hp>0&&!unit.withdrawn&&!state.storyWithdrawals.some(r=>r.unit==='guanyu')&&index>=0&&!state.storyEvents.fired.includes(index)&&state.round<=GUANYU_WITHDRAWAL_ROUND){state.guanyuWithdrawalVersion=1;result.withdrawalUpgraded=true;}
+ }
+ return result.reinforcementUpgraded||result.withdrawalUpgraded?result:null;
+}

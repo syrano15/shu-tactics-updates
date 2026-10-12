@@ -1,0 +1,51 @@
+import {HERO_DATA} from './heroes.js';
+import {effectiveClass} from './class-change.js';
+export const FOURTH_SPIRIT_LEVEL=30;
+export const FOURTH_SPIRIT_POOL=Object.freeze(['accel','strike','focus','fury','wisdom','spirit','flash','wall']);
+const classes=new Set(['infantry','spear','cavalry','archer','crossbow','strategist']);
+const fail=message=>{throw new Error('선택 정신기 기록 오류: '+message);};
+export function fixedSpiritIds(id,cls){
+ let ids=[...(HERO_DATA[id]?.spirits??[])];if(!ids.length)return [];
+ if(cls==='strategist'&&!ids.includes('wisdom')){const replace=ids.findIndex(id=>['strike','fury','wall','spirit'].includes(id));ids[replace<0?0:replace]='wisdom';}
+ else if(cls!=='strategist'&&ids.includes('wisdom'))ids[ids.indexOf('wisdom')]='strike';
+ if(cls==='strategist'){
+  const used=new Set(ids.filter(id=>!['strike','fury'].includes(id)));
+  ids=ids.map(id=>{if(!['strike','fury'].includes(id))return id;const next=['focus','flash','accel'].find(other=>!used.has(other));used.add(next);return next;});
+  ids=[...ids.filter(id=>id==='wisdom'),...ids.filter(id=>id!=='wisdom')];
+ }
+ return ids;
+}
+export function fourthSpiritCandidates(id,cls){
+ const fixed=fixedSpiritIds(id,cls);
+ return FOURTH_SPIRIT_POOL.filter(key=>!fixed.includes(key)&&(cls==='strategist'?!['strike','fury'].includes(key):key!=='wisdom'));
+}
+export function validateFourthSpiritHero(id,hero){
+ const choice=hero.fourthSpirit;if(choice===undefined)return;
+ if(!HERO_DATA[id]||HERO_DATA[id].guest||hero.growth?.level<FOURTH_SPIRIT_LEVEL||!choice||typeof choice!=='object'||Array.isArray(choice)||Object.keys(choice).sort().join(',')!=='cls,id,version'||choice.version!==1||!classes.has(choice.cls)||!fourthSpiritCandidates(id,choice.cls).includes(choice.id))fail('선택 당시 레벨·병과·후보');
+}
+export function fourthSpiritStatus(army,id){
+ const hero=army?.heroes?.[id],cls=effectiveClass(army,id,HERO_DATA[id]?.class),choice=hero?.fourthSpirit;
+ const eligible=!!hero&&!!HERO_DATA[id]&&!HERO_DATA[id].guest&&!hero.departed&&(hero.growth?.level??1)>=FOURTH_SPIRIT_LEVEL;
+ const candidates=fourthSpiritCandidates(id,cls),active=eligible&&!!choice&&candidates.includes(choice.id);
+ return {id,cls,level:hero?.growth?.level??1,eligible,selectedId:choice?.id??null,active,candidates:eligible?candidates:[],needsSelection:eligible&&!active,reason:!hero?'장수를 선택하세요.':HERO_DATA[id]?.guest?'고정 게스트는 선택 정신기를 배우지 않습니다.':hero.departed?'이탈한 장수는 선택할 수 없습니다.':!eligible?'Lv30에 네 번째 정신기를 선택합니다.':choice&&!active?'병과 변경으로 선택 정신기가 기본 정신기와 중복되거나 부적합합니다. 무료로 다시 선택하세요.':!choice?'네 번째 정신기를 선택하세요.':''};
+}
+export function selectFourthSpirit(army,id,key){
+ const status=fourthSpiritStatus(army,id);if(!status.eligible)fail(status.reason);
+ if(key===null){delete army.heroes[id].fourthSpirit;return fourthSpiritStatus(army,id);}
+ if(!status.candidates.includes(key))fail('현재 병과의 기본 세 정신기와 다른 후보를 선택하세요.');
+ army.heroes[id].fourthSpirit={version:1,id:key,cls:status.cls};return fourthSpiritStatus(army,id);
+}
+export function captureFourthSpirit(unit,army){
+ if(unit.team!=='ally'||unit.extra||HERO_DATA[unit.id]?.guest)return unit;
+ const choice=army?.heroes?.[unit.id]?.fourthSpirit;
+ if(choice&&unit.level>=FOURTH_SPIRIT_LEVEL&&fourthSpiritCandidates(unit.id,unit.cls).includes(choice.id))unit.fourthSpirit=choice.id;
+ return unit;
+}
+export function validateFourthSpiritState(value){
+ for(const [id,hero] of Object.entries(value.army.heroes))validateFourthSpiritHero(id,hero);
+ const active=['preDialogue','deployment','battle'].includes(value.campaign.stage);
+ for(const unit of value.state.units){
+  if(unit.fourthSpirit!==undefined&&(unit.team!=='ally'||unit.extra||HERO_DATA[unit.id]?.guest||unit.level<FOURTH_SPIRIT_LEVEL||!fourthSpiritCandidates(unit.id,unit.cls).includes(unit.fourthSpirit)))fail('출전한 선택 정신기');
+  if(active&&unit.team==='ally'&&!unit.extra){const h=value.army.heroes[unit.id],choice=h?.fourthSpirit,expected=choice&&unit.level>=FOURTH_SPIRIT_LEVEL&&fourthSpiritCandidates(unit.id,unit.cls).includes(choice.id)?choice.id:undefined;if(unit.fourthSpirit!==expected)fail('장수 선택과 출전 기록 불일치');}
+ }
+}

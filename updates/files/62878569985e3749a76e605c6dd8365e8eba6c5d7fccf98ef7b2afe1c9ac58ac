@@ -1,0 +1,38 @@
+import {installCampaign,comparisonFromSearch} from './story-data.js';
+import {loadAssetManifest} from './story-assets.js';
+import {setTextCatalog} from './story-presentation.js';
+import {activateExpandedCampaign} from './campaign-layout.js';
+import {appendAct4} from './act4-campaign.js';
+import {installAct4MapArt} from './act4-map-art.js';
+import {installAct2MapRefinement} from './act2-map-art.js';
+import {installExpandedTerrainMetadata,registerExpandedStageMapArt} from './terrain-art.js';
+import {installCampaignMapPresentation} from './campaign-map-presentation.js';
+try{
+ const names=['stages-act1.json','dialogue-act1-v3.json','text-heroes.json','text-stages.json','text-glossary.json','stages-act2.json','dialogue-act2-v3.json','stages-act3.json','dialogue-act3-v3.json','stages-act4.json','dialogue-act4-playable-v040.json'];
+ const docs=await Promise.all(names.map(async name=>{
+  const response=await fetch(new URL('./data/'+name,import.meta.url));
+  if(!response.ok)throw new Error('데이터를 읽지 못했습니다: '+name);
+  return response.json();
+ }));
+ const comparison=comparisonFromSearch(globalThis.location?.search??'');
+ installCampaign(docs[0],docs[1],docs[5],docs[6],{comparison,act3:docs[7],dialogue3:docs[8]});
+ if(!comparison){
+  const expanded=activateExpandedCampaign();
+  appendAct4(docs[9],docs[10]);
+  installExpandedTerrainMetadata(expanded);
+  const fleet=expanded.find(ch=>ch.id==='s15_chibi');
+  registerExpandedStageMapArt({id:fleet.id,src:'art/act3/maps/s15_chibi-v039.webp',width:2200,height:1600,columns:22,rows:16,terrainKey:fleet.terrain.join('\n'),blockedKind:'water',coverKind:'woodenCargo'});
+  await installCampaignMapPresentation(expanded.filter(ch=>ch.act<=3),registerExpandedStageMapArt);
+  installAct2MapRefinement(expanded,registerExpandedStageMapArt);
+  installAct4MapArt(expanded,registerExpandedStageMapArt);
+ }
+ setTextCatalog({heroes:docs[2],stages:docs[3],glossary:docs[4]});
+ await loadAssetManifest();
+ const {initializeTitleArtwork}=await import('./release-ui.js');
+ initializeTitleArtwork();
+ await import('./app.js');
+}catch(error){
+ document.getElementById('title-save-info').textContent='여정 데이터 오류: '+error.message;
+ document.querySelectorAll('.title-menu button').forEach(button=>button.disabled=true);
+ console.error(error);
+}

@@ -1,0 +1,22 @@
+import {createUnit} from './engine.js';
+import {modificationStatus,modificationCost,modifyHero} from './equipment.js';
+export function modificationPreview(army,id,kind,steps,balance,chapter){
+ const status=modificationStatus(army,id,kind,chapter),before=createUnit(balance,id,'ally',army);
+ const valid=Number.isInteger(steps)&&steps>=1&&steps<=status.remaining,cost=valid?modificationCost(kind,status.level,steps):0;
+ let reason=!valid?(status.reason||'전체 15단계 상한을 넘습니다.'):status.reason;
+ const enough=army.gold>=cost,draft=structuredClone(army);let after=before;
+ if(valid&&!['guest','departed'].some(k=>draft.heroes[id]?.[k])){draft.gold=Math.max(draft.gold,cost);try{modifyHero(draft,id,kind,steps,chapter,before.maxHp);after=createUnit(balance,id,'ally',draft);}catch(e){reason=e.message;}}
+ return {...status,steps,cost,before,after,delta:{atk:after.atk-before.atk,int:after.int-before.int,maxHp:after.maxHp-before.maxHp,def:after.def-before.def},available:valid&&enough&&!reason,reason:reason||(!enough?'자금이 부족합니다.':'')};
+}
+
+// Maximum purchasable steps uses the same actual transaction and 15-step limit as Apply.
+export function maximumModificationSteps(army,id,kind,balance,chapter){
+ const status=modificationStatus(army,id,kind,chapter);
+ let maximum=0;
+ for(let steps=1;steps<=status.remaining;steps++){
+  const probe=modificationPreview(army,id,kind,steps,balance,chapter);
+  if(!probe.available)break;
+  maximum=steps;
+ }
+ return maximum;
+}

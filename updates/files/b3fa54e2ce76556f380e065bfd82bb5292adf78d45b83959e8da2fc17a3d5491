@@ -1,0 +1,38 @@
+import {effectiveSkillDefinition,combatSkillTargets} from './combat-skills.js';
+import {distance,inside} from './engine.js';
+import {legendaryAffected,legendaryAreaCells} from './legendary-skills.js';
+// Area previews mirror the affected-unit rules; they never spend resources or draw RNG.
+export function combatSkillArea(state,actor,id,target=null){
+ const skill=effectiveSkillDefinition(actor,id);
+ if(!skill||!actor)return {cells:new Set(),ids:new Set(),label:'',support:false,special:false};
+ if(skill.legendary){
+  const selfCentered=['allies','self','formation','surround','diamond-self'].includes(skill.area),center=selfCentered?actor:target,cells=center?legendaryAreaCells(state,actor,skill,center):new Set(),affected=center?legendaryAffected(state,actor,center,skill):[];
+  if(!skill.area||skill.area==='chain-enemy')for(const unit of target?affected:combatSkillTargets(state,actor,id))if(inside(unit.x,unit.y,state))cells.add(unit.x+','+unit.y);
+  const zone=skill.area?'표시한 영역의 '+(skill.kind==='support'?'아군':'적군')+'만 효과 · '+skill.description:(skill.kind==='support'?'아군':'적군')+' 1명 · 거리 '+skill.range.join('~')+' · '+skill.description;
+  return {cells,ids:new Set(affected.map(unit=>unit.id)),support:skill.kind==='support',special:true,label:zone,names:affected.map(unit=>unit.name).join(' · ')||'현재 효과를 받을 대상 없음',skill};
+ }
+ const support=skill.kind==='support',special=!['supply','tactic-area-fire'].includes(id),cells=new Set(),center=skill.area==='cross'?target:actor;
+ const affected=state.units.filter(unit=>{
+  if(unit.hp<=0)return false;
+  if(skill.area==='surround')return unit.team!==actor.team&&Math.max(Math.abs(actor.x-unit.x),Math.abs(actor.y-unit.y))===1;
+  if(skill.area==='allies')return unit.team===actor.team&&distance(actor,unit)<=skill.radius;
+  if(skill.area==='cross')return center&&unit.team!==actor.team&&distance(center,unit)<=1;
+  return target?.id===unit.id;
+ });
+ if(center&&skill.area)for(let y=0;y<state.terrain.length;y++)for(let x=0;x<state.terrain[0].length;x++){
+  const d=Math.abs(center.x-x)+Math.abs(center.y-y),cheb=Math.max(Math.abs(center.x-x),Math.abs(center.y-y));
+  if(skill.area==='surround'?cheb===1:skill.area==='allies'?d<=skill.radius:skill.area==='cross'?d<=1:false)cells.add(x+','+y);
+ }
+ if(!skill.area){
+  for(const unit of target?[target]:combatSkillTargets(state,actor,id))if(inside(unit.x,unit.y,state))cells.add(unit.x+','+unit.y);
+ }
+ const names=affected.map(unit=>unit.name).join(' · ')||'현재 효과를 받을 대상 없음';
+ const zone=skill.area==='surround'?'자신 주변 8칸의 적만 · 아군 피해 없음':skill.area==='allies'?'자신 포함 거리 '+skill.radius+' 이내 아군 · 공격 +15%·사기 +10':skill.area==='cross'?(center?'선택 지점과 상하좌우 5칸의 적만':'적을 선택하면 십자 5칸 범위 표시'):skill.kind==='support'?'아군 1명 · 거리 '+skill.range.join('~'):'적 1명 · 거리 '+skill.range.join('~')+(skill.straight?' · 같은 행 또는 열':'');
+ return {cells,ids:new Set(affected.map(unit=>unit.id)),support,special,label:zone,names,skill};
+}
+
+/** Separate overlay is above delivered map pixels; skill math is unchanged. */
+export function skillAreaOverlayHTML(area,x,y){
+ if(!area?.cells.has(x+','+y))return '';
+ return '<span class="skill-area-overlay'+(area.support&&!area.special?' is-support':'')+'" aria-hidden="true"></span>';
+}

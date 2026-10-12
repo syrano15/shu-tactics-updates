@@ -1,0 +1,129 @@
+import {CHAPTERS} from './campaign.js';
+import {terrainMovementCost} from './terrain-effects.js';
+import {movement} from './spirits.js';
+import {commanderPanicActive} from './commander-panic.js';
+import {campaignWaves} from './campaign-events.js';
+
+export const ESCORT_FOLLOW_VERSION=1;
+const chapterFor=state=>state?.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state?.chapter];
+const alive=u=>u.hp>0&&!u.withdrawn&&!u.escaped;
+const cell=(x,y)=>x+','+y;
+const outcomes=['ready','followed','waited','blocked','manual'];
+const reasons=['','leaders','danger','noRoute','manualMove','off'];
+const reasonText={leaders:'호위 장수의 행동 확정을 기다립니다.',danger:'적 공격 위험이 있어 정지했습니다. 수레를 수동으로 조작할 수 있습니다.',noRoute:'안전한 이동 경로가 없어 정지했습니다. 수레를 수동으로 조작할 수 있습니다.',manualMove:'수동 이동을 그대로 유지합니다.',off:'수레를 직접 조작합니다.'};
+export const escortFollowApplies=(state,chapter=chapterFor(state))=>chapter?.id==='s10_thousand_li'&&state?.objective?.type==='reachTile'&&state.objective.unit==='x_carriage';
+export function initializeEscortFollow(state,chapter,version=1){
+ if(![0,1].includes(version))throw new Error('수레 자동 동행 버전이 올바르지 않습니다.');
+ if(version===1&&escortFollowApplies(state,chapter)){
+  state.escortFollowVersion=1;state.escortFollow={enabled:true,lastActionRound:0,lastOutcome:'ready',lastReason:''};
+ }
+}
+export function escortFollowStatus(state){
+ if(!escortFollowApplies(state))return null;
+ const record=state.escortFollowVersion===1?state.escortFollow:null,cart=state.units.find(u=>u.id==='x_carriage');
+ const ids=state.objective.requiredDefeated??[],clearedGates=ids.filter(id=>state.units.some(u=>u.id===id&&u.hp<=0)).length;
+ const enabled=record?.enabled===true;
+ return {available:true,enabled,cartId:'x_carriage',clearedGates,totalGates:ids.length,
+  goalText:'관문장 '+clearedGates+'/'+ids.length+' 격파 + 수레 탈출 · 적 전멸 불필요',
+  canToggle:!state.result&&state.phase==='ally'&&alive(cart),
+  statusText:!enabled?reasonText.off:reasonText[record.lastReason]??(record.lastOutcome==='followed'?'안전한 경로로 동행했습니다.':record.lastOutcome==='waited'?'안전한 곳에서 대기했습니다.':'호위 장수를 따라 안전하게 이동합니다.')};
+}
+export function setEscortFollowEnabled(state,enabled){
+ if(typeof enabled!=='boolean'||!escortFollowStatus(state)?.canToggle)throw new Error('아군 턴의 살아 있는 호위 수레만 동행을 설정할 수 있습니다.');
+ state.escortFollowVersion=1;
+ state.escortFollow??={enabled:false,lastActionRound:0,lastOutcome:'ready',lastReason:''};
+ state.escortFollow.enabled=enabled;state.escortFollow.lastReason=enabled?'':'off';
+ return escortFollowStatus(state);
+}
+export function recordEscortManualMovement(state,unit){
+ if(unit.id==='x_carriage'&&escortFollowApplies(state)&&state.escortFollowVersion===1){
+  state.escortFollow.lastOutcome='manual';state.escortFollow.lastReason='manualMove';
+ }
+}
+export function validateEscortFollow(state,chapter=chapterFor(state)){
+ const fail=()=>{throw new Error('수레 자동 동행 기록이 올바르지 않습니다.');};
+ if(state.escortFollowVersion===undefined){if(state.escortFollow!==undefined)fail();return;}
+ const r=state.escortFollow;
+ if(state.escortFollowVersion!==1||!escortFollowApplies(state,chapter)||!r||typeof r!=='object'||Array.isArray(r)||Object.keys(r).sort().join(',')!=='enabled,lastActionRound,lastOutcome,lastReason'||typeof r.enabled!=='boolean'||!Number.isInteger(r.lastActionRound)||r.lastActionRound<0||r.lastActionRound>state.round||!outcomes.includes(r.lastOutcome)||!reasons.includes(r.lastReason))fail();
+ if(r.lastActionRound===state.round&&!state.units.find(u=>u.id==='x_carriage')?.done)fail();
+}
+
+function goalDistances(state,tiles){
+ const result=new Map(),queue=[];
+ for(const [x,y] of tiles){result.set(cell(x,y),0);queue.push({x,y});}
+ for(let i=0;i<queue.length;i++)for(const [dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){
+  const p={x:queue[i].x+dx,y:queue[i].y+dy},key=cell(p.x,p.y);
+  if(state.terrain[p.y]?.[p.x]===undefined||state.terrain[p.y][p.x]==='#'||result.has(key))continue;
+  result.set(key,result.get(cell(queue[i].x,queue[i].y))+1);queue.push(p);
+ }
+ return result;
+}
+function imminentReserves(state){
+ const count=state.units.filter(u=>u.team==='enemy'&&alive(u)).length;
+ return (state.reinforcements?.pending??[]).filter(entry=>{
+  const wave=campaignWaves(state,chapterFor(state)).find(w=>w.id===entry.id),t=wave?.trigger;
+  if(!t||wave.team==='ally')return false;
+  if(t.type==='unitDefeated')return state.units.some(u=>u.id===t.unit&&u.hp===0);
+  if(t.type==='roundStart')return t.round<=state.round;
+  return state.round>=(t.minRound??1)&&(!t.unit||state.units.some(u=>u.id===t.unit&&alive(u)))&&(count<=t.count||state.round>=(t.fallbackRound??Infinity));
+ }).flatMap(entry=>entry.units);
+}
+function dangerCells(state,cart,{reachable,canTarget}){
+ const danger=new Set(),board={...state,units:state.units.filter(u=>u!==cart)};
+ for(const enemy of state.units.filter(u=>u.team==='enemy'&&alive(u)&&!commanderPanicActive(u))){
+  const fresh={...enemy,moved:false,done:false},order=chapterFor(state)?.enemies.find(e=>e.id===enemy.id);
+  const moves=order?.advanceRound>state.round?new Map([[cell(enemy.x,enemy.y),0]]):reachable(board,fresh);
+  for(const key of moves.keys()){
+   const [x,y]=key.split(',').map(Number),actor={...fresh,x,y,moved:x!==enemy.x||y!==enemy.y};
+   for(let yy=Math.max(0,y-enemy.max);yy<Math.min(state.terrain.length,y+enemy.max+1);yy++)for(let xx=Math.max(0,x-enemy.max);xx<Math.min(state.terrain[0].length,x+enemy.max+1);xx++){
+    if(canTarget(actor,{...cart,x:xx,y:yy}))danger.add(cell(xx,yy));
+   }
+  }
+ }
+ // A wave whose entrance is currently blocked may arrive as soon as a unit
+ // vacates it. Include its possible nearby arrival cells conservatively.
+ for(const enemy of imminentReserves(state))for(let y=0;y<state.terrain.length;y++)for(let x=0;x<state.terrain[0].length;x++)if(Math.abs(enemy.x-x)+Math.abs(enemy.y-y)<=enemy.move+enemy.max+2)danger.add(cell(x,y));
+ return danger;
+}
+function safePaths(state,cart,danger){
+ const start=cell(cart.x,cart.y),records=new Map([[start,{x:cart.x,y:cart.y,cost:0,path:[[cart.x,cart.y]]}]]),queue=[records.get(start)],limit=movement(cart,state);
+ const occupied=new Map(state.units.filter(alive).map(u=>[cell(u.x,u.y),u]));
+ while(queue.length){
+  queue.sort((a,b)=>a.cost-b.cost||a.y-b.y||a.x-b.x);const p=queue.shift();
+  if(p.cost!==records.get(cell(p.x,p.y)).cost)continue;
+  for(const [dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){
+   const x=p.x+dx,y=p.y+dy,k=cell(x,y),other=occupied.get(k);
+   // Enemies act after movement is committed; this game has no reaction hits
+   // while crossing a cell. A threatened cart must be able to pass through an
+   // exposed cell to finish on a safe retreat tile.
+   if(state.terrain[y]?.[x]===undefined||state.terrain[y][x]==='#'||other&&other.team!==cart.team)continue;
+   const cost=p.cost+terrainMovementCost(state,cart,x,y);
+   if(cost>limit||cost>=(records.get(k)?.cost??Infinity))continue;
+   const next={x,y,cost,path:[...p.path,[x,y]]};records.set(k,next);queue.push(next);
+  }
+ }
+ return [...records.values()].filter(p=>!occupied.has(cell(p.x,p.y))||occupied.get(cell(p.x,p.y))===cart);
+}
+export function planEscortFollow(state,api,{force=false}={}){
+ const none={action:'none',unitId:'x_carriage',reason:'',log:''};
+ if(!escortFollowApplies(state)||state.escortFollowVersion!==1||!state.escortFollow.enabled||state.result||state.phase!=='ally')return none;
+ const cart=state.units.find(u=>u.id==='x_carriage');
+ if(!cart||!alive(cart)||cart.done||api.disabled(cart))return none;
+ if(cart.moved||cart.moveOrigin)return {...none,reason:'manualMove'};
+ const leaders=state.units.filter(u=>u.team==='ally'&&u.id!==cart.id&&!u.nonCombat&&alive(u));
+ if(!leaders.length||leaders.some(u=>u.moveOrigin)||!force&&leaders.some(u=>!u.done&&!api.disabled(u)))return {...none,reason:'leaders'};
+ const distances=goalDistances(state,state.objective.tiles),danger=dangerCells(state,cart,api),current=distances.get(cell(cart.x,cart.y))??Infinity;
+ const ready=escortFollowStatus(state).clearedGates===escortFollowStatus(state).totalGates;
+ const front=ready?Infinity:Math.max(cart.x,...leaders.map(u=>u.x-1));
+ const paths=safePaths(state,cart,danger).filter(p=>p.x<=front&&!danger.has(cell(p.x,p.y)));
+ const primaryEscort=leaders.find(u=>u.id==='guanyu');
+ // Before the last gate opens, the cart follows its main escort rather than
+ // advancing out of his protection merely because he is farther east.
+ const progress=paths.filter(p=>(distances.get(cell(p.x,p.y))??Infinity)<current&&(ready||!primaryEscort||Math.abs(p.x-primaryEscort.x)+Math.abs(p.y-primaryEscort.y)<=movement(cart,state)));
+ const candidates=progress.length?progress:danger.has(cell(cart.x,cart.y))?paths:[];
+ candidates.sort((a,b)=>(distances.get(cell(a.x,a.y))??Infinity)-(distances.get(cell(b.x,b.y))??Infinity)||a.cost-b.cost||a.y-b.y||a.x-b.x);
+ const best=candidates[0],from=[cart.x,cart.y];
+ if(best)return {action:'move',unitId:cart.id,from,to:[best.x,best.y],path:best.path,reason:'',log:'호위 수레 · 안전 경로 자동 동행'};
+ if(danger.has(cell(cart.x,cart.y)))return {action:'stop',unitId:cart.id,from,to:from,path:[from],reason:'danger',log:reasonText.danger};
+ return {action:'wait',unitId:cart.id,from,to:from,path:[from],reason:'',log:'호위 수레 · 안전한 곳에서 자동 대기'};
+}

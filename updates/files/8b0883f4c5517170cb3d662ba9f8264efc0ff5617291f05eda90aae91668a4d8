@@ -1,0 +1,18 @@
+export const ALLY_MOVEMENT_VERSION=1;
+const boosted=new Set(['infantry','spear','archer','crossbow']);
+export function applyAllyMovement(unit,version=1){
+ if(![0,1].includes(version))throw new Error('아군 이동 버전이 올바르지 않습니다.');
+ if(version===1&&unit.team==='ally'&&!unit.nonCombat&&unit.cls!=='strategist')unit.move=Math.min(20,Math.max(3,unit.move+(boosted.has(unit.cls)?1:0)));
+ return unit;
+}
+// Apply only after the original checkpoint has been fully validated. Stats
+// are upgraded once; paid preparation, action flags and battle RNG stay intact.
+export function applyAllyMovementUpgrade(state){
+ if(state.allyMovementVersion===1)return false;
+ if(state.allyMovementVersion!==undefined)throw new Error('아군 이동 버전이 올바르지 않습니다.');
+ for(const unit of [...state.units,...(state.reinforcements?.pending??[]).flatMap(w=>w.units)])applyAllyMovement(unit,1);
+ state.allyMovementVersion=1;return true;
+}
+export function validateAllyMovementVersion(state){
+ if(state.allyMovementVersion!==undefined&&state.allyMovementVersion!==1)throw new Error('아군 이동 버전이 올바르지 않습니다.');
+}

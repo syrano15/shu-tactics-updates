@@ -1,0 +1,552 @@
+{
+  "schemaVersion": 1,
+  "version": "0.40.1",
+  "maps": [
+    {
+      "id": "s07_xiapi",
+      "columns": 18,
+      "rows": 14,
+      "width": 1800,
+      "height": 1400,
+      "terrainKey": "...........#......\n...........#......\n...FFF.....#......\n..................\n...........#......\n...FF......#......\n..................\n..................\n...........#......\n...FF......#......\n..................\n...........#......\n...FFF.....#......\n...........#......",
+      "blockedKind": "water",
+      "src": "art/act2-v0401/maps/s07_xiapi-v0401.webp",
+      "overlaySrc": "art/act2-v0401/maps/s07_xiapi-traversal-v0401.svg",
+      "tool": "built-in image_gen.imagegen",
+      "originalPath": "art/maps/v0398/s07_xiapi.webp",
+      "originalSHA256": "8372d2b274e1df7a6e69cd3e3e11fbae69d126aff5c1e5811650e3e6f44186f9",
+      "sha256": "5381f92d26ceeecf4b530c1b4514ea7dca58934032e8509a50fde690774c44c5",
+      "bytes": 650994,
+      "generatedWidth": 1422,
+      "generatedHeight": 1106,
+      "pixelExactRendering": false,
+      "logicalGeometryExact": true,
+      "geometryReference": "source-art/maps/s07_xiapi-logical-v0401.svg",
+      "geometryReferenceSHA256": "efe4e97cc378d2fe8ce3946f23ce4edde1451e17355b930769f552c1a38577ec",
+      "generatedSource": "source-art/maps/s07_xiapi-generated-v0401.png",
+      "generatedSourceSHA256": "ee7e88b320ce06a5075f93785cb7d89b336fa3f031fb3abfbae04a537ef8aceb",
+      "overlaySHA256": "d94ddb48924880dfd20597aebed4953aa9a743b96c1e1d094464c002edd838c0",
+      "bridgeCells": [
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          11,
+          10
+        ]
+      ],
+      "causewayCells": [],
+      "bridgeRegions": 3,
+      "overlayPixelSamples": [
+        {
+          "x": 11,
+          "y": 3,
+          "kind": "bridge",
+          "rgba": [
+            181,
+            149,
+            104,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "kind": "bridge",
+          "rgba": [
+            177,
+            144,
+            99,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "kind": "bridge",
+          "rgba": [
+            175,
+            143,
+            98,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "kind": "bridge",
+          "rgba": [
+            171,
+            138,
+            93,
+            255
+          ]
+        }
+      ],
+      "causewaySurface": {
+        "mode": "native-svg-local-soil-v2",
+        "marks": 0,
+        "patches": 0,
+        "rim": 0,
+        "rimMaximumExtensionPixels": 8,
+        "cells": []
+      },
+      "overlayGeometryValidation": {
+        "sampledCellCenters": 252,
+        "opaqueTraversalCenters": 4,
+        "transparentOtherCenters": 248
+      }
+    },
+    {
+      "id": "s09_baima",
+      "columns": 18,
+      "rows": 14,
+      "width": 1800,
+      "height": 1400,
+      "terrainKey": ".........##.......\n.........##.......\n.....FFF.##.......\n.........##...FFF.\n.........##...FFF.\n.........##.......\n..................\n..................\n..................\n.........##.......\n..FFF....##...FFF.\n..FFF....##...FFF.\n.........##.......\n.........##.......",
+      "blockedKind": "water",
+      "src": "art/act2-v0401/maps/s09_baima-v0401.webp",
+      "overlaySrc": "art/act2-v0401/maps/s09_baima-traversal-v0401.svg",
+      "tool": "built-in image_gen.imagegen",
+      "originalPath": "art/maps/v0395/s09_baima.webp",
+      "originalSHA256": "e0e7bc683bdc2bf6ca90110e5054f62dac36935234697f08db84ebb380628fd9",
+      "sha256": "be8422e696d90d0f251f1821a6d9a3a0e44738a7758b98b5b986d6c0e0d70a79",
+      "bytes": 643158,
+      "generatedWidth": 1422,
+      "generatedHeight": 1106,
+      "pixelExactRendering": false,
+      "logicalGeometryExact": true,
+      "geometryReference": "source-art/maps/s09_baima-logical-v0401.svg",
+      "geometryReferenceSHA256": "8100a007e5f9b2acdd117a56a196add298dd823fb94e5f697ade19aa8352c1f7",
+      "generatedSource": "source-art/maps/s09_baima-generated-v0401.png",
+      "generatedSourceSHA256": "8d7c9bf45f16544000fc048568399c7cdb931c7c452691a3ecb3bf70d03d8d35",
+      "overlaySHA256": "af96cb6390cf95501373bae16e24383f357bee436410adb797562908483485b0",
+      "bridgeCells": [
+        [
+          9,
+          6
+        ],
+        [
+          9,
+          7
+        ]
+      ],
+      "causewayCells": [
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          10,
+          8
+        ]
+      ],
+      "bridgeRegions": 1,
+      "overlayPixelSamples": [
+        {
+          "x": 9,
+          "y": 6,
+          "kind": "bridge",
+          "rgba": [
+            168,
+            135,
+            90,
+            255
+          ]
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "kind": "bridge",
+          "rgba": [
+            166,
+            132,
+            88,
+            255
+          ]
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "kind": "plainCauseway",
+          "rgba": [
+            185,
+            162,
+            117,
+            255
+          ]
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "kind": "plainCauseway",
+          "rgba": [
+            183,
+            158,
+            112,
+            255
+          ]
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "kind": "plainCauseway",
+          "rgba": [
+            172,
+            150,
+            104,
+            255
+          ]
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "kind": "plainCauseway",
+          "rgba": [
+            158,
+            139,
+            91,
+            255
+          ]
+        }
+      ],
+      "causewaySurface": {
+        "mode": "native-svg-local-soil-v2",
+        "marks": 400,
+        "patches": 96,
+        "rim": 84,
+        "rimMaximumExtensionPixels": 8,
+        "cells": [
+          {
+            "x": 9,
+            "y": 8,
+            "marks": 100,
+            "luminanceStdDev": 6.19
+          },
+          {
+            "x": 10,
+            "y": 6,
+            "marks": 100,
+            "luminanceStdDev": 6.84
+          },
+          {
+            "x": 10,
+            "y": 7,
+            "marks": 100,
+            "luminanceStdDev": 6.05
+          },
+          {
+            "x": 10,
+            "y": 8,
+            "marks": 100,
+            "luminanceStdDev": 5.84
+          }
+        ]
+      },
+      "overlayGeometryValidation": {
+        "sampledCellCenters": 252,
+        "opaqueTraversalCenters": 6,
+        "transparentOtherCenters": 246
+      }
+    },
+    {
+      "id": "s10_thousand_li",
+      "columns": 18,
+      "rows": 14,
+      "width": 1800,
+      "height": 1400,
+      "terrainKey": "#####...##########\n#####...##########\n#####...#......###\n#####...#......###\n#####...#......###\n###............###\n###......#####.###\n###......#####.###\n###......#####.###\n###............###\n###...##.......###\n###...##.......###\n###...##...F...###\n###...##.......###",
+      "blockedKind": "rock",
+      "src": "art/act2-v0401/maps/s10_thousand_li-v0401.webp",
+      "tool": "built-in image_gen.imagegen",
+      "originalPath": "art/maps/v0395/s10_thousand_li.webp",
+      "originalSHA256": "d11fd05e21460c69990e97a591aa85faee1fd7adbd83d0abd674d3d8f0c6023c",
+      "sha256": "53cb0fd6c275b58a5703ad36020fefb974deeaec61ab957d0f8bc88e7e87954d",
+      "bytes": 763672,
+      "generatedWidth": 1422,
+      "generatedHeight": 1106,
+      "pixelExactRendering": false,
+      "logicalGeometryExact": true,
+      "geometryReference": "source-art/maps/s10_thousand_li-logical-v0401.svg",
+      "geometryReferenceSHA256": "972f75bacbb1a824d5d73e8aae9352ea187fd9f5745e1b2aa2b4215e92ad3c16",
+      "generatedSource": "source-art/maps/s10_thousand_li-generated-v0401.png",
+      "generatedSourceSHA256": "28150c2705ad29a691d5b815365978018c6601d254fb310d36d9a006cdf85e63"
+    },
+    {
+      "id": "s12_xinye",
+      "columns": 18,
+      "rows": 14,
+      "width": 1800,
+      "height": 1400,
+      "terrainKey": ".........##.......\n.........##.......\n...FFF...##...FFF.\n.........##.......\n.........##.......\n.........##.......\n..................\n..................\n..................\n.........##.......\n...FFF...##...FFF.\n...FFF...##...FFF.\n.........##.......\n.........##.......",
+      "blockedKind": "water",
+      "src": "art/act2-v0401/maps/s12_xinye-v0401.webp",
+      "overlaySrc": "art/act2-v0401/maps/s12_xinye-traversal-v0401.svg",
+      "tool": "built-in image_gen.imagegen",
+      "originalPath": "art/maps/v0395/s12_xinye.webp",
+      "originalSHA256": "25d7529ccffe5bb84c40ce01a9dd50a6b8b558e78a1b3ea3368e83b22d032940",
+      "sha256": "97c2a6b3224af07607cebc1c4822d80cdf7b4d798959c606e855faf06f2fd7f9",
+      "bytes": 644346,
+      "generatedWidth": 1422,
+      "generatedHeight": 1106,
+      "pixelExactRendering": false,
+      "logicalGeometryExact": true,
+      "geometryReference": "source-art/maps/s12_xinye-logical-v0401.svg",
+      "geometryReferenceSHA256": "c49b2446bf9efdec392ab4b6455176b13a02273c32eb2ac7c1b5e46ddd4bfb46",
+      "generatedSource": "source-art/maps/s12_xinye-generated-v0401.png",
+      "generatedSourceSHA256": "2078d378a899ddce222ce86190e9db3e73d5ae3d9177be0162bd86369b97c185",
+      "overlaySHA256": "e50758bbafa743191dc57a80236acff4c8b9b43fdbdd89af9503143c9a682db2",
+      "bridgeCells": [
+        [
+          9,
+          6
+        ],
+        [
+          9,
+          7
+        ]
+      ],
+      "causewayCells": [
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          10,
+          8
+        ]
+      ],
+      "bridgeRegions": 1,
+      "overlayPixelSamples": [
+        {
+          "x": 9,
+          "y": 6,
+          "kind": "bridge",
+          "rgba": [
+            168,
+            135,
+            90,
+            255
+          ]
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "kind": "bridge",
+          "rgba": [
+            166,
+            132,
+            88,
+            255
+          ]
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "kind": "plainCauseway",
+          "rgba": [
+            165,
+            143,
+            97,
+            255
+          ]
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "kind": "plainCauseway",
+          "rgba": [
+            183,
+            159,
+            114,
+            255
+          ]
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "kind": "plainCauseway",
+          "rgba": [
+            176,
+            153,
+            107,
+            255
+          ]
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "kind": "plainCauseway",
+          "rgba": [
+            178,
+            156,
+            110,
+            255
+          ]
+        }
+      ],
+      "causewaySurface": {
+        "mode": "native-svg-local-soil-v2",
+        "marks": 400,
+        "patches": 94,
+        "rim": 84,
+        "rimMaximumExtensionPixels": 8,
+        "cells": [
+          {
+            "x": 9,
+            "y": 8,
+            "marks": 100,
+            "luminanceStdDev": 5.8
+          },
+          {
+            "x": 10,
+            "y": 6,
+            "marks": 100,
+            "luminanceStdDev": 5.64
+          },
+          {
+            "x": 10,
+            "y": 7,
+            "marks": 100,
+            "luminanceStdDev": 6.19
+          },
+          {
+            "x": 10,
+            "y": 8,
+            "marks": 100,
+            "luminanceStdDev": 6.2
+          }
+        ]
+      },
+      "overlayGeometryValidation": {
+        "sampledCellCenters": 252,
+        "opaqueTraversalCenters": 6,
+        "transparentOtherCenters": 246
+      }
+    },
+    {
+      "id": "s13_changban",
+      "columns": 18,
+      "rows": 14,
+      "width": 1800,
+      "height": 1400,
+      "terrainKey": "...........#......\n...........#......\n..FFF......#......\n......FF...#......\n......FF...#......\n...........#......\n..................\n..................\n..................\n.....FFF...#......\n...........#......\n...........#......\n..FFF......#...FFF\n...........#......",
+      "blockedKind": "water",
+      "src": "art/act2-v0401/maps/s13_changban-v0401.webp",
+      "overlaySrc": "art/act2-v0401/maps/s13_changban-traversal-v0401.svg",
+      "tool": "built-in image_gen.imagegen",
+      "originalPath": "art/maps/v0395/s13_changban.webp",
+      "originalSHA256": "555879c51dff2965d2884709070ed82217bb9020d6443be9a6049e798936ddc4",
+      "sha256": "1d6de2cb48d9c3524f61a2deeba07aa7d643773bf03f9703ef15e5c982f38169",
+      "bytes": 806788,
+      "generatedWidth": 1422,
+      "generatedHeight": 1106,
+      "pixelExactRendering": false,
+      "logicalGeometryExact": true,
+      "geometryReference": "source-art/maps/s13_changban-logical-v0401.svg",
+      "geometryReferenceSHA256": "4d8622cea49bdd64f6790296602b97bfe78fa53b3570c413bbda1a0bb92b640e",
+      "generatedSource": "source-art/maps/s13_changban-generated-v0401.png",
+      "generatedSourceSHA256": "d4ccd5e441a3ce42c06a41d2bb04c9ef8f8828ed9d54a1af4c1ae062f1b5cf08",
+      "overlaySHA256": "d45098a9e7c5fa70fc1108be98d1dc8cf00ce9f2bfd4aa9dd9147ad779d23b9c",
+      "bridgeCells": [
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ]
+      ],
+      "causewayCells": [
+        [
+          11,
+          8
+        ]
+      ],
+      "bridgeRegions": 1,
+      "overlayPixelSamples": [
+        {
+          "x": 11,
+          "y": 6,
+          "kind": "bridge",
+          "rgba": [
+            177,
+            144,
+            99,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "kind": "bridge",
+          "rgba": [
+            175,
+            143,
+            98,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "kind": "plainCauseway",
+          "rgba": [
+            171,
+            150,
+            104,
+            255
+          ]
+        }
+      ],
+      "causewaySurface": {
+        "mode": "native-svg-local-soil-v2",
+        "marks": 100,
+        "patches": 36,
+        "rim": 36,
+        "rimMaximumExtensionPixels": 8,
+        "cells": [
+          {
+            "x": 11,
+            "y": 8,
+            "marks": 100,
+            "luminanceStdDev": 7.33
+          }
+        ]
+      },
+      "overlayGeometryValidation": {
+        "sampledCellCenters": 252,
+        "opaqueTraversalCenters": 3,
+        "transparentOtherCenters": 249
+      }
+    }
+  ],
+  "preservation": "Display-only. terrain, bridgeCells, objectives, movement, placement and saved coordinates are unchanged.",
+  "sourceArtPathScope": "geometryReference/generatedSource are relative paths in the separate source-art archive; runtime/tests need only shipped WebP/SVG and this metadata."
+}
