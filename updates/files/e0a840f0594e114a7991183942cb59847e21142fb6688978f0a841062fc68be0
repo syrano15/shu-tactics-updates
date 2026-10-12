@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "version": "0.40.0",
+  "portraits": [
+    {
+      "id": "machao",
+      "name": "마초",
+      "src": "art/act4/portraits/machao-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.23200159234048615,
+      "alphaSHA256": "0e4d3dab27b6bde72d1d99e412f45dc95f25324cf58e00f9361383833ae8a840",
+      "sha256": "e49d0e0ad1812a1edda7c3f29974a642eeb1e21f901f0bd79f2676f2a81b7526",
+      "bytes": 1875336,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "madai",
+      "name": "마대",
+      "src": "art/act4/portraits/madai-v040.webp",
+      "width": 1024,
+      "height": 1536,
+      "alphaMinMax": [
+        0,
+        254
+      ],
+      "transparentPixelRatio": 0.2851428985595703,
+      "alphaSHA256": "07b8211d2df0227982ef81a1953cf189801e5a93e30e46f4f9d27026413f0abb",
+      "sha256": "7df790be87d06575bd8ff74d0e58cd3269e9643c4c8f822f36111016d16b0a5d",
+      "bytes": 1621420,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "yanyan",
+      "name": "엄안",
+      "src": "art/act4/portraits/yanyan-v040.webp",
+      "width": 1024,
+      "height": 1536,
+      "alphaMinMax": [
+        0,
+        254
+      ],
+      "transparentPixelRatio": 0.28519121805826825,
+      "alphaSHA256": "ecbb3c28545bac543d55ca783303538e0d8053c56a5ef253770e9f95cb367391",
+      "sha256": "5efaea81f859f588be7ba4c0e2e39b770f9aa66d812aa863d3662ac4d2d1badb",
+      "bytes": 1746454,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "xiahouyuan",
+      "name": "하후연",
+      "src": "art/act4/portraits/xiahouyuan-v040.webp",
+      "width": 1145,
+      "height": 1374,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3251412698715382,
+      "alphaSHA256": "48ec09d9d89b4c9fbcef683256dddbed1c21153c7be5c4e2b02e867b0561133d",
+      "sha256": "26010e2eff345119d4da3fdd15f0ecab141678a4e70cf0113f352339d102b8a2",
+      "bytes": 1660292,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "zhanghe",
+      "name": "장합",
+      "src": "art/act4/portraits/zhanghe-v040.webp",
+      "width": 1024,
+      "height": 1536,
+      "alphaMinMax": [
+        0,
+        254
+      ],
+      "transparentPixelRatio": 0.28342628479003906,
+      "alphaSHA256": "91e9fb927b003ff7f8c85d7557d2bb315fe7189834467168f941638c09921fcf",
+      "sha256": "4c7b99e2596ccd8154cd48bab27d2c1713698fe2f3d6077f52449cd82fdd93f4",
+      "bytes": 1622300,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "zhangren",
+      "name": "장임",
+      "src": "art/act4/portraits/zhangren-v040.webp",
+      "width": 1024,
+      "height": 1536,
+      "alphaMinMax": [
+        0,
+        254
+      ],
+      "transparentPixelRatio": 0.2879263559977214,
+      "alphaSHA256": "79a6e81e168f4b764513f405e86473944c07f9ce9808e5c2b673e7f829d93694",
+      "sha256": "b15c09c7ff8902b5beb00d7e7c1ac1a2e4a29a39a14de977a250d222abae6655",
+      "bytes": 1675608,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "wangping",
+      "name": "왕평",
+      "src": "art/act4/portraits/wangping-v040.webp",
+      "width": 1024,
+      "height": 1536,
+      "alphaMinMax": [
+        0,
+        254
+      ],
+      "transparentPixelRatio": 0.3228505452473958,
+      "alphaSHA256": "fe4b031c5318650bafd72b15746770aeb89566d1ce35828022dc91c16d2390de",
+      "sha256": "edf24e118885543abc4af04074a35d6d1f6f351482eabe19ffd632a11687683f",
+      "bytes": 1589840,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "fazheng",
+      "name": "법정",
+      "src": "art/act4/portraits/fazheng-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3564979447106824,
+      "alphaSHA256": "000b27a6ba185f3d83f8cbe89e78a6bf2b72e5f6aeb21163466764683ea67489",
+      "sha256": "e57597ea5dfa348229e1b369a7b9014dbd6299140aa3b97e187fa6f189295f52",
+      "bytes": 1366926,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "huangquan",
+      "name": "황권",
+      "src": "art/act4/portraits/huangquan-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3705644668966149,
+      "alphaSHA256": "a86fd2916c341df86ea0a1698476062388a18b938f2045ffcadc82edd3ba4640",
+      "sha256": "7090c42c3e3e511a401ec06fef2a1fa6c48a6768f23b281d0919967d4100a487",
+      "bytes": 1435228,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "liyan",
+      "name": "이엄",
+      "src": "art/act4/portraits/liyan-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.284467430786606,
+      "alphaSHA256": "77f3296de564d256e0119fa7382d2eac46b9d09cf3a6754b535d5c7ab1c14306",
+      "sha256": "85f30a203b0a391c934ee034aaec7bbdbdccdf4120a6f260d86a750918b872ce",
+      "bytes": 1706380,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "wuban",
+      "name": "오반",
+      "src": "art/act4/portraits/wuban-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.2913938575338563,
+      "alphaSHA256": "475259c0bc47ef670558276568fcc00578bec750a645ad0e188f42a18ca6620d",
+      "sha256": "5617c746becfdffcd39f80c270f0a5f9e6c0f084287d6db9af04589e84106a63",
+      "bytes": 1756712,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "wuyi",
+      "name": "오의",
+      "src": "art/act4/portraits/wuyi-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.31614317837265854,
+      "alphaSHA256": "05246c1784033fd14b4324d1591ee6331a96807cec385711a10e4ad514fe1bc7",
+      "sha256": "49a2bfa83915bf313ae7d8857da7b32bd6b44f9160e4e7294cf83f0a06ea9241",
+      "bytes": 1678462,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "zhangyi",
+      "name": "장익",
+      "src": "art/act4/portraits/zhangyi-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3336067783848682,
+      "alphaSHA256": "3a1eef8bd9220d5c97d2f420b89102950de575d08a619eb76d13f372a0bc54c0",
+      "sha256": "474817e45f1cbd22a91b5cfb512b8a830b6418acd08d6af4bed55c5c351b4b1f",
+      "bytes": 1620160,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "zhangsong",
+      "name": "장송",
+      "src": "art/act4/portraits/zhangsong-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.37147891802244537,
+      "alphaSHA256": "61176b644c62fcfdf3120f6b8009898abd3473c331b059095dc5cc6cfed237d7",
+      "sha256": "fb09536f603fea65cfdd269278b38c777fb4852884831dd04e7e2c6412df6a54",
+      "bytes": 1444026,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    },
+    {
+      "id": "yangxiu",
+      "name": "양수",
+      "src": "art/act4/portraits/yangxiu-v040.webp",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3822749102082761,
+      "alphaSHA256": "6ce2a9d3a5b6dab6f747cf13f0affccff812ab1a92b8eb1e0d90475611f256f2",
+      "sha256": "36839abf7bb83fc02ea67421aa2be3ff45901fa0a76dbb8e9983e9b3e5c481ed",
+      "bytes": 1384986,
+      "tool": "built-in image_gen.imagegen",
+      "originalAlphaPreserved": true
+    }
+  ]
+}

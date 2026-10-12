@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "unitId": "zhaoyun",
+  "class": "spear",
+  "sourceArt": "art/units/zhaoyun-v09.png",
+  "generator": "built-in image_gen",
+  "canvas": [
+    1254,
+    1254
+  ],
+  "alphaThreshold": 24,
+  "approvedIdentity": "Young clean-shaven Zhao Yun, silver dragon helmet and armor, white plume, cyan cape, dark spear and red tassel",
+  "poses": [
+    "ready",
+    "attack",
+    "recover",
+    "idle"
+  ],
+  "calibration": {
+    "src": "art/combat-v0384/zhaoyun-spear-atlas.png",
+    "columns": 2,
+    "rows": 2,
+    "frames": {
+      "ready": {
+        "rect": [
+          0,
+          0,
+          0.48484848484848486,
+          0.5
+        ],
+        "visibleBounds": [
+          0.039473684210526314,
+          0.12280701754385964,
+          1,
+          0.9106858054226475
+        ]
+      },
+      "attack": {
+        "rect": [
+          0.5,
+          0,
+          0.5,
+          0.5
+        ],
+        "visibleBounds": [
+          0,
+          0.21371610845295055,
+          0.9856459330143541,
+          0.9059011164274322
+        ],
+        "weaponTip": [
+          0.9840510366826156,
+          0.4880382775119617
+        ]
+      },
+      "recover": {
+        "rect": [
+          0,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "visibleBounds": [
+          0.05901116427432217,
+          0.07814992025518341,
+          0.9696969696969697,
+          0.8803827751196173
+        ]
+      },
+      "hit": {
+        "rect": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "visibleBounds": [
+          0.08133971291866028,
+          0.044657097288676235,
+          0.9346092503987241,
+          0.9122807017543859
+        ]
+      },
+      "idle": {
+        "rect": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "visibleBounds": [
+          0.08133971291866028,
+          0.044657097288676235,
+          0.9346092503987241,
+          0.9122807017543859
+        ]
+      },
+      "retreat": {
+        "rect": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "visibleBounds": [
+          0.08133971291866028,
+          0.044657097288676235,
+          0.9346092503987241,
+          0.9122807017543859
+        ]
+      }
+    },
+    "facing": "right",
+    "displayHeight": 0.82,
+    "bodyTop": 0.24
+  },
+  "notes": "Ready rect excludes 19 pixels of adjacent attack cape. All original map/portrait artwork remains unchanged; this derived atlas is combat-only.",
+  "prompt": "Use case: identity-preserve. Asset type: transparent 2x2 combat pose sprite atlas for a tactical game. Edit target/reference image: the supplied approved Zhao Yun SD hero, young clean-shaven face, ornate silver dragon helmet with long white plume, layered silver armor, cyan blue scarf/cape, silver boots, dark long spear with ornate silver point and red tassel. Preserve his identity, armor design, painting style and proportions very closely. Primary request: create FOUR distinct full-body poses of this EXACT SAME hero, uniformly scaled, all facing RIGHT in a 2x2 evenly spaced grid with transparent background and no text. Each pose stays entirely inside its equal quadrant with empty padding so game code can crop them. Top-left READY: braced legs, spear held almost horizontally at chest height, both hands pulling the shaft back to the left in an obvious wind-up ready to thrust. Top-right ATTACK: clear powerful rightward spear stab, torso slightly leaning right, both arms extend right, long spear completely horizontal with the silver spear point furthest to the right, front knee bent; the hands and shaft advance far beyond READY. Bottom-left RECOVER: withdrawing the spear back toward chest after the stab, elbows clearly bent, stable stance and spear still horizontal pointing right. Bottom-right IDLE: relaxed guarded version of the original pose, angled spear across body, same face and costume. Every frame is full body from plume through feet with the whole spear visible. Body height and feet baseline matched across the four equal cells; generous transparent gutters prevent adjacent frame clipping. No enemy, mount, scenery, ground shadow, labels, UI, effects or motion lines. Genuine transparent alpha background. Keep one coherent face and costume in all four cells. The spear thrust must be visually unmistakable and very different from idle."
+}

@@ -1,0 +1,11 @@
+import {CHAPTERS} from './campaign.js';
+// Opt-in test entry. Main campaign data and its storage namespace are unchanged.
+const trial=structuredClone(CHAPTERS[0]);
+trial.id='trial-commander';trial.title='장료 격파 시험';trial.subtitle='다른 적이 남아 있어도 장료를 격파하면 승리합니다.';
+trial.contentVersion=2;trial.fixed=false;trial.required=['guanyu'];trial.unavailable=['madai'];trial.maxSortie=4;
+trial.subtitle='관우 필수 · 최대 4명 선택 · 마대는 이번 시험 출전 불가';
+trial.objective={type:'defeatUnit',targetId:'zhangliao'};
+trial.pre=[{speaker:'guanyu',text:'이번 목표는 장료의 격파다. 모든 적을 쓰러뜨릴 필요는 없다. 사거리를 살피고 대장을 노려라.'}];
+trial.post=[{speaker:'zhangliao',text:'대장을 겨냥했군. 이번에는 물러나겠네.'},{speaker:'guanyu',text:'목표를 달성했다. 부대를 정비한 뒤 다음 전투로 이동한다.'}];
+CHAPTERS[0]=trial;
+await import('./app.js');

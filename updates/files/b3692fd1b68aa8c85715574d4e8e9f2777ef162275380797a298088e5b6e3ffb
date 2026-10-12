@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "version": "0.40.0",
+  "tool": "built-in image_gen.imagegen style-transfer of native SVG terrain references; sharp static scaling",
+  "logicalCellPixels": 100,
+  "maps": [
+    {
+      "id": "s22_jiameng",
+      "columns": 24,
+      "rows": 18,
+      "width": 2400,
+      "height": 1800,
+      "terrainKey": "########################\n..#####.###...#####.###.\n....#....#......#....#..\n........................\n......F.................\n....FFFFF...............\n...FFFFFFF..............\n....FFFFF...............\n......F.................\n.................F......\n...............FFFFF....\n..............FFFFFFF...\n...............FFFFF....\n.................F......\n........................\n........................\n.##.##...##.##...##.##..\n########################",
+      "blockedKind": "rock",
+      "src": "art/act4/maps/s22_jiameng-v040.webp",
+      "sha256": "15cc15add5438e5b2200f691dee27ad556db16dcb3d06eb2a0a7d26a7eb20c79",
+      "bytes": 906368,
+      "forestRegions": 2,
+      "blockedRegions": 2,
+      "logicalSource": "source-art/maps/s22_jiameng-native-v040.svg",
+      "referenceSource": "source-art/maps/s22_jiameng-native-v040.webp",
+      "generatedSource": "source-art/maps/s22_jiameng-painterly-v040.png",
+      "logicalSourceSHA256": "1746661fda2d60f9fb672af063ad3ac5eeff363fed37e6545eacb6f3ecc3bc67",
+      "referenceSHA256": "983a58c2c8312bf73c6ac53e110da917362da7c47f86c9457ea2b4a85033c8d1",
+      "generatedSourceSHA256": "01efd216e4343e2bdc3f3630888f2f773b9b83532951587a13c7f0f2dfaf5150",
+      "generatedWidth": 1448,
+      "generatedHeight": 1086,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s23_fucheng",
+      "columns": 24,
+      "rows": 18,
+      "width": 2400,
+      "height": 1800,
+      "terrainKey": "..............##########\n..............##.......#\n.......................#\n.......................#\n......F................#\n....FFFFF.....##.......#\n...FFFFFFF....##.......#\n....FFFFF..............#\n......F................#\n...................F...#\n..............##.FFFFF.#\n..............##FFFFFFF#\n..............##.FFFFF.#\n...................F...#\n.......................#\n.......................#\n..............##.......#\n..............##########",
+      "blockedKind": "wall",
+      "src": "art/act4/maps/s23_fucheng-v040.webp",
+      "sha256": "b7db8dfb9fac732801823b06f67fcef0750f05701c42396a4bbcbe2432f75ad1",
+      "bytes": 1064638,
+      "forestRegions": 2,
+      "blockedRegions": 3,
+      "logicalSource": "source-art/maps/s23_fucheng-native-v040.svg",
+      "referenceSource": "source-art/maps/s23_fucheng-native-v040.webp",
+      "generatedSource": "source-art/maps/s23_fucheng-painterly-v040.png",
+      "logicalSourceSHA256": "76692a18f6ef8179daf19544aee3a7e480ec64c049e29d0969994dcf6d1bf2ba",
+      "referenceSHA256": "7c1313bc8a5a41716d5d39dd99a4241b68a6ba08e22cb39f6b07ab2c720f8ccb",
+      "generatedSourceSHA256": "1048b260c0aa81bc237b486fc5dee845082cc4ab8ec9451865b669a8aec5ab57",
+      "generatedWidth": 1448,
+      "generatedHeight": 1086,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s24_luofengpo",
+      "columns": 24,
+      "rows": 18,
+      "width": 2400,
+      "height": 1800,
+      "terrainKey": "########################\n.##.#.F..##.#....##.#...\n.....FFF.......FFFFF....\n.....FFF......FFFFFFF...\n....FFFFF......FFFFF....\n#....FFF.........F......\n#....FFF................\n#.....F.................\n#.......................\n#.......................\n#................F......\n#...............FFF.....\n#...............FFF.....\n...............FFFFF....\n................FFF.....\n................FFF.....\n..##.#..##.#..##.#..##.#\n########################",
+      "blockedKind": "rock",
+      "src": "art/act4/maps/s24_luofengpo-v040.webp",
+      "sha256": "e64bf230bb21b25909beec166a6691f79a603b6b4b86e9e8619603762598418d",
+      "bytes": 900174,
+      "forestRegions": 3,
+      "blockedRegions": 3,
+      "logicalSource": "source-art/maps/s24_luofengpo-native-v040.svg",
+      "referenceSource": "source-art/maps/s24_luofengpo-native-v040.webp",
+      "generatedSource": "source-art/maps/s24_luofengpo-painterly-v040.png",
+      "logicalSourceSHA256": "9f4c4909a7dac63bf172f56adea44333944d8284c717356f19ace4f87aecaf1e",
+      "referenceSHA256": "bff9ebacf260e733d7d53bb0eae23b37ebb55a498e751ccbed6be7a10affc7d1",
+      "generatedSourceSHA256": "78c0f454fe3734a838103b72666c9c1ba2d913236bc8e74fde952917a7c09720",
+      "generatedWidth": 1448,
+      "generatedHeight": 1086,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s25_luocheng",
+      "columns": 24,
+      "rows": 18,
+      "width": 2400,
+      "height": 1800,
+      "terrainKey": "..............##########\n..............##.......#\n.......................#\n.......................#\n.......................#\n..............##.......#\n......F.......##.......#\n....FFFFF.....##.......#\n...FFFFFFF....##.......#\n....FFFFF.....##...F...#\n......F.......##.FFFFF.#\n..............##FFFFFFF#\n..............##.FFFFF.#\n...................F...#\n.......................#\n.......................#\n..............##.......#\n..............##########",
+      "blockedKind": "wall",
+      "src": "art/act4/maps/s25_luocheng-v040.webp",
+      "sha256": "4e4eabe9543b35a8af692e3495abae9dabf20f5b4111751acbac1041e869ddb8",
+      "bytes": 1120490,
+      "forestRegions": 2,
+      "blockedRegions": 2,
+      "logicalSource": "source-art/maps/s25_luocheng-native-v040.svg",
+      "referenceSource": "source-art/maps/s25_luocheng-native-v040.webp",
+      "generatedSource": "source-art/maps/s25_luocheng-painterly-v040.png",
+      "logicalSourceSHA256": "3d20cdbab7e9cc441b0b111f0626f1cf828444abdeda69d41d62bea531baa14c",
+      "referenceSHA256": "2e534484dd240df6c39d7e16c255909313d7df86a1e5cac768d562d51e1ecfc6",
+      "generatedSourceSHA256": "55f85bc712f72d0b24a92230840f79c5efbf449f98cbc0010db8e7fead15bbb5",
+      "generatedWidth": 1448,
+      "generatedHeight": 1086,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s26_machao",
+      "columns": 24,
+      "rows": 18,
+      "width": 2400,
+      "height": 1800,
+      "terrainKey": "########################\n####.###.####.###.####.#\n.##...#...##...#...##...\n........................\n...........F............\n.........FFFFF..........\n........FFFFFFF.........\n.........FFFFF..........\n...........F............\n.................F......\n...............FFFFF....\n..............FFFFFFF...\n...............FFFFF....\n.................F......\n........................\n........................\n.##..#.##..#.##..#.##..#\n########################",
+      "blockedKind": "rock",
+      "src": "art/act4/maps/s26_machao-v040.webp",
+      "sha256": "c0165fa9607ceb75126868253ad1a002779fb3c501ffcdab0a6f0cd654534a2c",
+      "bytes": 900582,
+      "forestRegions": 2,
+      "blockedRegions": 2,
+      "logicalSource": "source-art/maps/s26_machao-native-v040.svg",
+      "referenceSource": "source-art/maps/s26_machao-native-v040.webp",
+      "generatedSource": "source-art/maps/s26_machao-painterly-v040.png",
+      "logicalSourceSHA256": "327117a989c9f580f7b785499db6bb4d701ae82e7c0efbd9370c6505acf4f162",
+      "referenceSHA256": "60effeb3e373d7dc8139eea6f67d40bd230f283a2e38a807fbafe0a4c17e7ea7",
+      "generatedSourceSHA256": "0b30e71433cfb0af22db68317dbec86631c234e4f264392ba17f82c2eca823c7",
+      "generatedWidth": 1448,
+      "generatedHeight": 1086,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s27_chengdu",
+      "columns": 26,
+      "rows": 20,
+      "width": 2600,
+      "height": 2000,
+      "terrainKey": "..............############\n..............##.........#\n.........................#\n.........................#\n.......F............F....#\n.....FFFFF....##...FFFF..#\n....FFFFFFF...##.FFFFFFF.#\n.....FFFFF....##..FFFFF..#\n.......F............F....#\n.........................#\n.........................#\n..............##....F....#\n..............##..FFFFF..#\n..............##.FFFFFFF.#\n..............##..FFFFF..#\n....................F....#\n.........................#\n.........................#\n..............##.........#\n..............############",
+      "blockedKind": "wall",
+      "src": "art/act4/maps/s27_chengdu-v040.webp",
+      "sha256": "0c78cef75db67ce853018829389826cb28f7f8cf5c7056ee7814ddf1c5d79ab7",
+      "bytes": 1034450,
+      "forestRegions": 3,
+      "blockedRegions": 3,
+      "logicalSource": "source-art/maps/s27_chengdu-native-v040.svg",
+      "referenceSource": "source-art/maps/s27_chengdu-native-v040.webp",
+      "generatedSource": "source-art/maps/s27_chengdu-painterly-v040.png",
+      "logicalSourceSHA256": "a032da93cf295acf0d3e91dd5c85a6a39d1f54b74ef736ebde31caa8577f0e42",
+      "referenceSHA256": "13cef0761e0712c7fed9455332dc0a114514efa7c6635f7bea7ce70bd86bf1ad",
+      "generatedSourceSHA256": "da2e7ea4ef66a1962244704aa32ec88fde159c3ac499915f568d19b0c9232613",
+      "generatedWidth": 1430,
+      "generatedHeight": 1100,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s28_dangqu",
+      "columns": 26,
+      "rows": 20,
+      "width": 2600,
+      "height": 2000,
+      "terrainKey": "##########################\n.#######..#######..#######\n..#..##....#..##....#..##.\n....................F.....\n..................FFFFF...\n.......F...........FFFFF..\n.....FFFFF........FFFFF...\n....FFFFFFF.........F.....\n.....FFFFF................\n.......F..................\n..........................\n...............F..........\n.............FFFFF........\n............FFFFFFF.......\n.............FFFFF........\n...............F..........\n..........................\n.....#........#........#..\n.##.####..##.####..##.####\n##########################",
+      "blockedKind": "rock",
+      "src": "art/act4/maps/s28_dangqu-v040.webp",
+      "sha256": "89e8bedfdf75191bf443d78c720a9197f427f545f0d43ddd6c28d1a3c62ba0b4",
+      "bytes": 988306,
+      "forestRegions": 3,
+      "blockedRegions": 2,
+      "logicalSource": "source-art/maps/s28_dangqu-native-v040.svg",
+      "referenceSource": "source-art/maps/s28_dangqu-native-v040.webp",
+      "generatedSource": "source-art/maps/s28_dangqu-painterly-v040.png",
+      "logicalSourceSHA256": "af8bc93067b184de82add2f4fcf0f7a88cb84cf78d817ed0f6149137df8b2b50",
+      "referenceSHA256": "2798d89b6afafe9801799bbed9707f2aa29961f5771c8a3bca53b901e005fab9",
+      "generatedSourceSHA256": "021978ec4b0f19848d37fc93a84d8982fc563e8c42d17650db8f8d04a69be418",
+      "generatedWidth": 1430,
+      "generatedHeight": 1100,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s29_dingjun",
+      "columns": 26,
+      "rows": 20,
+      "width": 2600,
+      "height": 2000,
+      "terrainKey": "##########################\n..###.####..###.####..###.\n.......#.........#......##\n........................##\n.......F................##\n.....FFFFF..............##\n....FFFFFFF...........####\n.....FFFFF............####\n.......F..............####\n.......................###\n...............F......####\n.............FFFFF....####\n............FFFFFFF...####\n.............FFFFF....####\n...............F........##\n........................##\n........................##\n........................##\n...##.##...##.##...##.##..\n##########################",
+      "blockedKind": "rock",
+      "src": "art/act4/maps/s29_dingjun-v040.webp",
+      "sha256": "b6108c1d6473e0519c6299fe19e9f4d6973120ba52b3dff6debc2bfb6550ee56",
+      "bytes": 889414,
+      "forestRegions": 2,
+      "blockedRegions": 2,
+      "logicalSource": "source-art/maps/s29_dingjun-native-v040.svg",
+      "referenceSource": "source-art/maps/s29_dingjun-native-v040.webp",
+      "generatedSource": "source-art/maps/s29_dingjun-painterly-v040.png",
+      "logicalSourceSHA256": "310687f7e07ab80acbe6ee555de333a13a2b0e82a0f5eefda20a2184468b5332",
+      "referenceSHA256": "de5de33d29c81ad210a4e279a3646a617fe953fe49da00d227f10cc92778ae17",
+      "generatedSourceSHA256": "2dbf9225654d20cd226b24b81f2ac69f8be36c4fe9ab82bc811217dbc3e699ea",
+      "generatedWidth": 1430,
+      "generatedHeight": 1100,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review."
+    },
+    {
+      "id": "s30_hanshui",
+      "columns": 26,
+      "rows": 20,
+      "width": 2600,
+      "height": 2000,
+      "terrainKey": "............##............\n............##............\n...........##.............\n..........................\n.......F..................\n.....FFFFF..##............\n....FFFFFFF.##............\n.....FFFFF...##...........\n.......F.....##...........\n..........................\n..........................\n............##.....F......\n............##...FFFFF....\n...........##...FFFFFFF...\n...........##....FFFFF....\n............##.....F......\n..........................\n..........................\n.............##...........\n............##............",
+      "blockedKind": "water",
+      "src": "art/act4/maps/s30_hanshui-v040.webp",
+      "sha256": "ca13d21f113da3bb67fbf5dea73741e1dc6737da2b0a69c97618d57bff4ce413",
+      "bytes": 866986,
+      "forestRegions": 2,
+      "blockedRegions": 4,
+      "logicalSource": "source-art/maps/s30_hanshui-native-v040.svg",
+      "referenceSource": "source-art/maps/s30_hanshui-native-v040.webp",
+      "generatedSource": "source-art/maps/s30_hanshui-bridge-fixed-v040.png",
+      "logicalSourceSHA256": "d128c65acc5f1d8070d8c3618200470eb347e67d88d48ac6b6ee8de4e56ca1b1",
+      "referenceSHA256": "1aafec6414ad19b67f3d7006374052b06d8568437cf1d8d4ce758d9f06ea538f",
+      "generatedSourceSHA256": "34f193e1ec862af53756223053b0a8250bf75ea2f02e1011e76c9fda272285d1",
+      "generatedWidth": 1430,
+      "generatedHeight": 1100,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review.",
+      "bridgeOverlaySHA256": "180c6aeeddbf25714305f1626f2088ddd68745af825c262022562a266bd2c4bc",
+      "bridgeOverlayMode": "Independent display-only SVG layer: three continuous polygons exactly matching bridge-cell unions",
+      "bridgePixelSamples": [
+        {
+          "x": 11,
+          "y": 3,
+          "rgba": [
+            182,
+            150,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "rgba": [
+            182,
+            150,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "rgba": [
+            183,
+            151,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "rgba": [
+            183,
+            151,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "rgba": [
+            153,
+            126,
+            87,
+            255
+          ]
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "rgba": [
+            182,
+            152,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "rgba": [
+            179,
+            149,
+            103,
+            255
+          ]
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "rgba": [
+            151,
+            124,
+            85,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 16,
+          "rgba": [
+            162,
+            130,
+            87,
+            255
+          ]
+        },
+        {
+          "x": 13,
+          "y": 16,
+          "rgba": [
+            140,
+            112,
+            75,
+            255
+          ]
+        },
+        {
+          "x": 13,
+          "y": 17,
+          "rgba": [
+            139,
+            110,
+            73,
+            255
+          ]
+        },
+        {
+          "x": 14,
+          "y": 17,
+          "rgba": [
+            159,
+            127,
+            84,
+            255
+          ]
+        }
+      ],
+      "overlaySrc": "art/act4/maps/s30_hanshui-bridges-v040.svg"
+    },
+    {
+      "id": "s31_hanzhong",
+      "columns": 26,
+      "rows": 20,
+      "width": 2600,
+      "height": 2000,
+      "terrainKey": ".............##...........\n.............##...........\n............##......F.....\n..................FFFFF...\n.......F.........FFFFFFF..\n.....FFFFF.##......FFFF...\n....FFFFFFF.##......F.....\n.....FFFFF..##............\n.......F.....##...........\n..........................\n..........................\n..............##...F......\n.............##..FFFFF....\n.............##.FFFFFFF...\n............##...FFFFF....\n............##.....F......\n..........................\n..........................\n............##............\n............##............",
+      "blockedKind": "water",
+      "src": "art/act4/maps/s31_hanzhong-v040.webp",
+      "sha256": "eeba89e54e63ee686939ee09de0774e8faa72907e2fe9ccbefb1b473b8b05544",
+      "bytes": 918702,
+      "forestRegions": 3,
+      "blockedRegions": 4,
+      "logicalSource": "source-art/maps/s31_hanzhong-native-v040.svg",
+      "referenceSource": "source-art/maps/s31_hanzhong-native-v040.webp",
+      "generatedSource": "source-art/maps/s31_hanzhong-bridge-fixed-v040.png",
+      "logicalSourceSHA256": "11a6c8e1030ac529f4397c76dc2e96a51376d1e7ac681bed0a4e941f78f70807",
+      "referenceSHA256": "5d87a8dee2865e1be32238fb36e540450f96159250a0eb4b6d9eab317af7b73f",
+      "generatedSourceSHA256": "905e9ad6c19335db77651a2b540635828cee9879cd28c96e8c0d48c826d4355f",
+      "generatedWidth": 1430,
+      "generatedHeight": 1100,
+      "tool": "built-in image_gen.imagegen",
+      "renderMode": "ImageGen style-transfer from native logical reference; static resize to exact game geometry",
+      "pixelExactRendering": false,
+      "edgePolicy": "Logical terrain and image crop geometry are exact. Painted feature contours and small canopy overhang are organic; visual alignment requires review.",
+      "bridgeOverlaySHA256": "9d4fbd7d647477fdb124515ad13517591f9cdbb57c196f7f55909805c9e5052d",
+      "bridgeOverlayMode": "Independent display-only SVG layer: three continuous polygons exactly matching bridge-cell unions",
+      "bridgePixelSamples": [
+        {
+          "x": 12,
+          "y": 3,
+          "rgba": [
+            182,
+            150,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "rgba": [
+            153,
+            125,
+            87,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "rgba": [
+            183,
+            151,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "rgba": [
+            183,
+            151,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "rgba": [
+            153,
+            126,
+            87,
+            255
+          ]
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "rgba": [
+            182,
+            152,
+            105,
+            255
+          ]
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "rgba": [
+            179,
+            149,
+            103,
+            255
+          ]
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "rgba": [
+            179,
+            149,
+            103,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 16,
+          "rgba": [
+            163,
+            130,
+            87,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 16,
+          "rgba": [
+            162,
+            130,
+            87,
+            255
+          ]
+        },
+        {
+          "x": 11,
+          "y": 17,
+          "rgba": [
+            160,
+            127,
+            84,
+            255
+          ]
+        },
+        {
+          "x": 12,
+          "y": 17,
+          "rgba": [
+            160,
+            127,
+            84,
+            255
+          ]
+        }
+      ],
+      "overlaySrc": "art/act4/maps/s31_hanzhong-bridges-v040.svg"
+    }
+  ],
+  "sourceArtRoot": "working/source-art",
+  "visualQA": "Review of all ten generated maps and bridge/gate positions; does not claim pixel-identical edge contours.",
+  "sourceArtPathScope": "logicalSource/referenceSource/generatedSource are relative to the separate art-originals archive, preserved under working/source-art. These source files are not required to run game or tests.",
+  "bridgeLayerPolicy": "For the two river maps, independent SVG layer paints three continuous bridge deck polygons exactly on the logical bridge cell union. The generated painterly raster remains a separate unmodified visual source."
+}

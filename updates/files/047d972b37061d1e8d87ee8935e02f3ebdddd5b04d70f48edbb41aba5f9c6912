@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "unitId": "huangzhong",
+  "class": "archer",
+  "sourceArt": "art/units/huangzhong-v09.png",
+  "generator": "built-in image_gen",
+  "canvas": [
+    1211,
+    1299
+  ],
+  "alphaThreshold": 24,
+  "poses": [
+    "draw",
+    "release",
+    "reload",
+    "guard"
+  ],
+  "calibration": {
+    "src": "art/combat-v0384/huangzhong-bow-atlas.png",
+    "columns": 2,
+    "rows": 2,
+    "facing": "right",
+    "displayHeight": 0.82,
+    "bodyTop": 0.2,
+    "frames": {
+      "ready": {
+        "rect": [
+          0,
+          0,
+          0.4995871180842279,
+          0.48729792147806006
+        ],
+        "visibleBounds": [
+          0.07933884297520662,
+          0.01263823064770932,
+          1,
+          0.9620853080568721
+        ]
+      },
+      "attack": {
+        "rect": [
+          0.4995871180842279,
+          0,
+          0.500412881915772,
+          0.48729792147806006
+        ],
+        "visibleBounds": [
+          0,
+          0.023696682464454975,
+          0.9174917491749175,
+          0.9605055292259084
+        ],
+        "weaponTip": [
+          0.865,
+          0.372
+        ]
+      },
+      "recover": {
+        "rect": [
+          0,
+          0.4996150885296382,
+          0.4995871180842279,
+          0.5003849114703618
+        ],
+        "visibleBounds": [
+          0.08760330578512397,
+          0,
+          1,
+          0.8953846153846153
+        ]
+      },
+      "idle": {
+        "rect": [
+          0.4995871180842279,
+          0.4996150885296382,
+          0.500412881915772,
+          0.5003849114703618
+        ],
+        "visibleBounds": [
+          0,
+          0.013846153846153847,
+          0.8745874587458746,
+          0.9015384615384615
+        ]
+      },
+      "hit": {
+        "rect": [
+          0.4995871180842279,
+          0.4996150885296382,
+          0.500412881915772,
+          0.5003849114703618
+        ],
+        "visibleBounds": [
+          0,
+          0.013846153846153847,
+          0.8745874587458746,
+          0.9015384615384615
+        ]
+      },
+      "retreat": {
+        "rect": [
+          0.4995871180842279,
+          0.4996150885296382,
+          0.500412881915772,
+          0.5003849114703618
+        ],
+        "visibleBounds": [
+          0,
+          0.013846153846153847,
+          0.8745874587458746,
+          0.9015384615384615
+        ]
+      }
+    }
+  },
+  "prompt": "Use case: identity-preserve. Asset type: game combat 2x2 transparent pose sprite atlas. Edit target/reference: supplied approved full-body Huang Zhong veteran archer. Preserve this exact elderly face, white eyebrows, long white mustache and beard, long tied white hair with wine-red plume, ornate dark bronze/gold shoulder plates, mustard yellow cloth, wine-red scarf and cape, bronze boots, quiver and ornate golden recurve bow. Preserve painterly SD hero style and exact head/body proportions. Make four visibly different full-body poses of the SAME hero all facing RIGHT at same scale, in a clean 2x2 equal-cell grid with genuine transparent background, generous transparent padding and gutters. Top-left READY: clearly aim the ornate bow to the right, bow arm straight right, arrow nocked, bowstring pulled far back to his cheek by right drawing hand, taut triangular string and arrow visible. Top-right ATTACK/RELEASE: release the arrow to the right; bow arm still extended, drawing fingers open and hand snaps back beside right cheek/ear, bowstring now nearly straight relaxed and visibly different from drawn ready; NO arrow remaining on bow, no projectile effects. Bottom-left RECOVER: bow lowered diagonally to the right below chest, right hand reaches up toward the quiver over his shoulder to retrieve the next arrow; visibly different arm posture. Bottom-right IDLE: guarded calm stance with bow held upright at side, right hand resting near torso, no drawn string. Entire hero, plume, feet and bow must be fully inside each quadrant with at least 24px fully transparent padding at all cell borders; no crossing central grid lines. Match body and head scale, feet baseline, armor identity across frames. No labels, text, floor, scenery, shadow, opponent, glowing effects or motion lines. Preserve the source identity without overwriting its art."
+}

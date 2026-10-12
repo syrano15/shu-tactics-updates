@@ -1,0 +1,4 @@
+import {CHAPTERS} from './campaign.js';
+import {createBaimaChapter} from './baima.js';
+CHAPTERS.splice(0,CHAPTERS.length,createBaimaChapter());
+await import('./app.js');

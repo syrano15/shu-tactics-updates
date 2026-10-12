@@ -1,0 +1,107 @@
+import {HERO_DATA} from './heroes.js';
+// Character definitions do not grant ownership. Only STARTING_HEROES do.
+export const STARTING_HEROES=["guanyu","zhangfei","zhaoyun","huangzhong","madai","zhugeliang"];
+export const UNIT_TEMPLATES={
+  "guanyu": {
+    "name": "관우",
+    "han": "關",
+    "cls": "cavalry",
+    "hpBonus": 200,
+    "atkBonus": 3,
+    "playable": true,
+    "generic": false
+  },
+  "zhangfei": {
+    "name": "장비",
+    "han": "張",
+    "cls": "infantry",
+    "hpBonus": 600,
+    "atkBonus": 3,
+    "playable": true,
+    "generic": false
+  },
+  "zhaoyun": {
+    "name": "조운",
+    "han": "趙",
+    "cls": "spear",
+    "hpBonus": 400,
+    "atkBonus": 2,
+    "playable": true,
+    "generic": false
+  },
+  "huangzhong": {
+    "name": "황충",
+    "han": "黃",
+    "cls": "archer",
+    "hpBonus": 0,
+    "atkBonus": 3,
+    "playable": true,
+    "generic": false
+  },
+  "madai": {
+    "name": "마대",
+    "han": "馬",
+    "cls": "cavalry",
+    "hpBonus": 0,
+    "atkBonus": 2,
+    "playable": true,
+    "generic": false
+  },
+  "zhangliao": {
+    "name": "장료",
+    "han": "遼",
+    "cls": "cavalry",
+    "hpBonus": 0,
+    "atkBonus": 1,
+    "playable": false,
+    "generic": false
+  },
+  "wei1": {
+    "name": "위 보병",
+    "han": "步",
+    "cls": "infantry",
+    "hpBonus": 0,
+    "atkBonus": 0,
+    "playable": false,
+    "generic": true
+  },
+  "wei2": {
+    "name": "위 창병",
+    "han": "槍",
+    "cls": "spear",
+    "hpBonus": 0,
+    "atkBonus": 0,
+    "playable": false,
+    "generic": true
+  },
+  "wei3": {
+    "name": "위 활병",
+    "han": "弓",
+    "cls": "archer",
+    "hpBonus": 0,
+    "atkBonus": 0,
+    "playable": false,
+    "generic": true
+  },
+  "wei4": {
+    "name": "위 석궁병",
+    "han": "弩",
+    "cls": "crossbow",
+    "hpBonus": 0,
+    "atkBonus": 0,
+    "playable": false,
+    "generic": true
+  },
+  "zhugeliang": {
+    "name": "제갈량",
+    "han": "諸",
+    "cls": "strategist",
+    "hpBonus": 0,
+    "atkBonus": 0,
+    "playable": true,
+    "generic": false
+  }
+};
+export const INITIAL_UNIT_ORDER=["guanyu","zhangfei","zhaoyun","huangzhong","madai","zhangliao","wei1","wei2","wei3","wei4","zhugeliang"];
+
+for(const h of Object.values(HERO_DATA))UNIT_TEMPLATES[h.id]??={name:h.name,han:h.name[0],cls:h.class,hpBonus:h.troopBonus,atkBonus:h.attackBonus??0,playable:true,generic:false};

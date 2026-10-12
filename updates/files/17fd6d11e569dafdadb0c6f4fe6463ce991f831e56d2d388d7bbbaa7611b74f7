@@ -1,0 +1,160 @@
+import {ACT2_COMBAT_BALANCE as RULES} from './balance.js';
+import {casterProfile} from './tactics.js';
+import {CHAPTERS} from './campaign.js';
+import {attack,preview,distance,disabled,inside} from './engine.js';
+import {changeMorale,hasFlash,consumeFlash} from './spirits-system.js';
+import {awardExperience,awardSupportExperience,GROWTH_RULES} from './growth.js';
+import {bossCleanupPending} from './objectives.js';
+
+export const isAct2Battle=state=>state?.combatProfile==='act2'||CHAPTERS[state?.chapter]?.act===2||CHAPTERS[state?.chapter]?.combatProfile==='act2';
+const SPECIALS=Object.freeze({
+ 'guanyu-cleave':{owner:'guanyu',name:'청룡언월참',kind:'physical',range:[1,1],power:1.8,officerBonus:1.15,description:'인접 적 1부대에 강한 일격 · 적장에게 추가 피해 · 명중 +10%p · 생존 적은 반격'},
+ 'zhangfei-roar':{owner:'zhangfei',name:'장팔사모 난무',kind:'physical',area:'surround',power:1.05,description:'주변 8칸의 적을 차례로 공격 · 명중 +10%p · 생존한 적은 사거리가 맞으면 반격'},
+ 'liubei-oath':{owner:'liubei',name:'도원의 맹세',kind:'support',area:'allies',radius:2,description:'거리 2 이내 아군 공격 +15%·사기 +10 · 다음 아군 턴 시작에 공격 보너스 종료'},
+ 'jianyong-relief':{owner:'jianyong',name:'군심 수습',kind:'support',range:[0,3],description:'아군 1부대 병력 35% 회복·혼란/위보 해제·사기 +10 · 다른 아군 SP +20'},
+ 'zhaoyun-breakthrough':{owner:'zhaoyun',name:'백마 돌파',kind:'physical',range:[1,2],straight:true,power:1.65,pierce:.25,description:'직선 거리 1~2 적 1부대 공격 · 방어 25% 관통 · 명중 +10%p · 생존 적은 반격'},
+ 'zhugeliang-fire':{owner:'zhugeliang',name:'팔진 화계',kind:'tactic',range:[2,4],area:'cross',power:1.4,description:'거리 2~4 적을 중심으로 십자 5칸 화공 · 지력에 비례 · 비에는 실패'},
+});
+const AREA_FIRE={id:'tactic-area-fire',name:'범위 화공',kind:'tactic',range:[2,4],area:'cross',power:.65,description:'중심과 상하좌우 5칸의 적에게 지력에 따른 단일 화공의 65% 위력 · SP 20 · 비에는 사용 불가'};
+const SUPPLY={id:'supply',name:'보급',kind:'support',range:[0,3],description:'아군 1부대 병력 22~30% 회복 · 다른 아군 SP +15 · 소비 SP 20 · 이동 후 사용 가능'};
+export function effectiveSkillDefinition(actor,id){
+ const original=id==='supply'?SUPPLY:id==='tactic-area-fire'?AREA_FIRE:SPECIALS[id];if(!original)return null;
+ let skill={...original};
+ if(id==='zhaoyun-breakthrough')skill=actor?.cls==='cavalry'?{...skill,name:'백마 돌격',range:[1,3],description:'직선 거리 1~3 적 1부대에 기병 돌격 · 방어 25% 관통 · 명중 +10%p · 생존 적은 반격'}:{...skill,name:'용담 관통',description:'직선 거리 1~2 적 1부대에 창술 일격 · 방어 25% 관통 · 명중 +10%p · 생존 적은 반격'};
+ let restriction='';
+ if(actor){
+  if(id==='supply'&&actor.cls!=='strategist'&&actor.id!=='mizhu')restriction='보급은 책사 또는 미축이 사용할 수 있습니다.';
+  else if(id==='tactic-area-fire'&&actor.cls!=='strategist')restriction='범위 화공은 책사 병과만 사용할 수 있습니다.';
+  else if(id==='tactic-area-fire')skill={...skill,range:[actor.min,actor.max],description:AREA_FIRE.description.replace('SP 20','SP '+combatSkillSPCost(actor,id))+' · '+casterProfile(actor).description};
+  else if(id==='zhaoyun-breakthrough'&&!['spear','cavalry'].includes(actor.cls))restriction='조운의 무예 필살기는 창병·기병 병과에서 사용할 수 있습니다.';
+  else if(['guanyu-cleave','zhangfei-roar'].includes(id)&&!['infantry','spear','cavalry'].includes(actor.cls))restriction='무예 필살기는 보병·창병·기병 병과에서 사용할 수 있습니다.';
+  else if(['zhugeliang-fire','jianyong-relief'].includes(id)&&actor.cls!=='strategist')restriction='이 필살기는 책사 병과에서 사용할 수 있습니다.';
+ }
+ return {...skill,restriction};
+}
+const skillFor=(id,actor)=>effectiveSkillDefinition(actor,id);
+const ownerId=actor=>actor?.extra&&actor.id==='x_zhaoyun'?'zhaoyun':actor?.id;
+const owned=(actor,id)=>!!actor&&(['supply','tactic-area-fire'].includes(id)?actor.team==='ally'&&(actor.cls==='strategist'||id==='supply'&&actor.id==='mizhu')&&!actor.extra:SPECIALS[id]?.owner===ownerId(actor)&&!effectiveSkillDefinition(actor,id)?.restriction);
+export const combatSkillSPCost=(actor,id)=>id==='tactic-area-fire'?(casterProfile(actor).areaSPCost??RULES.supplySP):RULES.supplySP;
+function baseReason(state,actor,id){
+ if(!isAct2Battle(state))return '2막부터 사용할 수 있습니다.';
+ if(!actor||!state.units.includes(actor)||!owned(actor,id))return actor&&SPECIALS[id]?.owner===ownerId(actor)?effectiveSkillDefinition(actor,id).restriction||'이 부대의 능력이 아닙니다.':'이 부대의 능력이 아닙니다.';
+ if(state.result||bossCleanupPending(state)||state.phase!=='ally'||actor.team!=='ally'||actor.hp<=0||actor.done||disabled(actor))return '행동 가능한 아군만 사용할 수 있습니다.';
+ if(['supply','tactic-area-fire'].includes(id)){if(actor.sp<combatSkillSPCost(actor,id))return 'SP가 부족합니다.';if(id==='tactic-area-fire'&&state.weather?.kind==='rain')return '비에는 범위 화공을 사용할 수 없습니다.';}
+ else{if(actor.morale<RULES.specialMorale)return '사기 '+RULES.specialMorale+'부터 사용할 수 있습니다.';if((actor.specialReadyRound??0)>state.round)return (actor.specialReadyRound-state.round)+'턴 뒤 다시 사용할 수 있습니다.';}
+ const skill=skillFor(id,actor);if(actor.moved&&!actor.attackAfterMove&&['physical','tactic'].includes(skill.kind))return '이 부대는 이동 후 공격할 수 없습니다.';
+ return '';
+}
+function inSkillRange(actor,target,skill){
+ const d=distance(actor,target),max=skill.range?.[1]+(skill.kind==='tactic'&&actor.spirits?.aim?1:0);
+ return (!skill.range||d>=skill.range[0]&&d<=max)&&(!skill.straight||actor.x===target.x||actor.y===target.y);
+}
+function potentialTargets(state,actor,id){
+ const skill=skillFor(id,actor);if(!skill||!actor)return [];
+ const alive=state.units.filter(u=>u.hp>0);
+ if(skill.area==='allies')return alive.some(u=>u.team===actor.team&&distance(actor,u)<=skill.radius)?[actor]:[];
+ if(skill.area==='surround')return alive.some(u=>u.team!==actor.team&&Math.max(Math.abs(u.x-actor.x),Math.abs(u.y-actor.y))===1)?[actor]:[];
+ if(skill.kind==='support')return alive.filter(u=>u.team===actor.team&&inSkillRange(actor,u,skill)&&(u.hp<u.maxHp||supportSPAmount(actor,u,id)>0||id!=='supply'&&(u.status||u.morale<150)));
+ return alive.filter(u=>u.team!==actor.team&&inSkillRange(actor,u,skill));
+}
+export function combatSkillTargets(state,actor,id){return baseReason(state,actor,id)?[]:potentialTargets(state,actor,id);}
+export function combatSkillList(state,actor){
+ if(!isAct2Battle(state)||!actor||actor.team!=='ally')return [];
+ const ids=[...(!actor.extra?(actor.cls==='strategist'?['supply','tactic-area-fire']:actor.id==='mizhu'?['supply']:[]):[]),...Object.keys(SPECIALS).filter(id=>SPECIALS[id].owner===ownerId(actor))];
+ return ids.map(id=>{const skill=skillFor(id,actor);return{id,...skill,actionKind:skill.kind,kind:id==='supply'?'support':id==='tactic-area-fire'?'tactic':'special',afterMoveAllowed:skill.kind==='support'||!!actor.attackAfterMove,cost:['supply','tactic-area-fire'].includes(id)?{sp:combatSkillSPCost(actor,id)}:{morale:RULES.specialMoraleCost},gate:['supply','tactic-area-fire'].includes(id)?null:{morale:RULES.specialMorale,readyRound:actor.specialReadyRound??0,cooldown:RULES.specialCooldown},reason:baseReason(state,actor,id)||(!potentialTargets(state,actor,id).length?'효과를 받을 대상이 없습니다.':'')};});
+}
+function affected(state,actor,target,id){
+ const skill=skillFor(id,actor);
+ if(skill.area==='surround')return state.units.filter(u=>u.hp>0&&u.team!==actor.team&&Math.max(Math.abs(u.x-actor.x),Math.abs(u.y-actor.y))===1);
+ if(skill.area==='allies')return state.units.filter(u=>u.hp>0&&u.team===actor.team&&distance(actor,u)<=skill.radius);
+ if(skill.area==='cross'){const units=state.units.filter(u=>u.hp>0&&u.team!==actor.team&&distance(target,u)<=1);return id==='tactic-area-fire'?units.sort((a,b)=>Number(b.id===target.id)-Number(a.id===target.id)||a.y-b.y||a.x-b.x||a.id.localeCompare(b.id)).slice(0,5):units;}
+ return [target];
+}
+export function combatSkillAttackAllowed(state,actor,target,id,areaOrigin=null){
+ const skill=effectiveSkillDefinition(actor,id);if(!isAct2Battle(state)||!skill||!owned(actor,id)||!['physical','tactic'].includes(skill.kind)||!target||target.hp<=0||actor.hp<=0||actor.team===target.team||disabled(actor)||!inside(target.x,target.y,state))return false;
+ if(skill.area==='surround')return Math.max(Math.abs(actor.x-target.x),Math.abs(actor.y-target.y))===1;
+ if(skill.area==='cross')return !!areaOrigin&&inside(areaOrigin.x,areaOrigin.y,state)&&inSkillRange(actor,areaOrigin,skill)&&distance(areaOrigin,target)<=1;
+ return inSkillRange(actor,target,skill);
+}
+export function combatAttackModifiers(state,actor,target,id){
+ const skill=effectiveSkillDefinition(actor,id);if(!isAct2Battle(state)||!skill||!owned(actor,id))return {power:1,pierce:0};
+ const officer=target.combatTier==='officer'||target.combatTier==='boss';
+ return {power:skill.power*(officer?skill.officerBonus??1:1),pierce:skill.pierce??0,accuracy:skill.kind==='physical'?RULES.specialHitBonus:0};
+}
+export const supportSPAmount=(actor,target,id)=>target.id===actor.id?0:Math.min(id==='supply'?15:id==='jianyong-relief'?20:0,Math.max(0,(target.maxSp??0)-(target.sp??0)));
+const supplyAmount=(actor,target)=>Math.round(target.maxHp*Math.max(RULES.supplyRatio,Math.min(RULES.supplyMaxRatio,RULES.supplyRatio*(1+(actor.int-50)/200))));
+function targetReason(state,actor,target,id){const reason=baseReason(state,actor,id);if(reason)return reason;return !target||!potentialTargets(state,actor,id).some(u=>u.id===target.id)?'선택할 수 없는 대상입니다.':'';}
+export function previewCombatSkill(state,actor,target,id){
+ const reason=targetReason(state,actor,target,id),skill=skillFor(id,actor);
+ if(reason)return {skillId:id,reason,targets:[],results:[]};
+ const targets=affected(state,actor,target,id),results=[],a=structuredClone(actor);
+ for(const original of targets){
+  const unit=structuredClone(original);
+  if(skill.kind==='support'){
+   const amount=id==='supply'?supplyAmount(a,unit):id==='jianyong-relief'?Math.round(unit.maxHp*.35):0;
+   const spAmount=supportSPAmount(a,unit,id);
+   results.push({spAmount,spBefore:unit.sp,spAfter:(unit.sp??0)+spAmount,id:unit.id,name:unit.name,amount:Math.min(amount,unit.maxHp-unit.hp),before:unit.hp,after:Math.min(unit.maxHp,unit.hp+amount),targetHp:Math.min(unit.maxHp,unit.hp+amount),hp:unit.hp,maxHp:unit.maxHp,kind:'support',...(id==='liubei-oath'?{buff:'공격 +15% · 사기 +10'}:id==='jianyong-relief'?{buff:'혼란·위보 해제 · 사기 +10'}:{})});continue;
+  }
+  if(a.hp<=0){results.push({id:unit.id,name:unit.name,skipped:true,reason:'앞선 반격으로 병력이 없어 공격 불가'});continue;}
+  const predicted=preview(a,unit,state,'fire',{skillId:id}),hit=predicted.chance>0?predicted.hit:0;
+  const beforeActorHp=a.hp,beforeTargetHp=unit.hp;
+  // Preview projects successful hits/counters unless their actual chance is zero.
+  // It never draws RNG, awards experience, or changes the live battle.
+  unit.hp=Math.max(0,unit.hp-hit);
+  if(!predicted.kind){
+   const counter=predicted.chance>0?predicted.counter:predicted.counterIfMiss,back=predicted.chance>0?predicted.returnHit:predicted.returnHitIfMiss;
+   a.hp=Math.max(0,a.hp-(counter&&predicted.counterChance>0?back:0));
+   if(hasFlash(unit))consumeFlash(unit);if(counter&&hasFlash(a))consumeFlash(a);
+  }
+  results.push({id:unit.id,name:unit.name,...predicted,beforeActorHp,beforeTargetHp,actorHp:a.hp,targetHp:unit.hp});
+ }
+ const first=results[0]??{};
+ return {...first,skillId:id,name:skill.name,kind:skill.kind==='support'?'support':skill.kind==='tactic'?'fire':undefined,reason:'',targets,results,...(['surround','cross'].includes(skill.area)?{note:'연속 명중·반격 명중 가정 · 실제 순서와 판정에 따라 변동'}:{}),amount:skill.kind==='support'?results.reduce((sum,r)=>sum+r.amount,0):undefined,cost:['supply','tactic-area-fire'].includes(id)?{sp:combatSkillSPCost(actor,id)}:{morale:RULES.specialMoraleCost}};
+}
+function commitState(state,copy){
+ const units=state.units,previous=new Map(units.map(unit=>[unit.id,unit]));
+ // An attack can release a finite reserve or an allied story recruit. Retain
+ // existing live references, while committing the resolved roster and its order.
+ const nextUnits=copy.units.map(next=>{const old=previous.get(next.id);if(!old)return next;for(const key of Object.keys(old))if(!Object.hasOwn(next,key))delete old[key];Object.assign(old,next);return old;});
+ units.splice(0,units.length,...nextUnits);
+ for(const key of Object.keys(state))if(!Object.hasOwn(copy,key))delete state[key];Object.assign(state,copy);state.units=units;
+}
+export function useCombatSkill(state,actor,target,id,random=null){
+ const reason=targetReason(state,actor,target,id);if(reason)throw new Error(reason);
+ const copy=structuredClone(state),a=copy.units.find(u=>u.id===actor.id),t=copy.units.find(u=>u.id===target.id),skill=skillFor(id,actor),exchanges=[],growth=[],heals=[],spHeals=[],buffs=[];
+ if(skill.kind==='support'){
+  for(const unit of affected(copy,a,t,id)){
+   const before=unit.hp,raw=id==='supply'?supplyAmount(a,unit):id==='jianyong-relief'?Math.round(unit.maxHp*.35):0;unit.hp=Math.min(unit.maxHp,unit.hp+raw);if(unit.hp>before)heals.push({id:unit.id,name:unit.name,amount:unit.hp-before,before,after:unit.hp});
+   const spAmount=supportSPAmount(a,unit,id);if(spAmount){const before=unit.sp;unit.sp+=spAmount;spHeals.push({id:unit.id,name:unit.name,amount:spAmount,before,after:unit.sp});}
+   if(id==='liubei-oath'){const fresh=unit.oathUntilRound===undefined||unit.oathUntilRound<=copy.round;unit.oathUntilRound=copy.round+1;const old=unit.morale;changeMorale(unit,10);buffs.push({id:unit.id,name:unit.name,type:'oath',untilRound:unit.oathUntilRound,morale:unit.morale-old,...(copy.act4GrowthVersion===1?{fresh}:{})});}
+   if(id==='jianyong-relief'){if(unit.status?.type==='confusion'&&unit.confusionLost){unit.done=false;unit.moveOrigin=null;}const cleared=unit.status?.type??null;unit.status=null;unit.confusionLost=false;const old=unit.morale;changeMorale(unit,10);buffs.push({id:unit.id,name:unit.name,type:'relief',cleared,morale:unit.morale-old});}
+  }
+  const event=awardSupportExperience(copy,a,{kind:id==='supply'?'supply':'special',heals,spHeals,buffs});if(event)growth.push(event);a.done=true;a.moveOrigin=null;a.confusionLost=false;
+ }else{
+  const spiritOnce=Object.fromEntries(['fury','ambush','aim','wisdom','chant','charge','penetrate'].filter(key=>a.spirits?.[key]).map(key=>[key,true]));
+  for(const unit of affected(copy,a,t,id)){
+   if(a.hp<=0||copy.result||bossCleanupPending(copy))break;a.done=false;Object.assign(a.spirits,spiritOnce);
+   const beforeA=structuredClone(a),beforeB=structuredClone(unit),result=attack(copy,a,unit,random,'fire',false,{skillId:id,...(skill.area==='cross'?{areaOrigin:{x:t.x,y:t.y}}:{})});result.skillId=id;result.skillName=skill.name;
+   exchanges.push({actor:beforeA,target:beforeB,result});growth.push(...result.growth);
+  }
+  for(const key of Object.keys(spiritOnce))delete a.spirits[key];
+ }
+ let moraleChange=null;
+ if(id==='tactic-area-fire'){const cost=combatSkillSPCost(a,id);a.sp-=cost;moraleChange=a.name+' 범위 화공 · SP '+cost+' 사용';}
+ else if(id==='supply'){a.sp-=RULES.supplySP;const before=a.morale;changeMorale(a,RULES.supportMorale);moraleChange=a.name+' 보급 · 사기 '+before+'→'+a.morale;}
+ else{const before=a.morale;changeMorale(a,-RULES.specialMoraleCost);a.specialReadyRound=copy.round+RULES.specialCooldown;moraleChange=a.name+' 필살기 · 사기 '+before+'→'+a.morale;}
+ commitState(state,copy);
+ if(exchanges.length===1&&!skill.area){const result=exchanges[0].result;if(moraleChange)result.moraleChanges.push(moraleChange);return{...result,skillId:id,skillName:skill.name};}
+ return {kind:skill.kind==='support'?'support':undefined,skillId:id,skillName:skill.name,...(id==='tactic-area-fire'?{actionKind:'tactic',cost:{sp:combatSkillSPCost(a,id)}}:{}),exchanges,heals,spHeals,buffs,growth,actorHp:a.hp,moraleChanges:moraleChange?[moraleChange]:[]};
+}
+export function applyAct2PhaseStart(state){
+ const result={kind:'support',skillId:'indeok',skillName:'인덕',heals:[],buffs:[],growth:[]};
+ if(!isAct2Battle(state)||state.phase!=='ally')return result;
+ for(const unit of state.units)if(unit.oathUntilRound!==undefined&&unit.oathUntilRound<=state.round)delete unit.oathUntilRound;
+ if(state.indeokRound===state.round)return result;state.indeokRound=state.round;
+ const actor=state.units.find(u=>u.id==='liubei'&&u.team==='ally'&&u.hp>0);if(!actor)return result;
+ for(const unit of state.units.filter(u=>u.team==='ally'&&u.id!==actor.id&&u.hp>0&&distance(actor,u)<=2)){
+  const before=unit.hp;unit.hp=Math.min(unit.maxHp,unit.hp+Math.round(unit.maxHp*RULES.indeokRatio));if(unit.hp>before)result.heals.push({id:unit.id,name:unit.name,amount:unit.hp-before,before,after:unit.hp});
+ }
+ result.actor=structuredClone(actor);return result;
+}

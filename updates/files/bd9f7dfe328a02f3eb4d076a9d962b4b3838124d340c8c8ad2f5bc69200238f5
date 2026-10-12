@@ -1,0 +1,14 @@
+const field = document.getElementById('art-field');
+const talk = document.getElementById('field-dialogue');
+const lines = ['전군, 진형을 갖춰라. 보병은 길목을 지키고, 기병은 나를 따르라!', '숲 너머의 적을 경계하라. 대열을 지키면 이 길을 열 수 있다.', '좋다. 모두의 준비가 끝났다면, 이제 진군한다.'];
+let line = 0;
+document.querySelectorAll('[data-size]').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('[data-size]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+  field.style.setProperty('--sprite-scale', { small: .8, normal: 1, large: 1.2 }[button.dataset.size]);
+}));
+document.getElementById('grid-toggle').onclick = e => { const shown = field.classList.toggle('show-grid'); e.currentTarget.setAttribute('aria-pressed', String(shown)); e.currentTarget.textContent = shown ? '격자 숨기기' : '격자 보기'; };
+document.getElementById('talk-toggle').onclick = e => { talk.hidden = !talk.hidden; e.currentTarget.setAttribute('aria-pressed', String(!talk.hidden)); e.currentTarget.textContent = talk.hidden ? '대사창 보기' : '대사창 숨기기'; };
+function nextLine() { line = (line + 1) % lines.length; document.getElementById('art-text').textContent = lines[line]; document.getElementById('art-line').textContent = `${line + 1} / ${lines.length}`; }
+document.getElementById('art-next').onclick = nextLine;
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && !talk.hidden && !e.target.closest('button,a')) { e.preventDefault(); nextLine(); } });
+document.querySelectorAll('[data-character]').forEach(button => button.addEventListener('click', () => { const panel = document.getElementById('art-unit-info'); panel.hidden = false; panel.innerHTML = button.dataset.character === 'cavalry' ? '<strong>관우 · 기병</strong>말과 장수의 실루엣 확인<br>정지 포즈 · 이동 동작 제작 전' : '<strong>촉군 · 보병</strong>검·방패·갑옷의 식별성 확인<br>정지 포즈 · 이동 동작 제작 전'; }));

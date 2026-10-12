@@ -1,0 +1,20 @@
+import {HERO_DATA} from './heroes.js';
+
+// Permanent army heroes are the only units at risk in the new survival awards.
+// Named escort/protection objectives are validated separately by the scenario.
+export const regularRewardHero=id=>Object.hasOwn(HERO_DATA,id)&&!HERO_DATA[id].guest;
+export const regularRewardUnit=unit=>unit?.team==='ally'&&!unit.extra&&!unit.generic&&!unit.nonCombat&&regularRewardHero(unit.id);
+export const regularRewards=value=>value?.regularRewardsVersion===1;
+export function validateRegularRewardsVersion(value){
+ if(value?.regularRewardsVersion!==undefined&&value.regularRewardsVersion!==1)throw new Error('정규 장수 생존 보상 버전이 올바르지 않습니다.');
+}
+export function survivalParticipants(state,{combatOnly=false}={}){
+ return state.units.filter(unit=>regularRewards(state)?regularRewardUnit(unit):unit.team==='ally'&&(!combatOnly||!unit.nonCombat));
+}
+export function regularMeritAllies(state,{excludeExtras=false}={}){
+ return state.units.filter(unit=>regularRewards(state)?regularRewardUnit(unit):unit.team==='ally'&&(!excludeExtras||!unit.extra));
+}
+export function meritRetreatedIds(state,{excludeExtras=false}={}){
+ const ids=new Set(regularMeritAllies(state,{excludeExtras}).map(unit=>unit.id));
+ return (state.battleRecords?.retreatedIds??[]).filter(id=>ids.has(id));
+}

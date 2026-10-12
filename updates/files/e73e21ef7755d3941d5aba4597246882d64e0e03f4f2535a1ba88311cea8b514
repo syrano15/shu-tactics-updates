@@ -1,0 +1,213 @@
+// Frozen schema-1 validation data. Never update with live scenarios.
+export const LEGACY_V1=[
+  {
+    "id": "border",
+    "terrain": [
+      "..........",
+      "..FF...F..",
+      "......F...",
+      "....##....",
+      "....##....",
+      "..F.......",
+      "...F...F..",
+      ".........."
+    ],
+    "preLength": 5,
+    "postLength": 4,
+    "units": [
+      {
+        "id": "guanyu",
+        "cls": "cavalry",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "관우",
+        "han": "關"
+      },
+      {
+        "id": "zhangfei",
+        "cls": "infantry",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "장비",
+        "han": "張"
+      },
+      {
+        "id": "zhaoyun",
+        "cls": "spear",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "조운",
+        "han": "趙"
+      },
+      {
+        "id": "huangzhong",
+        "cls": "archer",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "황충",
+        "han": "黃"
+      },
+      {
+        "id": "madai",
+        "cls": "cavalry",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "마대",
+        "han": "馬"
+      },
+      {
+        "id": "zhangliao",
+        "cls": "cavalry",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "장료",
+        "han": "遼"
+      },
+      {
+        "id": "wei1",
+        "cls": "infantry",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 보병",
+        "han": "步"
+      },
+      {
+        "id": "wei2",
+        "cls": "spear",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 창병",
+        "han": "槍"
+      },
+      {
+        "id": "wei3",
+        "cls": "archer",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 궁병",
+        "han": "弓"
+      },
+      {
+        "id": "wei4",
+        "cls": "crossbow",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 노병",
+        "han": "弩"
+      },
+      {
+        "id": "zhugeliang",
+        "cls": "strategist",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "제갈량",
+        "han": "諸"
+      }
+    ]
+  },
+  {
+    "id": "pass",
+    "terrain": [
+      "..F....F..",
+      "..F.##....",
+      "....##.F..",
+      "..........",
+      ".F......F.",
+      "....##....",
+      "....##.F..",
+      "..F......."
+    ],
+    "preLength": 4,
+    "postLength": 2,
+    "units": [
+      {
+        "id": "guanyu",
+        "cls": "cavalry",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "관우",
+        "han": "關"
+      },
+      {
+        "id": "zhangfei",
+        "cls": "infantry",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "장비",
+        "han": "張"
+      },
+      {
+        "id": "zhaoyun",
+        "cls": "spear",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "조운",
+        "han": "趙"
+      },
+      {
+        "id": "huangzhong",
+        "cls": "archer",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "황충",
+        "han": "黃"
+      },
+      {
+        "id": "madai",
+        "cls": "cavalry",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "마대",
+        "han": "馬"
+      },
+      {
+        "id": "zhangliao",
+        "cls": "cavalry",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "장료",
+        "han": "遼"
+      },
+      {
+        "id": "wei1",
+        "cls": "infantry",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 보병",
+        "han": "步"
+      },
+      {
+        "id": "wei2",
+        "cls": "spear",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 창병",
+        "han": "槍"
+      },
+      {
+        "id": "wei3",
+        "cls": "archer",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 궁병",
+        "han": "弓"
+      },
+      {
+        "id": "wei4",
+        "cls": "crossbow",
+        "team": "enemy",
+        "maxSp": 0,
+        "name": "위 노병",
+        "han": "弩"
+      },
+      {
+        "id": "zhugeliang",
+        "cls": "strategist",
+        "team": "ally",
+        "maxSp": 60,
+        "name": "제갈량",
+        "han": "諸"
+      }
+    ]
+  }
+];

@@ -1,0 +1,67 @@
+const object = value => value && typeof value === 'object' && !Array.isArray(value);
+export function stageNumber(id) {
+  const match = /^s(\d+)(?:_|$)/.exec(String(id ?? ''));
+  return match ? Number(match[1]) : null;
+}
+export const chapterTitle = chapter => stageNumber(chapter?.id) === null ? chapter?.title ?? '' : '제' + stageNumber(chapter.id) + '화 ' + chapter.title;
+export const chapterSubtitle = chapter => [chapter?.era, chapter?.location].filter(Boolean).join(' · ');
+// Recompute persistent line fields so back navigation and restoration are stable.
+export function presentationAt(lines, index, {bg = null} = {}) {
+  const result = {cg: null, bg, face: 'normal', cutin: false};
+  if (!Array.isArray(lines) || !Number.isInteger(index) || index < 0 || index >= lines.length) return result;
+  for (let i = 0; i <= index; i++) {
+    if (Object.hasOwn(lines[i], 'cg')) result.cg = lines[i].cg;
+    if (Object.hasOwn(lines[i], 'bg')) result.bg = lines[i].bg;
+  }
+  result.face = lines[index].face ?? 'normal';
+  result.cutin = lines[index].cutin === true;
+  return result;
+}
+export function historyUnlocked(hero, army) {
+  if (!object(hero) || !object(army) || !Array.isArray(army.joined) || !army.joined.includes(hero.id)) return false;
+  const condition = hero.historyUnlock;
+  if (condition === 'join') return true;
+  const target = condition === 'end' ? 56 : /^s([1-9]\d*)$/.test(condition ?? '') ? Number(condition.slice(1)) : null;
+  return target !== null && Array.isArray(army.claimed) && army.claimed.some(id => stageNumber(id) === target);
+}
+export function visibleHeroTexts(catalog, army) {
+  const rows = Array.isArray(catalog) ? catalog : catalog?.heroes ?? [];
+  const joined = new Set(army?.joined ?? []);
+  return rows.filter(hero => joined.has(hero.id)).map(hero => {
+    const unlocked = historyUnlocked(hero, army);
+    return {...hero, history: unlocked ? hero.history : null, historyUnlocked: unlocked};
+  });
+}
+export function visibleStageTexts(catalog, currentChapterId, army) {
+  const rows = Array.isArray(catalog) ? catalog : catalog?.stages ?? [];
+  const current = stageNumber(currentChapterId) ?? 0;
+  const won = new Set((army?.claimed ?? []).map(stageNumber).filter(n => n !== null));
+  return rows.filter(stage => stage.no <= current || won.has(stage.no));
+}
+let catalogs={heroes:[],stages:[],glossary:[]};
+export const textCatalog=()=>catalogs;
+export function setTextCatalog({heroes,stages,glossary}){
+ const check=(ok,message)=>{if(!ok)throw new Error('인게임 텍스트 오류: '+message);};
+ const rows=(doc,key)=>{
+  check(object(doc)&&doc.schemaVersion===1&&Array.isArray(doc[key]),key+' 형식');
+  return doc[key];
+ };
+ const heroRows=rows(heroes,'heroes'),stageRows=rows(stages,'stages'),glossaryRows=rows(glossary,'glossary');
+ const text=(value,limit)=>typeof value==='string'&&value.length>0&&value.length<=limit&&!/[<>\n\r\t]/.test(value);
+ const heroIds=new Set(),stageIds=new Set(),terms=new Set();
+ for(const hero of heroRows){
+  check(object(hero)&&/^[a-z][a-z0-9_]*$/.test(hero.id)&&!heroIds.has(hero.id),'장수 ID');heroIds.add(hero.id);
+  check(text(hero.name,30)&&(hero.courtesy===null||text(hero.courtesy,30))&&text(hero.title,10)&&text(hero.intro,150)&&text(hero.history,160),'장수 글/자');
+  check(Number.isInteger(hero.unlockAfterChapter)&&hero.unlockAfterChapter>=0&&hero.unlockAfterChapter<=56,'장수 합류 참조');
+  check(['join','end'].includes(hero.historyUnlock)||/^s([1-9]|[1-4]\d|5[0-6])$/.test(hero.historyUnlock),'역사 공개 조건');
+ }
+ for(const stage of stageRows){
+  check(object(stage)&&stageNumber(stage.id)===stage.no&&!stageIds.has(stage.id)&&Number.isInteger(stage.no)&&stage.no>=1&&stage.no<=56,'장 ID/번호');stageIds.add(stage.id);
+  check(text(stage.title,60)&&text(stage.subtitle,100)&&text(stage.intro,75),'장 소개');
+ }
+ for(const term of glossaryRows){
+  check(object(term)&&text(term.category,30)&&text(term.term,30)&&text(term.text,200)&&typeof term.needsRuleCheck==='boolean','용어');
+  const id=term.category+':'+term.term;check(!terms.has(id),'중복 용어');terms.add(id);
+ }
+ catalogs={heroes:structuredClone(heroRows),stages:structuredClone(stageRows),glossary:structuredClone(glossaryRows)};return catalogs;
+}

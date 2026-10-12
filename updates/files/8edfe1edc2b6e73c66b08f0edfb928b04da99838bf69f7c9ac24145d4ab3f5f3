@@ -1,0 +1,19 @@
+// A small serializable generator; explicit test RNG functions remain supported.
+const UINT32=0x100000000;
+export const validSeed=value=>Number.isInteger(value)&&value>=0&&value<UINT32;
+export function initialBattleSeed(scenario){
+ const seed=scenario?.comparison?.seed;
+ if(seed!==undefined){if(!validSeed(seed))throw new Error('비교 시드가 올바르지 않습니다.');return seed;}
+ return Math.floor(Math.random()*UINT32);
+}
+export function normalizeBattleRng(state){
+ if(state.initialSeed===undefined&&state.rngState===undefined){state.initialSeed=0x6d2b79f5;state.rngState=state.initialSeed;}
+ if(!validSeed(state.initialSeed)||!validSeed(state.rngState))throw new Error('전투 난수 상태가 올바르지 않습니다.');
+ return state;
+}
+export function randomTransaction(state,explicit=null){
+ if(explicit!==null&&explicit!==undefined){if(typeof explicit!=='function')throw new Error('난수 함수가 올바르지 않습니다.');return {next:explicit,commit(){}};}
+ normalizeBattleRng(state);let value=state.rngState;
+ return {next(){value=(Math.imul(value,1664525)+1013904223)>>>0;return value/UINT32;},commit(){state.rngState=value;}};
+}
+export function battleRandom(state){const random=randomTransaction(state);return ()=>{const value=random.next();random.commit();return value;};}

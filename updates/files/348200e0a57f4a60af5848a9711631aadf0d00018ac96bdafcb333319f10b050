@@ -1,0 +1,19 @@
+import {UNIT_TEMPLATES} from './roster.js';
+import {HERO_DATA} from './heroes.js';
+
+// Browsing history never removes an officer, an investment or an equipment slot.
+export function preparationHistoryIds(army){
+ return (army.joined??[]).filter(id=>army.heroes[id]&&UNIT_TEMPLATES[id]?.playable&&HERO_DATA[id]);
+}
+
+// This is chapter eligibility, not the current selected formation. Optional
+// officers remain available here so the player can add them back to the sortie.
+export function deploymentRosterIds(chapter,army){
+ if(!chapter)return [];
+ const fixedIds=[...(chapter.required??[]),...(chapter.fixedGuests??[])];
+ return preparationHistoryIds(army).filter(id=>!army.heroes[id].departed&&!(chapter.unavailable??[]).includes(id)&&(!chapter.fixed||fixedIds.includes(id)));
+}
+
+export function preparationRosterIds(chapter,army){
+ return deploymentRosterIds(chapter,army).filter(id=>!HERO_DATA[id].guest&&!(chapter.fixedGuests??[]).includes(id));
+}

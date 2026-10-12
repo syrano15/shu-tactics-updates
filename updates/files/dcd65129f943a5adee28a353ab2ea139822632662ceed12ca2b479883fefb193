@@ -1,0 +1,34 @@
+// Keep the real controls and their handlers; only their location changes.
+export function installCompactChrome({onOpen=()=>{}}={}) {
+ const masthead=document.querySelector('.masthead'),nav=masthead.querySelector('nav');
+ const settings=document.createElement('dialog');settings.id='settings-dialog';settings.className='compact-settings';
+ settings.setAttribute('aria-labelledby','settings-title');
+ settings.innerHTML='<div class="dialog-heading"><h3 id="settings-title">설정</h3><button type="button" data-settings-close class="quiet">닫기</button></div><div class="settings-player"></div><section class="settings-developer"><button type="button" id="developer-toggle" aria-expanded="false">개발 도구 열기</button><div class="settings-developer-controls" hidden></div></section>';
+ document.body.append(settings);
+ const player=settings.querySelector('.settings-player'),developer=settings.querySelector('.settings-developer-controls');
+ player.append(nav);
+ const context=document.createElement('span');context.className='compact-context';masthead.append(context);
+ const open=document.createElement('button');open.id='settings-open';open.className='quiet compact-settings-open';open.setAttribute('aria-label','게임 설정 열기');open.textContent='⚙ 설정';masthead.append(open);
+ const extras=['balance-open','restart','catalog-open','credits'];
+ const groupControls=()=>{
+  for(const id of extras){const control=document.getElementById(id);if(control&&control.parentElement!==developer)developer.append(control);}
+  for(const control of [...nav.querySelectorAll('a')])developer.append(control);
+ };
+ groupControls();
+ const observer=new MutationObserver(groupControls);observer.observe(nav,{childList:true});
+ open.onclick=()=>{onOpen();if(!settings.open)settings.showModal();};
+ settings.querySelector('[data-settings-close]').onclick=()=>settings.close();
+ settings.querySelector('#developer-toggle').onclick=event=>{developer.hidden=!developer.hidden;event.currentTarget.setAttribute('aria-expanded',String(!developer.hidden));event.currentTarget.textContent=developer.hidden?'개발 도구 열기':'개발 도구 닫기';};
+ // A control opening another modal closes this one first. Preference switches stay open.
+ const modalControls=new Set(['help','save-open','title-return','restart','balance-open','catalog-open','credits']);
+ settings.addEventListener('click',event=>{if(modalControls.has(event.target.closest('button')?.id))settings.close();},{capture:true});
+ const notice=document.getElementById('save-notice');let previousNotice='',timer;
+ return {update({stage,title,chapter,noticeText}){
+  document.body.classList.toggle('ui-stage-deployment',!title&&stage==='deployment');
+  document.body.classList.toggle('ui-stage-result',!title&&stage==='result');
+  document.body.classList.toggle('ui-stage-complete',!title&&stage==='complete');
+  context.textContent=title?'':`${String(chapter+1).padStart(2,'0')}장`;
+  if(title&&settings.open)settings.close();
+  if(noticeText!==previousNotice){previousNotice=noticeText;clearTimeout(timer);notice.classList.toggle('notice-visible',!!noticeText);if(noticeText)timer=setTimeout(()=>notice.classList.remove('notice-visible'),4200);}
+ }};
+}

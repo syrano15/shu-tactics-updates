@@ -1,0 +1,2 @@
+// Probabilities can differ by half a point. Show that value without changing rolls.
+export const percentage=value=>`${Math.round((value??0)*1000)/10}%`;

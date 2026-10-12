@@ -1,0 +1,3 @@
+// Presentation only: fire never changes HP, movement, RNG or reward records here.
+export const CHIBI_BURNING_ART='art/terrain/chibi-burning-v0384.webp';
+export function burningEnemyTile(state,unit){return !!(state?.shipFire&&unit?.team==='enemy'&&unit.hp>0&&state.shipFire.hits?.some(hit=>hit.unitId===unit.id));}

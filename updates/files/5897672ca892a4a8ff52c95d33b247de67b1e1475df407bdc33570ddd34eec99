@@ -1,0 +1,45 @@
+/* v0.22 dialogue: preserve source colours and display opaque originals as portrait cards. */
+.dialogue-scene .portrait-stage{min-height:285px;justify-content:flex-start;gap:28px;padding-top:20px}
+.dialogue-scene .character-portrait{opacity:1;filter:none;transform:none;border:0;background:transparent;box-shadow:none;width:245px;max-width:32%}
+.dialogue-scene .character-portrait.speaking{filter:none;transform:none;border:0}
+.dialogue-scene .character-portrait img{filter:none;width:100%;height:100%;object-fit:contain;object-position:center top}
+.portrait-viewport{display:block;position:relative;overflow:hidden;width:100%;height:clamp(220px,31vh,340px)}
+.portrait-viewport.framed-portrait{height:auto;aspect-ratio:3/4;border-radius:5px;background:#302a23;box-shadow:0 12px 30px #0006}
+.portrait-viewport.sheet-portrait{aspect-ratio:1}
+.portrait-viewport.sheet-portrait img{position:absolute;width:var(--portrait-w);height:var(--portrait-h);max-width:none;left:var(--portrait-x);top:var(--portrait-y);object-fit:fill}
+.character-portrait figcaption{background:transparent;padding:7px 0;font-size:15px;color:#e4d4b8}
+.dialogue-scene.narration .portrait-stage{min-height:160px}
+.dialogue-scene.has-story-cg .portrait-stage{display:none}
+.dialogue-tools{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;align-items:center}
+.dialogue-tools button[aria-pressed=true]{color:var(--gold);border-color:#b19b62}
+.dialogue-reading-log{max-width:min(760px,94vw);max-height:85dvh;background:#13251f;color:var(--text);border:1px solid #9c895b;padding:22px}
+.dialogue-reading-log .reading-lines{max-height:65dvh;overflow:auto}
+.reading-lines article{padding:13px 0;border-bottom:1px solid #65725e44}
+.reading-lines strong{color:var(--gold)}.reading-lines small{float:right;color:var(--muted);font-size:11px}
+.reading-lines p{margin:5px 0;white-space:pre-wrap;word-break:keep-all}
+.event-portrait{float:left;width:90px;max-width:26%;margin:0 18px 8px 0}
+.event-portrait .portrait-viewport{height:112px}
+.event-portrait .portrait-viewport.framed-portrait{height:auto}
+.event-portrait img{display:block;width:100%;height:100%;object-fit:contain}
+.story-event .event-text{min-height:85px;font-size:18px;line-height:1.85}
+.story-event .dialog-actions{clear:both}
+.story-cutin .portrait-viewport{position:absolute;left:8%;width:180px;height:100%;max-height:100%;background:transparent;box-shadow:none}
+.story-cutin.enemy-cutin .portrait-viewport{left:auto;right:8%}
+.story-cutin .portrait-viewport:not(.sheet-portrait) img.story-cutin-portrait{inset:0;width:100%;height:100%;max-width:none;object-fit:contain}
+.story-cutin .sheet-portrait img.story-cutin-portrait{inset:auto;left:var(--portrait-x);top:var(--portrait-y);width:var(--portrait-w);height:var(--portrait-h);max-width:none}
+@media(max-width:620px){
+ .dialogue-scene .portrait-stage{min-height:210px;padding:14px 16px 0;justify-content:center}
+ .dialogue-scene .character-portrait{width:180px;max-width:60%}
+ .portrait-viewport{height:220px}
+ .dialogue-scene .scene-top{padding:8px 12px;gap:8px;align-items:flex-start}
+ .dialogue-tools{max-width:75%;justify-content:flex-end;gap:0}
+ .dialogue-tools button{padding:6px 8px;font-size:12px}
+ .dialogue-box{margin:0 12px 22px;padding:15px 16px}
+ #dialogue-text{font-size:17px;line-height:1.85;min-height:100px}
+ .dialogue-controls>span{display:none}
+ .dialogue-controls .primary{min-width:118px}
+ .dialogue-scene.narration .portrait-stage{min-height:115px}
+ .story-event .event-text{font-size:16px}
+ .story-cutin .portrait-viewport{width:140px}
+}
+

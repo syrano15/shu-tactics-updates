@@ -1,0 +1,114 @@
+import {campaignDialogueLines} from './campaign-events.js';
+import {STARTING_HEROES,INITIAL_UNIT_ORDER,UNIT_TEMPLATES} from './roster.js';
+export const CHARACTERS = {
+  guanyu: { name: '관우', title: '촉군의 선봉', han: '關', portrait: 'portraits/guanyu.jpg', side: 'left' },
+  zhangliao: { name: '장료', title: '위군의 장수', han: '遼', portrait: 'portraits/zhangliao.jpg', side: 'right' },
+};
+const line = (speaker, text) => ({ speaker, text });
+export const CHAPTERS = [
+  {
+    id: 'border', title: '국경의 조우', subtitle: '위군의 전선을 돌파하라', location: '북방의 국경 · 해 질 무렵',
+    terrain: ['..........', '..FF...F..', '......F...', '....##....', '....##....', '..F.......', '...F...F..', '..........'],
+    allyPositions: [[1, 2], [2, 4], [2, 5], [1, 3], [1, 6], [3, 6]], enemyPositions: [[7, 2], [6, 4], [7, 5], [8, 3], [8, 6]],
+    pre: [
+      line('guanyu', '강 너머에 위군의 깃발이 보이는군. 병사들이 지쳤다. 긴 싸움은 피해야 한다.'),
+      line('zhangliao', '운장, 이 길은 내게 맡겨진 곳이다. 옛정을 생각해 물러날 수는 없네.'),
+      line('guanyu', '그대의 충심은 알고 있네. 하지만 우리 역시 앞으로 나아가야 한다.'),
+      line('zhangliao', '그렇다면 진형으로 답하겠네. 좁은 길을 돌파할 수 있는지 보여주게.'),
+      line('guanyu', '전군, 전진하라! 창병은 기병을 견제하고 궁노병은 뒤에서 엄호하라!'),
+    ],
+    post: [
+      line('zhangliao', '훌륭한 지휘였네. 전군, 협로까지 물러나 진형을 다시 갖춘다!'),
+      line('guanyu', '추격을 서두르지 마라. 부상자를 돌보고 대열부터 정비한다.'),
+      line('zhangliao', '다음은 좁은 산길일세. 그곳에서도 같은 전술이 통할지 보겠네.'),
+      line('guanyu', '길이 달라지면 진형도 바뀌는 법. 협로로 진군한다.'),
+    ],
+  },
+  {
+    id: 'pass', title: '협로의 방진', subtitle: '좁은 길을 장악하고 위군을 격파하라', location: '북쪽 협로 · 다음 날 아침',
+    terrain: ['..F....F..', '..F.##....', '....##.F..', '..........', '.F......F.', '....##....', '....##.F..', '..F.......'],
+    allyPositions: [[1, 3], [2, 4], [2, 3], [1, 4], [1, 5], [3, 5]], enemyPositions: [[7, 3], [6, 4], [6, 3], [8, 4], [8, 5]],
+    pre: [
+      line('zhangliao', '이 협로를 지키면 촉군은 더 나아갈 수 없다. 보병은 길목을 굳게 지켜라.'),
+      line('guanyu', '보병 뒤에 궁노병을 숨겼군. 적의 반격을 정면으로 받으면 손실이 크다.'),
+      line('zhangliao', '성급히 달려들지 않는군. 그렇다고 시간을 줄 생각도 없네.'),
+      line('guanyu', '한 명씩 고립시켜 격파한다. 사거리를 살피고, 공격 순서를 지켜라!'),
+    ],
+    post: [line('zhangliao', '오늘은 물러나겠네. 다음에 만날 때는 또 다른 진형으로 겨루세.'), line('guanyu', '전군, 전투를 마친다. 모두의 힘으로 이 길을 열었다.')],
+  },
+];
+for(const ch of CHAPTERS){
+ ch.contentVersion??=1;ch.aliases??=[];ch.maxSortie??=6;ch.required??=[...STARTING_HEROES];ch.unavailable??=[];ch.fixed??=true;
+ ch.enemies??=['zhangliao','wei1','wei2','wei3','wei4'].map((id,i)=>({id,templateId:id,position:ch.enemyPositions[i]}));
+ ch.unitOrder??=[...INITIAL_UNIT_ORDER];
+}
+// Removed chapters use explicit redirects; old reward IDs remain historical receipts.
+export const RETIRED_CHAPTERS = {};
+export function resolveChapterId(id){
+ const matches=CHAPTERS.filter(ch=>ch.id===id||ch.aliases?.includes(id));
+ if(matches.length!==1)throw new Error('알 수 없거나 중복된 장 ID입니다: '+id);
+ return matches[0];
+}
+export function sortieInfo(ch,ids=[]){
+ const fixedGuests=ch.fixedGuests??[],regularMax=ch.regularSortie??ch.maxSortie;
+ if(!Array.isArray(fixedGuests)||new Set(fixedGuests).size!==fixedGuests.length||!Number.isInteger(regularMax)||regularMax<1||regularMax>(ch.campaignLayoutVersion===1?18:6)||ch.maxSortie!==regularMax+fixedGuests.length||fixedGuests.some(id=>!UNIT_TEMPLATES[id]?.playable||ch.required?.includes(id)||ch.unavailable?.includes(id)))throw new Error('고정 동행 편성 설정 오류');
+ return {fixedGuests:[...fixedGuests],regularMax,regularCount:ids.filter(id=>!fixedGuests.includes(id)).length,totalMax:ch.maxSortie};
+}
+export function positionLockedIndices(ch){const ids=Array.isArray(ch.positionLocked)?ch.positionLocked:ch.lockRequired?ch.required:[];if(new Set(ids).size!==ids.length||ids.some(id=>!ch.required.includes(id)))throw new Error('위치 고정 설정 오류');return ids.map(id=>ch.required.indexOf(id));}
+export function sortieIds(ch,army,selection=null){
+ const owned=army?army.joined.filter(id=>!army.heroes[id]?.departed):STARTING_HEROES;
+ if(!Number.isInteger(ch.maxSortie)||ch.maxSortie<1||typeof ch.fixed!=='boolean'||!Array.isArray(ch.required)||!Array.isArray(ch.unavailable))throw new Error('편성 설정 오류');
+ const {fixedGuests,regularMax}=sortieInfo(ch);
+ if(new Set(ch.required).size!==ch.required.length||new Set(ch.unavailable).size!==ch.unavailable.length||ch.required.length>regularMax)throw new Error('필수 출전 목록 오류');
+ if(ch.required.some(id=>!owned.includes(id)||!UNIT_TEMPLATES[id]?.playable||ch.unavailable.includes(id))||selection===null&&fixedGuests.some(id=>!owned.includes(id)))throw new Error('필수 장수가 미합류 또는 출전 불가입니다.');
+ const recommended=ch.act===4&&selection===null&&Array.isArray(ch.act4SuggestedSortie)?ch.act4SuggestedSortie:[];
+ const optional=[...new Set([...recommended,...owned])].filter(id=>owned.includes(id)&&!ch.required.includes(id)&&!fixedGuests.includes(id)&&!ch.unavailable.includes(id));
+ const defaults=[...ch.required,...optional].slice(0,regularMax);
+ // Explicit historical selections retain their original six slots and may omit a later fixed guest.
+ const ids=ch.fixed?ch.required:(selection??[...defaults,...fixedGuests]);
+ if(!Array.isArray(ids)||!ids.length||ids.length>ch.maxSortie||new Set(ids).size!==ids.length||sortieInfo(ch,ids).regularCount>regularMax||ch.required.some(id=>!ids.includes(id))||ids.some(id=>!owned.includes(id)||ch.unavailable.includes(id)||!UNIT_TEMPLATES[id]?.playable))throw new Error('출전 명단 오류');
+ if(positionLockedIndices(ch).some(i=>ids[i]!==ch.required[i]))throw new Error('필수 장수는 앞 슬롯 순서를 유지해야 합니다.');
+ return [...ids];
+}
+// Intermission and the next act use this same chapter-ID progression. Battle rules stay in the engine.
+export class Campaign {
+  constructor() { this.chapter = 0; this.stage = 'preDialogue'; this.line = 0; this.result = null; this.lastVictoryId = null; this.sortie=null; this.draft=null;this.draftSlots=null;this.sortieSlots=null; }
+  get scenario() { return CHAPTERS[this.chapter]; }
+  get act() { return this.scenario?.act??1; }
+  get lines() { return this.stage === 'preDialogue' ? this.scenario.pre : this.stage==='defeatDialogue'?this.scenario.defeatDialogue:campaignDialogueLines(this,this.scenario.post); }
+  nextDialogue() {
+    if (!['preDialogue', 'postDialogue','defeatDialogue'].includes(this.stage)) throw new Error('대화 중에만 진행할 수 있습니다.');
+    if (this.line + 1 < this.lines.length) this.line++; else this.finishDialogue();
+  }
+  finishDialogue() {
+    if (this.stage === 'preDialogue') this.stage = !this.scenario.fixed&&this.scenario.required.length<this.scenario.maxSortie?'deployment':'battle';
+    else if (this.stage === 'postDialogue') this.stage = 'intermission';
+    else if(this.stage==='defeatDialogue')this.stage='result';
+    else throw new Error('대화 중이 아닙니다.');
+    this.line = 0;
+  }
+  confirmDeployment(army) {
+    if(this.stage!=='deployment')throw new Error('편성 중이 아닙니다.');
+    if(!Array.isArray(this.draft))throw new Error('출전할 장수를 선택하세요.');
+    const ids=sortieIds(this.scenario,army,this.draft);
+    if(sortieInfo(this.scenario).fixedGuests.some(id=>!ids.includes(id)))throw new Error('고정 동행 장수는 반드시 출전합니다.');
+    this.sortie=ids;this.sortieSlots=this.draftSlots?[...this.draftSlots]:null;this.draft=null;this.draftSlots=null;this.stage='battle';
+  }
+  resolve(result) {
+    if (this.stage !== 'battle' || !['victory', 'defeat'].includes(result)) throw new Error('전투 결과가 올바르지 않습니다.');
+    this.result = result; if(result==='victory')this.lastVictoryId=this.scenario.id; this.stage = result==='defeat'&&this.scenario.defeatDialogue?.length?'defeatDialogue':'result';
+  }
+  afterVictory() {
+    if (this.stage !== 'result' || this.result !== 'victory') throw new Error('승리 후에만 전후 대화로 진행합니다.');
+    this.stage = 'postDialogue'; this.line = 0;
+  }
+  nextChapter() {
+    if (this.stage !== 'intermission') throw new Error('다음 전투로 이동할 수 없습니다.');
+    if (this.chapter + 1 >= CHAPTERS.length) { this.stage = 'complete'; return; }
+    const previousAct=this.act;
+    this.chapter++; this.stage = 'preDialogue'; this.line = 0; this.result = null; this.sortie=null;this.draft=null;this.draftSlots=null;this.sortieSlots=null;
+    if(this.nextDraft?.chapterId===this.scenario.id){this.draft=[...this.nextDraft.ids];this.draftSlots=[...this.nextDraft.slots];}delete this.nextDraft;
+    return previousAct!==this.act?{act:this.act,title:this.scenario.episodeTitle??this.scenario.subtitle,chapterId:this.scenario.id}:null;
+  }
+  retry() { this.stage = 'battle'; this.result = null; this.line = 0; }
+}

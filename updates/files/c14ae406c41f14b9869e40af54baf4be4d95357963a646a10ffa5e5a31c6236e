@@ -1,0 +1,3661 @@
+{
+  "schemaVersion": 1,
+  "kind": "battleLines",
+  "note": "v0.22: Claude 후보 420줄·25쌍의 ID/조건 보존. 설정집 웃음 규칙 6개 발화와 1막 5화 조공 호칭 3개 보정. 일반 대사 확률 50%, 원래 확률도 데이터에 보존.",
+  "textRule": {
+    "min": 4,
+    "max": 32
+  },
+  "situations": {
+    "pair": {
+      "name": "상대별 특수",
+      "when": "공격 시작, 공격자·피격자 조합이 표에 있을 때",
+      "rate": 100,
+      "limit": "조합당 1회",
+      "priority": 1,
+      "speakerSide": "공격자+피격자"
+    },
+    "defeated": {
+      "name": "격파당함(적장)",
+      "when": "적장의 병력이 0이 된 직후",
+      "rate": 100,
+      "limit": "1회",
+      "priority": 2,
+      "speakerSide": "피격자(적장)"
+    },
+    "retreat": {
+      "name": "퇴각(아군)",
+      "when": "아군 장수의 병력이 0이 된 직후",
+      "rate": 100,
+      "limit": "1회",
+      "priority": 2,
+      "speakerSide": "피격자(아군)"
+    },
+    "ally_down": {
+      "name": "동료 퇴각에 반응",
+      "when": "같은 편 장수가 퇴각한 직후, 그 장수와 관계 대사가 있는 생존 장수 1명",
+      "rate": 100,
+      "limit": "대상당 1회",
+      "priority": 3,
+      "speakerSide": "제3자"
+    },
+    "crit": {
+      "name": "치명타",
+      "when": "치명타 판정이 난 공격의 피해 표시 직전",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "공격자"
+    },
+    "crit_taken": {
+      "name": "치명타 피격",
+      "when": "치명타를 맞은 직후(공격자 대사가 없을 때만)",
+      "rate": 100,
+      "limit": "-",
+      "priority": 5,
+      "speakerSide": "피격자"
+    },
+    "defeat_boss": {
+      "name": "보스 격파",
+      "when": "보스(e_boss 또는 승리 대상)를 쓰러뜨린 직후",
+      "rate": 100,
+      "limit": "1회",
+      "priority": 2,
+      "speakerSide": "공격자"
+    },
+    "defeat": {
+      "name": "격파",
+      "when": "적을 쓰러뜨린 직후",
+      "rate": 60,
+      "limit": "-",
+      "priority": 6,
+      "speakerSide": "공격자"
+    },
+    "low": {
+      "name": "위기",
+      "when": "병력이 처음 30% 미만이 된 직후",
+      "rate": 100,
+      "limit": "1회",
+      "priority": 3,
+      "speakerSide": "피격자"
+    },
+    "spirit": {
+      "name": "정신기",
+      "when": "정신기 사용 확정 시. 키는 spirit_<정신기ID>",
+      "rate": 100,
+      "limit": "-",
+      "priority": 1,
+      "speakerSide": "사용자"
+    },
+    "strat_success": {
+      "name": "책략 성공",
+      "when": "책략 성공 시 공통(화공·혼란·위보 전용 대사가 없을 때)",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "사용자"
+    },
+    "strat_fire": {
+      "name": "화공 성공",
+      "when": "화공 성공 시",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "사용자"
+    },
+    "strat_confuse": {
+      "name": "혼란 성공",
+      "when": "혼란 책략 성공 시",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "사용자"
+    },
+    "strat_rumor": {
+      "name": "위보 성공",
+      "when": "위보 책략 성공 시",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "사용자"
+    },
+    "strat_fail": {
+      "name": "책략 실패",
+      "when": "책략 실패 시",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "사용자"
+    },
+    "strat_fail_rain": {
+      "name": "비로 화공 불가",
+      "when": "비가 와서 화공 성공률 0%로 실패했을 때",
+      "rate": 100,
+      "limit": "1회",
+      "priority": 3,
+      "speakerSide": "사용자"
+    },
+    "attack_boss": {
+      "name": "대장 공격",
+      "when": "이름 있는 적·보스를 공격할 때(그 조합의 pair가 없을 때)",
+      "rate": 70,
+      "limit": "대상당 1회",
+      "priority": 7,
+      "speakerSide": "공격자"
+    },
+    "attack_adv": {
+      "name": "상성 유리 공격",
+      "when": "상성 배율 160%인 공격",
+      "rate": 50,
+      "limit": "-",
+      "priority": 8,
+      "speakerSide": "공격자"
+    },
+    "attack": {
+      "name": "공격",
+      "when": "그 밖의 공격 시작",
+      "rate": 35,
+      "limit": "-",
+      "priority": 9,
+      "speakerSide": "공격자"
+    },
+    "counter": {
+      "name": "반격",
+      "when": "반격 시작",
+      "rate": 35,
+      "limit": "-",
+      "priority": 9,
+      "speakerSide": "반격자"
+    },
+    "miss": {
+      "name": "빗나감",
+      "when": "공격이 빗나갔을 때(공격자)",
+      "rate": 50,
+      "limit": "-",
+      "priority": 9,
+      "speakerSide": "공격자"
+    },
+    "dodge": {
+      "name": "회피",
+      "when": "상대 공격이 빗나갔을 때(피격자)",
+      "rate": 50,
+      "limit": "-",
+      "priority": 9,
+      "speakerSide": "피격자"
+    },
+    "damaged_big": {
+      "name": "큰 피해",
+      "when": "한 번에 최대 병력의 25% 이상을 잃었을 때",
+      "rate": 70,
+      "limit": "-",
+      "priority": 6,
+      "speakerSide": "피격자"
+    },
+    "damaged": {
+      "name": "피격",
+      "when": "그 밖의 피해",
+      "rate": 25,
+      "limit": "-",
+      "priority": 10,
+      "speakerSide": "피격자"
+    },
+    "ration": {
+      "name": "군량",
+      "when": "군량 사용 시",
+      "rate": 100,
+      "limit": "-",
+      "priority": 4,
+      "speakerSide": "사용자"
+    },
+    "levelup": {
+      "name": "레벨 업",
+      "when": "전투 중 레벨이 오른 직후",
+      "rate": 100,
+      "limit": "-",
+      "priority": 1,
+      "speakerSide": "본인"
+    },
+    "promote": {
+      "name": "승급",
+      "when": "정비 화면에서 승급 확정 시",
+      "rate": 100,
+      "limit": "-",
+      "priority": 1,
+      "speakerSide": "본인"
+    }
+  },
+  "spiritNames": {
+    "strike": "필중",
+    "flash": "번뜩임",
+    "focus": "집중",
+    "accel": "가속",
+    "spirit": "기합",
+    "fury": "열혈",
+    "wall": "철벽",
+    "wisdom": "지략",
+    "aim": "조준",
+    "calm": "진정",
+    "ambush": "기습",
+    "intimidate": "위압",
+    "encourage": "격려",
+    "rally": "독려"
+  },
+  "lines": [
+    {
+      "id": "bl_liubei_attack_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "쏘아라! 백성을 해치는 자를 막는다!"
+    },
+    {
+      "id": "bl_liubei_attack_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "물러서라. 지금이라면 쫓지 않겠다."
+    },
+    {
+      "id": "bl_liubei_attack_03",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "이 화살은 원한이 아니라 약속이다."
+    },
+    {
+      "id": "bl_liubei_attack_04",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "형제들의 길을 내가 연다!"
+    },
+    {
+      "id": "bl_liubei_attack_05",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "맞서야 한다면, 망설이지 않겠다.",
+      "cond": {
+        "chapterMin": 6
+      }
+    },
+    {
+      "id": "bl_liubei_attack_06",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "돗자리 장수의 활도 쏠 줄은 안다!",
+      "cond": {
+        "chapterMax": 3
+      }
+    },
+    {
+      "id": "bl_liubei_attack_adv_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "틈이 보인다. 지금이다!"
+    },
+    {
+      "id": "bl_liubei_attack_boss_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "attack_boss",
+      "text": "그대가 이 군대의 우두머리인가!"
+    },
+    {
+      "id": "bl_liubei_counter_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "counter",
+      "text": "한 걸음도 물러서지 않겠다!"
+    },
+    {
+      "id": "bl_liubei_counter_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "counter",
+      "text": "받은 만큼은 돌려주겠다!"
+    },
+    {
+      "id": "bl_liubei_crit_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "crit",
+      "text": "운장, 익덕… 보고 있나!"
+    },
+    {
+      "id": "bl_liubei_crit_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "crit",
+      "text": "이 한 발에 모두의 목숨이 걸렸다!"
+    },
+    {
+      "id": "bl_liubei_miss_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "miss",
+      "text": "…빗나갔나. 다시 겨눈다."
+    },
+    {
+      "id": "bl_liubei_miss_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "miss",
+      "text": "손이 떨렸군. 아직 멀었다."
+    },
+    {
+      "id": "bl_liubei_dodge_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "아직 쓰러질 때가 아니다!"
+    },
+    {
+      "id": "bl_liubei_damaged_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "이 정도로는 멈추지 않는다."
+    },
+    {
+      "id": "bl_liubei_damaged_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "괜찮다, 대열을 지켜라!"
+    },
+    {
+      "id": "bl_liubei_damaged_big_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "크윽… 다들, 나를 신경 쓰지 마라!"
+    },
+    {
+      "id": "bl_liubei_damaged_big_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "넓적다리 살이 붙었다고 울던 내가… 여기서!",
+      "cond": {
+        "chapterMin": 11
+      }
+    },
+    {
+      "id": "bl_liubei_crit_taken_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "crit_taken",
+      "text": "깊다… 그래도 서 있겠다."
+    },
+    {
+      "id": "bl_liubei_defeat_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "미안하다. 다음 생엔 밭을 갈며 살아라."
+    },
+    {
+      "id": "bl_liubei_defeat_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "길이 열렸다. 앞으로 간다!"
+    },
+    {
+      "id": "bl_liubei_defeat_03",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "쓰러뜨린 자의 이름도 기억하겠다.",
+      "cond": {
+        "chapterMin": 7
+      }
+    },
+    {
+      "id": "bl_liubei_defeat_boss_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "끝났다… 아무도 더 다치지 않게 하라."
+    },
+    {
+      "id": "bl_liubei_low_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "low",
+      "text": "아직이다… 백성이 기다리고 있다."
+    },
+    {
+      "id": "bl_liubei_low_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "low",
+      "text": "흩어져도 다시 만나자고 했지…",
+      "cond": {
+        "chapterMin": 8
+      }
+    },
+    {
+      "id": "bl_liubei_retreat_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "모두… 살아서 다시 만나세…"
+    },
+    {
+      "id": "bl_liubei_retreat_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "운장, 익덕… 뒤를 부탁하네…"
+    },
+    {
+      "id": "bl_liubei_spirit_focus_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "숨을 고르자. 하나만 보면 된다."
+    },
+    {
+      "id": "bl_liubei_spirit_spirit_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "모두 나를 보라! 아직 지지 않았다!"
+    },
+    {
+      "id": "bl_liubei_spirit_flash_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "보인다. 피할 수 있다."
+    },
+    {
+      "id": "bl_liubei_spirit_aim_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_aim",
+      "text": "조금만 더 멀리… 닿아라!"
+    },
+    {
+      "id": "bl_liubei_spirit_rally_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_rally",
+      "text": "한 번만 더 부탁하네. 그대가 필요하다!"
+    },
+    {
+      "id": "bl_liubei_spirit_rally_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_rally",
+      "text": "운장! 아직 끝나지 않았네!",
+      "cond": {
+        "ally": [
+          "guanyu"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_spirit_rally_03",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_rally",
+      "text": "익덕! 한 번 더 고함을 질러 주게!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_spirit_rally_04",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "spirit_rally",
+      "text": "공명 선생, 다음 수를 보여 주시오!",
+      "cond": {
+        "ally": [
+          "zhugeliang"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_ally_down_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "운장! …아니다, 운장은 쉽게 쓰러지지 않는다!",
+      "cond": {
+        "ally": [
+          "guanyu"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_ally_down_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "익덕! 무리하지 말라고 했잖나!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_ally_down_03",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "헌화! 자네까지 다치면 장부는 누가 쓰나!",
+      "cond": {
+        "ally": [
+          "jianyong"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_ally_down_04",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "자룡! 그대를 잃을 수는 없다!",
+      "cond": {
+        "ally": [
+          "zhaoyun"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_ally_down_05",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "공명 선생! 누가 선생을 모셔라!",
+      "cond": {
+        "ally": [
+          "zhugeliang"
+        ]
+      }
+    },
+    {
+      "id": "bl_liubei_ally_down_06",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "미안하다… 내가 더 빨랐어야 했다."
+    },
+    {
+      "id": "bl_liubei_levelup_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "아직 배울 것이 많다. 그래도 한 걸음."
+    },
+    {
+      "id": "bl_liubei_levelup_02",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "뽕나무 아래 꼬마가 조금 자랐군."
+    },
+    {
+      "id": "bl_liubei_promote_01",
+      "speaker": "liubei",
+      "side": "ally",
+      "situation": "promote",
+      "text": "이 활, 이제 더 멀리 닿겠구나."
+    },
+    {
+      "id": "bl_guanyu_attack_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "길을 비켜라. 형님께 가는 길이다."
+    },
+    {
+      "id": "bl_guanyu_attack_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "관운장, 여기 있다."
+    },
+    {
+      "id": "bl_guanyu_attack_03",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "한 칼이면 족하다."
+    },
+    {
+      "id": "bl_guanyu_attack_04",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "청룡도가 녹슬 틈은 없었다."
+    },
+    {
+      "id": "bl_guanyu_attack_05",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "적토마야, 달려라!",
+      "cond": {
+        "chapterMin": 9
+      }
+    },
+    {
+      "id": "bl_guanyu_attack_adv_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "그 대열로는 말을 막지 못한다."
+    },
+    {
+      "id": "bl_guanyu_attack_adv_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "보병이 기병 앞에 서는가. 어리석군.",
+      "cond": {
+        "vsClass": [
+          "infantry"
+        ]
+      }
+    },
+    {
+      "id": "bl_guanyu_attack_boss_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack_boss",
+      "text": "대장의 목만 가져가겠다."
+    },
+    {
+      "id": "bl_guanyu_attack_boss_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "attack_boss",
+      "text": "그대의 이름, 춘추에 적어 두겠다."
+    },
+    {
+      "id": "bl_guanyu_counter_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "counter",
+      "text": "등을 보인 적은 없다."
+    },
+    {
+      "id": "bl_guanyu_counter_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "counter",
+      "text": "상대를 잘못 골랐다."
+    },
+    {
+      "id": "bl_guanyu_crit_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "crit",
+      "text": "청룡언월도, 받아라!"
+    },
+    {
+      "id": "bl_guanyu_crit_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "crit",
+      "text": "술이 식기 전에 끝내겠다!"
+    },
+    {
+      "id": "bl_guanyu_miss_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "miss",
+      "text": "…가볍군. 다음은 없다."
+    },
+    {
+      "id": "bl_guanyu_dodge_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "느리다."
+    },
+    {
+      "id": "bl_guanyu_dodge_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "그 창끝으로는 닿지 않는다."
+    },
+    {
+      "id": "bl_guanyu_damaged_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "이 정도는 상처도 아니다."
+    },
+    {
+      "id": "bl_guanyu_damaged_big_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "…창병인가. 방심했다.",
+      "cond": {
+        "vsClass": [
+          "spear"
+        ]
+      }
+    },
+    {
+      "id": "bl_guanyu_damaged_big_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "수염에 피가 묻었군. 갚아 주마."
+    },
+    {
+      "id": "bl_guanyu_crit_taken_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "crit_taken",
+      "text": "좋은 일격이다. 이름을 묻겠다."
+    },
+    {
+      "id": "bl_guanyu_defeat_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "길을 막지 않았다면 살았을 것을."
+    },
+    {
+      "id": "bl_guanyu_defeat_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "다음은 누구냐."
+    },
+    {
+      "id": "bl_guanyu_defeat_03",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "이것으로 은혜 하나를 갚았다.",
+      "cond": {
+        "chapterMin": 9,
+        "chapterMax": 9
+      }
+    },
+    {
+      "id": "bl_guanyu_defeat_boss_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "형님, 길이 열렸습니다."
+    },
+    {
+      "id": "bl_guanyu_low_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "low",
+      "text": "형님을 뵙기 전에는 쓰러지지 않는다."
+    },
+    {
+      "id": "bl_guanyu_low_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "low",
+      "text": "익덕, 내 뒤를 맡겨도 되겠느냐.",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_guanyu_retreat_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "형님… 면목이 없습니다…"
+    },
+    {
+      "id": "bl_guanyu_retreat_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "물러난다. 형수님들을 부탁한다.",
+      "cond": {
+        "chapterMin": 9,
+        "chapterMax": 10
+      }
+    },
+    {
+      "id": "bl_guanyu_spirit_strike_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "spirit_strike",
+      "text": "눈을 감아도 벨 수 있다."
+    },
+    {
+      "id": "bl_guanyu_spirit_accel_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "spirit_accel",
+      "text": "단숨에 간다."
+    },
+    {
+      "id": "bl_guanyu_spirit_spirit_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "피가 끓는다. 오늘은 길게 간다."
+    },
+    {
+      "id": "bl_guanyu_spirit_fury_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "spirit_fury",
+      "text": "이 일격에 모든 것을 싣는다!"
+    },
+    {
+      "id": "bl_guanyu_spirit_intimidate_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "spirit_intimidate",
+      "text": "내 수염을 보고도 덤비겠느냐."
+    },
+    {
+      "id": "bl_guanyu_ally_down_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "익덕! 물러나라, 내가 막는다!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_guanyu_ally_down_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "형님! …누가 감히!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_guanyu_ally_down_03",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주창, 아직 춘추를 다 외지 못했다!",
+      "cond": {
+        "ally": [
+          "zhoucang"
+        ]
+      }
+    },
+    {
+      "id": "bl_guanyu_levelup_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "아직 춘추 한 권도 다 읽지 못했다."
+    },
+    {
+      "id": "bl_guanyu_levelup_02",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "형님의 칼로 부끄럽지 않게."
+    },
+    {
+      "id": "bl_guanyu_promote_01",
+      "speaker": "guanyu",
+      "side": "ally",
+      "situation": "promote",
+      "text": "말이 바뀌어도 가는 곳은 하나다."
+    },
+    {
+      "id": "bl_zhangfei_attack_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "덤벼라! 연인 장익덕이다!"
+    },
+    {
+      "id": "bl_zhangfei_attack_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "하하하! 오늘은 누가 먼저냐!"
+    },
+    {
+      "id": "bl_zhangfei_attack_03",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "이 장팔사모 맛을 봐라!"
+    },
+    {
+      "id": "bl_zhangfei_attack_04",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "형님 앞을 막는 놈은 다 비켜!"
+    },
+    {
+      "id": "bl_zhangfei_attack_05",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "하나, 둘… 셋까진 못 참겠다!",
+      "cond": {
+        "chapterMax": 5
+      }
+    },
+    {
+      "id": "bl_zhangfei_attack_06",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack",
+      "text": "스물까지 셌다. 이제 됐지?",
+      "cond": {
+        "chapterMin": 6
+      }
+    },
+    {
+      "id": "bl_zhangfei_attack_adv_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "창병 놈들! 너흰 내 밥이다!",
+      "cond": {
+        "vsClass": [
+          "spear"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhangfei_attack_boss_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "attack_boss",
+      "text": "네가 대장이냐? 얼굴 좀 보자!"
+    },
+    {
+      "id": "bl_zhangfei_counter_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "counter",
+      "text": "감히 나를 쳐? 두 배로 갚는다!"
+    },
+    {
+      "id": "bl_zhangfei_counter_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "counter",
+      "text": "하하, 간지럽다!"
+    },
+    {
+      "id": "bl_zhangfei_counter_03",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "counter",
+      "text": "받아치는 게 내 특기다!"
+    },
+    {
+      "id": "bl_zhangfei_crit_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "crit",
+      "text": "으라차차차!"
+    },
+    {
+      "id": "bl_zhangfei_crit_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "crit",
+      "text": "이게 백정의 힘이다!"
+    },
+    {
+      "id": "bl_zhangfei_miss_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "miss",
+      "text": "에잇! 왜 피하냐!"
+    },
+    {
+      "id": "bl_zhangfei_miss_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "miss",
+      "text": "…지금 건 연습이다!"
+    },
+    {
+      "id": "bl_zhangfei_dodge_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "하하, 그걸로 날 맞히려고?"
+    },
+    {
+      "id": "bl_zhangfei_damaged_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "안 아프다! 하나도 안 아프다!"
+    },
+    {
+      "id": "bl_zhangfei_damaged_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "이 정도면 술 한 잔 값이다!",
+      "cond": {
+        "chapterMax": 5
+      }
+    },
+    {
+      "id": "bl_zhangfei_damaged_03",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "술 끊은 뒤로 맷집이 늘었다!",
+      "cond": {
+        "chapterMin": 7
+      }
+    },
+    {
+      "id": "bl_zhangfei_damaged_big_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "크으… 이놈, 제법이다!"
+    },
+    {
+      "id": "bl_zhangfei_damaged_big_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "기병이냐! 다리 묶고 싸워!",
+      "cond": {
+        "vsClass": [
+          "cavalry"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhangfei_crit_taken_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "crit_taken",
+      "text": "…아프다. 진짜 아프다. 화난다!"
+    },
+    {
+      "id": "bl_zhangfei_defeat_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "다음 놈 나와라!"
+    },
+    {
+      "id": "bl_zhangfei_defeat_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "하하! 형님, 봤소?"
+    },
+    {
+      "id": "bl_zhangfei_defeat_03",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "이게 장익덕이다!"
+    },
+    {
+      "id": "bl_zhangfei_defeat_boss_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "대장 목은 이 장비가 땄다!"
+    },
+    {
+      "id": "bl_zhangfei_low_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "low",
+      "text": "아직이다… 형님들 앞에서 안 눕는다!"
+    },
+    {
+      "id": "bl_zhangfei_low_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "low",
+      "text": "사냥꾼 대장, 문은 내가 지킨다…!",
+      "cond": {
+        "chapterMin": 7
+      }
+    },
+    {
+      "id": "bl_zhangfei_retreat_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "형님… 미안하오… 먼저 물러나오…"
+    },
+    {
+      "id": "bl_zhangfei_retreat_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "술… 한 잔만… 아니, 안 마셔…",
+      "cond": {
+        "chapterMin": 7
+      }
+    },
+    {
+      "id": "bl_zhangfei_spirit_spirit_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "우오오오! 피가 끓는다!"
+    },
+    {
+      "id": "bl_zhangfei_spirit_flash_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "보인다, 보여! 다 피해 주마!"
+    },
+    {
+      "id": "bl_zhangfei_spirit_focus_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "…조용히 해라. 집중하는 중이다."
+    },
+    {
+      "id": "bl_zhangfei_spirit_fury_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "spirit_fury",
+      "text": "죽고 싶은 놈부터 나와라!"
+    },
+    {
+      "id": "bl_zhangfei_spirit_intimidate_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "spirit_intimidate",
+      "text": "내가 연인 장익덕이다!!"
+    },
+    {
+      "id": "bl_zhangfei_spirit_intimidate_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "spirit_intimidate",
+      "text": "이 다리로 오너라! 누구든!",
+      "cond": {
+        "chapterMin": 13
+      }
+    },
+    {
+      "id": "bl_zhangfei_ally_down_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "형님!! 네놈들, 가만 안 둔다!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhangfei_ally_down_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "둘째 형님! 내가 대신 싸우겠소!",
+      "cond": {
+        "ally": [
+          "guanyu"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhangfei_ally_down_03",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "군사! 내 뒤로 오라고 했잖소!",
+      "cond": {
+        "ally": [
+          "zhugeliang"
+        ],
+        "chapterMin": 12
+      }
+    },
+    {
+      "id": "bl_zhangfei_ally_down_04",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "헌화 선생! 장부는 내가 대신 써 주겠소!",
+      "cond": {
+        "ally": [
+          "jianyong"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhangfei_levelup_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "하하! 더 세졌다! 술 생각도 줄었다!"
+    },
+    {
+      "id": "bl_zhangfei_levelup_02",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "형님, 나 또 컸소!"
+    },
+    {
+      "id": "bl_zhangfei_promote_01",
+      "speaker": "zhangfei",
+      "side": "ally",
+      "situation": "promote",
+      "text": "새 창이다! 빨리 휘둘러 보고 싶다!"
+    },
+    {
+      "id": "bl_jianyong_strat_confuse_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_confuse",
+      "text": "자, 내 말 잘 들으시오. 왼쪽이 오른쪽이오."
+    },
+    {
+      "id": "bl_jianyong_strat_confuse_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_confuse",
+      "text": "머리가 어지럽소? 내 장부를 보면 다들 그렇소."
+    },
+    {
+      "id": "bl_jianyong_strat_rumor_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_rumor",
+      "text": "뒤에서 너희 진채가 불탄다더라! 쓸데없는 말이지만!"
+    },
+    {
+      "id": "bl_jianyong_strat_success_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "탁현 시장 바닥에서 배운 말솜씨요!"
+    },
+    {
+      "id": "bl_jianyong_defeat_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "장부에 적어 두겠소. 네 이름 옆에 빨간 줄!"
+    },
+    {
+      "id": "bl_jianyong_strat_success_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "하하, 쓸데없는 말이 통했군!"
+    },
+    {
+      "id": "bl_jianyong_strat_success_03",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "현덕, 장부에 이건 이익으로 적겠소!"
+    },
+    {
+      "id": "bl_jianyong_strat_fire_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_fire",
+      "text": "불이야! …아, 내가 놓은 거지."
+    },
+    {
+      "id": "bl_jianyong_strat_fail_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_fail",
+      "text": "…이건 장부에 안 적겠소."
+    },
+    {
+      "id": "bl_jianyong_strat_fail_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_fail",
+      "text": "말이 안 먹히는 상대군."
+    },
+    {
+      "id": "bl_jianyong_strat_fail_rain_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "strat_fail_rain",
+      "text": "비가 와서 불이 안 붙소! 하늘도 내 편이 아니군."
+    },
+    {
+      "id": "bl_jianyong_dodge_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "어이쿠! 늙은 몸도 피할 줄은 아오!"
+    },
+    {
+      "id": "bl_jianyong_damaged_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "아이고, 내 허리!"
+    },
+    {
+      "id": "bl_jianyong_damaged_big_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "현덕! 책사를 앞에 세우는 주군이 어디 있소!"
+    },
+    {
+      "id": "bl_jianyong_defeat_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "쓸데없는 말에 졌다고 전하시오."
+    },
+    {
+      "id": "bl_jianyong_low_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "low",
+      "text": "이러다 장부 쓸 사람이 없어지겠소!"
+    },
+    {
+      "id": "bl_jianyong_retreat_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "먼저 물러나겠소. 장부는 내가 챙기오…"
+    },
+    {
+      "id": "bl_jianyong_retreat_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "하하… 이번엔 쓸데없이 다쳤구려…",
+      "cond": {
+        "chapterMin": 13
+      }
+    },
+    {
+      "id": "bl_jianyong_ration_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "ration",
+      "text": "군량이오. 이번 달 장부가 또 우는구려."
+    },
+    {
+      "id": "bl_jianyong_ration_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "ration",
+      "text": "먹고 싸우시오. 굶으면 계책도 안 통하오."
+    },
+    {
+      "id": "bl_jianyong_spirit_focus_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "자, 계산을 다시 해 봅시다."
+    },
+    {
+      "id": "bl_jianyong_spirit_spirit_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "나도 탁현 사람이오! 기합 한 번!"
+    },
+    {
+      "id": "bl_jianyong_spirit_flash_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "도망치는 건 자신 있소!"
+    },
+    {
+      "id": "bl_jianyong_spirit_wisdom_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "spirit_wisdom",
+      "text": "이번엔 공명 선생 흉내 좀 내 보겠소.",
+      "cond": {
+        "chapterMin": 12
+      }
+    },
+    {
+      "id": "bl_jianyong_spirit_wisdom_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "spirit_wisdom",
+      "text": "머리는 안 좋아도 셈은 빠르오.",
+      "cond": {
+        "chapterMax": 11
+      }
+    },
+    {
+      "id": "bl_jianyong_spirit_encourage_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "spirit_encourage",
+      "text": "다들 힘내시오! 이긴 뒤 술은 현덕이 사오!"
+    },
+    {
+      "id": "bl_jianyong_ally_down_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "현덕! 꼬마 때처럼 넘어지지 마시오!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_jianyong_ally_down_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "익덕 장군! 내기 아직 안 끝났소!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_jianyong_levelup_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "어라, 나도 좀 쓸모가 생겼소?"
+    },
+    {
+      "id": "bl_jianyong_levelup_02",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "장부 두 권에 한 줄 더 적겠소."
+    },
+    {
+      "id": "bl_jianyong_promote_01",
+      "speaker": "jianyong",
+      "side": "ally",
+      "situation": "promote",
+      "text": "책사 간옹, 승진이오! 현덕, 녹봉은?"
+    },
+    {
+      "id": "bl_sunqian_strat_confuse_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_confuse",
+      "text": "말 한마디로 대열이 흐트러지는군요."
+    },
+    {
+      "id": "bl_sunqian_strat_rumor_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_rumor",
+      "text": "서신 한 장이면 충분합니다. 가짜라도요."
+    },
+    {
+      "id": "bl_sunqian_strat_rumor_02",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_rumor",
+      "text": "너희 주인이 이미 물러났다는 소식이다!"
+    },
+    {
+      "id": "bl_sunqian_strat_success_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "말로 길을 닦는 것이 제 일입니다."
+    },
+    {
+      "id": "bl_sunqian_strat_success_02",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "길은 이렇게 닦는 겁니다."
+    },
+    {
+      "id": "bl_sunqian_strat_success_03",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "상대의 귀가 열렸군요."
+    },
+    {
+      "id": "bl_sunqian_strat_fire_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_fire",
+      "text": "불길이 바람을 탔습니다."
+    },
+    {
+      "id": "bl_sunqian_strat_fail_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_fail",
+      "text": "…상대가 귀를 닫았군요."
+    },
+    {
+      "id": "bl_sunqian_strat_fail_rain_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "strat_fail_rain",
+      "text": "비 오는 날 불을 놓다니, 제 실수입니다."
+    },
+    {
+      "id": "bl_sunqian_dodge_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "사신은 몸을 피하는 데 익숙합니다."
+    },
+    {
+      "id": "bl_sunqian_damaged_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "이 정도는 여행길의 먼지입니다."
+    },
+    {
+      "id": "bl_sunqian_damaged_big_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "주공께 전할 말이… 하나 늘었군요."
+    },
+    {
+      "id": "bl_sunqian_defeat_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "이 이야기는 서신에 적지 않겠습니다."
+    },
+    {
+      "id": "bl_sunqian_low_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "low",
+      "text": "길이 막혔습니다. 다른 길을 찾겠습니다."
+    },
+    {
+      "id": "bl_sunqian_retreat_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "먼저 가서 길을 닦아 두겠습니다…"
+    },
+    {
+      "id": "bl_sunqian_spirit_focus_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "말 한마디에도 순서가 있습니다."
+    },
+    {
+      "id": "bl_sunqian_spirit_accel_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "spirit_accel",
+      "text": "먼저 가 있겠습니다."
+    },
+    {
+      "id": "bl_sunqian_spirit_flash_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "빠져나가는 길은 늘 있습니다."
+    },
+    {
+      "id": "bl_sunqian_spirit_wisdom_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "spirit_wisdom",
+      "text": "상대의 마음을 먼저 읽겠습니다."
+    },
+    {
+      "id": "bl_sunqian_spirit_calm_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "spirit_calm",
+      "text": "정신 차리십시오. 소문은 소문일 뿐입니다."
+    },
+    {
+      "id": "bl_sunqian_ally_down_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주공! 물러나실 길은 제가 열겠습니다!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_sunqian_ally_down_02",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "운장 장군! 형님께 전할 말이 아직 남았습니다!",
+      "cond": {
+        "ally": [
+          "guanyu"
+        ]
+      }
+    },
+    {
+      "id": "bl_sunqian_levelup_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "말이 조금 더 멀리 닿겠군요."
+    },
+    {
+      "id": "bl_sunqian_promote_01",
+      "speaker": "sunqian",
+      "side": "ally",
+      "situation": "promote",
+      "text": "사신의 붓이 조금 무거워졌습니다."
+    },
+    {
+      "id": "bl_mizhu_attack_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "장사꾼도 지킬 건 지킵니다!"
+    },
+    {
+      "id": "bl_mizhu_attack_02",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "이건 붉은 표시 안 한 몫입니다!"
+    },
+    {
+      "id": "bl_mizhu_attack_03",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "서주 동해 미자중, 나갑니다!"
+    },
+    {
+      "id": "bl_mizhu_attack_04",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "attack",
+      "text": "손해 보는 장사는 안 합니다!"
+    },
+    {
+      "id": "bl_mizhu_counter_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "counter",
+      "text": "빚은 바로 갚는 게 원칙입니다."
+    },
+    {
+      "id": "bl_mizhu_counter_02",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "counter",
+      "text": "이자까지 쳐서 돌려드리지요!"
+    },
+    {
+      "id": "bl_mizhu_dodge_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "장부만큼 몸도 꼼꼼히 챙깁니다."
+    },
+    {
+      "id": "bl_mizhu_damaged_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "창고 문은 아직 안 열렸습니다!"
+    },
+    {
+      "id": "bl_mizhu_damaged_big_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "…이 손해는 꼭 받아 내겠습니다."
+    },
+    {
+      "id": "bl_mizhu_defeat_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "셈은 끝났습니다."
+    },
+    {
+      "id": "bl_mizhu_defeat_02",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "장부에서 한 줄 지웁니다."
+    },
+    {
+      "id": "bl_mizhu_defeat_boss_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "이번 싸움, 장부상 이익입니다!"
+    },
+    {
+      "id": "bl_mizhu_low_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "low",
+      "text": "누이야… 아직 말려 줄 사람이 필요하구나.",
+      "cond": {
+        "chapterMax": 13
+      }
+    },
+    {
+      "id": "bl_mizhu_low_02",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "low",
+      "text": "붉은 표시는… 내 마음대로 하라 했지.",
+      "cond": {
+        "chapterMin": 14
+      }
+    },
+    {
+      "id": "bl_mizhu_retreat_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "창고 열쇠는… 간 선생께…"
+    },
+    {
+      "id": "bl_mizhu_ration_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "ration",
+      "text": "군량입니다. 붉은 표시 없는 걸로 드리겠습니다."
+    },
+    {
+      "id": "bl_mizhu_ration_02",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "ration",
+      "text": "배부르게 드시고, 꼭 이기십시오."
+    },
+    {
+      "id": "bl_mizhu_spirit_spirit_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "서주 동해 미씨, 물러서지 않습니다!"
+    },
+    {
+      "id": "bl_mizhu_spirit_wall_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "spirit_wall",
+      "text": "창고 문처럼, 단단히 잠그겠습니다."
+    },
+    {
+      "id": "bl_mizhu_spirit_encourage_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "spirit_encourage",
+      "text": "여러분, 이긴 날 쌀은 제가 내겠습니다!"
+    },
+    {
+      "id": "bl_mizhu_ally_down_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주공! 주공만은 잃을 수 없습니다!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_mizhu_levelup_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "장부에 적힌 숫자보다 제가 조금 늘었군요."
+    },
+    {
+      "id": "bl_mizhu_promote_01",
+      "speaker": "mizhu",
+      "side": "ally",
+      "situation": "promote",
+      "text": "이 갑옷값은 제가 내겠습니다."
+    },
+    {
+      "id": "bl_chendao_attack_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "attack",
+      "text": "…갑니다."
+    },
+    {
+      "id": "bl_chendao_attack_02",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "attack",
+      "text": "주공의 등 뒤는 비워 두지 않습니다."
+    },
+    {
+      "id": "bl_chendao_attack_03",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "attack",
+      "text": "천 번 찌른 창입니다."
+    },
+    {
+      "id": "bl_chendao_attack_04",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "attack",
+      "text": "백이병, 앞으로."
+    },
+    {
+      "id": "bl_chendao_attack_adv_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "말 탄 자에게 창끝은 먼저 닿습니다.",
+      "cond": {
+        "vsClass": [
+          "cavalry"
+        ]
+      }
+    },
+    {
+      "id": "bl_chendao_counter_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "counter",
+      "text": "문은 닫혀 있습니다."
+    },
+    {
+      "id": "bl_chendao_crit_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "crit",
+      "text": "…지금."
+    },
+    {
+      "id": "bl_chendao_miss_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "miss",
+      "text": "…다시."
+    },
+    {
+      "id": "bl_chendao_dodge_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "보였습니다."
+    },
+    {
+      "id": "bl_chendao_damaged_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "서 있습니다."
+    },
+    {
+      "id": "bl_chendao_damaged_big_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "…아직 문은 지킵니다."
+    },
+    {
+      "id": "bl_chendao_defeat_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "지나갈 수 없습니다."
+    },
+    {
+      "id": "bl_chendao_defeat_02",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "문은 닫혔습니다."
+    },
+    {
+      "id": "bl_chendao_defeat_boss_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "주공, 앞이 비었습니다."
+    },
+    {
+      "id": "bl_chendao_low_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "low",
+      "text": "문을 지킬 사람이 없으면 안 됩니다…"
+    },
+    {
+      "id": "bl_chendao_retreat_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "주공… 등 뒤를 조심하십시오…"
+    },
+    {
+      "id": "bl_chendao_spirit_strike_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "spirit_strike",
+      "text": "한 번이면 됩니다."
+    },
+    {
+      "id": "bl_chendao_spirit_focus_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "…숨을 고릅니다."
+    },
+    {
+      "id": "bl_chendao_spirit_spirit_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "백이병, 창을 세워라!"
+    },
+    {
+      "id": "bl_chendao_spirit_wall_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "spirit_wall",
+      "text": "여기서부터는 못 지나갑니다."
+    },
+    {
+      "id": "bl_chendao_spirit_calm_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "spirit_calm",
+      "text": "정신 차리십시오. 제가 옆에 있습니다."
+    },
+    {
+      "id": "bl_chendao_ally_down_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주공!! …제가 서겠습니다.",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_chendao_levelup_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "…창이 조금 가벼워졌습니다."
+    },
+    {
+      "id": "bl_chendao_promote_01",
+      "speaker": "chendao",
+      "side": "ally",
+      "situation": "promote",
+      "text": "새 창이군요. 천 번부터 다시 찌르겠습니다."
+    },
+    {
+      "id": "bl_zhoucang_attack_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "attack",
+      "text": "관 장군님 앞길은 제가 엽니다!"
+    },
+    {
+      "id": "bl_zhoucang_attack_02",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "attack",
+      "text": "와우산 주창이다! 덤벼라!"
+    },
+    {
+      "id": "bl_zhoucang_attack_03",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "attack",
+      "text": "맨발로도 산을 넘었다!"
+    },
+    {
+      "id": "bl_zhoucang_attack_adv_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "창병이냐! 보병이 무서운 줄 알아라!",
+      "cond": {
+        "vsClass": [
+          "spear"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhoucang_counter_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "counter",
+      "text": "이 정도 맞는 건 산채에서 익숙하다!"
+    },
+    {
+      "id": "bl_zhoucang_counter_02",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "counter",
+      "text": "관 장군님께 배운 대로 받아친다!"
+    },
+    {
+      "id": "bl_zhoucang_crit_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "crit",
+      "text": "춘추 한 장, 창 백 번의 힘이다!"
+    },
+    {
+      "id": "bl_zhoucang_miss_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "miss",
+      "text": "아이고! 관 장군님 앞에서…!"
+    },
+    {
+      "id": "bl_zhoucang_dodge_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "산길에서 단련한 다리다!"
+    },
+    {
+      "id": "bl_zhoucang_damaged_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "안 아픕니다! 하나도요!"
+    },
+    {
+      "id": "bl_zhoucang_damaged_big_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "크윽… 그래도 안 물러난다!"
+    },
+    {
+      "id": "bl_zhoucang_defeat_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "관 장군님, 보셨습니까!"
+    },
+    {
+      "id": "bl_zhoucang_defeat_02",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "주먹밥 하나 값은 했다!"
+    },
+    {
+      "id": "bl_zhoucang_low_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "low",
+      "text": "섬길 사람을 정했으면 끝까지라고 했지…"
+    },
+    {
+      "id": "bl_zhoucang_retreat_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "장군님… 춘추는… 가방에…"
+    },
+    {
+      "id": "bl_zhoucang_spirit_spirit_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "spirit_spirit",
+      "text": "산채 두목 시절 기합이다!"
+    },
+    {
+      "id": "bl_zhoucang_spirit_flash_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "도망치는 건 황건 시절에 배웠다!"
+    },
+    {
+      "id": "bl_zhoucang_spirit_accel_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "spirit_accel",
+      "text": "관 장군님 말보다 빠르게!"
+    },
+    {
+      "id": "bl_zhoucang_spirit_fury_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "spirit_fury",
+      "text": "이 한 방에 춘추 한 권을 건다!"
+    },
+    {
+      "id": "bl_zhoucang_spirit_wall_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "spirit_wall",
+      "text": "장군님 등 뒤는 제가 막습니다!"
+    },
+    {
+      "id": "bl_zhoucang_ally_down_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "관 장군님!! 비켜라, 이놈들!",
+      "cond": {
+        "ally": [
+          "guanyu"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhoucang_ally_down_02",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "장 장군님! 주먹밥 빚 아직 못 갚았습니다!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhoucang_levelup_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "장군님, 오늘은 춘추 두 장 외웠습니다!"
+    },
+    {
+      "id": "bl_zhoucang_promote_01",
+      "speaker": "zhoucang",
+      "side": "ally",
+      "situation": "promote",
+      "text": "짐꾼이 장수가 됐다! 맨발 시절이 꿈 같다!"
+    },
+    {
+      "id": "bl_zhaoyun_attack_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "attack",
+      "text": "상산의 조자룡이다!"
+    },
+    {
+      "id": "bl_zhaoyun_attack_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "attack",
+      "text": "주공의 적은 제가 벱니다."
+    },
+    {
+      "id": "bl_zhaoyun_attack_03",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "attack",
+      "text": "길을 비켜라. 지나가겠다."
+    },
+    {
+      "id": "bl_zhaoyun_attack_04",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "attack",
+      "text": "공자님께 가는 길이다!",
+      "cond": {
+        "chapterMin": 13,
+        "chapterMax": 13
+      }
+    },
+    {
+      "id": "bl_zhaoyun_attack_adv_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "attack_adv",
+      "text": "말 위의 자, 내 창끝이 먼저다!",
+      "cond": {
+        "vsClass": [
+          "cavalry"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhaoyun_attack_boss_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "attack_boss",
+      "text": "대장, 상산 조자룡이 상대한다."
+    },
+    {
+      "id": "bl_zhaoyun_counter_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "counter",
+      "text": "흔들리지 않는다."
+    },
+    {
+      "id": "bl_zhaoyun_counter_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "counter",
+      "text": "돌아갈 곳이 있는 창이다."
+    },
+    {
+      "id": "bl_zhaoyun_crit_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "crit",
+      "text": "이 창, 일곱 번을 드나들었다!",
+      "cond": {
+        "chapterMin": 13
+      }
+    },
+    {
+      "id": "bl_zhaoyun_crit_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "crit",
+      "text": "여기다!"
+    },
+    {
+      "id": "bl_zhaoyun_miss_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "miss",
+      "text": "…호흡이 흐트러졌다."
+    },
+    {
+      "id": "bl_zhaoyun_dodge_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "백마는 그렇게 느리지 않다."
+    },
+    {
+      "id": "bl_zhaoyun_damaged_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "이 정도는 상처가 아니다."
+    },
+    {
+      "id": "bl_zhaoyun_damaged_big_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "갑옷 안은… 무사하다.",
+      "cond": {
+        "chapterMin": 13,
+        "chapterMax": 13
+      }
+    },
+    {
+      "id": "bl_zhaoyun_damaged_big_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "…아직 창은 부러지지 않았다."
+    },
+    {
+      "id": "bl_zhaoyun_crit_taken_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "crit_taken",
+      "text": "좋은 솜씨다. 그러나 여기까지다."
+    },
+    {
+      "id": "bl_zhaoyun_defeat_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "맡은 일을 하겠다."
+    },
+    {
+      "id": "bl_zhaoyun_defeat_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "다음 적으로 간다."
+    },
+    {
+      "id": "bl_zhaoyun_defeat_boss_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "주공, 끝났습니다. 돌아가겠습니다."
+    },
+    {
+      "id": "bl_zhaoyun_low_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "low",
+      "text": "공자님만은 반드시…!",
+      "cond": {
+        "chapterMin": 13,
+        "chapterMax": 13
+      }
+    },
+    {
+      "id": "bl_zhaoyun_low_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "low",
+      "text": "주공께 돌아가야 한다. 여기서는 못 쓰러진다."
+    },
+    {
+      "id": "bl_zhaoyun_retreat_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "주공… 명을… 다하지 못했습니다…"
+    },
+    {
+      "id": "bl_zhaoyun_spirit_flash_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "보입니다."
+    },
+    {
+      "id": "bl_zhaoyun_spirit_accel_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "spirit_accel",
+      "text": "백마야, 한 번 더 달려 다오."
+    },
+    {
+      "id": "bl_zhaoyun_spirit_strike_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "spirit_strike",
+      "text": "한 치도 어긋나지 않는다."
+    },
+    {
+      "id": "bl_zhaoyun_spirit_wall_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "spirit_wall",
+      "text": "여기는 지나갈 수 없다."
+    },
+    {
+      "id": "bl_zhaoyun_spirit_ambush_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "spirit_ambush",
+      "text": "그림자처럼 들어가겠다."
+    },
+    {
+      "id": "bl_zhaoyun_ally_down_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주공! 제가 갑니다!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhaoyun_ally_down_02",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "익덕 장군! 다리는 제가 맡겠습니다!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhaoyun_levelup_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "주공의 곁에 설 자격이 조금 늘었습니다."
+    },
+    {
+      "id": "bl_zhaoyun_promote_01",
+      "speaker": "zhaoyun",
+      "side": "ally",
+      "situation": "promote",
+      "text": "새 창이군요. 맡은 일은 같습니다."
+    },
+    {
+      "id": "bl_xushu_strat_confuse_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_confuse",
+      "text": "팔문의 문 하나만 바꿔 놓았을 뿐이오."
+    },
+    {
+      "id": "bl_xushu_strat_rumor_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_rumor",
+      "text": "영천 시장에서 소문 퍼뜨리던 솜씨요."
+    },
+    {
+      "id": "bl_xushu_strat_success_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "단복이라는 이름, 기억해 두시오."
+    },
+    {
+      "id": "bl_xushu_strat_success_02",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "단복의 계책, 어떻소?"
+    },
+    {
+      "id": "bl_xushu_strat_success_03",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "반딧불도 길은 비춥니다."
+    },
+    {
+      "id": "bl_xushu_strat_fire_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_fire",
+      "text": "불은 바람 부는 쪽으로 놓는 법이지."
+    },
+    {
+      "id": "bl_xushu_strat_fail_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_fail",
+      "text": "…달이 아니라 반딧불이었군."
+    },
+    {
+      "id": "bl_xushu_strat_fail_rain_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "strat_fail_rain",
+      "text": "하늘이 계책을 막는구려."
+    },
+    {
+      "id": "bl_xushu_dodge_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "협객 시절 버릇이 남아 있소."
+    },
+    {
+      "id": "bl_xushu_damaged_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "어머니께서 보시면 혼나겠군."
+    },
+    {
+      "id": "bl_xushu_damaged_big_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "이 몸이… 아직 쓸모 있어야 하는데…"
+    },
+    {
+      "id": "bl_xushu_defeat_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "칼을 놓은 지 오래지만, 잊지는 않았소."
+    },
+    {
+      "id": "bl_xushu_low_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "low",
+      "text": "물러설 때를 아는 것도 계책이오."
+    },
+    {
+      "id": "bl_xushu_retreat_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "주공… 공명이 있으니… 괜찮을 겁니다…"
+    },
+    {
+      "id": "bl_xushu_spirit_focus_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "판 전체를 다시 보겠소."
+    },
+    {
+      "id": "bl_xushu_spirit_accel_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "spirit_accel",
+      "text": "먼저 가서 자리를 잡겠소."
+    },
+    {
+      "id": "bl_xushu_spirit_flash_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "젊은 날처럼 몸을 날려 보지."
+    },
+    {
+      "id": "bl_xushu_spirit_wisdom_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "spirit_wisdom",
+      "text": "공명, 자네라면 어떻게 하겠나…"
+    },
+    {
+      "id": "bl_xushu_spirit_aim_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "spirit_aim",
+      "text": "조금 더 멀리 내다보겠소."
+    },
+    {
+      "id": "bl_xushu_ally_down_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주공! 이 계책은 주공을 위한 것입니다!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_xushu_ally_down_02",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "공명! 자네가 쓰러지면 내 천거가 헛것이 되네!",
+      "cond": {
+        "ally": [
+          "zhugeliang"
+        ]
+      }
+    },
+    {
+      "id": "bl_xushu_levelup_01",
+      "speaker": "xushu",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "아직 배울 것이 남았군."
+    },
+    {
+      "id": "bl_zhugeliang_strat_confuse_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_confuse",
+      "text": "대열이 어디서 무너지는지 보입니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_rumor_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_rumor",
+      "text": "조조의 본진이 흔들린다는 소문이 돌고 있습니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_success_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "밭을 갈 때 읽던 책이 쓸모가 있군요."
+    },
+    {
+      "id": "bl_zhugeliang_strat_success_02",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "정해진 때입니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_success_03",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "예상대로입니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_success_04",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_success",
+      "text": "바람도, 물도, 사람도 순서가 있습니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_fire_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_fire",
+      "text": "이 불은 이미 어제부터 타고 있었습니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_fail_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_fail",
+      "text": "…계산이 하나 틀렸군요. 다시 보겠습니다."
+    },
+    {
+      "id": "bl_zhugeliang_strat_fail_rain_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "strat_fail_rain",
+      "text": "비를 읽지 못했습니다. 제 불찰입니다."
+    },
+    {
+      "id": "bl_zhugeliang_dodge_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "dodge",
+      "text": "말에서는 떨어져도, 칼끝은 피합니다.",
+      "cond": {
+        "chapterMin": 12
+      }
+    },
+    {
+      "id": "bl_zhugeliang_damaged_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "damaged",
+      "text": "…괜찮습니다. 계책은 멈추지 않습니다."
+    },
+    {
+      "id": "bl_zhugeliang_damaged_big_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "장군… 앞을 부탁드립니다.",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhugeliang_damaged_big_02",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "damaged_big",
+      "text": "이곳이 이 싸움에서 가장 위험한 자리입니다."
+    },
+    {
+      "id": "bl_zhugeliang_defeat_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "defeat",
+      "text": "이것으로 한 수."
+    },
+    {
+      "id": "bl_zhugeliang_defeat_boss_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "defeat_boss",
+      "text": "주공, 판이 끝났습니다."
+    },
+    {
+      "id": "bl_zhugeliang_low_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "low",
+      "text": "물러나야 할 때입니다. 그것도 계책입니다."
+    },
+    {
+      "id": "bl_zhugeliang_retreat_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "retreat",
+      "text": "주공… 다음 수는… 준비해 두었습니다…"
+    },
+    {
+      "id": "bl_zhugeliang_spirit_focus_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "spirit_focus",
+      "text": "판 위의 돌을 하나씩 세어 봅시다."
+    },
+    {
+      "id": "bl_zhugeliang_spirit_accel_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "spirit_accel",
+      "text": "먼저 한 수를 두겠습니다."
+    },
+    {
+      "id": "bl_zhugeliang_spirit_flash_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "spirit_flash",
+      "text": "이쪽은 이미 읽었습니다."
+    },
+    {
+      "id": "bl_zhugeliang_spirit_wisdom_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "spirit_wisdom",
+      "text": "천하를 셋으로 나누는 것보다는 쉽습니다."
+    },
+    {
+      "id": "bl_zhugeliang_spirit_rally_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "spirit_rally",
+      "text": "장군, 한 번 더 움직여 주십시오."
+    },
+    {
+      "id": "bl_zhugeliang_spirit_rally_02",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "spirit_rally",
+      "text": "익덕 장군, 이래라저래라 하겠습니다!",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhugeliang_ally_down_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "주공! 물러나십시오, 판은 다시 짤 수 있습니다!",
+      "cond": {
+        "ally": [
+          "liubei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhugeliang_ally_down_02",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "익덕 장군! …제 앞을 막아 주셨군요.",
+      "cond": {
+        "ally": [
+          "zhangfei"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhugeliang_ally_down_03",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "ally_down",
+      "text": "원직… 자네 둑은 내가 지키겠네.",
+      "cond": {
+        "ally": [
+          "xushu"
+        ]
+      }
+    },
+    {
+      "id": "bl_zhugeliang_levelup_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "levelup",
+      "text": "밭을 갈 때보다 하루가 길군요."
+    },
+    {
+      "id": "bl_zhugeliang_promote_01",
+      "speaker": "zhugeliang",
+      "side": "ally",
+      "situation": "promote",
+      "text": "부채가 조금 무거워졌습니다."
+    },
+    {
+      "id": "bl_yellow_boss_attack_01",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "창천은 이미 죽었다! 황천이 선다!"
+    },
+    {
+      "id": "bl_yellow_boss_attack_02",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "배고픈 놈이 무서운 줄 알아라!"
+    },
+    {
+      "id": "bl_yellow_boss_counter_01",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "관군 개 따위가!"
+    },
+    {
+      "id": "bl_yellow_boss_damaged_01",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "크윽… 이 정도로는 안 무너진다!"
+    },
+    {
+      "id": "bl_yellow_boss_damaged_big_01",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "두건이… 두건이 피에 젖는다…!"
+    },
+    {
+      "id": "bl_yellow_boss_low_01",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "low",
+      "text": "배불리 먹는 세상… 아직 멀었나…"
+    },
+    {
+      "id": "bl_yellow_boss_defeated_01",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "황천이… 서는 날을… 보고 싶었는데…"
+    },
+    {
+      "id": "bl_yellow_boss_defeated_02",
+      "speaker": "yellow_boss",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "우리도… 처음엔 밭을 갈았다…"
+    },
+    {
+      "id": "bl_huaxiong_attack_01",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "서량의 화웅이다! 목을 내놔라!"
+    },
+    {
+      "id": "bl_huaxiong_attack_02",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "제후 놈들, 다 덤벼라!"
+    },
+    {
+      "id": "bl_huaxiong_attack_03",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "관문은 내 칼로 지킨다!"
+    },
+    {
+      "id": "bl_huaxiong_counter_01",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "감히 내게 칼을 들어?"
+    },
+    {
+      "id": "bl_huaxiong_damaged_01",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "하! 제법 아프군!"
+    },
+    {
+      "id": "bl_huaxiong_damaged_big_01",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "이놈… 이름이 뭐냐!"
+    },
+    {
+      "id": "bl_huaxiong_low_01",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "low",
+      "text": "상국께 받은 은혜… 아직 다 못 갚았다…"
+    },
+    {
+      "id": "bl_huaxiong_defeated_01",
+      "speaker": "huaxiong",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "상국… 관문을… 지키지 못했…"
+    },
+    {
+      "id": "bl_guanhai_attack_01",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "성문을 열어라! 배고픈 놈들이 왔다!"
+    },
+    {
+      "id": "bl_guanhai_attack_02",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "공자의 책이 배를 채워 주더냐!"
+    },
+    {
+      "id": "bl_guanhai_counter_01",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "청주 농사꾼 주먹을 우습게 보지 마라!"
+    },
+    {
+      "id": "bl_guanhai_damaged_01",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "흉년보다는 덜 아프다!"
+    },
+    {
+      "id": "bl_guanhai_damaged_big_01",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "크윽… 관군도 아닌 놈들이…!"
+    },
+    {
+      "id": "bl_guanhai_low_01",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "low",
+      "text": "흉년만 아니었어도… 이러진 않았다…"
+    },
+    {
+      "id": "bl_guanhai_defeated_01",
+      "speaker": "guanhai",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "다음 해엔… 풍년이 들려나…"
+    },
+    {
+      "id": "bl_cao_vanguard_attack_01",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "조공의 원수를 갚는다! 서주를 쓸어라!"
+    },
+    {
+      "id": "bl_cao_vanguard_attack_02",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "돗자리 장수가 감히 길을 막아?"
+    },
+    {
+      "id": "bl_cao_vanguard_counter_01",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "조씨 가문의 칼맛을 봐라!"
+    },
+    {
+      "id": "bl_cao_vanguard_damaged_01",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "오합지졸 주제에…!"
+    },
+    {
+      "id": "bl_cao_vanguard_damaged_big_01",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "이 군대… 숫자가 아니라 마음으로 버티는가…"
+    },
+    {
+      "id": "bl_cao_vanguard_low_01",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "low",
+      "text": "물러나라! 조공께 보고하라!"
+    },
+    {
+      "id": "bl_cao_vanguard_defeated_01",
+      "speaker": "cao_vanguard",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "저런 군대는… 처음 본다…"
+    },
+    {
+      "id": "bl_lvbu_attack_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "천하무쌍 여봉선이다!"
+    },
+    {
+      "id": "bl_lvbu_attack_02",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "방천화극 앞에 서는 놈은 누구냐!"
+    },
+    {
+      "id": "bl_lvbu_attack_03",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "약하다, 약해!"
+    },
+    {
+      "id": "bl_lvbu_attack_04",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "의리? 배부른 놈들의 사치다!",
+      "cond": {
+        "chapterMin": 6
+      }
+    },
+    {
+      "id": "bl_lvbu_counter_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "나를 건드리고 살아 돌아갈 줄 알았나!"
+    },
+    {
+      "id": "bl_lvbu_counter_02",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "적토마의 발굽 아래 깔려라!",
+      "cond": {
+        "chapterMax": 7
+      }
+    },
+    {
+      "id": "bl_lvbu_crit_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "crit",
+      "text": "이게 천하무쌍이다!!"
+    },
+    {
+      "id": "bl_lvbu_dodge_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "dodge",
+      "text": "느려! 하품이 나는군!"
+    },
+    {
+      "id": "bl_lvbu_damaged_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "하! 간지럽다!"
+    },
+    {
+      "id": "bl_lvbu_damaged_big_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "이 여포에게 상처를…? 재밌군!"
+    },
+    {
+      "id": "bl_lvbu_low_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "low",
+      "text": "이 여포가… 이런 놈들에게…!"
+    },
+    {
+      "id": "bl_lvbu_defeated_01",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "착한 놈은… 남는 게 없다더니…",
+      "cond": {
+        "chapterMax": 6
+      }
+    },
+    {
+      "id": "bl_lvbu_defeated_02",
+      "speaker": "lvbu",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "성문을… 닫아라… 아직 안 끝났다…",
+      "cond": {
+        "chapterMin": 7
+      }
+    },
+    {
+      "id": "bl_cao_pursuer_attack_01",
+      "speaker": "cao_pursuer",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "좌장군의 목에 천금이 걸렸다!"
+    },
+    {
+      "id": "bl_cao_pursuer_attack_02",
+      "speaker": "cao_pursuer",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "유비의 깃발을 놓치지 마라!"
+    },
+    {
+      "id": "bl_cao_pursuer_damaged_big_01",
+      "speaker": "cao_pursuer",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "이놈들, 도망치면서도 이빨을 드러내는군!"
+    },
+    {
+      "id": "bl_cao_pursuer_defeated_01",
+      "speaker": "cao_pursuer",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "추격이… 여기까지인가…"
+    },
+    {
+      "id": "bl_yanliang_attack_01",
+      "speaker": "yanliang",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "하북 제일의 안량이다!"
+    },
+    {
+      "id": "bl_yanliang_attack_02",
+      "speaker": "yanliang",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "조조의 개는 모조리 벤다!"
+    },
+    {
+      "id": "bl_yanliang_counter_01",
+      "speaker": "yanliang",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "내 진영에 들어오면 살아 나가지 못한다!"
+    },
+    {
+      "id": "bl_yanliang_damaged_big_01",
+      "speaker": "yanliang",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "저 붉은 얼굴… 무엇이냐!"
+    },
+    {
+      "id": "bl_yanliang_low_01",
+      "speaker": "yanliang",
+      "side": "enemy",
+      "situation": "low",
+      "text": "호위병! 호위병은 어디 갔느냐!"
+    },
+    {
+      "id": "bl_yanliang_defeated_01",
+      "speaker": "yanliang",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "만군 속에서… 이런 장수가…"
+    },
+    {
+      "id": "bl_kongxiu_attack_01",
+      "speaker": "kongxiu",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "통행증 없는 자는 지나가지 못한다!"
+    },
+    {
+      "id": "bl_kongxiu_damaged_01",
+      "speaker": "kongxiu",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "관운장이라도 법은 법이다!"
+    },
+    {
+      "id": "bl_kongxiu_defeated_01",
+      "speaker": "kongxiu",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "승상의… 문서가… 아직…"
+    },
+    {
+      "id": "bl_hanfu_attack_01",
+      "speaker": "hanfu",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "이 성벽에서 화살을 피한 자는 없다!"
+    },
+    {
+      "id": "bl_hanfu_damaged_big_01",
+      "speaker": "hanfu",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "붙지 마라! 활을 쏠 수가 없다!"
+    },
+    {
+      "id": "bl_hanfu_defeated_01",
+      "speaker": "hanfu",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "낙양의… 활이… 부러졌구나…"
+    },
+    {
+      "id": "bl_bianxi_attack_01",
+      "speaker": "bianxi",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "잔치에 오시라니까!"
+    },
+    {
+      "id": "bl_bianxi_counter_01",
+      "speaker": "bianxi",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "창끝은 말 탄 자에게 먼저 닿는 법!"
+    },
+    {
+      "id": "bl_bianxi_damaged_big_01",
+      "speaker": "bianxi",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "이 꾀가… 통하지 않다니…"
+    },
+    {
+      "id": "bl_bianxi_defeated_01",
+      "speaker": "bianxi",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "진국사의… 잔치가… 식는구나…"
+    },
+    {
+      "id": "bl_xiahoudun_attack_01",
+      "speaker": "xiahoudun",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "하후원양이다! 곧장 밀어붙여라!"
+    },
+    {
+      "id": "bl_xiahoudun_attack_02",
+      "speaker": "xiahoudun",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "남은 한쪽 눈으로도 충분하다!"
+    },
+    {
+      "id": "bl_xiahoudun_counter_01",
+      "speaker": "xiahoudun",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "숲에 숨어 봐야 소용없다!"
+    },
+    {
+      "id": "bl_xiahoudun_damaged_big_01",
+      "speaker": "xiahoudun",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "불…? 이전의 말이 맞았나…!"
+    },
+    {
+      "id": "bl_xiahoudun_low_01",
+      "speaker": "xiahoudun",
+      "side": "enemy",
+      "situation": "low",
+      "text": "군을 물려라! …분하다!"
+    },
+    {
+      "id": "bl_xiahoudun_defeated_01",
+      "speaker": "xiahoudun",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "유비… 이 눈으로 똑똑히 기억해 두마…"
+    },
+    {
+      "id": "bl_caoren_attack_01",
+      "speaker": "caoren",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "신야는 작은 성이다! 짓밟아라!"
+    },
+    {
+      "id": "bl_caoren_attack_02",
+      "speaker": "caoren",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "백성 뒤에 숨는 것이 인덕이냐!"
+    },
+    {
+      "id": "bl_caoren_counter_01",
+      "speaker": "caoren",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "조자효의 방패를 뚫을 수 있겠느냐!"
+    },
+    {
+      "id": "bl_caoren_damaged_big_01",
+      "speaker": "caoren",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "물…? 상류에서 물이…!",
+      "cond": {
+        "roundMin": 4
+      }
+    },
+    {
+      "id": "bl_caoren_low_01",
+      "speaker": "caoren",
+      "side": "enemy",
+      "situation": "low",
+      "text": "선봉을 물려라… 다시 짠다…"
+    },
+    {
+      "id": "bl_caoren_defeated_01",
+      "speaker": "caoren",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "그 젊은 책사… 이름을 알아 둬야겠군…"
+    },
+    {
+      "id": "bl_caocao_attack_01",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "현덕, 아직도 내 손을 피할 셈이오?"
+    },
+    {
+      "id": "bl_caocao_attack_02",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "천하의 영웅은 그대와 나뿐이라 했지."
+    },
+    {
+      "id": "bl_caocao_counter_01",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "counter",
+      "text": "나를 노리다니, 대담하군!"
+    },
+    {
+      "id": "bl_caocao_damaged_01",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "damaged",
+      "text": "현덕의 장수들은 겁이 없구나!"
+    },
+    {
+      "id": "bl_caocao_damaged_big_01",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "…물러서라. 오늘은 내가 질 날이 아니다."
+    },
+    {
+      "id": "bl_caocao_low_01",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "low",
+      "text": "모두 물려라! 다리 뒤에 복병이 있을지 모른다!"
+    },
+    {
+      "id": "bl_caocao_defeated_01",
+      "speaker": "caocao",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "현덕… 그대는 사람만은 끝까지 놓지 않는군…"
+    },
+    {
+      "id": "bl_xiahouen_attack_01",
+      "speaker": "xiahouen",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "승상의 검을 받드는 하후은이다!"
+    },
+    {
+      "id": "bl_xiahouen_attack_02",
+      "speaker": "xiahouen",
+      "side": "enemy",
+      "situation": "attack",
+      "text": "백마 장수, 거기 서라!"
+    },
+    {
+      "id": "bl_xiahouen_damaged_big_01",
+      "speaker": "xiahouen",
+      "side": "enemy",
+      "situation": "damaged_big",
+      "text": "이 검은… 승상의 보검이다! 놓칠 수 없다!"
+    },
+    {
+      "id": "bl_xiahouen_defeated_01",
+      "speaker": "xiahouen",
+      "side": "enemy",
+      "situation": "defeated",
+      "text": "청강검을… 승상께… 돌려드려야…"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "bp_guanyu_huaxiong",
+      "attacker": "guanyu",
+      "defender": "huaxiong",
+      "attackerText": "화웅, 술이 식기 전에 돌아가겠다 했다.",
+      "defenderText": "네놈이 그 마궁수냐! 우습구나!"
+    },
+    {
+      "id": "bp_huaxiong_guanyu",
+      "attacker": "huaxiong",
+      "defender": "guanyu",
+      "attackerText": "붉은 얼굴! 이름 없는 놈이 감히!",
+      "defenderText": "이름은 곧 알게 될 것이다."
+    },
+    {
+      "id": "bp_zhangfei_lvbu",
+      "attacker": "zhangfei",
+      "defender": "lvbu",
+      "attackerText": "세 성씨의 종놈아! 이 장비가 왔다!",
+      "defenderText": "시커먼 놈, 또 숫자 세기냐?"
+    },
+    {
+      "id": "bp_lvbu_zhangfei",
+      "attacker": "lvbu",
+      "defender": "zhangfei",
+      "attackerText": "아우 단속 좀 하라 했을 텐데!",
+      "defenderText": "형님을 아우라 부른 값, 지금 받는다!"
+    },
+    {
+      "id": "bp_liubei_lvbu",
+      "attacker": "liubei",
+      "defender": "lvbu",
+      "attackerText": "봉선, 쌀은 그대를 살리라고 보낸 것이었소.",
+      "defenderText": "쌀은 고마웠다! 그래서 더 화가 난다!"
+    },
+    {
+      "id": "bp_lvbu_liubei",
+      "attacker": "lvbu",
+      "defender": "liubei",
+      "attackerText": "현덕 아우! 형님에게 활을 겨누나?",
+      "defenderText": "그대를 형님이라 부른 적은 없소."
+    },
+    {
+      "id": "bp_guanyu_lvbu",
+      "attacker": "guanyu",
+      "defender": "lvbu",
+      "attackerText": "천하무쌍이라 했나. 시험해 보겠다.",
+      "defenderText": "붉은 얼굴, 네 칼도 제법이구나!"
+    },
+    {
+      "id": "bp_liubei_yellow_boss",
+      "attacker": "liubei",
+      "defender": "yellow_boss",
+      "attackerText": "굶어서 든 칼이라면 내려놓게.",
+      "defenderText": "배부른 놈이 할 소리냐!"
+    },
+    {
+      "id": "bp_zhangfei_yellow_boss",
+      "attacker": "zhangfei",
+      "defender": "yellow_boss",
+      "attackerText": "탁현 백정이다! 고기 썰듯 썰어 주마!",
+      "defenderText": "백정? 우리 마을 돼지도 네가 잡았냐!"
+    },
+    {
+      "id": "bp_guanyu_guanhai",
+      "attacker": "guanyu",
+      "defender": "guanhai",
+      "attackerText": "배고픔은 안다. 그러나 성문은 열 수 없다.",
+      "defenderText": "책 읽는 장수라니, 웃기는군!"
+    },
+    {
+      "id": "bp_liubei_cao_vanguard",
+      "attacker": "liubei",
+      "defender": "cao_vanguard",
+      "attackerText": "조공께 전하시오. 백성은 살려 달라고.",
+      "defenderText": "조공께서는 칼로 답하신다 했다!"
+    },
+    {
+      "id": "bp_guanyu_yanliang",
+      "attacker": "guanyu",
+      "defender": "yanliang",
+      "attackerText": "안량, 네 목만 가져가겠다.",
+      "defenderText": "저 붉은 얼굴은 누구냐!"
+    },
+    {
+      "id": "bp_guanyu_bianxi",
+      "attacker": "guanyu",
+      "defender": "bianxi",
+      "attackerText": "잔치 뒤의 칼은 받지 않는다.",
+      "defenderText": "관운장, 눈치도 빠르시군!"
+    },
+    {
+      "id": "bp_zhoucang_bianxi",
+      "attacker": "zhoucang",
+      "defender": "bianxi",
+      "attackerText": "창병은 보병에게 약하다고 배웠다!",
+      "defenderText": "산적 놈이 병법을 아는가!"
+    },
+    {
+      "id": "bp_guanyu_kongxiu",
+      "attacker": "guanyu",
+      "defender": "kongxiu",
+      "attackerText": "통행증은 없소. 길을 여시오.",
+      "defenderText": "문서 없는 자는 도망자다!"
+    },
+    {
+      "id": "bp_liubei_xiahoudun",
+      "attacker": "liubei",
+      "defender": "xiahoudun",
+      "attackerText": "하후 장군, 그 눈의 빚은 잊지 않았소.",
+      "defenderText": "빚? 네 목으로 갚아라!"
+    },
+    {
+      "id": "bp_zhaoyun_xiahoudun",
+      "attacker": "zhaoyun",
+      "defender": "xiahoudun",
+      "attackerText": "상산 조자룡, 하후 장군을 상대한다.",
+      "defenderText": "이름 없는 애송이가!"
+    },
+    {
+      "id": "bp_zhangfei_caoren",
+      "attacker": "zhangfei",
+      "defender": "caoren",
+      "attackerText": "군사가 정해 준 때까지, 이 장비가 막는다!",
+      "defenderText": "책사 말을 듣는 장비라니, 세상이 변했군!"
+    },
+    {
+      "id": "bp_zhugeliang_caoren",
+      "attacker": "zhugeliang",
+      "defender": "caoren",
+      "attackerText": "조 장군, 물소리가 들리지 않습니까.",
+      "defenderText": "물…? 무슨 소리냐!"
+    },
+    {
+      "id": "bp_zhaoyun_xiahouen",
+      "attacker": "zhaoyun",
+      "defender": "xiahouen",
+      "attackerText": "그 검, 주인을 잘못 만났군.",
+      "defenderText": "승상의 보검이다! 함부로 넘보지 마라!"
+    },
+    {
+      "id": "bp_zhaoyun_caocao",
+      "attacker": "zhaoyun",
+      "defender": "caocao",
+      "attackerText": "조조, 길을 비켜라. 공자님이 지나가신다.",
+      "defenderText": "저 장수를 생포하라! 죽이지 마라!"
+    },
+    {
+      "id": "bp_zhangfei_caocao",
+      "attacker": "zhangfei",
+      "defender": "caocao",
+      "attackerText": "조조! 이 다리를 건너 보아라!",
+      "defenderText": "저 고함… 복병이 있을지 모른다!"
+    },
+    {
+      "id": "bp_liubei_caocao",
+      "attacker": "liubei",
+      "defender": "caocao",
+      "attackerText": "조공, 잔값은 이미 치렀소.",
+      "defenderText": "현덕! 값은 아직 남았소!"
+    },
+    {
+      "id": "bp_caocao_liubei",
+      "attacker": "caocao",
+      "defender": "liubei",
+      "attackerText": "현덕, 그대를 잡으러 몸소 왔소.",
+      "defenderText": "조공, 오늘도 우레는 울리지 않는군요."
+    },
+    {
+      "id": "bp_caocao_guanyu",
+      "attacker": "caocao",
+      "defender": "guanyu",
+      "attackerText": "운장! 아직도 그 녹색 전포를 입었구려.",
+      "defenderText": "승상, 전포는 형님의 것입니다.",
+      "cond": {
+        "chapterMin": 10
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+/* Essential navigation stays in one line; preferences use the real controls. */
+body:not(.on-title):not(.in-preparation) .masthead{height:46px;min-height:46px;box-sizing:border-box;margin:0;padding:0 18px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #344c3b;flex-wrap:nowrap}
+.masthead .brand{gap:9px;min-width:0}.masthead .brand .seal{width:24px;height:30px;font-size:22px;line-height:28px;padding:0}
+.masthead .brand h1{font-size:18px;line-height:1.2;margin:0;white-space:nowrap}.masthead .brand h1 small,.masthead .brand .eyebrow,.masthead .build-tag{display:none}
+.compact-context{margin-left:auto;color:#aabdac;font-size:12px}.compact-settings-open{padding:6px 12px;min-height:34px;white-space:nowrap}
+.compact-settings{width:min(580px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box;background:#122219;color:#e8ebdb;border:1px solid #697b53;padding:20px}
+.compact-settings::backdrop{background:#06100ccc}.compact-settings h3{margin:0;font-size:22px}.compact-settings .dialog-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.compact-settings nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.compact-settings nav>button{min-height:44px;text-align:left}.compact-settings .sfx-settings{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.compact-settings .sfx-settings>button{flex:1}.compact-settings .sfx-volume-menu{position:relative}.compact-settings .sfx-volume-panel{position:static;min-width:0}
+.settings-developer{border-top:1px solid #3b503e;margin-top:18px;padding-top:14px}.settings-developer-controls{display:flex;gap:9px;flex-wrap:wrap;padding-top:12px}.settings-developer-controls[hidden]{display:none}.settings-developer-controls a{color:#d7b779}
+body:not(.on-title):not(.in-preparation) #game-main{margin:0;padding:12px 18px;max-width:none;box-sizing:border-box}
+body:not(.on-title):not(.in-preparation) .battle-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 10px;min-height:38px;padding:0;box-sizing:border-box}
+body:not(.on-title):not(.in-preparation) .battle-heading h2{font-size:22px;margin:0;line-height:1.3}.battle-heading #chapter-label,.battle-heading #chapter-subtitle{display:none}
+body:not(.on-title) .story-progress{gap:10px;font-size:11px;white-space:nowrap}.story-progress span{padding:6px 0}
+body:not(.on-title) #battle-objective{display:none}
+body:not(.on-title) #game-main>footer{display:none}
+#save-notice,body.in-preparation #save-notice{position:fixed;top:58px;right:18px;bottom:auto;left:auto;transform:none;z-index:90;max-width:calc(100vw - 40px);padding:10px 16px;margin:0;background:#243928ed;border:1px solid #71835c;border-radius:6px;box-shadow:0 4px 20px #0006;pointer-events:none;opacity:0;transition:opacity .15s;font-size:12px}
+#save-notice.notice-visible{opacity:1}#save-notice:empty{display:none}
+body.ui-stage-deployment,body.ui-stage-result,body.ui-stage-complete{height:100dvh;overflow:hidden}
+@media(max-width:620px){body:not(.on-title):not(.in-preparation) .masthead{padding:0 10px}.masthead .brand h1{font-size:16px}.compact-context{display:none}.compact-settings-open{margin-left:auto}body:not(.on-title):not(.in-preparation) #game-main{padding:8px 10px}.battle-heading #progress{display:none}}

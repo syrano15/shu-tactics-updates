@@ -1,0 +1,11 @@
+/* Continuous terrain: the grid is a game coordinate system, not a decoration. */
+#board{gap:0!important}
+#board .cell{border:0;border-radius:0}
+#board .cell>.stage-map-ready{box-shadow:none}
+#battle-scene .board-viewport.expanded-viewport.board-fit{display:grid;place-items:center;overflow:hidden}
+#battle-scene .board-viewport.board-overview .unit-name{font-size:clamp(8px,calc(var(--board-cell-size,48px)*.22),11px);line-height:1.2}
+#battle-scene .board-viewport.board-overview .terrain-mark{font-size:clamp(7px,calc(var(--board-cell-size,48px)*.18),10px)}
+#deployment-scene .deploy-map,#shop-scene .deploy-map{gap:0}
+#deployment-scene .deploy-cell,#shop-scene .deploy-cell{border:0;border-radius:0}
+#deployment-scene .deploy-cell.placing,#shop-scene .deploy-cell.placing{outline:2px solid #fff0b9;outline-offset:-2px;box-shadow:none}
+#deployment-scene .deploy-cell:focus-visible,#shop-scene .deploy-cell:focus-visible{outline:2px solid #ffe3a1;outline-offset:-2px;z-index:1}

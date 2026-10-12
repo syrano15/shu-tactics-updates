@@ -1,0 +1,13 @@
+import {PARTS} from './equipment.js';
+import {HERO_DATA} from './heroes.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {campaignEnemyOrder} from './campaign-events.js';
+export function equipmentDropSummary(state,scenario,{army=null}={}){
+ if(state&&state.equipmentDropsVersion!==1)return [];
+ return (scenario.equipmentDrops??[]).filter(drop=>drop.itemId!=='hebeiManual'||!state||state.campaignEventsVersion===1).map((drop,index)=>{
+  const entry=scenario.enemies.find(unit=>unit.id===drop.targetId),order=campaignEnemyOrder(scenario,entry,state?.campaignEventsVersion??1),target=state?.units.find(unit=>unit.id===drop.targetId),record=state?.battleRecords?.defeats.find(record=>record.targetId===drop.targetId),item=PARTS[drop.itemId];
+  const earned=!!record&&(!drop.actorId||record.actorId===drop.actorId),settled=!!army?.rewardReceipts?.[scenario.id];
+  const status=earned?'earned':record||target?.hp===0||state?.result?'missed':target?'available':'pending';
+  return {...drop,id:'equipment_drop_'+index,itemName:item.name,targetName:target?.name??UNIT_TEMPLATES[order.templateId].name,actorName:drop.actorId?(HERO_DATA[drop.actorId]?.name??UNIT_TEMPLATES[drop.actorId]?.name??drop.actorId):'아군 누구나',status,statusText:earned?(settled?'획득 · 정산 완료':'조건 달성 · 승리 시 획득'):status==='missed'?'조건 미달성':status==='pending'?'후속 국면에서 등장':'도전 가능',settled};
+ });
+}

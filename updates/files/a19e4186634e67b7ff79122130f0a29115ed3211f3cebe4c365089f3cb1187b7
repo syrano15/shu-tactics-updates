@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111b18"><meta name="description" content="촉한전기: 대화와 전투로 이어지는 삼국지 전술 SRPG 목업.">
+  <title>촉한전기 · 의용과 유랑 · 적벽과 형주 · 익주와 한중 · 1~31화</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d473b'/%3E%3Cpath d='M8 7h16v18H8zM12 11h8M12 16h8M12 21h8' fill='none' stroke='%23d7b574' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="title.css">
+  <link rel="stylesheet" href="unit-art.css">
+  <link rel="stylesheet" href="movement-motion.css">
+  <link rel="stylesheet" href="guest-presentation.css">
+  <link rel="stylesheet" href="terrain-art.css">
+  <link rel="stylesheet" href="deployment.css">
+<link rel="stylesheet" href="growth.css">
+<link rel="stylesheet" href="release-ui.css">
+<link rel="stylesheet" href="dialogue-v022.css">
+<link rel="stylesheet" href="battle-barks.css">
+<link rel="stylesheet" href="battle-chrome.css">
+<link rel="stylesheet" href="presentation-v023.css">
+<link rel="stylesheet" href="combat-scene.css">
+<link rel="stylesheet" href="battle-results.css">
+<link rel="stylesheet" href="attack-range.css">
+  <link rel="stylesheet" href="act2-ui.css">
+  <link rel="stylesheet" href="battle-layout-v0282.css">
+  <link rel="stylesheet" href="board-navigation.css">
+  <link rel="stylesheet" href="class-change-ui.css">
+<link rel="stylesheet" href="inventory-sources.css">
+  <link rel="stylesheet" href="dialogue-pairing.css">
+  <link rel="stylesheet" href="save-library.css">
+  <link rel="stylesheet" href="loot-feedback.css">
+  <link rel="stylesheet" href="sfx.css">
+  <link rel="stylesheet" href="preparation-ui.css">
+  <link rel="stylesheet" href="spirit-presentation.css">
+  <link rel="stylesheet" href="campaign-event-presentation.css">
+  <link rel="stylesheet" href="compact-chrome.css">
+  <link rel="stylesheet" href="deployment-ui.css">
+  <link rel="stylesheet" href="result-ui.css">
+  <link rel="stylesheet" href="battle-ui.css">
+  <link rel="stylesheet" href="map-polish.css">
+<link rel="stylesheet" href="update-ui.css">
+</head>
+<body class="on-title">
+  <header class="masthead"><div class="brand"><span class="seal">촉</span><div><h1>촉한전기 <small>(가칭)</small></h1><span class="eyebrow">SHU · TACTICS</span></div><span class="build-tag">전투 목업 0.40.0</span></div><nav aria-label="게임 설정"><a href="art.html" class="quiet" style="text-decoration:none;align-self:center;padding:8px">전장 아트 샘플</a><button id="balance-open" class="quiet">병과 밸런스</button><button id="speed" class="quiet">연출 · 보통</button><span class="sfx-settings"><button id="sfx-toggle" class="quiet" aria-pressed="true">효과음 · 켬</button><details class="sfx-volume-menu"><summary aria-label="효과음 음량 조절">음량</summary><div class="sfx-volume-panel"><label for="sfx-volume">효과음 음량 <output id="sfx-value" for="sfx-volume">65%</output></label><input id="sfx-volume" type="range" min="0" max="100" step="1" value="65"><small>이 게임의 설정으로 보관됩니다. 교전 연출 설정과 별도로 조절합니다.</small></div></details></span><button id="help" class="quiet">조작 안내</button><button id="save-open" class="quiet">저장·불러오기</button><button id="title-return" class="quiet">타이틀</button><button id="restart" class="quiet">다시 시작</button></nav></header>
+  <section id="title-scene" class="title-scene" aria-labelledby="title-name">
+    <div class="title-landscape" aria-hidden="true"><div class="title-sun"></div><div class="ridge ridge-back"></div><div class="ridge ridge-front"></div><div class="war-banner">촉</div></div>
+    <div class="title-content"><span class="title-kicker">SHU TACTICS · 삼국지</span><h2 id="title-name">촉한전기 <small>(가칭)</small></h2><div class="title-rule"></div><p class="title-sub">흩어진 뜻을 모아, 다시 전장으로.</p>
+      <div class="title-menu"><button id="title-continue" class="primary">이어 하기 <span>→</span></button><button id="title-new" disabled>새 게임 <span>01</span></button><button id="title-saves" disabled>저장 관리 <span>↗</span></button></div>
+      <p><a class="quiet" href="index.html">1~4막 · 본편 1~31화 →</a></p><p><a class="quiet" href="legacy-trial.html">시험 전투 · 국경과 협로 →</a></p><p><a class="quiet" href="commander-trial.html">출전 편성 · 장료 격파 시험 →</a></p>
+      <p><a class="quiet" href="baima-trial.html">백마의 일격 · 관우 단독 시험 →</a></p>
+      <p><a class="quiet" href="academy.html">38장수 · 정신기·특기 연습 →</a></p>
+      <p><a class="quiet" href="combat-preview.html">1막 전투 연출 미리보기 →</a></p>
+      <p><a class="quiet" href="art-gallery.html">아트 감상실 →</a></p><p id="title-save-info" class="title-save-info"></p>
+    </div>
+  <div class="title-footer"><span>1막 의용 · 2막 유랑 · 3막 적벽과 형주 · 4막 익주와 한중 · 1~31화</span><span>VERSION 0.40.0</span></div>
+  </section>
+  <main id="game-main">
+    <p id="save-notice" role="status" class="save-notice"></p>
+    <section class="battle-heading"><div><span id="chapter-label" class="eyebrow gold"></span><h2 id="chapter-title"></h2><p id="chapter-subtitle"></p></div><div id="progress" class="story-progress" aria-label="진행 단계"></div></section>
+    <p id="battle-objective" class="instruction" role="status"></p>
+    <section id="dialogue-scene" class="dialogue-scene" aria-label="장수 대화" hidden>
+      <div class="scene-top"><span id="scene-location"></span><div class="dialogue-tools"><button id="dialogue-log" class="quiet">대화 기록</button><button id="dialogue-auto" class="quiet" aria-pressed="false">자동 넘김</button><button id="skip-dialogue" class="quiet">대화 건너뛰기</button></div></div>
+      <div class="portrait-stage"><figure id="portrait-left" class="character-portrait"><img src="portraits/guanyu.jpg" alt="관우 임시 고전 삽화"><figcaption>관우 <span>촉</span></figcaption></figure><div class="scene-calligraphy" aria-hidden="true">의<br>용</div><figure id="portrait-right" class="character-portrait"><img src="portraits/zhangliao.jpg" alt="장료 임시 고전 삽화"><figcaption>장료 <span>위</span></figcaption></figure></div>
+      <div class="dialogue-box"><div class="speaker-row"><h3 id="speaker"></h3><span id="speaker-title"></span><span id="line-number"></span></div><p id="dialogue-text" aria-live="polite"></p><div class="dialogue-controls"><button id="dialogue-prev" class="quiet">이전 대사</button><span>Enter · 다음 대사</span><button id="dialogue-next" class="primary"></button></div></div>
+      <span class="art-note">촉한전기 · 인물과 이야기</span>
+    </section>
+    <section id="deployment-scene" class="deployment" aria-label="출전 편성" hidden></section>
+    <section id="battle-scene" hidden>
+      <div class="battlefield"><div class="field-top"><span><i class="dot ally-dot"></i>촉 <b id="allies">5</b><span class="versus">VS</span><i class="dot enemy-dot"></i><span id="enemy-label">위군</span> <b id="enemies">5</b></span><span class="turn-display"><strong id="phase"></strong><span>TURN <b id="round">01</b></span></span><span class="objective" id="weather-info"></span></div>
+        <div class="battle-workspace">
+          <div class="battle-map-column">
+        <div id="board-stage" class="board-stage"><div id="board" class="board" role="group" aria-label="10열 8행 전장"></div><section id="unit-ui" class="unit-ui" aria-label="선택 유닛 명령" hidden></section><div id="phase-banner" class="phase-banner" hidden></div></div>
+        <div class="field-bottom"><div class="legend"><span><i class="key move-key"></i>이동 가능</span><span><i class="key attack-key"></i>공격 대상</span><span id="forest-legend"></span><span id="guest-legend" hidden></span></div><span id="tile-info">장수를 선택하세요</span></div><p id="instruction" class="instruction" role="status"></p>
+          </div>
+          <aside class="battle-command-column" aria-label="전투 지휘">
+        <div id="battle-conditions-host"></div>
+      <div class="bottom-bar"><div><div class="roster-heading">출전 장수 <span id="ready-count"></span></div><div id="roster" class="roster"></div></div><button id="end-turn" class="primary end-turn">아군 턴 종료 <small>적군 행동 시작</small></button></div>
+      <div class="battle-record"><span class="eyebrow">전투 기록</span><span id="latest-log"></span><button id="log-open" class="quiet">기록 보기</button></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+    <section id="shop-scene" class="shop-scene" aria-label="출전 준비" hidden></section>
+    <section id="result-scene" class="result-scene" hidden></section>
+    <footer><span>가상 전투 · 스토리와 전술 흐름을 함께 검토하는 목업</span><button id="credits" class="quiet">삽화 출처</button></footer>
+  </main>
+  <dialog id="save-dialog" class="save-dialog" aria-labelledby="save-title"><div class="dialog-heading"><h3 id="save-title">여정의 기록</h3><button id="save-close" class="quiet">닫기</button></div><p>이 게임의 저장 공간에 보관됩니다. 다른 기기나 브라우저·PC판으로 옮길 때는 파일로 보관하세요.</p><div id="save-slots"></div><p id="save-reason"></p><div class="save-actions"><button id="save-current" class="primary">현재 진행 저장</button><button id="export-current">현재 진행 파일 내보내기</button><label class="import-label">파일 가져오기<input id="import-save" type="file" accept=".json,application/json"></label></div><p id="save-feedback" role="status"></p></dialog>
+  <dialog id="modal"><div id="modal-content"></div></dialog>
+  <dialog id="balance-dialog" class="balance-dialog" aria-labelledby="balance-title"><form id="balance-form"><div class="dialog-heading"><div><span class="eyebrow gold">MOCKUP / TUNING</span><h3 id="balance-title">병과 밸런스</h3></div><button type="button" data-balance="close" class="quiet">닫기</button></div><p class="muted">수치를 바꿔 같은 전투를 다시 시험해 보세요. 변경값은 이 브라우저에만 보관됩니다.</p><div id="balance-fields"></div><p id="balance-error" role="alert"></p><div class="balance-bottom"><button type="button" data-balance="defaults">기본값 불러오기</button><button type="button" data-balance="export">JSON 내보내기</button><button type="submit" class="primary">적용하고 현재 전투 재시작</button></div></form></dialog>
+  <dialog id="combat" class="combat" hidden aria-label="부대 교전"></dialog>
+  <script type="module" src="story-entry.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+import {installAct1} from './story-data.js';
+import {loadAssetManifest} from './story-assets.js';
+import {CHAPTERS} from './campaign.js';
+import {cloneBalance} from './balance.js';
+import {createArmy} from './equipment.js';
+import {createBattle,attack,SKILLS} from './engine.js';
+import {artFor,NAMED_BOSS_ART,installPaletteFilters} from './unit-art.js';
+import {loadBattleBarks,createBattleBarkSession,selectBattleBarks} from './battle-barks.js';
+import {playCombatScene,loadCombatPoseManifest} from './combat-scene.js';
+
+const $=id=>document.getElementById(id);
+const roster=['liubei','guanyu','zhangfei','jianyong','sunqian','mizhu','x_kongrong','yellow_boss','huaxiong','guanhai','cao_vanguard','lvbu','infantry','spear','archer','crossbow','cavalry'];
+const pool=new Map();
+let words=null,playing=false;
+function keyFor(unit){
+  if(unit.generic)return unit.cls;
+  if(unit.id==='e_boss')return Object.entries(NAMED_BOSS_ART).find(([,record])=>record.src===artFor(unit)?.src)?.[0];
+  return unit.id;
+}
+function update(){
+  const selected=pool.get($('preview-unit').value);
+  if(!selected)return;
+  const strategist=selected.unit.cls==='strategist';
+  for(const option of $('preview-outcome').options)option.disabled=['confusion','deception'].includes(option.value)?!strategist:option.value==='critical'&&strategist;
+  if($('preview-outcome').selectedOptions[0]?.disabled)$('preview-outcome').value='hit';
+  $('preview-context').textContent=selected.unit.name+' · '+CHAPTERS[selected.chapter].title+(strategist?' · 명중은 화공 성공을 보여줍니다.':' · 반격은 상대가 생존하고 사거리 안에 있을 때 이어집니다.');
+}
+try{
+  const [stages,dialogue]=await Promise.all(['stages-act1.json','dialogue-act1-v3.json'].map(async name=>{
+    const response=await fetch(new URL('./data/'+name,import.meta.url));
+    if(!response.ok)throw new Error('1막 자료를 읽지 못했습니다.');
+    return response.json();
+  }));
+  installAct1(stages,dialogue);await loadAssetManifest();await loadCombatPoseManifest();
+  try{words=await loadBattleBarks();}catch{}
+  installPaletteFilters();
+  const army=createArmy({story:true});army.joined=['liubei','guanyu','zhangfei','jianyong','sunqian','mizhu'];
+  for(let chapter=0;chapter<CHAPTERS.length;chapter++){
+    const battle=createBattle(cloneBalance(),chapter,army);
+    for(const unit of battle.units){const key=keyFor(unit);if(key&&!pool.has(key))pool.set(key,{unit:structuredClone(unit),chapter});}
+  }
+  for(const key of roster){
+    const record=pool.get(key);if(!record)continue;
+    const option=document.createElement('option');option.value=key;option.textContent=record.unit.generic?({infantry:'공용 보병',spear:'공용 창병',archer:'공용 활병',crossbow:'공용 석궁병',cavalry:'공용 기병'})[key]:record.unit.name;
+    $('preview-unit').append(option);
+  }
+  $('preview-unit').value='guanyu';$('preview-unit').disabled=false;$('preview-play').disabled=false;
+  $('preview-report').textContent='인물을 선택하고 교전을 재생하세요.';update();
+}catch(error){$('preview-report').textContent=error.message;console.error(error);}
+$('preview-unit').addEventListener('change',update);
+$('preview-play').addEventListener('click',async()=>{
+  if(playing)return;
+  playing=true;$('preview-play').disabled=true;
+  try{
+    const selected=pool.get($('preview-unit').value),scene=CHAPTERS[selected.chapter],balance=cloneBalance(),situation=$('preview-outcome').value;
+    balance.critical.enabled=situation==='critical';
+    const state=createBattle(balance,selected.chapter,createArmy({story:true}));
+    const actor=structuredClone(selected.unit),opponent=pool.get(actor.team==='enemy'?'guanyu':'lvbu'),target=structuredClone(opponent.unit);
+    if(actor.id===target.id)target.id='preview_opponent';
+    Object.assign(actor,{x:2,y:2,done:false,moved:false,status:null,spirits:{}});
+    Object.assign(target,{x:2+actor.min,y:2,done:false,moved:false,status:null,spirits:{}});
+    if(situation==='retreat')target.hp=1;
+    state.units=[actor,target];state.phase=actor.team;state.result=null;state.objective={type:'defeatAll'};state.defeat=[];state.terrain=Array(10).fill('............');state.weather.kind='clear';
+    const beforeA=structuredClone(actor),beforeB=structuredClone(target);
+    let index=0;
+    const rolls=situation==='miss'?[.999,.999,.999,.999]:[0,0,0,0];
+    const skill=['confusion','deception'].includes(situation)?situation:'fire';
+    const result=attack(state,actor,target,()=>rolls[index++]??0,skill);
+    const lines=words?selectBattleBarks(createBattleBarkSession(words),{state,scenario:scene,kind:'attack',actor,target,result,beforeActorHP:beforeA.hp,beforeTargetHP:beforeB.hp,mode:'all'}):[];
+    const presentation=await playCombatScene($('combat'),beforeA,beforeB,result,{scenario:scene,mode:$('preview-mode').value,fast:$('preview-fast').checked,lines});
+    $('preview-report').textContent=actor.name+' → '+target.name+' · '+(result.kind?SKILLS[result.kind]+' '+(result.success?'성공':'실패'):result.landed?(result.critical?'치명타':'명중'):'회피')+' · '+target.name+' 병력 '+beforeB.hp.toLocaleString()+' → '+result.targetHp.toLocaleString()+(result.counter?' / '+(result.counterCritical?'치명타 반격':'반격')+' 후 '+actor.name+' 병력 '+beforeA.hp.toLocaleString()+' → '+result.actorHp.toLocaleString():'')+(presentation.reason==='skip'?' · 연출 건너뜀':'');
+  }catch(error){$('preview-report').textContent=error.message;console.error(error);}
+  finally{playing=false;$('preview-play').disabled=false;}
+});

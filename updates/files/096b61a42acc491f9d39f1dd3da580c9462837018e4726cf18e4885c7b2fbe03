@@ -1,0 +1,93 @@
+// 3막 실제 12×10 지형과 일치하는 표시 전용 자산.
+const maps={
+  "s14_jiangxia": {
+    "id": "s14_jiangxia",
+    "src": "art/act3/maps/s14_jiangxia-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": ".........###\n.........###\n...F......##\n..F.......##\n..........##\n......F...##\n......F..###\n.......F.###\n.........###\n.........###",
+    "blockedKind": "water",
+    "coverKind": "forest"
+  },
+  "s15_chibi": {
+    "id": "s15_chibi",
+    "src": "art/act3/maps/s15_chibi-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": ".....#######\n.....#......\n...F.#F.....\n.....#......\n............\n............\n.....#......\n...F.#F.....\n.....#......\n.....#######",
+    "blockedKind": "water",
+    "coverKind": "woodenCargo"
+  },
+  "s16_huarong": {
+    "id": "s16_huarong",
+    "src": "art/act3/maps/s16_huarong-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "....##..##..\n....##..##..\n....##..##F.\n...F..F.....\n............\n............\n...F...F....\n....##..##F.\n....##..##..\n....##..##..",
+    "blockedKind": "rock",
+    "coverKind": "forest"
+  },
+  "s17_jingnan": {
+    "id": "s17_jingnan",
+    "src": "art/act3/maps/s17_jingnan-v0384.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "......#...F.\n......#.....\n....F..F....\n............\n......#.....\n......#.....\n............\n....F..F....\n......#.....\n......#...F.",
+    "blockedKind": "wall",
+    "coverKind": "forest"
+  },
+  "s18_changsha": {
+    "id": "s18_changsha",
+    "src": "art/act3/maps/s18_changsha-v0384.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": ".......#....\n.......#.F..\n....F..#....\n.......#....\n............\n............\n.......#....\n....F..#....\n.......#.F..\n.......#....",
+    "blockedKind": "wall",
+    "coverKind": "forest"
+  },
+  "s19_jiangling": {
+    "id": "s19_jiangling",
+    "src": "art/act3/maps/s19_jiangling-v0384.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "...#...#....\n...#...#.F..\n.....F.#....\n............\n............\n............\n............\n.....F.#....\n...#...#.F..\n...#...#....",
+    "blockedKind": "wall",
+    "coverKind": "forest"
+  },
+  "s20_adou_river": {
+    "id": "s20_adou_river",
+    "src": "art/act3/maps/s20_adou_river-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "############\n############\n############\n...F.##.....\n............\n............\n...F.##.....\n############\n############\n############",
+    "blockedKind": "water",
+    "coverKind": "woodenCargo"
+  },
+  "s21_jingzhou_hold": {
+    "id": "s21_jingzhou_hold",
+    "src": "art/act3/maps/s21_jingzhou_hold-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "......#.....\n......#...F.\n....F..F....\n............\n......#.....\n......#.....\n............\n....F..F....\n......#...F.\n......#.....",
+    "blockedKind": "water",
+    "coverKind": "forest"
+  }
+};
+export const ACT3_STAGE_MAP_ART=Object.freeze(Object.fromEntries(Object.entries(maps).map(([id,art])=>[id,Object.freeze(art)])));
+export const ACT3_TERRAIN_ART=Object.freeze({wall:Object.freeze({kind:"wall",src:"art/terrain/wall-stone-v0384.webp"}),cargo:Object.freeze({kind:"cargo",src:"art/terrain/bridge-wood-v0282.png"})});

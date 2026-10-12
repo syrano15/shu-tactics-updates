@@ -1,0 +1,75 @@
+/* v0.23: images are layers inside reserved scene slots, never layout rows. */
+.dialogue-scene{height:clamp(560px,76dvh,700px);display:grid;grid-template-rows:52px minmax(0,1fr) 220px 22px;background-size:cover;background-position:center;isolation:isolate}
+.dialogue-scene .scene-top{padding:8px 22px;min-width:0;z-index:3;background:#0a171366}
+.dialogue-scene .portrait-stage,.dialogue-scene.narration .portrait-stage,.dialogue-scene.has-story-cg .portrait-stage{display:flex;min-height:0;height:100%;width:100%;max-width:none;margin:0;padding:16px 28px;align-items:center;justify-content:flex-start;gap:28px;position:relative;overflow:hidden}
+.dialogue-scene .character-portrait{flex:0 0 auto;width:min(245px,32%,calc(clamp(560px,76dvh,700px) - 356px));max-width:none;margin:0;transition:none;filter:none;transform:none;opacity:1}
+.dialogue-scene .portrait-viewport,.dialogue-scene .portrait-viewport.framed-portrait,.dialogue-scene .portrait-viewport.sheet-portrait{width:100%;height:auto;aspect-ratio:1;background:#191d1a66;border-radius:5px;overflow:hidden}
+.dialogue-scene .character-portrait img{height:100%;width:100%;object-fit:contain;object-position:center top}
+.dialogue-scene .character-portrait .sheet-portrait img{width:var(--portrait-w);height:var(--portrait-h);object-fit:fill}
+.dialogue-scene .character-portrait figcaption{height:30px;margin:0;padding:4px 0;font-size:14px}
+.dialogue-scene .scene-calligraphy{z-index:0;top:10px;pointer-events:none}
+.dialogue-scene .story-cg{position:absolute;inset:0;width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:contain;background:#0a171366;z-index:2}
+.dialogue-scene .story-cutin{position:absolute;inset:0;width:100%;height:100%;margin:0;z-index:3}
+.dialogue-scene .portrait-stage:has(.story-cutin:not([hidden])) .character-portrait{visibility:hidden}
+.dialogue-scene .story-cutin .portrait-viewport{width:245px;height:min(245px,100%);top:50%;transform:translateY(-50%);aspect-ratio:1}
+.dialogue-scene .dialogue-box{position:relative;margin:0 22px;padding:16px 22px;height:220px;min-height:0;display:grid;grid-template-rows:34px minmax(0,1fr) 42px;gap:7px;background:#091611ed;border:1px solid #9f946c;z-index:4}
+.dialogue-scene .speaker-row{height:34px;min-height:0;overflow:hidden;align-items:center;gap:12px}
+.dialogue-scene .speaker-row h3{margin:0;font-size:23px;white-space:nowrap}
+.dialogue-scene #dialogue-text{margin:0;min-height:0;height:100%;overflow:auto;overscroll-behavior:contain;font-size:18px;line-height:1.8;white-space:pre-wrap;word-break:keep-all;scrollbar-width:thin}
+.dialogue-scene .dialogue-controls{height:42px;margin:0;align-items:center}
+.dialogue-scene .art-note{position:relative;inset:auto;text-align:right;align-self:center;padding-right:22px;font-size:10px}
+.story-event{width:min(780px,calc(100vw - 32px));max-width:none;height:min(520px,calc(100dvh - 40px));max-height:none;overflow:hidden;padding:24px;isolation:isolate;background-size:cover;background-position:center}
+.story-event .event-label{position:absolute;top:18px;left:24px;margin:0;z-index:4}
+.story-event .event-visual{position:absolute;inset:48px 0 244px;overflow:hidden;min-height:0}
+.story-event .event-portrait{position:absolute;left:28px;top:50%;transform:translateY(-50%);float:none;width:180px;height:180px;max-width:none;margin:0;z-index:1}
+.story-event .event-portrait .portrait-viewport,.story-event .event-portrait .portrait-viewport.framed-portrait{width:100%;height:100%;aspect-ratio:1}
+.story-event .story-cg{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:contain;aspect-ratio:auto;background:#0a171355}
+.story-event .story-cutin{position:absolute;inset:0;width:100%;height:100%;margin:0;z-index:3}
+.story-event .event-visual:has(.story-cutin:not([hidden])) .event-portrait{visibility:hidden}
+.story-event .story-cutin .portrait-viewport{top:50%;transform:translateY(-50%);width:180px;height:180px;aspect-ratio:1}
+.story-event .event-dialogue{position:absolute;inset:auto 24px 82px;height:154px;padding:12px 16px;background:#091611ed;border:1px solid #9f946c;display:grid;grid-template-rows:30px minmax(0,1fr);gap:5px;z-index:4}
+.story-event .event-speaker{margin:0;min-height:30px;font-size:23px;overflow:hidden}
+.story-event .event-text{margin:0;height:100%;min-height:0;overflow:auto;overscroll-behavior:contain;white-space:pre-wrap;font-size:18px;line-height:1.8;scrollbar-width:thin}
+.story-event .dialog-actions{position:absolute;inset:auto 24px 22px;height:42px;clear:none;margin:0;align-items:center;z-index:4}
+.story-event .event-next{min-width:120px}
+.combat{height:250px;display:grid;grid-template-rows:28px 70px minmax(0,1fr);padding:24px;gap:6px;overflow:hidden}
+.combat .combat-top{height:28px;overflow:auto}
+.combat .combat-pair{height:70px;padding:10px 0;font-size:25px}
+.combat .combat-result{min-height:0;overflow:auto;font-size:16px}
+.combat .critical-label{position:absolute;inset:auto 0 12px;font-size:23px;pointer-events:none}
+.critical-combat .combat-result{padding-bottom:28px}
+@media(max-width:620px){
+ .dialogue-scene{height:600px;grid-template-rows:68px minmax(0,1fr) 230px 20px}
+ .dialogue-scene .scene-top{padding:8px 12px;gap:6px;align-items:flex-start}
+ .dialogue-tools{max-width:75%;gap:0;justify-content:flex-end}
+ .dialogue-scene .portrait-stage,.dialogue-scene.narration .portrait-stage,.dialogue-scene.has-story-cg .portrait-stage{padding:10px 18px;justify-content:center;gap:15px}
+ .dialogue-scene .character-portrait{width:180px;max-width:45%}
+ .dialogue-scene .portrait-stage:has(#portrait-right[hidden]) .character-portrait{max-width:60%}
+ .dialogue-scene .dialogue-box{height:230px;margin:0 12px;padding:12px 14px;grid-template-rows:30px minmax(0,1fr) 42px;gap:6px}
+ .dialogue-scene .speaker-row{height:30px;gap:8px}
+ .dialogue-scene .speaker-row h3{font-size:21px}
+ .dialogue-scene #speaker-title{font-size:11px}
+ .dialogue-scene #dialogue-text{font-size:16px;line-height:1.8}
+ .dialogue-scene .story-cutin .portrait-viewport{width:180px;height:180px}
+ .story-event{padding:16px;height:min(500px,calc(100dvh - 32px));width:calc(100vw - 24px)}
+ .story-event .event-label{left:16px;top:14px}
+ .story-event .event-visual{inset:42px 0 252px}
+ .story-event .event-portrait{left:18px;width:140px;height:140px}
+ .story-event .story-cutin .portrait-viewport{width:140px;height:140px}
+ .story-event .event-dialogue{inset:auto 14px 82px;height:164px;padding:10px 12px;grid-template-rows:28px minmax(0,1fr)}
+ .story-event .event-speaker{font-size:21px;min-height:28px}
+ .story-event .event-text{font-size:16px;line-height:1.75}
+ .story-event .dialog-actions{inset:auto 14px 18px;height:46px;gap:6px}
+ .story-event .dialog-actions button{font-size:12px;padding:8px 9px}
+ .story-event .event-next{min-width:104px}
+ .combat{height:250px;padding:20px 16px}
+ .combat .combat-pair{font-size:22px}
+}
+@media(max-height:470px){.story-event .event-visual{bottom:210px}.story-event .event-dialogue{height:122px}.story-event .event-portrait,.story-event .story-cutin .portrait-viewport{width:90px;height:90px}}
+
+/* v0.37: story emphasis belongs to the current dialogue, with one stable portrait. */
+.story-event .event-portrait.is-enemy{left:auto;right:28px}
+.story-event .event-portrait.is-enemy .portrait-viewport{transform:scaleX(-1)}
+.story-event.has-story-emphasis .event-dialogue,.dialogue-scene.has-story-emphasis .dialogue-box{border-color:#d7b779;box-shadow:inset 3px 0 #d7b779}
+.story-event.has-story-emphasis .event-speaker{color:#f7dd91}
+@media(max-width:620px){.story-event .event-portrait.is-enemy{right:18px}}

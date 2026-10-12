@@ -1,0 +1,31 @@
+import {createUnit} from './engine.js';
+import {MODIFICATION_MAX,modificationStatus,modificationCost,modifyHero,validateArmyFeatures} from './equipment.js';
+
+export const PREPARATION_UPGRADE_KINDS=Object.freeze(['weapon','troops','defense']);
+export function currentUpgradeTargets(army,id,chapter){
+ return Object.fromEntries(PREPARATION_UPGRADE_KINDS.map(key=>[key,modificationStatus(army,id,key,chapter).level]));
+}
+
+// The preview uses the actual purchase rules on one draft. All three goals share
+// the same budget; the live army is written only after the complete plan validates.
+export function preparationUpgradePlan(army,id,targets,balance,chapter){
+ const before=createUnit(balance,id,'ally',army),current=currentUpgradeTargets(army,id,chapter);
+ const rows=PREPARATION_UPGRADE_KINDS.map(key=>{
+  const target=targets?.[key],steps=target-current[key];
+  const valid=Number.isInteger(target)&&target>=current[key]&&target<=MODIFICATION_MAX;
+  return {key,current:current[key],target,steps,cost:valid&&steps?modificationCost(key,current[key],steps):0,max:MODIFICATION_MAX,reason:valid?'':'현재 단계부터 15단계까지 목표를 선택하세요.'};
+ });
+ const cost=rows.reduce((sum,row)=>sum+row.cost,0),changed=rows.some(row=>row.steps>0);
+ let reason=Object.keys(targets??{}).some(key=>!PREPARATION_UPGRADE_KINDS.includes(key))?'강화 항목을 확인하세요.':rows.find(row=>row.reason)?.reason??'';
+ const draft=structuredClone(army);draft.gold=Math.max(army.gold,cost);let after=before;
+ if(!reason&&changed){
+  try{
+   for(const row of rows)if(row.steps){const capacity=createUnit(balance,id,'ally',draft).maxHp;modifyHero(draft,id,row.key,row.steps,chapter,capacity);}
+   validateArmyFeatures(draft);after=createUnit(balance,id,'ally',draft);
+  }catch(error){reason=error.message;}
+ }
+ if(!reason&&!changed)reason='강화할 목표 단계를 선택하세요.';
+ if(!reason&&army.gold<cost)reason='세 항목의 합계 자금이 부족합니다.';
+ const candidate=reason?null:draft;if(candidate)candidate.gold=army.gold-cost;
+ return {before,after,candidate,rows,cost,remainingGold:army.gold-cost,changed,available:!reason,reason,label:'부대 강화 '+rows.filter(row=>row.steps>0).map(row=>({weapon:'무기·지력',troops:'병력',defense:'방어'}[row.key])+' '+row.current+'→'+row.target).join(' · ')};
+}

@@ -1,0 +1,287 @@
+import {enemyTemplateForSave} from './enemy-formation-save.js';
+import {levelBonuses,growthType} from './growth.js';
+import {getPromotionBonuses} from './promotion.js';
+import {applyClassTraining} from './class-change.js';
+import {ENEMY_HP_CAP} from './enemy-progression.js';
+// Fixed v0.28-v0.30 levels are retained for active old saves. New battles use
+// the stage progression. No army average is read and no saved HP is adjusted.
+const LEGACY_LEVELS=Object.freeze({
+  "s07_xiapi": {
+    "e_boss": 9,
+    "e01": 7,
+    "e02": 7,
+    "e03": 6,
+    "e04": 6,
+    "e05": 6,
+    "e06": 6,
+    "e07": 6,
+    "e08": 6,
+    "e09": 6,
+    "e10": 6,
+    "e11": 6,
+    "e12": 6,
+    "e_mage1": 6
+  },
+  "s08_xiaopei": {
+    "e_boss": 9,
+    "e01": 8,
+    "e02": 8,
+    "e03": 7,
+    "e04": 7,
+    "e05": 7,
+    "e06": 7,
+    "e07": 7,
+    "e08": 7,
+    "e09": 7,
+    "e10": 7,
+    "e11": 7,
+    "e12": 7,
+    "e_mage1": 7
+  },
+  "s09_baima": {
+    "e_boss": 10,
+    "e01": 8,
+    "e02": 8,
+    "e03": 8,
+    "e04": 8,
+    "e05": 8,
+    "e06": 8,
+    "e07": 8,
+    "e08": 8,
+    "e_mage1": 7
+  },
+  "s10_thousand_li": {
+    "e_gate1": 8,
+    "e_gate2": 9,
+    "e_gate3": 9,
+    "e01": 7,
+    "e02": 7,
+    "e03": 7,
+    "e04": 7,
+    "e05": 7,
+    "e06": 7,
+    "e_mage1": 6
+  },
+  "s11_bowang": {
+    "e_boss": 12,
+    "e01": 10,
+    "e02": 10,
+    "e03": 9,
+    "e04": 9,
+    "e05": 9,
+    "e06": 9,
+    "e07": 9,
+    "e08": 9,
+    "e09": 9,
+    "e10": 9,
+    "e11": 9,
+    "e_mage1": 8
+  },
+  "s12_xinye": {
+    "e_boss": 13,
+    "e01": 11,
+    "e02": 11,
+    "e03": 10,
+    "e04": 10,
+    "e05": 10,
+    "e06": 10,
+    "e07": 10,
+    "e08": 10,
+    "e09": 10,
+    "e10": 10,
+    "e11": 10,
+    "e12": 10,
+    "e_mage1": 9
+  },
+  "s13_changban": {
+    "e_boss": 15,
+    "e_tiger": 12,
+    "e01": 11,
+    "e02": 11,
+    "e03": 11,
+    "e04": 12,
+    "e05": 11,
+    "e06": 11,
+    "e07": 11,
+    "e08": 11,
+    "e09": 11,
+    "e10": 11,
+    "e11": 11,
+    "e12": 11,
+    "e_mage1": 10
+  }
+});
+// Frozen native statistics: HP, attack, defense, intellect before v0.31.
+const LEGACY_STATS=Object.freeze({
+  "troop_strategist": [
+    1800,
+    42,
+    6,
+    55
+  ],
+  "troop_infantry": [
+    2400,
+    44,
+    13,
+    45
+  ],
+  "troop_spear": [
+    2500,
+    46,
+    14,
+    45
+  ],
+  "troop_cavalry": [
+    2700,
+    47,
+    12,
+    45
+  ],
+  "troop_archer": [
+    2200,
+    42,
+    10,
+    50
+  ],
+  "troop_crossbow": [
+    2300,
+    45,
+    12,
+    50
+  ],
+  "elite_infantry": [
+    3400,
+    58,
+    20,
+    55
+  ],
+  "elite_spear": [
+    3500,
+    60,
+    21,
+    55
+  ],
+  "elite_cavalry": [
+    3800,
+    60,
+    19,
+    55
+  ],
+  "elite_archer": [
+    3000,
+    56,
+    16,
+    60
+  ],
+  "elite_crossbow": [
+    3200,
+    60,
+    18,
+    60
+  ],
+  "lvbu": [
+    7800,
+    82,
+    27,
+    50
+  ],
+  "pursuit_captain": [
+    5200,
+    65,
+    22,
+    65
+  ],
+  "yanliang": [
+    5700,
+    67,
+    23,
+    50
+  ],
+  "kongxiu": [
+    3800,
+    54,
+    19,
+    45
+  ],
+  "hanfu": [
+    3600,
+    57,
+    17,
+    60
+  ],
+  "bianxi": [
+    4100,
+    58,
+    21,
+    65
+  ],
+  "xiahoudun": [
+    6200,
+    70,
+    24,
+    60
+  ],
+  "caoren": [
+    6600,
+    70,
+    26,
+    75
+  ],
+  "caocao": [
+    7400,
+    76,
+    27,
+    90
+  ],
+  "xiahouen": [
+    4300,
+    62,
+    22,
+    50
+  ]
+});
+const isAct2=chapter=>chapter?.act===2||chapter?.combatProfile==='act2';
+const ensure=(ok,text)=>{if(!ok)throw new Error('적 성장 저장 오류: '+text);};
+export function validateEnemyProgressionMarker(value){
+ ensure(value.enemyProgressionVersion===undefined||[1,2,3].includes(value.enemyProgressionVersion),'지원하지 않는 버전입니다.');
+ const marker=value.state?.enemyProgressionVersion;
+ ensure(marker===undefined||[1,2,3].includes(marker),'전투 기록 버전이 올바르지 않습니다.');
+ ensure(value.enemyProgressionVersion===undefined||marker===undefined||value.enemyProgressionVersion===marker,'전투와 저장의 성장 버전이 다릅니다.');
+ const version=value.enemyProgressionVersion??marker??1;
+ ensure(version===3?marker===3&&value.state?.enemyHpCap===ENEMY_HP_CAP:value.state?.enemyHpCap===undefined,'적 병력 상한 버전이 다릅니다.');
+}
+export function enemyProgressionStamp(state,chapter){
+ if(!isAct2(chapter))return {};
+ return {enemyProgressionVersion:state.enemyProgressionVersion??1};
+}
+export function enemyProgressionRefs(value,chapter,refs){
+ validateEnemyProgressionMarker(value);
+ if(!isAct2(chapter)){
+  ensure(value.enemyProgressionVersion===undefined&&value.state.enemyProgressionVersion===undefined,'이 전장은 성장 이행 대상이 아닙니다.');
+  return refs;
+ }
+ const version=value.enemyProgressionVersion??value.state.enemyProgressionVersion??1;
+ value.enemyProgressionVersion=version;value.state.enemyProgressionVersion=version;
+ if(version===2||version===3)return refs;
+ const legacy=LEGACY_LEVELS[chapter.id];ensure(!!legacy,'구 전장의 성장 기록이 없습니다.');
+ return refs.map(ref=>{
+  if(ref.team!=='enemy'){
+   if(ref.id!=='zhugeliang')return ref;
+   // Only the exact prior INT85 calibration is accepted; saved HP/SP/RNG and
+   // all selected-class values remain snapshots and are never rewritten.
+   if(ref.classTraining){
+    const old={...ref,classTraining:{...ref.classTraining,intBase:ref.classTraining.intBase-10}};
+    applyClassTraining(old,levelBonuses(ref.level,growthType(ref.id)));return old;
+   }
+   return {...ref,int:ref.int-10};
+  }
+  const level=legacy[ref.id];ensure(Number.isInteger(level),'구 전장의 적이 아닙니다.');
+  const templateId=enemyTemplateForSave(chapter,ref.id,value.enemyFormationVersion,value.state.campaignEventsVersion??0);
+  const template=Object.keys(LEGACY_STATS).find(key=>templateId?.endsWith('_'+key));
+  ensure(!!template,'구 적의 원본 능력치가 없습니다.');
+  const [hp,atk,def,int]=LEGACY_STATS[template],growth=levelBonuses(level),promotion=getPromotionBonuses(ref.cls,ref.promotion);
+  const offense=ref.cls==='strategist'?0:growth.offense,maxHp=Math.min(10000,hp+growth.hp+promotion.hp);
+  return {...ref,level,startLevel:level,maxHp,hp:maxHp,baseAtk:atk+offense+promotion.atk,atk:atk+offense+promotion.atk,
+   def:def+growth.def+promotion.def,int:int+(ref.cls==='strategist'?growth.offense:0)+promotion.int};
+ });
+}

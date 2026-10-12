@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "version": "0.34.0",
+  "note": "Six SD identities matched to approved Act 2 normal portraits; original files retained; the same static ready art is used by map and combat. No walking or armor pose atlas is claimed.",
+  "units": [
+    {
+      "id": "liubei",
+      "path": "art/v034/identity/liubei.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "2bd5eb828e3fc14adff22ab0183d363713512ab21de89ef732bd730c73be9c3b",
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        21,
+        32,
+        1234,
+        1254
+      ],
+      "visiblePixelBounds": [
+        201,
+        38,
+        1095,
+        1220
+      ],
+      "visibleBounds": [
+        0.16028708133971292,
+        0.030303030303030304,
+        0.8732057416267942,
+        0.9728867623604466
+      ],
+      "bodyTop": 0.08532695374800638,
+      "bodyBottom": 0.9728867623604466,
+      "humanHeadTopPixel": 107,
+      "landmarkMethod": "Manual visual crown/topknot landmark, plume or raised weapon excluded. Alpha bounds use >24.",
+      "transparentPixelRatio": 0.6454408095052769,
+      "source": "art/units/liubei-v020.webp",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "sourceSha256": "5701a022a2cc7374c4b72b638cb94997404354da68c04c7538eb335f9e56a51b",
+      "canonicalPortrait": "assets/portrait/v031/liubei/normal.png",
+      "canonicalPortraitSha256": "8b8a451e81def19c71922b559669bd838f6aa4808b165ea03d6d8f365ac0d855",
+      "kind": "foot",
+      "facing": "right",
+      "staticReady": true,
+      "originalPreserved": true,
+      "originalCombatPath": "art/combat-v024/liubei-atlas.png",
+      "originalCombatSha256": "8cb1ea71f1a88722ec05952dc19d1d70678e9bf97c728ca2ca660289971271c6"
+    },
+    {
+      "id": "jianyong",
+      "path": "art/v034/identity/jianyong.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "644e6f4a63b3924a4c42e9b74f413ac668b759cce9fb58f51b03637d89b5e4cd",
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        1232,
+        1238
+      ],
+      "visiblePixelBounds": [
+        258,
+        53,
+        1030,
+        1235
+      ],
+      "visibleBounds": [
+        0.20574162679425836,
+        0.04226475279106858,
+        0.8213716108452951,
+        0.9848484848484849
+      ],
+      "bodyTop": 0.04226475279106858,
+      "bodyBottom": 0.9848484848484849,
+      "humanHeadTopPixel": 53,
+      "landmarkMethod": "Manual visual crown/topknot landmark, plume or raised weapon excluded. Alpha bounds use >24.",
+      "transparentPixelRatio": 0.6512798597915697,
+      "source": "art/units/jianyong-v020.webp",
+      "sourceSize": [
+        512,
+        512
+      ],
+      "sourceSha256": "3dae660ab747e059f4c62f5709cdb132ddf130ea7e597d45fc6db8909c957f32",
+      "canonicalPortrait": "assets/portrait/jianyong/main_normal.webp",
+      "canonicalPortraitSha256": "a0e1e0126831954560ca22182cd49b510633fb5211cf62455a84dc3d1385703c",
+      "kind": "foot",
+      "facing": "right",
+      "staticReady": true,
+      "originalPreserved": true,
+      "originalCombatPath": "art/combat-v024/jianyong-atlas.png",
+      "originalCombatSha256": "05e0fef5a687b9d562fbca2352aa74442a5c4edaa2dff825f02e162db5bc8a31"
+    },
+    {
+      "id": "zhangliao",
+      "path": "art/v034/identity/zhangliao.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "7ea7c758103b7b95b5f3adca7fef62c9ca453d3e0d2a4844a7d788272e090803",
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        1238,
+        1254
+      ],
+      "visiblePixelBounds": [
+        36,
+        6,
+        1233,
+        1250
+      ],
+      "visibleBounds": [
+        0.028708133971291867,
+        0.004784688995215311,
+        0.9832535885167464,
+        0.9968102073365231
+      ],
+      "bodyTop": 0.10526315789473684,
+      "bodyBottom": 0.9968102073365231,
+      "humanHeadTopPixel": 132,
+      "landmarkMethod": "Manual visual crown/topknot landmark, plume or raised weapon excluded. Alpha bounds use >24.",
+      "transparentPixelRatio": 0.5005589768244012,
+      "source": "art/units/zhangliao-v09.png",
+      "sourceSize": [
+        1226,
+        1283
+      ],
+      "sourceSha256": "8ed6982f79189626ada25c80edd87fcb0aa4454208802ac85a7e91b6bb634556",
+      "canonicalPortrait": "assets/portrait/v031/zhangliao/normal.png",
+      "canonicalPortraitSha256": "4458c394a0214c758a8f0e8e58af86bf18ad1728f3b65dea710e999df732e940",
+      "kind": "mounted",
+      "facing": "left",
+      "staticReady": true,
+      "originalPreserved": true
+    },
+    {
+      "id": "zhugeliang",
+      "path": "art/v034/identity/zhugeliang.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "2040d631b385fbd32b3941cd6979f402c103c51fff7124e3aca5b880f9e6ce02",
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        87,
+        49,
+        1030,
+        1230
+      ],
+      "visiblePixelBounds": [
+        190,
+        52,
+        1027,
+        1220
+      ],
+      "visibleBounds": [
+        0.15151515151515152,
+        0.04146730462519936,
+        0.8189792663476874,
+        0.9728867623604466
+      ],
+      "bodyTop": 0.04226475279106858,
+      "bodyBottom": 0.9728867623604466,
+      "humanHeadTopPixel": 53,
+      "landmarkMethod": "Manual visual crown/topknot landmark, plume or raised weapon excluded. Alpha bounds use >24.",
+      "transparentPixelRatio": 0.599180548878358,
+      "source": "art/units/zhugeliang-v09.png",
+      "sourceSize": [
+        1240,
+        1269
+      ],
+      "sourceSha256": "0d1467c43a9615f1eac8cc64e3e104f6789cfcaa9e94d844abb47198ae97e92a",
+      "canonicalPortrait": "assets/portrait/v031/zhugeliang/normal.png",
+      "canonicalPortraitSha256": "1a6c0728a75a6e999c9492f9383281aed1d6bb6260f0793eabcfce7dc333d37c",
+      "kind": "foot",
+      "facing": "right",
+      "staticReady": true,
+      "originalPreserved": true
+    },
+    {
+      "id": "xiahoudun",
+      "path": "art/v034/identity/xiahoudun.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "29f030bc0d8078700ce4c827058ad2763770e3fb207a9ae98ac127138069b33a",
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        77,
+        1254,
+        1254
+      ],
+      "visiblePixelBounds": [
+        60,
+        101,
+        1251,
+        1237
+      ],
+      "visibleBounds": [
+        0.04784688995215311,
+        0.08054226475279107,
+        0.9976076555023924,
+        0.9864433811802232
+      ],
+      "bodyTop": 0.08293460925039872,
+      "bodyBottom": 0.9864433811802232,
+      "humanHeadTopPixel": 104,
+      "landmarkMethod": "Manual visual crown/topknot landmark, plume or raised weapon excluded. Alpha bounds use >24.",
+      "transparentPixelRatio": 0.49491897061778706,
+      "source": "art/v033/sd/xiahoudun.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceSha256": "99b36c65ac936d68de1f164a10949edf88c7455bb8a828365df04416634ceb11",
+      "canonicalPortrait": "assets/portrait/v031/xiahoudun/normal.png",
+      "canonicalPortraitSha256": "74fe5131066138f2d9cc0cb8a85cbd3fead10f0c5dbf499e19fae8386eef0081",
+      "kind": "mounted",
+      "facing": "right",
+      "staticReady": true,
+      "originalPreserved": true
+    },
+    {
+      "id": "bianxi",
+      "path": "art/v034/identity/bianxi.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "3a3e724990e0d7b5aac60d1fef4aadbbbea9bcf164684fad7c50cecf9057788f",
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        59,
+        1250,
+        1254
+      ],
+      "visiblePixelBounds": [
+        78,
+        73,
+        1214,
+        1217
+      ],
+      "visibleBounds": [
+        0.06220095693779904,
+        0.058213716108452954,
+        0.9681020733652312,
+        0.970494417862839
+      ],
+      "bodyTop": 0.058213716108452954,
+      "bodyBottom": 0.970494417862839,
+      "humanHeadTopPixel": 73,
+      "landmarkMethod": "Manual visual crown/topknot landmark, plume or raised weapon excluded. Alpha bounds use >24.",
+      "transparentPixelRatio": 0.5859596977073683,
+      "source": "art/v033/sd/bianxi.png",
+      "sourceSize": [
+        1254,
+        1254
+      ],
+      "sourceSha256": "3a7b95446f5e91d673c9444ba547a0067c00d67078fd0c56bcd8d4fc99e9b0c7",
+      "canonicalPortrait": "assets/portrait/v031/bianxi/normal.png",
+      "canonicalPortraitSha256": "6faf39c7ddd61ad10202790cc3df1ae7073fbedb5cd50c1fbc92e0deb2421f11",
+      "kind": "foot",
+      "facing": "right",
+      "staticReady": true,
+      "originalPreserved": true
+    }
+  ]
+}

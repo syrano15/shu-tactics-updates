@@ -1,0 +1,699 @@
+{
+  "schemaVersion": 2,
+  "episodeTitle": "1막 의용",
+  "premise": "황건의 난 속에 의병을 일으킨 유비 삼형제가 이름을 얻고 서주의 주인이 되었다가, 여포의 배신으로 모든 것을 잃기까지의 이야기.",
+  "speakers": {
+    "narrator": "내레이션",
+    "liubei": "유비",
+    "guanyu": "관우",
+    "zhangfei": "장비",
+    "jianyong": "간옹",
+    "sunqian": "손건",
+    "mizhu": "미축",
+    "militia_leader": "의병 대장",
+    "gongsunzan": "공손찬",
+    "taishici": "태사자",
+    "kongrong": "공융",
+    "taoqian": "도겸",
+    "caocao": "조조",
+    "lvbu": "여포",
+    "huaxiong": "화웅",
+    "yellow_boss": "황건 두목",
+    "guanhai": "관해",
+    "cao_vanguard": "조조군 선봉장"
+  },
+  "chapters": [
+    {
+      "id": "s01_zhuoxian",
+      "title": "탁현의 의병",
+      "location": "탁현 들판 · 봄",
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "중평 원년, 누런 두건을 두른 황건적이 들고일어나 천하가 들끓었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "탁현에서 돗자리를 팔던 유비는 관우, 장비와 형제의 의를 맺고 의병을 일으켰다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 마을 어귀에 황건 놈들이 몰려왔소! 이 장비가 앞장서서 쓸어버리겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 서두르지 말게. 오늘은 우리 의병이 처음으로 칼을 드는 날일세."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "적은 숫자만 많을 뿐 오합지졸입니다. 다만 병과를 잘 보고 상대를 고르셔야 합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "기병은 보병을, 보병은 창병을 상대해야 유리하다 들었네. 운장이 칼잡이를 맡아 주게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 저 창 든 놈들은 내 차지요! 둘째 형님, 누가 더 많이 베나 내기합시다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "현덕 어른, 마을 장정들도 활을 들었습니다. 뒤에서 힘을 보태겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "고맙네. 활은 두 걸음 밖에서 쏘아야 적의 칼이 닿지 않으니, 서로 등을 지켜 주게."
+        },
+        {
+          "speaker": "liubei",
+          "text": "백성이 지켜보고 있네. 한 사람도 해치지 말고, 우리도 하나도 쓰러지지 마세."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "guanyu",
+              "text": "형님은 뒤에서 활을 쏘십시오. 형님이 쓰러지시면 이 의병은 그날로 끝입니다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 2
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "하하, 생각보다 별것 아니군! 형님, 이대로 밀어붙입시다!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 다 쓸어버렸소! 형님, 우리 의병 첫 싸움치고 대단하지 않소?"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "현덕 어른 덕에 마을이 무사합니다. 이 은혜를 어찌 갚아야 할지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "은혜라니 당치 않네. 이 땅에 사는 사람으로서 할 일을 했을 뿐일세."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 여전하군 현덕. 돗자리 팔던 시절이나 지금이나 말은 번지르르하오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화 아닌가, 언제 왔는가! 고향 친구가 와 주니 든든하구려."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "칼은 못 쓰지만 머리는 좀 쓰오. 계책이 필요하면 이 간옹을 부르시오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "황건의 본진이 북쪽 산자락에 있다 합니다. 두목을 치면 무리는 흩어질 것입니다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "liubei",
+          "text": "여기서 물러나세. 의병을 다시 추슬러 다시 싸우면 되네."
+        }
+      ]
+    },
+    {
+      "id": "s02_yellow_camp",
+      "title": "황건 본진",
+      "location": "황건군 진채 · 새벽",
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "의병의 소문이 퍼지며, 유비의 깃발 아래 모이는 사람이 하루가 다르게 늘어 갔다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "저 깃발 아래가 황건 두목의 자리입니다. 그자만 쓰러뜨리면 무리는 무너집니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 졸개들은 상대할 필요도 없겠군. 곧장 두목에게 달려가면 되겠소?"
+        },
+        {
+          "speaker": "liubei",
+          "text": "그렇다고 혼자 깊이 들어가면 포위당하네. 길을 열며 함께 나아가세."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "진채 양쪽 수풀에 궁병이 숨어 있소. 수풀은 불이 잘 붙으니 화공으로 태워 보겠소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "헌화 선생, 그 불이 우리 쪽으로는 튀지 않게 하시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "걱정 마시오. 다만 비가 오면 불은 못 쓰니, 그때는 날 원망하지 마시오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "두목은 보병이라 두 걸음 밖에서 찌르는 창은 받아치지 못합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "좋네, 두목만 노리세. 오늘 싸움으로 백성이 다시 밭을 갈 수 있게 하세."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "yellow_boss",
+              "text": "푸른 하늘은 죽었다, 누런 하늘이 선다! 의병 따위가 감히 이 진채에 들어오느냐!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "yellow_boss",
+              "text": "누런 하늘이 이렇게 무너지다니. 모두 달아나라!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "liubei",
+          "text": "두목이 쓰러지자 황건 무리가 흩어지는구먼. 모두 수고했네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그런데 형님, 공을 이렇게 세웠는데 벼슬은 여전히 말단이구려."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "벼슬은 줄을 잘 서야 받는 법이오. 칼만 잘 쓴다고 주는 게 아니지."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "이름은 싸움으로 쌓는 것이다. 천하가 어지러우니 기회는 또 올 것이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "황건의 난은 가라앉았지만, 이번에는 동탁이 낙양을 차지하고 천하를 뒤흔들었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "제후들이 동탁을 치려 모인다 하네. 우리도 공손찬 형님을 따라가세."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "liubei",
+          "text": "두목 하나에 너무 서둘렀네. 진채의 지형을 다시 살펴보세."
+        }
+      ]
+    },
+    {
+      "id": "s03_hulao",
+      "title": "호뢰관",
+      "location": "호뢰관 앞 · 반동탁 연합 진영",
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "제후들은 반동탁 연합을 맺고 호뢰관 앞에 모였다. 유비는 공손찬의 손님 장수로 말석에 섰다."
+        },
+        {
+          "speaker": "gongsunzan",
+          "text": "현덕, 화웅이란 자가 관문 앞에서 제후들의 장수를 연달아 베고 있네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "저 많은 제후 중에 나설 사람이 하나도 없다니, 한심하구려."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "제가 나가 화웅의 목을 베고 오겠습니다. 술이 식기 전에 돌아오지요."
+        },
+        {
+          "speaker": "gongsunzan",
+          "text": "이름 없는 마궁수가 나선다고 비웃는 제후가 많네. 정말 괜찮겠는가?"
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 해낼 겁니다. 저희 의병과 형님의 군사가 운장의 뒤를 받치겠습니다."
+        },
+        {
+          "speaker": "huaxiong",
+          "text": "이름도 없는 마궁수 따위가 나를 상대하겠다고? 웃기는 소리다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "화웅은 제 발로 달려올 거요. 피하지 말고, 다가온 놈을 다 함께 치시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 화웅만 노리게. 관문 앞 병사들까지 상대할 필요는 없네."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "huaxiong",
+              "text": "누구든 내 칼을 받아 보아라! 관문 앞은 너희의 무덤이다!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "guanyu",
+              "text": "기세가 꺾였구나. 지금이다, 한꺼번에 몰아쳐라!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "huaxiong",
+              "text": "이럴 수가, 이름 없는 장수에게 내가 쓰러지다니."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "zhangfei",
+          "text": "정말 술이 식기도 전에 끝났구려! 제후들 표정 좀 보시오."
+        },
+        {
+          "speaker": "gongsunzan",
+          "text": "현덕, 자네 아우들은 보통 사람이 아니로군. 제후들이 모두 놀랐네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "형님 덕에 이름을 알렸습니다. 하지만 연합은 오래가지 못할 것 같습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "저마다 제 땅만 생각하니 그렇습니다. 동탁을 앞에 두고도 서로 눈치만 봅니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비의 걱정대로 연합은 흩어졌고, 제후들은 서로의 땅을 빼앗기 시작했다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "gongsunzan",
+          "text": "현덕, 무리하지 말게. 다시 진을 가다듬고 나가세."
+        }
+      ]
+    },
+    {
+      "id": "s04_beihai",
+      "title": "북해 구원",
+      "location": "북해성 외곽 · 포위 중",
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "평원의 상이 된 유비에게, 포위된 북해성에서 한 장수가 홀로 포위를 뚫고 달려왔다."
+        },
+        {
+          "speaker": "taishici",
+          "text": "동래의 태사자라 하오. 북해의 공융공께서 황건 잔당 관해에게 포위되었소."
+        },
+        {
+          "speaker": "taishici",
+          "text": "공융공께서 현덕공의 이름을 들으셨소. 부디 군사를 내어 구해 주시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공융공께서 세상에 이 유비가 있는 줄 아셨단 말이오? 반드시 구해 드리겠소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "포위한 놈들을 등 뒤에서 치면 되겠군. 성안 사람들 힘내라고 하시오!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "적이 성의 동쪽과 서쪽을 모두 에워쌌습니다. 한쪽만 보다가는 공융공이 위험합니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "성 동쪽이 비어 있소. 발 빠른 운장이 그쪽을 막으면 공융공이 숨을 돌릴 거요."
+        },
+        {
+          "speaker": "kongrong",
+          "text": "현덕공이 오셨구려! 이 공융, 성 안에서 끝까지 버티겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공융공은 성 밖으로 나오지 마십시오. 공융공이 쓰러지시면 이 싸움은 지는 것입니다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "guanhai",
+              "text": "북해의 곡식은 모두 우리 것이다! 공융의 목을 가져오는 자에게 상을 내리겠다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "x_kongrong",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "kongrong",
+              "text": "현덕공, 성이 위태롭소! 조금만 더 서둘러 주시오!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "guanhai",
+              "text": "유비라는 자가 이토록 강할 줄이야. 모두 끝까지 버텨라!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "kongrong",
+          "text": "현덕공 덕에 성안 백성이 살았소. 이 은혜는 잊지 않겠소."
+        },
+        {
+          "speaker": "taishici",
+          "text": "약속을 지켜 주셨구려. 이 태사자, 현덕공의 의리를 오래 기억하겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "태사자 장군도 수고했소. 언젠가 다시 함께 싸울 날이 있기를 바라오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 무렵 조조가 아버지의 원수를 갚겠다며 서주로 쳐들어갔다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "서주의 도겸공이 구원을 청해 왔습니다. 하지만 조조는 우리 병력으로 버거운 상대입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "버겁다고 외면하면 의병을 일으킨 뜻이 무엇이겠나. 서주로 가세."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "kongrong",
+          "text": "북해성이 무너지는구려. 현덕공, 다시 와 주시오."
+        }
+      ]
+    },
+    {
+      "id": "s05_xuzhou_relief",
+      "title": "서주 구원",
+      "location": "서주 외곽 · 조조군 침공",
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "조조의 대군은 서주 곳곳을 휩쓸며 아버지의 원수를 갚고 있었다."
+        },
+        {
+          "speaker": "taoqian",
+          "text": "현덕공, 이 늙은이를 버리지 않고 와 주셨구려. 서주 백성들을 부탁하오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "도겸공, 조조의 대군을 이길 수는 없어도 막아 낼 수는 있을 것입니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "조조의 본거지 연주가 비어 있소. 오래 머물 수 없는 군대라는 뜻이지."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "이기지 못해도 버틸 수는 있습니다. 시간을 끌면 조조는 물러갈 것입니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "버티기만 하라니 답답하구려. 그래도 형님 말이니 참아 보겠소."
+        },
+        {
+          "speaker": "caocao",
+          "text": "유비라는 자가 서주를 감싼다고? 귀 큰 촌뜨기가 겁도 없구나."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "강을 양옆에 끼고 수풀에 진을 치면, 적은 정면으로만 올 수 있습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "며칠만 버티면 되네. 무리하게 쫓지 말고 서로 붙어 있게."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "놈들이 끝도 없이 몰려오는구려! 형님, 아직 멀었소?"
+            },
+            {
+              "speaker": "liubei",
+              "text": "벌써 절반을 넘겼네. 조금만 더 버티면 되네."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 6
+          },
+          "lines": [
+            {
+              "speaker": "jianyong",
+              "text": "마지막 고비요. 이번만 넘기면 조조도 더는 못 버틸 거요."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "cao_vanguard",
+              "text": "선봉이 꺾이다니. 유비의 군대를 얕보았구나."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "caocao",
+          "text": "연주에 여포가 쳐들어왔다는 급보다. 이번엔 물러나 주마, 유비."
+        },
+        {
+          "speaker": "liubei",
+          "text": "조조가 물러갔네. 모두 잘 버텨 주었네."
+        },
+        {
+          "speaker": "taoqian",
+          "text": "현덕공, 이 늙은이는 오래 살지 못하오. 서주를 그대에게 맡기고 싶소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "도겸공, 그런 말씀 마십시오. 저는 서주를 맡을 그릇이 못 됩니다."
+        },
+        {
+          "speaker": "sunqian",
+          "text": "손건이라 합니다. 서주 사람들은 이미 현덕공을 주인으로 여기고 있습니다."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "미축입니다. 집안의 재물과 사병을 모두 현덕공께 바치겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "도겸은 세상을 떠나며 서주를 유비에게 맡겼다. 이름 없던 의병이 한 주의 주인이 되었다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "taoqian",
+          "text": "서주가 짓밟히는구려. 현덕공, 부디 다시 일어서 주시오."
+        }
+      ]
+    },
+    {
+      "id": "s06_xuzhou_fall",
+      "title": "서주 함락",
+      "location": "하비성 · 한밤중",
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "서주의 주인이 된 유비는, 조조에게 쫓겨 온 여포를 받아들여 소패에 머물게 했다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "원술과의 싸움에서 돌아온 밤, 하비성의 문이 안에서 열렸다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 면목이 없소. 술김에 조표를 매질했더니 그자가 여포에게 문을 열었소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "지금은 탓할 때가 아니네. 살아서 성을 빠져나가는 것이 먼저일세."
+        },
+        {
+          "speaker": "lvbu",
+          "text": "은혜를 원수로 갚는다 해도 상관없다. 서주는 이 여포가 가져간다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "여포와는 맞서지 마십시오. 서문 쪽 길은 아직 열려 있습니다."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "주공, 가족분들은 제 사병들이 먼저 서문 밖으로 모셨습니다."
+        },
+        {
+          "speaker": "sunqian",
+          "text": "서문 밖에 말을 준비해 두었습니다. 성문까지만 가시면 됩니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "큰길은 빠르지만 적이 막고 있고, 남쪽 골목은 돌아가오. 어느 쪽이든 서두르시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "서문으로 가세. 내가 성문을 나서면 모두 뒤따라 물러나게."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "lvbu",
+              "text": "유비는 서문으로 갈 것이다. 하나도 놓치지 말고 쫓아라!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 2
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "형님, 뒤에 여포가 따라붙었소! 이 장비가 막을 테니 어서 가시오!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "guanyu",
+              "text": "여포의 방천화극이다. 오래 상대하지 말고 길만 터라!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "zhangfei",
+          "text": "다 내 탓이오. 이 장비, 다시는 싸움 전에 술을 입에 대지 않겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "성은 다시 찾으면 되고, 형제는 하나뿐이네. 모두 살아 있으니 됐네."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "서주를 얻은 지 얼마나 됐다고 또 떠돌이라니. 그래도 현덕 곁이 제일 편하오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "조조가 여포를 치려 한다 합니다. 잠시 그와 손을 잡을 수밖에 없겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "조조와 손을 잡는다라. 살아남기 위해서라면 그 길이라도 가야겠지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "의병을 일으킨 지 십여 년, 유비는 다시 모든 것을 잃었다. 그러나 곁에는 형제들이 있었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "제1막 의용, 끝. 다음 막에서 유비는 원수였던 조조의 곁에 서게 된다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "lvbu",
+          "text": "유비를 잡았다! 이제 서주는 온전히 이 여포의 것이다."
+        }
+      ]
+    }
+  ]
+}

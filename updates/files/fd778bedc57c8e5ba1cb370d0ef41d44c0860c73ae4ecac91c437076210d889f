@@ -1,0 +1,18 @@
+import {UNIT_TEMPLATES} from './roster.js';
+// Enemy-only originals do not grant ownership or change the starting army.
+UNIT_TEMPLATES.yanliang={name:'안량',han:'顔',cls:'infantry',hpBonus:0,atkBonus:0,playable:false,generic:false,baseStats:{hp:3800,atk:40,def:14,int:50,move:3}};
+for(const [id,source,name] of [['yuanSpear','wei2','원소 창병'],['yuanArcher','wei3','원소 활병'],['yuanInfantry','wei1','원소 보병']])UNIT_TEMPLATES[id]={...UNIT_TEMPLATES[source],name,faction:'yuan'};
+export function createBaimaChapter(){return {
+ id:'trial-baima',contentVersion:1,aliases:[],title:'백마의 일격',subtitle:'관우 단독 출전 · 수비대를 우회하거나 돌파해 안량을 격파하라',location:'백마 외곽 · 전술 시험',enemyLabel:'원소군',dialogueCharacters:['guanyu'],
+ terrain:['............','..FF....F...','......##....','..F...##.FF.','..........F.','...F........','......##.F..','..F...##.FF.','........F...','............'],
+ required:['guanyu'],unavailable:[],maxSortie:1,fixed:true,allyPositions:[[1,5]],
+ enemies:[{id:'yanliang',templateId:'yanliang',position:[10,5],aiMode:'hold'},
+ {id:'yuan-spear-a',templateId:'yuanSpear',position:[8,4],aiMode:'hold'},
+ {id:'yuan-spear-b',templateId:'yuanSpear',position:[8,6],aiMode:'hold'},
+ {id:'yuan-archer-a',templateId:'yuanArcher',position:[11,3],aiMode:'hold'},
+ {id:'yuan-archer-b',templateId:'yuanArcher',position:[11,7],aiMode:'hold'},
+ {id:'yuan-infantry',templateId:'yuanInfantry',position:[5,5],aiMode:'charge'}],
+ objective:{type:'defeatUnit',targetId:'yanliang'},
+ pre:[{speaker:'guanyu',text:'안량의 본진이다. 수비대는 제자리를 지키고, 앞의 보병만 다가오는군.'},{speaker:'guanyu',text:'모두 쓰러뜨릴 필요는 없다. 창병의 정면을 피하고, 궁병이 쏘지 못하는 가까운 틈을 노린다.'},{speaker:'guanyu',text:'기병은 숲에서 느려진다. 북쪽과 남쪽 길, 그리고 중앙 돌파… 사거리와 군량을 살피며 길을 택하겠다.'}],
+ post:[{speaker:'guanyu',text:'안량의 부대가 퇴각했다. 남은 수비대와 싸움을 이어갈 필요는 없다.'},{speaker:'guanyu',text:'목표를 달성했다. 부대를 정비하고 전투를 마친다.'}]
+};}

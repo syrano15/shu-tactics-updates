@@ -1,0 +1,73 @@
+import {validateTerrainEffect,applyStoryTerrainEffect} from './terrain-effects.js';
+import {applyStoryWithdrawal,storyUnitSurvived} from './campaign-events.js';
+import {battleOutcome} from './objectives.js';
+import {CHAPTERS} from './campaign.js';
+import {applyEnemyReinforcements,enemyCountCondition} from './reinforcements.js';
+// Indices stay stable across manuscript revisions; a pending queue is pruned before display.
+const fail=message=>{throw new Error('전투 대사 오류: '+message);};
+export function validateStoryEvents(events,unitIds,waveIds=[],terrain=null){
+ if(!Array.isArray(events)||events.length>100)fail('목록');
+ const seen=new Set();for(const e of events){const t=e?.trigger,allowed={battleStart:['type'],roundStart:['type','round'],unitDefeated:['type','unit'],unitTroopsBelow:['type','unit','ratio','includeDefeated'],unitEngaged:['type','unit'],enemyCountBelow:['type','count','fallbackRound','minRound','unit'],reinforcementArrived:['type','wave']}[t?.type];
+ if(!allowed||Object.keys(t).some(k=>!allowed.includes(k)))fail('트리거 항목');
+ if(t.type==='roundStart'&&(!Number.isInteger(t.round)||t.round<1))fail('라운드');
+ if((t.type.startsWith('unit')||t.unit!==undefined)&&!unitIds.includes(t.unit))fail('부대');
+ if(t.type==='unitTroopsBelow'&&(!Number.isFinite(t.ratio)||t.ratio<=0||t.ratio>=1||t.includeDefeated!==undefined&&typeof t.includeDefeated!=='boolean'))fail('병력 비율');
+ if(t.type==='enemyCountBelow'&&(!Number.isInteger(t.count)||t.count<0||t.count>80))fail('적 수');
+ for(const field of ['fallbackRound','minRound'])if(t[field]!==undefined&&(!Number.isInteger(t[field])||t[field]<1||t[field]>99))fail('보조 라운드');
+ if(t.fallbackRound!==undefined&&t.minRound>t.fallbackRound)fail('라운드 순서');
+ if(t.type==='reinforcementArrived'&&!waveIds.includes(t.wave))fail('증원 부대');
+ if(e.requiresAlive!==undefined&&(!Array.isArray(e.requiresAlive)||!e.requiresAlive.every(id=>unitIds.includes(id))))fail('필수 생존 부대');
+ if(e.requiresEnemy!==undefined&&typeof e.requiresEnemy!=='boolean')fail('적 생존 조건');
+ if(e.withdrawal!==undefined&&(!e.withdrawal||Object.keys(e.withdrawal).some(k=>k!=='unit')||!unitIds.includes(e.withdrawal.unit)||t.type!=='roundStart'||!e.requiresAlive?.includes(e.withdrawal.unit)))fail('스토리 이탈 부대/시점');
+ if(e.terrainEffect!==undefined){validateTerrainEffect(e.terrainEffect,unitIds,terrain);if(!(e.terrainEffect.type==='fire'?['roundStart','enemyCountBelow'].includes(t.type):t.type==='roundStart')||!e.requiresAlive?.includes(e.terrainEffect.source)||e.requiresEnemy!==true)fail('수공 생존 조건');}
+ if(!Array.isArray(e.lines)||!e.lines.length||e.lines.length>4)fail('대사 줄 수');
+ const id=JSON.stringify(t);if(seen.has(id))fail('중복 트리거');seen.add(id);
+ }return events;
+}
+function lastWords(state,event){
+ const trigger=event?.trigger,unit=state.units.find(u=>u.id===trigger?.unit);
+ return unit?.hp===0&&!unit.escaped&&(trigger.type==='unitDefeated'||trigger.type==='unitTroopsBelow'&&trigger.includeDefeated===true);
+}
+export function storyEventLines(state,event,chapter=CHAPTERS[state.chapter]){
+ return (event?.lines??[]).filter(line=>{
+  const name=chapter?.speakers?.[line.speaker],speakers=state.units.filter(u=>u.id===line.speaker||name&&u.name===name);
+  if(!speakers.length||speakers.some(u=>u.hp>0)||event.withdrawal&&speakers.some(u=>u.id===event.withdrawal.unit&&storyUnitSurvived(state,u)))return true;
+  return lastWords(state,event)&&speakers.some(u=>u.id===event.trigger.unit);
+ });
+}
+function eventContextAlive(state,event){
+ return (!event.requiresEnemy||state.units.some(u=>u.team==='enemy'&&u.hp>0))&&(event.requiresAlive??[]).every(id=>state.units.some(u=>u.id===id&&(u.hp>0||event.withdrawal?.unit===id&&storyUnitSurvived(state,u))));
+}
+export function pruneStoryEvents(state,events,chapter=CHAPTERS[state.chapter]){
+ if(!state.storyEvents)return;
+ const result=battleOutcome(state);
+ state.storyEvents.pending=state.storyEvents.pending.filter(index=>{
+  const event=events[index];if(!event||!eventContextAlive(state,event)||result==='defeat'||result==='victory'&&!lastWords(state,event))return false;
+  if(event.trigger.type==='unitEngaged'&&!state.units.some(u=>u.id===event.trigger.unit&&u.hp>0))return false;
+  if(event.trigger.type==='reinforcementArrived'&&!state.reinforcements?.spawned.includes(event.trigger.wave))return false;
+  return storyEventLines(state,event,chapter).length>0;
+ });
+}
+export function collectStoryEvents(state,events,point,engaged=[]){
+ if(!state.storyEvents)return;
+ const chapter=CHAPTERS[state.chapter];
+ if(['start','round','action'].includes(point))applyEnemyReinforcements(state,chapter);
+ pruneStoryEvents(state,events,chapter);
+ const result=battleOutcome(state);if(result==='defeat')return;
+ events.forEach((e,i)=>{if(state.storyEvents.fired.includes(i)||result==='victory'&&!lastWords(state,e))return;
+ const t=e.trigger,u=state.units.find(unit=>unit.id===t.unit),at=['start','round','action'].includes(point);
+ const match=point==='engage'?t.type==='unitEngaged'&&engaged.includes(t.unit)&&u?.hp>0:
+ t.type==='battleStart'?point==='start':
+ t.type==='roundStart'?['start','round'].includes(point)&&state.phase==='ally'&&state.round===t.round:
+ t.type==='reinforcementArrived'?at&&state.reinforcements?.spawned.includes(t.wave):
+ t.type==='enemyCountBelow'?at&&enemyCountCondition(state,t):
+ t.type==='unitTroopsBelow'?point==='action'&&u&&!u.escaped&&(u.hp>0||t.includeDefeated===true)&&u.hp<u.maxHp*t.ratio:
+ point==='action'&&(t.type==='unitDefeated'?u?.hp===0&&!u.escaped:t.type==='unitEngaged'&&engaged.includes(t.unit)&&u?.hp>0);
+ if(match){state.storyEvents.fired.push(i);if(eventContextAlive(state,e)){applyStoryWithdrawal(state,e,i);applyStoryTerrainEffect(state,e,i);if(storyEventLines(state,e,chapter).length)state.storyEvents.pending.push(i);}}
+ });
+ pruneStoryEvents(state,events,chapter);
+}
+export function validateStoryRecord(state,events){
+ const r=state.storyEvents;if(!r||!Array.isArray(r.fired)||!Array.isArray(r.pending)||r.pending.length||new Set(r.fired).size!==r.fired.length||r.fired.some(i=>!Number.isInteger(i)||i<0||i>=events.length))fail('저장 발동 기록');
+ if(Object.keys(r).some(k=>!['fired','pending'].includes(k)))fail('저장 항목');
+}

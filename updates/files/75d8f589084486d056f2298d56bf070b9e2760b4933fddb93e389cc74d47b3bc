@@ -1,0 +1,13 @@
+// Visual motion only. All contact times, damage, map coordinates and RNG remain
+// owned by the existing resolved exchange and combat-contact modules.
+export function distinctAttackPose(record){
+ const ready=record?.frames?.ready??record?.frames?.idle,attack=record?.frames?.attack;
+ if(ready===undefined||attack===undefined)return false;
+ const frame=value=>Number.isInteger(value)?[value%(record.columns??1)/(record.columns??1),Math.floor(value/(record.columns??1))/(record.rows??1),1/(record.columns??1),1/(record.rows??1)]:value?.rect;
+ return JSON.stringify(frame(ready))!==JSON.stringify(frame(attack));
+}
+export function combatAttackMotion(style,{animatedPose=false}={}){
+ const motion=({slash:'blade',glaive:'ride',thrust:'thrust',charge:'ride','mounted-slash':'ride','mounted-thrust':'ride',halberd:'ride',arrow:'bow',bolts:'crossbow',fire:'cast',confusion:'cast',deception:'cast'})[style]??'blade';
+ const weapon=({glaive:'glaive',halberd:'halberd','mounted-slash':'blade'})[style]??({blade:'blade',thrust:'spear',ride:'lance',bow:'bow',crossbow:'crossbow',cast:'rune'})[motion];
+ return {style,motion,source:animatedPose?'atlas':'procedural',weapon};
+}

@@ -1,0 +1,4 @@
+.board-viewport{position:relative}
+.weather-rain-layer{position:absolute;left:0;top:0;z-index:4;display:block;pointer-events:none!important;user-select:none;contain:strict}
+.weather-rain-layer[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){.weather-rain-layer{opacity:.8}}

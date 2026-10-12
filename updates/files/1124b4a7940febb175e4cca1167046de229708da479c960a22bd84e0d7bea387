@@ -1,0 +1,1370 @@
+{
+  "schemaVersion": 3,
+  "episodeTitle": "4막 익주·한중",
+  "premise": "익주로 들어가 여러 전선과 장수를 키운다. 낙봉파에서 방통을 구출해 역사를 바꾸고, 한중을 얻어 한중왕에 오른다.",
+  "speakers": {
+    "narrator": "내레이션",
+    "liubei": "유비",
+    "zhangfei": "장비",
+    "zhaoyun": "조운",
+    "zhugeliang": "제갈량",
+    "huangzhong": "황충",
+    "weiyan": "위연",
+    "pangtong": "방통",
+    "machao": "마초",
+    "fazheng": "법정",
+    "madai": "마대",
+    "yanyan": "엄안",
+    "huangquan": "황권",
+    "wangping": "왕평",
+    "jianyong": "간옹",
+    "liyan": "이엄",
+    "wuban": "오반",
+    "caocao": "조조",
+    "zhanghe": "장합",
+    "xiahouyuan": "하후연",
+    "zhangren": "장임",
+    "fucheng_captain": "부성 수비 대장",
+    "guanyu": "관우",
+    "guanping": "관평",
+    "zhoucang": "주창",
+    "maliang": "마량",
+    "chendao": "진도",
+    "militia_leader": "의병 대장",
+    "messenger": "전령",
+    "shu_soldier": "유비군 병사",
+    "villager": "마을 사람",
+    "liaohua": "요화",
+    "zhangsong": "장송",
+    "yizhou_soldier": "익주군 병사",
+    "hanzhong_captain": "장로군 수비 대장",
+    "wei_soldier": "조조군 병사",
+    "mizhu": "미축",
+    "xiahoudun": "하후돈",
+    "yangxiu": "양수",
+    "wuyi": "오의",
+    "zhangyi": "장익",
+    "chengdu_captain": "성문 수비 대장",
+    "yizhou_official": "익주 관리",
+    "wei_commander": "위군 지휘관"
+  },
+  "chapters": [
+    {
+      "id": "s22_jiameng",
+      "title": "가맹관",
+      "location": "가맹관 · 익주로 들어가는 길",
+      "era": "211년",
+      "actMap": "map_act4",
+      "bg": {
+        "pre": "bg_pass",
+        "post": "bg_forest_valley"
+      },
+      "bgm": {
+        "pre": "bgm_march",
+        "battle": "bgm_battle",
+        "post": "bgm_scheme"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "211년, 유비는 장로를 막아 달라는 유장의 요청을 받아 가맹관으로 향했다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오늘은 북쪽 관문부터 지키세. 익주의 앞날은 백성의 뜻을 살핀 뒤 결정하겠네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "산길은 두 갈래입니다. 한쪽에 모두 모이지 말고 북쪽과 남쪽 고개를 함께 잡으십시오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "북쪽 길은 제가 맡겠습니다. 위에서 내려오는 적부터 끊어 놓겠습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "남쪽 비탈은 활이 잘 닿는구려. 앞줄이 오를 동안 이 늙은이가 뒤를 지키겠소."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "곡식 장부는 제가 맡겠소. 고개를 넘었다고 부상자를 길에 남기지는 맙시다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "방통·마속·요화·유봉도 이번에는 제 몫을 맡을 수 있네. 정비에서 첫 출전 후보로 살펴보게."
+        },
+        {
+          "speaker": "liubei",
+          "text": "출전할 장수는 정비에서 고르세. 두 고개와 가운데 지원로를 함께 지켜 주게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "두 고개의 깃발을 같은 턴에 세우면 가맹관의 길이 열린다. 정면 돌파와 우회는 자유다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "hanzhong_captain",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "장로의 수비대가 물러나고, 가맹관 아래 두 고개에 유비군의 깃발이 올랐다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오늘 길을 연 것은 한 사람의 칼이 아니네. 서로의 빈자리를 맡아 준 덕분일세."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "관문만 얻은 것이 아닙니다. 산 아래 마을도 주공의 군사를 믿기 시작했습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "믿음은 칼로 얻을 수 없네. 다친 사람을 돌보고 마을 우물부터 고쳐 주게."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "다음엔 성문 앞일 겁니다. 산을 오른 장수들에게 이번에는 앞줄을 맡기십시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "군수금은 장부에 따로 적겠소. 몇 사람만 튼튼하게 만들면 다른 길이 비니까요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "익주의 사정을 살피던 유비에게 부성의 연회를 청하는 편지가 도착했다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "부성으로 가세. 그곳에서도 함께 돌아올 길을 먼저 생각하겠네."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s23_fucheng",
+      "title": "부성 결별",
+      "location": "부성 · 연회 다음 날",
+      "era": "212년",
+      "bg": {
+        "pre": "bg_hall",
+        "post": "bg_castle_gate"
+      },
+      "bgm": {
+        "pre": "bgm_scheme",
+        "battle": "bgm_battle",
+        "post": "bgm_scheme"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "212년, 부성의 잔치가 끝난 뒤 장송이 유비와 통했다는 이유로 처형되었다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "장송이 목숨으로 남긴 길입니다. 유장은 관문을 닫았으니 이제 결단하셔야 합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나를 믿은 사람의 잔을 받고 칼을 뽑게 되었군. 이 선택의 무게를 잊지 않겠네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "부성의 수비 대장을 먼저 치십시오. 성벽 양쪽 통로를 나누어 쓰면 피해가 줄어듭니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "성문은 제가 압박하겠습니다. 옆길에 선 장수들은 궁수를 먼저 걷어 주십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "서두르되 성 안 백성은 건드리지 마시오. 깃발 아래 수비대만 상대하면 되오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "북쪽 보급소를 확보하면 부상자를 돌보기 쉽겠소. 적을 쫓기 전에 한 번 살펴봅시다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "수비 대장을 꺾으면 승리를 확정할 수 있네. 잔당을 정리할지는 그때 다시 고르세."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "fucheng_captain",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "부성 수비 대장이 물러나자 성문 위 깃발이 내려가고 성 안의 길이 열렸다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "항복한 자는 묶지 말게. 다친 자라면 적이든 아군이든 먼저 돌보아 주게."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 저 법정도 이제 이 깃발 아래 서겠습니다. 익주의 산길을 함께 열겠습니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "효직이 합류하면 전선을 나누기 쉬워집니다. 저 혼자 모든 길을 볼 필요가 없겠군요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "이제부터는 같은 뜻을 가진 동료일세. 새로 온 장수도 제 몫을 맡을 수 있게 준비하세."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "장송의 이름은 사람 장부에 남겼소. 그가 믿었던 나라를 만드는 것이 남은 빚이오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비군은 부성의 창고와 길을 정비하고 낙성으로 이어지는 산길을 살폈다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익주를 얻더라도 사람을 잃고 싶지는 않네. 다음 고개도 모두 함께 넘게."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s24_luofengpo",
+      "title": "낙봉파",
+      "location": "낙봉파 · 좁은 산길",
+      "era": "214년",
+      "fate": {
+        "front": "정사: 봉추는 낙성을 치다가 화살에 맞아 떨어졌다",
+        "back": "그러나 봉황은 떨어지지 않았다"
+      },
+      "bg": {
+        "pre": "bg_forest_valley",
+        "post": "bg_forest_valley"
+      },
+      "bgm": {
+        "pre": "bgm_fate",
+        "battle": "bgm_crisis",
+        "post": "bgm_fate"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "214년, 방통의 선발대가 낙성 서쪽 산길에 들어서자 양쪽 언덕에서 화살이 쏟아졌다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "백마 탄 자를 노려라. 이 좁은 고개를 넘기기 전에 유비군의 선봉을 끊는다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "백마 때문에 저들이 나를 주공으로 보았군요. 오늘은 체면보다 목숨을 먼저 챙기겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 내가 왔네. 한 사람도 뒤에 남기지 말고 안전한 고개로 함께 빠져나가세."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "방 군사 앞을 제가 지키겠습니다. 언덕의 궁수는 다른 전선에서 끊어 주십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이 화살이 산 위를 맡겠소. 군량과 보급을 아끼지 말고 군사를 지키시오."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "북쪽 짐승 길과 남쪽 큰길이 모두 열려 있습니다. 안전한 쪽으로 저를 보내 주십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "3라운드부터 방통이 북쪽 또는 남쪽 안전 고개에서 행동을 확정하면 구출에 성공한다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "양쪽 언덕에서 매복병이 활을 든다. 방통은 북쪽이나 남쪽 안전 고개 중 하나를 선택할 수 있다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "사원, 조금만 버티게. 이제 안전 고개에서 행동을 확정하면 모두 함께 빠져나갈 수 있네."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "pangtong",
+            "ratio": 0.5
+          },
+          "requiresAlive": [
+            "pangtong"
+          ],
+          "lines": [
+            {
+              "speaker": "pangtong",
+              "text": "살아 있어야 다시 날 수 있습니다. 오늘은 체면보다 목숨이니 가까운 전열 뒤로 붙겠습니다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "군량과 보급을 아끼지 말게. 사원을 지키며 북쪽이나 남쪽 안전 고개로 함께 가세."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "방통이 안전 고개를 넘었다. 유비가 어깨를 붙잡자 살아남은 봉추가 고개를 들었다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "하마터면 이 고개에서 끝날 뻔했습니다. 오늘 제 목숨은 모두에게 빚졌습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그대를 잃었다면 익주를 얻어도 기쁘지 않았을 걸세. 이제부터는 함께 가세."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "백마는 잃었지만 군사는 살았습니다. 오늘은 그걸로 됐으니 잠시 숨을 고르시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "봉황도 쉬어야 다시 나는 법이오. 다음 성벽은 서두르지 않고 함께 무너뜨립시다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명의 편지를 시샘으로 읽었습니다. 살아남았으니 그에게 답장을 쓰겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "역사에서는 낙성 공략 중 방통이 전사했다. 이 여정에서는 구출로 봉추의 생환을 이뤘다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "고개 이름은 그대로 두세. 다만 오늘부터 나는 봉황이 일어선 고개로 기억하겠네."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "봉추를 고개에 남기고 떠날 수 없다. 방통을 지킬 전열과 보급을 정비해 다시 도전한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "아직이네. 사원을 이 고개에 두고 갈 수는 없네. 안전한 길을 골라 다시 함께 가세."
+        }
+      ]
+    },
+    {
+      "id": "s25_luocheng",
+      "title": "낙성",
+      "location": "낙성 · 성벽 앞",
+      "era": "214년",
+      "bg": {
+        "pre": "bg_castle_gate",
+        "post": "bg_castle_gate"
+      },
+      "bgm": {
+        "pre": "bgm_siege",
+        "battle": "bgm_siege",
+        "post": "bgm_scheme"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "방통이 살아 돌아온 뒤 유비군은 낙성의 성벽 앞에서 다시 진형을 나누었다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "주공께 받은 은혜를 잊지 않는다. 낙성의 문은 이 장임이 끝까지 지키겠다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "장임의 충심은 알겠네. 백성을 더 굶기지 않도록 두 성문을 함께 열어야 하네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "이번에는 앞줄을 혼자 보내지 않겠습니다. 북문과 남문에 각각 전열과 지원을 두십시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "장임을 격파한 뒤 두 문에서 같은 턴에 깃발을 세우면 성을 확보할 수 있습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "제가 한쪽 문을 맡겠습니다. 다른 문에서도 스스로 버틸 장수를 보내 주십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "성벽 위 궁수는 제 활에 맡기시오. 낮은 길의 장수들은 엄폐를 따라 나아가시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "가운데 지원로는 비워 두게. 한쪽이 힘들어지면 다른 쪽에서 도울 수 있어야 하네."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "zhangren",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "장임의 수비선이 무너지고 낙성의 두 성문에 유비군의 깃발이 함께 올랐다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "칼은 놓겠으나 주인은 바꾸지 않겠다. 유장공을 따르는 마음까지 꺾지는 못한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 충심은 존중하겠네. 성 안 사람들에게 더는 칼을 들지 않도록 전해 주게."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "저를 구한 손들이 오늘 낙성도 열었습니다. 이번에는 먼저 간 사람을 세지 않겠습니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "북쪽 가맹관에서 급보가 왔습니다. 서량의 마초가 군사를 이끌고 다가온답니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "정면에서만 이긴 것이 아니니 다음에도 전선을 나눕시다. 각자의 공이 생깁니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 낙성의 창고를 군수 장부에 올리고 다친 장수의 병력부터 보충했다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "가맹관으로 지원을 보내세. 새로 열린 길도 지켜야 우리 길이 되는 것이네."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s26_machao",
+      "title": "가맹관의 금마초",
+      "location": "가맹관 · 성 아래 들판",
+      "era": "214년",
+      "bg": {
+        "pre": "bg_pass",
+        "post": "bg_city_night"
+      },
+      "bgm": {
+        "pre": "bgm_boss",
+        "battle": "bgm_boss",
+        "post": "bgm_oath"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "214년, 장로에게 몸을 의탁하던 마초가 서량 기병을 이끌고 가맹관에 나타났다."
+        },
+        {
+          "speaker": "machao",
+          "text": "서량의 마초다. 관문을 지키는 장수는 앞으로 나와 나와 창을 맞대라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "내가 장비다. 창은 내가 받겠으니 다른 장수들은 양쪽 기병의 길부터 끊으시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 혼자 결판을 내려 하지 말게. 관문과 양쪽 길을 함께 지켜야 하네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "마초의 기병은 넓은 길을 택합니다. 창병을 갈림길에 두고 책사는 뒤를 지키십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "말이 달리는 곳을 보고 쏘겠소. 방패 없는 장수는 기병 앞에 홀로 서지 마시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "창을 오래 맞대면 숨부터 모자라오. 보급 장수도 관문 가까이 보내 주십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "마초 부대를 격파하면 승리 협상을 시작한다. 장비 외의 격파 장수도 같은 결과를 얻는다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "machao",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "긴 대치 끝에 마초가 창을 거두었다. 유비는 적장의 재능보다 그의 처지를 먼저 물었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "맹기, 그대가 돌아갈 곳을 찾는다면 우리와 함께 가세. 등을 보일 필요는 없네."
+        },
+        {
+          "speaker": "machao",
+          "text": "창으로만 사람을 재던 몸이오. 유비공은 내 사정을 먼저 물으시니 답을 드리겠소."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님이 가는 길을 저도 따르겠습니다. 앞만 보는 형님 곁에서 옆과 뒤를 지키겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "좋소, 오늘은 둘 다 돌아왔으니 됐소. 다음번에는 같은 깃발 아래서 겨룹시다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "마초와 마대가 정식으로 합류했다. 각자의 시작 성장과 병과를 정비에서 확인할 수 있다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "기병만 늘리는 대신 남은 전열과 지원도 보강하십시오. 성도는 여러 길로 들어가야 합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "성도로 가세. 새로 온 장수도 오래 함께한 장수도 제 자리를 갖게 하겠네."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s27_chengdu",
+      "title": "성도 포위",
+      "location": "성도 · 익주의 수도",
+      "era": "214년",
+      "bg": {
+        "pre": "bg_castle_gate",
+        "post": "bg_hall"
+      },
+      "bgm": {
+        "pre": "bgm_siege",
+        "battle": "bgm_siege",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "214년, 낙성에서 이어진 길 끝에 성도가 보였다. 유비군은 성벽 양쪽으로 진형을 펼쳤다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "성도 안에는 백성이 많네. 굶겨 문을 여는 대신 두 성문을 확보해 항복의 길을 열세."
+        },
+        {
+          "speaker": "machao",
+          "text": "서량의 깃발을 성 아래 세우겠소. 다만 오늘은 칼보다 항복을 권하는 말이 먼저요."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "북문과 남문을 함께 장악하십시오. 양쪽 전선에 주력과 보급을 나누면 성벽이 버티지 못합니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "수비 대장을 격파해 두 문을 동시에 점령해야 합니다. 성 안 창고는 태우지 마십시오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "북쪽 문은 제가 맡아 보겠습니다. 다른 길의 장수들은 남쪽 계단을 지켜 주십시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "중앙 보급소를 얻으면 부상자를 돌볼 수 있겠소. 군량을 쓰는 장수에게도 공이 남게 합시다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "성도는 얻되 사람은 잃지 말게. 두 길을 연 뒤에는 항복한 사람부터 보호하세."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "chengdu_captain",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "성도의 두 문이 열리자 유장이 항복을 청했다. 유비는 성 안 백성을 해치지 말라 명했다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "같은 종친의 믿음을 받은 빚은 남아 있네. 이 땅을 지켜 그 빚부터 갚겠네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "엄안·황권·오의·이엄·장익·오반이 정식 합류하여 새 군단의 전열과 지원을 맡았다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "장수만 많다고 나라가 단단해지지는 않습니다. 창고와 길도 함께 지켜야 합니다."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "황 노장, 이제 같은 깃발 아래 서는구려. 산길의 화살은 둘이 나누어 쏩시다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 활을 맡길 동료가 생겼구려. 다른 전선에도 오래 버틸 화력이 필요했소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "새 장수의 투자와 기존 장수의 기록을 함께 보존한 채 군단은 한중으로 가는 길을 준비했다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "각자 맡을 길을 정비에서 골라 보세. 다음 전장에서는 새 동료도 제 힘을 보여 주게."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s28_dangqu",
+      "title": "탕거",
+      "location": "탕거 · 험한 산골짜기",
+      "era": "215년",
+      "bg": {
+        "pre": "bg_forest_valley",
+        "post": "bg_forest_valley"
+      },
+      "bgm": {
+        "pre": "bgm_march",
+        "battle": "bgm_battle",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "215년, 위군의 장합이 탕거 산길로 들어왔다. 유비군은 갈라진 두 고개를 먼저 살폈다."
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "좁은 산길이라 해도 위군의 창은 길다. 장비의 수비선부터 무너뜨려라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "오늘은 소리만 큰 장비가 아니오. 북쪽과 남쪽 길을 나누어 그대 퇴로를 막겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕의 한 길만 믿지 말게. 다른 고개도 유지할 전열 장수를 함께 보내야 하네."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "장합을 격파한 뒤 두 고개의 길을 같은 턴에 확보하면 적의 재침입을 막을 수 있습니다."
+        },
+        {
+          "speaker": "wuyi",
+          "text": "새로 합류한 창병도 이번 전선을 맡겠습니다. 지원 장수는 갈림길 뒤에서 도와주십시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "높은 길은 오래 버티기 어렵소. 병력과 SP를 나누어 보충하면 두 길 모두 버틸 수 있지요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "중앙 숲길은 두 고개를 연결한다. 한 전선이 먼저 끝나면 그 길로 다른 쪽을 도울 수 있다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "zhanghe",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "장합의 군사가 물러나고 두 고개의 깃발이 함께 올랐다. 탕거 산길이 유비군의 것이 되었다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "보았소, 이번에는 머리를 썼소. 한 길에서만 버텼으면 저놈을 놓쳤을 거요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕의 판단도, 다른 길을 맡은 장수들의 힘도 모두 제 몫을 했네. 잘 돌아왔네."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "새 장수에게 독립된 전선을 맡긴 보람이 있습니다. 다음에도 같은 방식으로 대비합시다."
+        },
+        {
+          "speaker": "wuyi",
+          "text": "소유 명단에만 있던 이름이 오늘은 전장에 섰습니다. 다음 고개에서도 맡겨 주십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "한중으로 가는 길이 안정되자 유비군은 정군산의 위군 수비대를 향해 진군했다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "정군산은 이 늙은이가 먼저 살펴보겠소. 높은 곳에서도 활을 쓸 자리가 있을 것이오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "앞줄과 우회로를 함께 준비하세. 이번에도 한 사람에게 모든 길을 맡기지는 않겠네."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s29_dingjun",
+      "title": "정군산",
+      "location": "정군산 · 산 정상을 앞두고",
+      "era": "219년",
+      "bg": {
+        "pre": "bg_pass",
+        "post": "bg_pass"
+      },
+      "bgm": {
+        "pre": "bgm_scheme",
+        "battle": "bgm_boss",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "219년, 유비군은 정군산 아래에 닿았다. 하후연의 위군이 산 위의 길목을 지키고 있었다."
+        },
+        {
+          "speaker": "xiahouyuan",
+          "text": "정군산을 내주면 한중이 열린다. 고개마다 수비를 세워 유비군의 발을 묶어라."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "높은 곳에 서 있다고 활까지 더 빠른 것은 아니오. 노장의 화살도 아직 살아 있소."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "정면 전열이 시선을 끌면 옆 고개의 원거리 장수가 사격할 수 있습니다. 함께 길을 여십시오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "저는 아래 길을 압박하겠습니다. 산을 오를 다른 장수들에게 궁수가 달려들지 못하게 하지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군 혼자 공을 세울 필요는 없네. 하후연을 누가 격파하든 오늘의 승리는 함께일세."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "활을 쏘는 장수도 군량이 필요하오. 지원로의 장수들은 너무 멀리 떨어지지 맙시다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "하후연 부대를 격파하면 정군산을 확보한다. 북쪽 보급소는 선택 목표로 따로 보상한다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "huangzhong",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "xiahouyuan",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "하후연의 수비대가 무너지고 정군산에 유비군 깃발이 올랐다. 한중의 서쪽 길이 열렸다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "오늘 화살은 앞줄이 길을 연 덕에 닿았소. 이 늙은이만의 공이라 적지 마시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "산길을 나눈 것이 결정적이었습니다. 서로 다른 전선을 맡긴 투자가 오늘 힘이 되었습니다."
+        },
+        {
+          "speaker": "wangping",
+          "text": "위군에 있던 왕평입니다. 제 목숨을 살려 주신다면 한중의 길을 함께 지키겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "왕평, 그대가 아는 길은 우리 모두의 길이 되겠네. 군단에 합류해 정비부터 받게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "왕평이 정식 합류했다. 성장과 장비를 마련한 뒤 남은 한수·한중 전투에서 출전할 수 있다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "한수 쪽에도 위군이 남아 있습니다. 넓은 길과 나루를 함께 살펴보겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "정군산의 기세를 이어가세. 새 동료와 함께 돌아올 길도 잊지 말게."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s30_hanshui",
+      "title": "한수의 빈 영채",
+      "location": "한수 · 조운의 영채",
+      "era": "219년",
+      "bg": {
+        "pre": "bg_camp_shu",
+        "post": "bg_camp_shu"
+      },
+      "bgm": {
+        "pre": "bgm_crisis",
+        "battle": "bgm_scheme",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "219년, 한수의 강둑에 조운의 영채가 섰다. 강 건너 위군이 여러 다리로 접근하고 있었다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "문을 열고 깃발을 세우겠습니다. 적을 한쪽에 모으지 말고 양쪽 다리에서 맞으십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이도 강둑을 맡겠소. 물길을 건너는 적은 활로 먼저 견제할 수 있소."
+        },
+        {
+          "speaker": "wangping",
+          "text": "강을 건널 다리는 세 곳입니다. 가운데 숲길에서 양쪽 전선으로 지원을 보낼 수 있습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오늘은 남은 수비대를 정리해야 하네. 도주하는 장수보다 아군 퇴로를 먼저 지키게."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "하나의 창으로 모든 다리를 지킬 수는 없습니다. 독립 전열과 보급을 나누어 주십시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "다리를 지나는 동안 병력이 줄 수 있소. 낮은 장수도 뒤에서 목표와 지원을 맡을 수 있게 합시다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "한수 수비대를 모두 격파하면 승리한다. 강둑의 보급소는 전선 사이 이동을 돕는 선택 거점이다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "zhaoyun",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "wei_commander",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "위군의 한수 수비대가 흩어지고 세 다리에는 유비군만 남았다. 조운이 영채 문을 닫았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡의 담력도 좋았네. 양쪽 다리를 맡은 장수들이 있었으니 그 담력을 펼 수 있었네."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "오늘 공은 창 하나의 것이 아닙니다. 다른 다리를 맡은 동료가 없었다면 문을 열지 못했을 겁니다."
+        },
+        {
+          "speaker": "wangping",
+          "text": "정군산에서 합류해 바로 이 길을 맡았습니다. 다음 싸움에서도 한 전선을 책임지겠습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "새로 온 장수의 길눈이 도움이 되었소. 활을 맡는 장수도 앞으로 더 늘려 보시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "강둑의 창고에서 거둔 군수품이 장부에 올랐다. 유비는 마지막 싸움에 앞서 군단을 정비했다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "내일 받을 금화로 오늘 강화할 수는 없소. 지금 장부의 잔고 안에서 각 전선을 준비합시다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "마지막 길도 함께 가세. 한중을 지키려면 모든 전선이 제 몫을 해야 하네."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    },
+    {
+      "id": "s31_hanzhong",
+      "title": "한중왕",
+      "location": "한중 · 양평관 아래",
+      "era": "219년",
+      "bg": {
+        "pre": "bg_forest_valley",
+        "post": "bg_hall"
+      },
+      "bgm": {
+        "pre": "bgm_boss",
+        "battle": "bgm_boss",
+        "post": "bgm_oath"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "219년, 한중의 마지막 수비선 앞에서 유비와 조조의 깃발이 강을 사이에 두고 마주 섰다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "현덕, 그대의 깃발 아래 장수가 많구려. 한중을 얻으려면 이 세 길을 모두 지켜 보시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "조공, 그 사람들은 탐낸다고 오는 이들이 아니오. 함께 굶고 함께 돌아온 동료들이오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조의 지휘 부대를 격파한 뒤 북쪽 성문·가운데 나루·남쪽 보급로를 같은 턴에 확보하십시오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "한 길은 제가 버티겠소. 다른 두 길에서도 스스로 버틸 장수를 보내 주시오."
+        },
+        {
+          "speaker": "machao",
+          "text": "넓은 둑길은 제가 달려 보겠소. 창병과 지원 장수도 함께 있어야 다시 돌아올 수 있지요."
+        },
+        {
+          "speaker": "wangping",
+          "text": "정군산과 한수에서 익힌 길을 쓰겠습니다. 중앙 연결로는 예비대가 이동할 수 있게 남겨 두십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "정규 14명 안에서 세 전선의 전열·화력·지원 역할을 나눈다. 6막의 최종 출전 규모는 아직 후속 목표다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "caocao",
+              "text": "이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "세 길의 깃발이 함께 올랐다. 조조는 한중을 버리기 아깝지만 얻을 것이 없는 땅이라 여겼다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "계륵이로다. 오늘은 군을 거두겠노라. 현덕의 곁에는 내가 알던 것보다 많은 장수가 있구나."
+        },
+        {
+          "speaker": "liubei",
+          "text": "다친 사람부터 돌보게. 한중이 우리 손에 들어왔으니 이 땅을 지킬 책임도 함께 왔네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 한중왕을 칭하실 때입니다. 이것은 욕심보다 백성이 알아볼 깃발입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "왕이 되어도 백성의 사람이네. 탁현에서 삼은 짚신처럼 내가 어디서 왔는지 잊지 않겠네."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "한중을 맡겨 주십시오. 조조가 다시 군사를 보내면 오늘의 동료들과 함께 막겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "219년, 유비가 한중왕에 올랐다. 방통의 생환과 여러 장수의 성장이 군단 기록에 함께 남았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "형주에 소식을 보내세. 나는 왕이 되어도 복숭아밭에서 한 약속 그대로 그들의 큰형일세."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "전선이 무너졌다. 성장과 투자를 보존한 채 진형을 다시 정비하고 다음 출전을 준비한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 물러서게. 다친 사람을 먼저 돌보고, 각 전선을 맡을 장수를 골라 다시 나아가세."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2333 @@
+{
+  "schemaVersion": 1,
+  "act": "3막 적벽·형주",
+  "note": "v0.36: 기존 act2 전투 프로필과 최신 AI/성장/정신기/지형 규칙을 재사용한다. 적 레벨은 24~32로 고정하며 일반 3000~3700, 정예 4000~5000, 보스 7100~9500 병력이다. 선발대·적 증원은 유한하고 지연 배치하며 초기 배치에 중복되지 않는다. 조조/장료는 16장 퇴로 밖 대화 전용이며 한현만 18장 승리 목표다.",
+  "namedEnemyTemplates": {
+    "troop_infantry": {
+      "name": "위군 보병",
+      "class": "infantry",
+      "troops": 3400,
+      "attack": 43,
+      "defense": 17,
+      "intellect": 44,
+      "move": 3,
+      "combatTier": "troop"
+    },
+    "troop_spear": {
+      "name": "위군 창병",
+      "class": "spear",
+      "troops": 3500,
+      "attack": 45,
+      "defense": 17,
+      "intellect": 44,
+      "move": 3,
+      "combatTier": "troop"
+    },
+    "troop_cavalry": {
+      "name": "위군 기병",
+      "class": "cavalry",
+      "troops": 3700,
+      "attack": 46,
+      "defense": 15,
+      "intellect": 44,
+      "move": 5,
+      "combatTier": "troop"
+    },
+    "troop_archer": {
+      "name": "위군 활병",
+      "class": "archer",
+      "troops": 3200,
+      "attack": 41,
+      "defense": 12,
+      "intellect": 49,
+      "move": 3,
+      "combatTier": "troop"
+    },
+    "troop_crossbow": {
+      "name": "위군 석궁병",
+      "class": "crossbow",
+      "troops": 3300,
+      "attack": 44,
+      "defense": 14,
+      "intellect": 49,
+      "move": 3,
+      "combatTier": "troop"
+    },
+    "troop_strategist": {
+      "name": "위군 책사",
+      "class": "strategist",
+      "troops": 3000,
+      "attack": 35,
+      "defense": 8,
+      "intellect": 56,
+      "move": 3,
+      "combatTier": "troop"
+    },
+    "elite_infantry": {
+      "name": "정예 보병",
+      "class": "infantry",
+      "troops": 4700,
+      "attack": 54,
+      "defense": 22,
+      "intellect": 52,
+      "move": 3,
+      "combatTier": "elite"
+    },
+    "elite_spear": {
+      "name": "정예 창병",
+      "class": "spear",
+      "troops": 4800,
+      "attack": 56,
+      "defense": 22,
+      "intellect": 52,
+      "move": 3,
+      "combatTier": "elite"
+    },
+    "elite_cavalry": {
+      "name": "정예 기병",
+      "class": "cavalry",
+      "troops": 5000,
+      "attack": 57,
+      "defense": 20,
+      "intellect": 52,
+      "move": 5,
+      "combatTier": "elite"
+    },
+    "elite_archer": {
+      "name": "정예 활병",
+      "class": "archer",
+      "troops": 4400,
+      "attack": 52,
+      "defense": 17,
+      "intellect": 59,
+      "move": 3,
+      "combatTier": "elite"
+    },
+    "elite_crossbow": {
+      "name": "정예 석궁병",
+      "class": "crossbow",
+      "troops": 4500,
+      "attack": 55,
+      "defense": 19,
+      "intellect": 59,
+      "move": 3,
+      "combatTier": "elite"
+    },
+    "elite_strategist": {
+      "name": "정예 책사",
+      "class": "strategist",
+      "troops": 4000,
+      "attack": 39,
+      "defense": 11,
+      "intellect": 66,
+      "move": 3,
+      "combatTier": "elite"
+    },
+    "wenpin": {
+      "name": "문빙",
+      "class": "spear",
+      "troops": 7200,
+      "attack": 59,
+      "defense": 24,
+      "intellect": 60,
+      "move": 3,
+      "combatTier": "boss"
+    },
+    "flagship_commander": {
+      "name": "위군 기함 지휘관",
+      "class": "infantry",
+      "troops": 7800,
+      "attack": 61,
+      "defense": 25,
+      "intellect": 58,
+      "move": 3,
+      "combatTier": "boss"
+    },
+    "rearguard": {
+      "name": "위군 후위대장",
+      "class": "cavalry",
+      "troops": 7100,
+      "attack": 58,
+      "defense": 23,
+      "intellect": 58,
+      "move": 5,
+      "combatTier": "boss"
+    },
+    "gate_captain": {
+      "name": "형남 성문장",
+      "class": "infantry",
+      "troops": 5000,
+      "attack": 53,
+      "defense": 22,
+      "intellect": 53,
+      "move": 3,
+      "combatTier": "officer"
+    },
+    "hanxuan": {
+      "name": "한현",
+      "class": "infantry",
+      "troops": 7400,
+      "attack": 56,
+      "defense": 24,
+      "intellect": 52,
+      "move": 3,
+      "combatTier": "boss"
+    },
+    "huangzhong": {
+      "name": "황충",
+      "class": "archer",
+      "troops": 6500,
+      "attack": 64,
+      "defense": 22,
+      "intellect": 55,
+      "move": 3,
+      "combatTier": "officer"
+    },
+    "caoren": {
+      "name": "조인",
+      "class": "infantry",
+      "troops": 9000,
+      "attack": 66,
+      "defense": 29,
+      "intellect": 62,
+      "move": 3,
+      "combatTier": "boss"
+    },
+    "wu_officer": {
+      "name": "오군 호위선장",
+      "class": "spear",
+      "troops": 7400,
+      "attack": 57,
+      "defense": 23,
+      "intellect": 55,
+      "move": 3,
+      "combatTier": "boss"
+    },
+    "wei_commander": {
+      "name": "위군 지휘관",
+      "class": "cavalry",
+      "troops": 9500,
+      "attack": 67,
+      "defense": 27,
+      "intellect": 66,
+      "move": 5,
+      "combatTier": "boss"
+    }
+  },
+  "extraAllyTemplates": {
+    "ferry": {
+      "name": "강하 피난선",
+      "class": "infantry",
+      "troops": 5000,
+      "attack": 0,
+      "defense": 25,
+      "intellect": 0,
+      "move": 2,
+      "nonCombat": true
+    },
+    "guanyu": {
+      "name": "관우",
+      "class": "cavalry",
+      "troops": 6200,
+      "attack": 85,
+      "defense": 28,
+      "intellect": 70,
+      "move": 5
+    },
+    "zhoucang": {
+      "name": "주창",
+      "class": "infantry",
+      "troops": 5400,
+      "attack": 75,
+      "defense": 28,
+      "intellect": 40,
+      "move": 3
+    },
+    "huanggai": {
+      "name": "황개",
+      "class": "infantry",
+      "troops": 5400,
+      "attack": 75,
+      "defense": 26,
+      "intellect": 62,
+      "move": 3
+    },
+    "zhouyu": {
+      "name": "주유",
+      "class": "strategist",
+      "troops": 5000,
+      "attack": 0,
+      "defense": 25,
+      "intellect": 92,
+      "move": 2,
+      "nonCombat": true
+    },
+    "lady_sun": {
+      "name": "손부인 공자선",
+      "class": "infantry",
+      "troops": 5000,
+      "attack": 0,
+      "defense": 25,
+      "intellect": 0,
+      "move": 1,
+      "nonCombat": true,
+      "protectedFromFaction": "wu"
+    }
+  },
+  "stages": [
+    {
+      "id": "s14_jiangxia",
+      "title": "강하 합류",
+      "era": "208년",
+      "location": "한수 나루 · 강하로 가는 길",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s14_jiangxia",
+        "backgroundId": "bg_river",
+        "brief": "추격대를 전멸시킬 필요는 없다. 유비가 세 번째 라운드부터 동북쪽 나루에서 행동을 확정하면 승리한다. 장비·조운이 뒤를 지키고 피난선을 보호하라. 관우와 주창의 강하 선발대는 3라운드에 실제 합류하며 이번 전투만 협력한다."
+      },
+      "no": 14,
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "zhangfei",
+          "zhaoyun"
+        ],
+        "maxSortie": 6,
+        "unavailable": [
+          "guanyu",
+          "zhoucang"
+        ]
+      },
+      "allySlots": [
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          7
+        ]
+      ],
+      "terrain": [
+        ".........###",
+        ".........###",
+        "...F......##",
+        "..F.......##",
+        "..........##",
+        "......F...##",
+        "......F..###",
+        ".......F.###",
+        ".........###",
+        ".........###"
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "wenpin",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "wei",
+          "x": 1,
+          "y": 6,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 4000,
+          "boss": true
+        },
+        {
+          "id": "e01",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 1,
+          "y": 3,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 2,
+          "y": 7,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 2,
+          "y": 5,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 3,
+          "y": 8,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 2,
+          "y": 2,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 3,
+          "y": 1,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 0,
+          "y": 4,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e08",
+          "template": "elite_cavalry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 0,
+          "y": 8,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e09",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 1,
+          "y": 9,
+          "level": 24,
+          "aiMode": "charge",
+          "gold": 200
+        }
+      ],
+      "extraAllies": [
+        {
+          "id": "x_ferry",
+          "template": "ferry",
+          "x": 9,
+          "y": 3
+        },
+        {
+          "id": "x_guanyu",
+          "template": "guanyu",
+          "x": 8,
+          "y": 4
+        },
+        {
+          "id": "x_zhoucang",
+          "template": "zhoucang",
+          "x": 9,
+          "y": 5
+        }
+      ],
+      "victory": {
+        "type": "reachTile",
+        "unit": "liubei",
+        "tiles": [
+          [
+            8,
+            2
+          ],
+          [
+            9,
+            2
+          ]
+        ],
+        "label": "강하 피난선 나루",
+        "notBeforeRound": 3
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhangfei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhaoyun"
+        },
+        {
+          "type": "unitLost",
+          "unit": "x_ferry"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "강",
+      "brief": "추격대를 전멸시킬 필요는 없다. 유비가 세 번째 라운드부터 동북쪽 나루에서 행동을 확정하면 승리한다. 장비·조운이 뒤를 지키고 피난선을 보호하라. 관우와 주창의 강하 선발대는 3라운드에 실제 합류하며 이번 전투만 협력한다.",
+      "intermissionHint": "적벽에서는 보병·창병으로 선봉을 지키고 책사와 활병을 뒤에 두라. 관우·주창의 기존 성장과 개조는 그대로 유지되며 다음 정규 출전부터 사용한다.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1,
+      "reinforcements": [
+        {
+          "id": "jiangxia_return",
+          "team": "ally",
+          "unitIds": [
+            "x_guanyu",
+            "x_zhoucang"
+          ],
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          }
+        },
+        {
+          "id": "jiangxia_pursuit",
+          "unitIds": [
+            "e08",
+            "e09"
+          ],
+          "trigger": {
+            "type": "enemyCountBelow",
+            "count": 5,
+            "minRound": 2,
+            "fallbackRound": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "s15_chibi",
+      "title": "적벽",
+      "era": "208년",
+      "location": "적벽 · 장강 위",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s15_chibi",
+        "backgroundId": "bg_ship",
+        "brief": "연결된 선단의 전력을 모두 격파하면 승리한다. 새 출전에서는 정예 선단 21부대가 등장한다. 황개 화공이 발동하면 적 전체와 대기 호위대가 최대병력 75%를 잃고, 불길 구역의 아군은 35% 피해를 받는다(병력 1 보존). 화공 이후 약해진 잔당을 정리하라. 이전 진행 기록은 당시의 병력·편성과 화공 규칙을 유지한다."
+      },
+      "no": 15,
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "zhugeliang"
+        ],
+        "maxSortie": 6,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "terrain": [
+        ".....#######",
+        ".....#......",
+        "...F.#F.....",
+        ".....#......",
+        "............",
+        "............",
+        ".....#......",
+        "...F.#F.....",
+        ".....#......",
+        ".....#######"
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "flagship_commander",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "wei",
+          "x": 10,
+          "y": 4,
+          "level": 28,
+          "aiMode": "hold",
+          "gold": 4000,
+          "boss": true,
+          "advanceRound": 3,
+          "loot": [
+            "largeSupply"
+          ]
+        },
+        {
+          "id": "e01",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 6,
+          "y": 4,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 6,
+          "y": 5,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 3,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 6,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 8,
+          "y": 2,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 8,
+          "y": 7,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 9,
+          "y": 5,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e08",
+          "template": "elite_infantry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 8,
+          "y": 4,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e09",
+          "template": "elite_spear",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 8,
+          "y": 5,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e10",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 10,
+          "y": 2,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e11",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 10,
+          "y": 7,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e12",
+          "template": "elite_cavalry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 11,
+          "y": 3,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e13",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 11,
+          "y": 6,
+          "level": 25,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e14",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 6,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        },
+        {
+          "id": "e15",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        },
+        {
+          "id": "e16",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 8,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        },
+        {
+          "id": "e17",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 9,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        },
+        {
+          "id": "e18",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 10,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        },
+        {
+          "id": "e19",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 11,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        },
+        {
+          "id": "e20",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 6,
+          "y": 8,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "introducedFormationVersion": 4
+        }
+      ],
+      "extraAllies": [
+        {
+          "id": "huanggai",
+          "template": "huanggai",
+          "x": 3,
+          "y": 6
+        }
+      ],
+      "victory": {
+        "type": "defeatAll"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhugeliang"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "강",
+      "brief": "연결된 선단의 전력을 모두 격파하면 승리한다. 새 출전에서는 정예 선단 21부대가 등장한다. 황개 화공이 발동하면 적 전체와 대기 호위대가 최대병력 75%를 잃고, 불길 구역의 아군은 35% 피해를 받는다(병력 1 보존). 화공 이후 약해진 잔당을 정리하라. 이전 진행 기록은 당시의 병력·편성과 화공 규칙을 유지한다.",
+      "intermissionHint": "불배가 줄인 병력은 사라진 적이 아니다. 남은 정예와 기함 지휘관을 상성·책략·반격으로 정리하고, 약한 책사를 선단 선두에 세우지 마라.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1,
+      "reinforcements": [
+        {
+          "id": "chibi_escorts",
+          "unitIds": [
+            "e12",
+            "e13"
+          ],
+          "trigger": {
+            "type": "enemyCountBelow",
+            "count": 7,
+            "minRound": 1,
+            "fallbackRound": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "s16_huarong",
+      "title": "화용도",
+      "era": "208년",
+      "location": "화용도 · 진흙길",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s16_huarong",
+        "backgroundId": "bg_mud_road",
+        "brief": "적벽에서 패주한 후위대는 사기 50·병력 40%로 시작한다. 적은 선공하지 않고 동쪽 L4~L7로 도주한다. 관우와 주창으로 탈출 전에 빠르게 격파할수록 경험치·전리품을 더 얻는다. 모든 적이 격파되거나 탈출하면 추격이 끝난다. 조조와 장료는 대화 인물이며 공격 목표가 아니다."
+      },
+      "no": 16,
+      "sortie": {
+        "fixed": true,
+        "required": [
+          "guanyu",
+          "zhoucang"
+        ],
+        "maxSortie": 2,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "terrain": [
+        "....##..##..",
+        "....##..##..",
+        "....##..##F.",
+        "...F..F.....",
+        "............",
+        "............",
+        "...F...F....",
+        "....##..##F.",
+        "....##..##..",
+        "....##..##.."
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "rearguard",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "wei",
+          "x": 10,
+          "y": 5,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 4000,
+          "boss": true,
+          "advanceRound": 3
+        },
+        {
+          "id": "e01",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 5,
+          "y": 4,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 5,
+          "y": 5,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 2,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "advanceRound": 2
+        },
+        {
+          "id": "e05",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 9,
+          "y": 3,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "advanceRound": 2
+        },
+        {
+          "id": "e06",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 10,
+          "y": 6,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200,
+          "advanceRound": 2
+        },
+        {
+          "id": "e07",
+          "template": "elite_infantry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 9,
+          "y": 4,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 1000
+        }
+      ],
+      "extraAllies": [],
+      "victory": {
+        "type": "defeatAll"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "guanyu"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "암벽",
+      "brief": "적벽에서 패주한 후위대는 사기 50·병력 40%로 시작한다. 적은 선공하지 않고 동쪽 L4~L7로 도주한다. 관우와 주창으로 탈출 전에 빠르게 격파할수록 경험치·전리품을 더 얻는다. 모든 적이 격파되거나 탈출하면 추격이 끝난다. 조조와 장료는 대화 인물이며 공격 목표가 아니다.",
+      "intermissionHint": "형남에는 두 성문이 있다. 정비에서 기병만 고집하지 말고 보병·창병·책사의 상성을 확인한 뒤 서로 다른 길을 동시에 지킬 편성을 준비하라.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1
+    },
+    {
+      "id": "s17_jingnan",
+      "title": "형남 평정",
+      "era": "209년",
+      "location": "영릉·계양 · 형주 남부",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s17_jingnan",
+        "backgroundId": "bg_camp_shu",
+        "brief": "북쪽 K3와 남쪽 K8의 두 성문을 서로 다른 정규 장수가 같은 아군 턴에 점령한 채 행동을 확정하면 승리한다. 모든 적을 쓰러뜨릴 필요는 없다. 장비·조운을 양쪽 길로 나누고 유비와 책사가 뒤를 지원하며 궁노병의 사거리를 확인하라."
+      },
+      "no": 17,
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "zhangfei",
+          "zhaoyun"
+        ],
+        "maxSortie": 6,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          6
+        ]
+      ],
+      "terrain": [
+        "......#...F.",
+        "......#.....",
+        "....F..F....",
+        "............",
+        "......#.....",
+        "......#.....",
+        "............",
+        "....F..F....",
+        "......#.....",
+        "......#...F."
+      ],
+      "enemies": [
+        {
+          "id": "e_gate_n",
+          "template": "gate_captain",
+          "named": true,
+          "combatTier": "officer",
+          "faction": "cao",
+          "x": 9,
+          "y": 2,
+          "level": 28,
+          "aiMode": "hold",
+          "gold": 2000,
+          "advanceRound": 3
+        },
+        {
+          "id": "e_gate_s",
+          "template": "gate_captain",
+          "named": true,
+          "combatTier": "officer",
+          "faction": "cao",
+          "x": 9,
+          "y": 7,
+          "level": 28,
+          "aiMode": "hold",
+          "gold": 2000,
+          "advanceRound": 3
+        },
+        {
+          "id": "e01",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 5,
+          "y": 2,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 5,
+          "y": 7,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 6,
+          "y": 2,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 6,
+          "y": 7,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 8,
+          "y": 1,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 8,
+          "y": 8,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 10,
+          "y": 4,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e08",
+          "template": "elite_spear",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "cao",
+          "x": 8,
+          "y": 3,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e09",
+          "template": "elite_infantry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "cao",
+          "x": 8,
+          "y": 6,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e10",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 10,
+          "y": 5,
+          "level": 26,
+          "aiMode": "charge",
+          "gold": 200
+        }
+      ],
+      "extraAllies": [],
+      "victory": {
+        "type": "occupyTiles",
+        "tiles": [
+          [
+            10,
+            2
+          ],
+          [
+            10,
+            7
+          ]
+        ],
+        "label": "형남의 두 성문"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhangfei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhaoyun"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "성벽",
+      "brief": "북쪽 K3와 남쪽 K8의 두 성문을 서로 다른 정규 장수가 같은 아군 턴에 점령한 채 행동을 확정하면 승리한다. 모든 적을 쓰러뜨릴 필요는 없다. 장비·조운을 양쪽 길로 나누고 유비와 책사가 뒤를 지원하며 궁노병의 사거리를 확인하라.",
+      "intermissionHint": "관평과 마량이 합류한다. 관평은 기병을 막는 창병, 마량은 보급과 책략을 맡는다. 다음 전장은 한현이 목표이며 황충과 불필요한 결투를 계속하지 마라.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1
+    },
+    {
+      "id": "s18_changsha",
+      "title": "장사의 노장",
+      "era": "209년",
+      "location": "장사성 · 성문 앞",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s18_changsha",
+        "backgroundId": "bg_castle_gate",
+        "brief": "승리 목표는 한현 격파다. 황충은 쓰러뜨릴 필요가 없으며 한현이 병력 절반 이하가 되면 위연이 성문을 여는 대사가 발생한다. 관우는 창병의 정면을 피하고 관평 등 창병으로 외곽 기병을 견제하며 활병과 책사로 성 안을 공략하라."
+      },
+      "no": 18,
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "guanyu"
+        ],
+        "maxSortie": 6,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "terrain": [
+        ".......#....",
+        ".......#.F..",
+        "....F..#....",
+        ".......#....",
+        "............",
+        "............",
+        ".......#....",
+        "....F..#....",
+        ".......#.F..",
+        ".......#...."
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "hanxuan",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "cao",
+          "x": 10,
+          "y": 4,
+          "level": 29,
+          "aiMode": "hold",
+          "gold": 4000,
+          "boss": true,
+          "advanceRound": 3,
+          "loot": [
+            "talisman"
+          ]
+        },
+        {
+          "id": "e_hz",
+          "template": "huangzhong",
+          "named": true,
+          "combatTier": "officer",
+          "faction": "cao",
+          "x": 6,
+          "y": 4,
+          "level": 28,
+          "aiMode": "hold",
+          "gold": 2000,
+          "advanceRound": 3
+        },
+        {
+          "id": "e01",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 4,
+          "y": 3,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 4,
+          "y": 6,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 5,
+          "y": 4,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 8,
+          "y": 4,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 9,
+          "y": 3,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 9,
+          "y": 6,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "cao",
+          "x": 10,
+          "y": 6,
+          "level": 27,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e08",
+          "template": "elite_infantry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "cao",
+          "x": 8,
+          "y": 5,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 1000
+        }
+      ],
+      "extraAllies": [],
+      "victory": {
+        "type": "defeatUnit",
+        "unit": "e_boss"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "guanyu"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "성벽",
+      "brief": "승리 목표는 한현 격파다. 황충은 쓰러뜨릴 필요가 없으며 한현이 병력 절반 이하가 되면 위연이 성문을 여는 대사가 발생한다. 관우는 창병의 정면을 피하고 관평 등 창병으로 외곽 기병을 견제하며 활병과 책사로 성 안을 공략하라.",
+      "intermissionHint": "황충과 위연이 합류한다. 다음 강릉에서는 조인이 높은 방어력으로 성문을 지키고 오군도 싸운다. 황충의 사거리와 위연의 전열 방어를 살리되 주유는 공격할 수 없는 동맹이다.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1
+    },
+    {
+      "id": "s19_jiangling",
+      "title": "강릉 쟁탈",
+      "era": "209년",
+      "location": "강릉성 · 장강 북안",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s19_jiangling",
+        "backgroundId": "bg_castle_gate",
+        "brief": "조인을 격파하면 강릉을 얻는다. 주유는 이번 전투의 공격할 수 없는 동맹이며 위군의 공격을 받을 수 있다. 성의 두 입구로 접근하는 기병을 창병으로 막고, 북·남쪽에서 오는 유한 증원에 대비해 책사와 활병을 보호하라."
+      },
+      "no": 19,
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "zhaoyun"
+        ],
+        "maxSortie": 6,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "terrain": [
+        "...#...#....",
+        "...#...#.F..",
+        ".....F.#....",
+        "............",
+        "............",
+        "............",
+        "............",
+        ".....F.#....",
+        "...#...#.F..",
+        "...#...#...."
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "caoren",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "wei",
+          "x": 10,
+          "y": 4,
+          "level": 31,
+          "aiMode": "hold",
+          "gold": 4000,
+          "boss": true,
+          "advanceRound": 3,
+          "loot": [
+            "ironArmor"
+          ]
+        },
+        {
+          "id": "e01",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 6,
+          "y": 4,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 6,
+          "y": 5,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 5,
+          "y": 3,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 5,
+          "y": 6,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 9,
+          "y": 2,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 9,
+          "y": 7,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "elite_infantry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 8,
+          "y": 4,
+          "level": 29,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e08",
+          "template": "elite_spear",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 8,
+          "y": 5,
+          "level": 29,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e09",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 10,
+          "y": 6,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e10",
+          "template": "elite_cavalry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 11,
+          "y": 1,
+          "level": 29,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e11",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 11,
+          "y": 8,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        }
+      ],
+      "extraAllies": [
+        {
+          "id": "e_zhouyu",
+          "template": "zhouyu",
+          "x": 4,
+          "y": 1
+        }
+      ],
+      "victory": {
+        "type": "defeatUnit",
+        "unit": "e_boss"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhaoyun"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "성벽",
+      "brief": "조인을 격파하면 강릉을 얻는다. 주유는 이번 전투의 공격할 수 없는 동맹이며 위군의 공격을 받을 수 있다. 성의 두 입구로 접근하는 기병을 창병으로 막고, 북·남쪽에서 오는 유한 증원에 대비해 책사와 활병을 보호하라.",
+      "intermissionHint": "오와 동맹이어도 형주를 두고 경쟁한다. 다음 전투는 조운과 장비의 구출전이다. 두 장수의 병력·방어와 이동용 파츠를 확인하고 정신기 SP를 남길 전술을 세우라.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1,
+      "reinforcements": [
+        {
+          "id": "jiangling_relief",
+          "unitIds": [
+            "e10",
+            "e11"
+          ],
+          "trigger": {
+            "type": "enemyCountBelow",
+            "count": 6,
+            "minRound": 2,
+            "fallbackRound": 3
+          }
+        }
+      ],
+      "equipmentDrops": [
+        {
+          "targetId": "e_boss",
+          "actorId": "zhaoyun",
+          "itemId": "jianglingShield",
+          "condition": "조운으로 조인 격파 · 강릉 방패"
+        }
+      ]
+    },
+    {
+      "id": "s20_adou_river",
+      "title": "강 위의 아두",
+      "era": null,
+      "location": "장강 · 오나라 배 위",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s20_adou_river",
+        "backgroundId": "bg_ship",
+        "brief": "조운과 장비가 호위선을 밀어내고 공자를 구한다. 손부인의 공자선은 공격할 수 없는 보호 대상이다. 호위선장을 격파한 뒤 조운이 J5 승선로에서 행동을 확정하면 승리한다. 좁은 널판길에서 장비의 철벽으로 궁노병을 막고 조운의 창으로 기병을 상대하라."
+      },
+      "no": 20,
+      "sortie": {
+        "fixed": true,
+        "required": [
+          "zhaoyun",
+          "zhangfei"
+        ],
+        "maxSortie": 2,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "terrain": [
+        "############",
+        "############",
+        "############",
+        "...F.##.....",
+        "............",
+        "............",
+        "...F.##.....",
+        "############",
+        "############",
+        "############"
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "wu_officer",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "wu",
+          "x": 9,
+          "y": 5,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 4000,
+          "boss": true,
+          "loot": [
+            "horse"
+          ]
+        },
+        {
+          "id": "e01",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 4,
+          "y": 4,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 4,
+          "y": 5,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 7,
+          "y": 3,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 7,
+          "y": 6,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 8,
+          "y": 4,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 8,
+          "y": 5,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "elite_spear",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wu",
+          "x": 10,
+          "y": 3,
+          "level": 29,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e08",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wu",
+          "x": 10,
+          "y": 6,
+          "level": 28,
+          "aiMode": "charge",
+          "gold": 200
+        }
+      ],
+      "extraAllies": [
+        {
+          "id": "x_lady_sun",
+          "template": "lady_sun",
+          "x": 10,
+          "y": 4
+        }
+      ],
+      "victory": {
+        "type": "reachTile",
+        "unit": "zhaoyun",
+        "tiles": [
+          [
+            9,
+            4
+          ]
+        ],
+        "label": "공자선 승선로",
+        "requiredDefeated": [
+          "e_boss"
+        ]
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "zhaoyun"
+        },
+        {
+          "type": "unitLost",
+          "unit": "zhangfei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "x_lady_sun"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "강",
+      "brief": "조운과 장비가 호위선을 밀어내고 공자를 구한다. 손부인의 공자선은 공격할 수 없는 보호 대상이다. 호위선장을 격파한 뒤 조운이 J5 승선로에서 행동을 확정하면 승리한다. 좁은 널판길에서 장비의 철벽으로 궁노병을 막고 조운의 창으로 기병을 상대하라.",
+      "intermissionHint": "형주 방어전은 유비·황충·위연·관평이 반드시 출전한다. 정비에서 궁병·보병·창병으로 전열을 나누고, 주력만 독주하지 않도록 남은 두 자리를 보급과 책략으로 구성하라.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1,
+      "reinforcements": [
+        {
+          "id": "adou_reception",
+          "unitIds": [
+            "e07",
+            "e08"
+          ],
+          "trigger": {
+            "type": "enemyCountBelow",
+            "count": 3,
+            "minRound": 3,
+            "fallbackRound": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "s21_jingzhou_hold",
+      "title": "형주를 빌리다",
+      "era": "210년",
+      "location": "형주 북부 · 강을 사이에 두고",
+      "size": [
+        12,
+        10
+      ],
+      "act": 3,
+      "combatProfile": "act2",
+      "art": {
+        "mapId": "s21_jingzhou_hold",
+        "backgroundId": "bg_river",
+        "brief": "북쪽 다리와 남쪽 여울 두 길에서 위군이 동시에 밀려온다. 모든 초기 부대와 실제 도착한 후속 부대를 격파하면 승리한다. 관평으로 기병을 막고 위연으로 창병을 받아내며 황충이 뒤에서 엄호한다. 유비를 홀로 여울에 보내지 말고 책략과 보급으로 양쪽 전선을 유지하라."
+      },
+      "no": 21,
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "huangzhong",
+          "weiyan",
+          "guanping"
+        ],
+        "maxSortie": 6,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "terrain": [
+        "......#.....",
+        "......#...F.",
+        "....F..F....",
+        "............",
+        "......#.....",
+        "......#.....",
+        "............",
+        "....F..F....",
+        "......#...F.",
+        "......#....."
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "wei_commander",
+          "named": true,
+          "combatTier": "boss",
+          "faction": "wei",
+          "x": 10,
+          "y": 4,
+          "level": 32,
+          "aiMode": "charge",
+          "gold": 4000,
+          "boss": true,
+          "loot": [
+            "largeSupply"
+          ]
+        },
+        {
+          "id": "e01",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 2,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e02",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 3,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e03",
+          "template": "troop_infantry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 8,
+          "y": 4,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e04",
+          "template": "troop_archer",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 8,
+          "y": 2,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e05",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 8,
+          "y": 7,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e06",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 7,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e07",
+          "template": "troop_spear",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 7,
+          "y": 6,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e08",
+          "template": "troop_strategist",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 9,
+          "y": 5,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e09",
+          "template": "elite_infantry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 9,
+          "y": 3,
+          "level": 31,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e10",
+          "template": "elite_cavalry",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 9,
+          "y": 6,
+          "level": 31,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e11",
+          "template": "elite_spear",
+          "named": false,
+          "combatTier": "elite",
+          "faction": "wei",
+          "x": 10,
+          "y": 2,
+          "level": 31,
+          "aiMode": "charge",
+          "gold": 1000
+        },
+        {
+          "id": "e12",
+          "template": "troop_cavalry",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 11,
+          "y": 7,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        },
+        {
+          "id": "e13",
+          "template": "troop_crossbow",
+          "named": false,
+          "combatTier": "troop",
+          "faction": "wei",
+          "x": 11,
+          "y": 2,
+          "level": 30,
+          "aiMode": "charge",
+          "gold": 200
+        }
+      ],
+      "extraAllies": [],
+      "victory": {
+        "type": "defeatAll"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        }
+      ],
+      "phase": 3,
+      "blockedLabel": "강",
+      "brief": "북쪽 다리와 남쪽 여울 두 길에서 위군이 동시에 밀려온다. 모든 초기 부대와 실제 도착한 후속 부대를 격파하면 승리한다. 관평으로 기병을 막고 위연으로 창병을 받아내며 황충이 뒤에서 엄호한다. 유비를 홀로 여울에 보내지 말고 책략과 보급으로 양쪽 전선을 유지하라.",
+      "intermissionHint": "3막을 마치면 방통·마속·요화·유봉이 정규 군단에 합류한다. 이번 여정은 21장에서 끝나며 합류한 장수의 성장·정신기·병과·장비를 정비 화면에서 확인할 수 있다.",
+      "reward": {
+        "baseGold": 3000,
+        "note": "첫 승리와 전리품은 기존 영수증으로 한 번만 정산"
+      },
+      "battleEventsVersion": 1,
+      "reinforcements": [
+        {
+          "id": "jingzhou_ford",
+          "unitIds": [
+            "e12",
+            "e13"
+          ],
+          "trigger": {
+            "type": "enemyCountBelow",
+            "count": 7,
+            "minRound": 2,
+            "fallbackRound": 2
+          }
+        }
+      ]
+    }
+  ]
+}

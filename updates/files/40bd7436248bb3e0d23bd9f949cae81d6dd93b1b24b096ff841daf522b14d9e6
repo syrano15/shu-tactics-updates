@@ -1,0 +1,59 @@
+/* Wider battlefield workspace. Unit art, map dimensions and square tile rules stay in their own modules. */
+#game-main{width:100%;max-width:none;padding:22px clamp(10px,1.6vw,30px) 10px}
+body:not(.on-title) .masthead{padding-inline:clamp(10px,1.6vw,30px)}
+#battle-scene .battle-workspace{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"conditions" "map" "roster" "record"}
+#battle-scene .battle-map-column{grid-area:map;min-width:0}
+#battle-scene .battle-command-column{display:contents}
+#battle-scene #battle-conditions-host{grid-area:conditions;min-width:0}
+#battle-scene .bottom-bar{grid-area:roster}
+#battle-scene .battle-record{grid-area:record;min-width:0}
+#battle-scene .board-stage{min-width:0;padding:22px 24px;min-height:0}
+#battle-scene .board{max-width:none;width:100%}
+#battle-scene .field-top{flex-wrap:wrap}
+#battle-scene .legend{flex-wrap:wrap;row-gap:6px}
+#battle-scene #latest-log{overflow-wrap:anywhere}
+@media(min-width:1100px){
+ #battle-scene>.battlefield{border:0;background:none}
+ #battle-scene .battle-workspace{grid-template-columns:minmax(0,1fr) clamp(300px,24vw,420px);grid-template-areas:"map command";gap:18px;align-items:start}
+ #battle-scene .battle-command-column{display:block;grid-area:command;min-width:0}
+ #battle-scene .field-top{margin-bottom:14px;border:1px solid #4f5d42;background:#192b21;border-radius:4px;padding:11px 18px}
+ #battle-scene #board-stage{border:1px solid #4f5d42;border-bottom:0;background:#1c2a20}
+ #battle-scene #battle-conditions-host{border:1px solid #4f5d42;background:#14271e}
+ #battle-scene .battle-conditions{grid-template-columns:1fr;border:0;gap:14px;padding:15px 16px;font-size:13px;line-height:1.65}
+ #battle-scene .battle-conditions .battle-merit{border-top:1px solid #405344;padding-top:12px}
+ #battle-scene #battle-conditions-host .act2-brief{margin:0;border-inline:0;border-bottom:0;padding:14px 16px;border-radius:0}
+ #battle-scene #battle-conditions-host .act2-brief p{font-size:13px;line-height:1.75}
+ #battle-scene .field-bottom{border-inline:1px solid #4f5d42;border-bottom:1px solid #4f5d42;background:#17291f;padding:10px 14px}
+ #battle-scene #instruction{border:1px solid #4f5d42;border-top:0;border-radius:0 0 4px 4px}
+ #battle-scene .range-hint{border:1px solid #4f5d42;border-top:0}
+ #battle-scene .bottom-bar{display:flex;flex-direction:column;align-items:stretch;gap:14px;margin-top:14px;padding:16px;border:1px solid #4f5d42;border-radius:4px;background:#17291f;min-width:0}
+ #battle-scene .bottom-bar>div{width:100%;min-width:0}
+ #battle-scene .roster-heading{color:#d7b779;font-size:13px;margin-bottom:12px}
+ #battle-scene .roster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #battle-scene .roster button{min-width:0;gap:8px;padding:8px 10px;text-align:left}
+ #battle-scene .roster b{overflow-wrap:anywhere}
+ #battle-scene .end-turn{width:100%;min-width:0}
+ #battle-scene .battle-record{display:flex;flex-wrap:wrap;gap:7px;padding:12px 16px;margin-top:14px;border:1px solid #405344;border-radius:4px;background:#12231a}
+ #battle-scene .battle-record #latest-log{flex:1 1 100%;order:2;line-height:1.7}
+ #battle-scene .battle-record button{margin-left:auto}
+}
+@media(max-width:1099px){
+ #battle-scene .board-stage{padding:18px 20px}
+ #battle-scene .bottom-bar{flex-wrap:wrap}
+}
+@media(max-width:620px){
+ #game-main{padding:16px 10px 6px}
+ #battle-scene .board-stage{padding:14px 4px}
+ #game-main .battle-heading{flex-wrap:wrap}
+ #game-main .story-progress{width:100%;flex-wrap:wrap;gap:7px 10px}
+ #battle-scene .field-top{gap:7px}
+ #battle-scene .legend{column-gap:10px}
+ #battle-scene .field-bottom #tile-info{overflow-wrap:anywhere}
+ #battle-scene .bottom-bar{align-items:stretch}
+ #battle-scene .bottom-bar>div{min-width:0;flex:1 1 100%}
+ #battle-scene .end-turn{margin-left:auto}
+}
+/* Keep a free command area when a very narrow map cannot fit an adjacent target and the compact menu side by side. */
+@media(max-width:360px){
+ #battle-scene .board-stage:has(.unit-ui.compact:not([hidden])){padding-bottom:220px}
+}

@@ -1,0 +1,27 @@
+.battle-conditions{display:grid;grid-template-columns:1fr 1.2fr;gap:8px;padding:9px 12px;border-block:1px solid #405344;background:#112018ed;font-size:12px;line-height:1.45;color:#e3e6d7}
+.battle-conditions>div{min-width:0}.battle-conditions strong,.battle-conditions span,.battle-conditions small{display:block}.battle-conditions strong{color:#d8ba7b;font-size:12px;margin-bottom:2px}.battle-conditions span{word-break:keep-all}.battle-conditions small{color:#b5c2ad;font-size:11px;margin-top:2px}
+.battle-conditions em{font-style:normal;font-size:10px;font-weight:400;color:#afbeab;margin-left:7px}.battle-conditions .merit-reward{color:#dbc998}.battle-conditions .merit-ready em,.battle-conditions .merit-achieved em{color:#9bd9b0}.battle-conditions .merit-impossible em,.battle-conditions .merit-missed em{color:#eaa899}
+.phase-banner.turn-transition{inset:34% 0 auto;padding:17px 12px;z-index:14;color:#d7f2d6;background:linear-gradient(90deg,#153025de,#224a3cf5,#153025de);border-block:1px solid #92c5a3bb;font-size:clamp(18px,3vw,28px);letter-spacing:.1em;box-shadow:0 10px 28px #0008;animation:turn-arrive .2s ease-out;pointer-events:none}
+.phase-banner.turn-transition.turn-enemy{color:#ffe1c7;background:linear-gradient(90deg,#391f1cde,#583327f5,#391f1cde);border-color:#dcb09aaa}
+@keyframes turn-arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.phase-banner.turn-reduced-motion{animation:none}
+@media(prefers-reduced-motion:reduce){.phase-banner.turn-transition{animation:none}}
+@media(max-width:620px){.battle-conditions{grid-template-columns:1fr;gap:6px;padding:7px 9px;font-size:11px}.battle-conditions .battle-goal small{font-size:10px}.battle-conditions .battle-merit{border-top:1px solid #405344;padding-top:5px}.phase-banner.turn-transition{padding:13px 8px;font-size:18px}}
+
+/* Objective cues are presentation only; completion remains in the rules. */
+.battle-conditions .battle-goal-guide{grid-column:1/-1;padding:9px 10px;border:1px solid #927746;background:#2b301cd9;border-radius:3px}
+.battle-conditions .battle-goal-guide strong{font-size:13px;color:#ffe29d}.battle-conditions .battle-goal-guide span{color:#f2e5bd}.battle-conditions .battle-goal-guide small{color:#d7d8c0;line-height:1.6}
+.battle-conditions .battle-goal-guide.is-waiting{border-color:#dcb965;background:#3d351ae8}
+.goal-checks{list-style:none;margin:6px 0 0;padding:0;display:flex;gap:5px;flex-wrap:wrap}.goal-checks li{font-size:11px;padding:2px 6px;border:1px solid #827046;border-radius:3px;background:#1b271dc9}.goal-checks .is-met{border-color:#71aa88;color:#b8f0c9}.goal-checks .is-needed{color:#f2d996}
+.cell.exit-tile.goal-locked{box-shadow:inset 0 0 0 3px #b69551}.cell.exit-tile.goal-ready{box-shadow:inset 0 0 0 3px #ffe087}.cell.exit-tile.goal-arrived{outline:2px solid #ffe087;outline-offset:-5px}
+.goal-marker{position:absolute;right:2px;top:2px;display:grid;gap:0;max-width:calc(100% - 4px);padding:1px 4px;border:1px solid #e9c676;border-radius:2px;background:#252719f2;color:#ffe6a4;font-size:9px;line-height:1.3;text-align:center;z-index:4;pointer-events:none}
+.goal-marker b{font-size:10px}.goal-tile-name{white-space:normal;word-break:keep-all}.goal-ready .goal-marker{animation:goal-marker-pulse 1.5s ease-in-out infinite}.goal-locked .goal-marker{color:#e0c996;border-color:#a58b53}
+@keyframes goal-marker-pulse{0%,100%{box-shadow:0 0 0 1px #ffe08755,0 0 4px #ffe08755}50%{box-shadow:0 0 0 2px #ffe087cc,0 0 9px #ffe08799}}
+@media(max-width:620px){.battle-conditions .battle-goal-guide{padding:7px 8px}.battle-conditions .battle-goal-guide strong{font-size:12px}.goal-marker{right:1px;top:1px;padding:0 2px}.goal-marker b{font-size:8px}.goal-tile-name{display:none}.goal-checks li{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.goal-ready .goal-marker{animation:none;box-shadow:0 0 0 1px #ffe08799}}
+/* Turn banners belong to the visible viewport, including when End Turn is below the map. */
+.phase-banner.turn-transition{position:fixed;inset:45vh 12px auto;inset:45dvh 12px auto;width:auto;max-width:960px;margin:0 auto;z-index:60}
+
+.battle-conditions .battle-survival{grid-column:1/-1;padding-top:5px;border-top:1px solid #405344}.battle-conditions .battle-survival strong{color:#abd9ad}
+
+.battle-equipment-drops{grid-column:1/-1;padding:12px 14px;border-top:1px solid #536345;background:#15241c}.battle-equipment-drops>strong{color:#d9bc76}.battle-equipment-drops ul{list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}.battle-equipment-drops li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px 12px}.battle-equipment-drops li small{color:#aab6a2}.battle-equipment-drops .drop-earned small{color:#8ec8a4}.battle-equipment-drops .drop-missed{opacity:.6}

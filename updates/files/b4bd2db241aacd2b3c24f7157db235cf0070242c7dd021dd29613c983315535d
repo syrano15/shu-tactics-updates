@@ -1,0 +1,36 @@
+import {HERO_DATA} from './heroes.js';
+import {storyUnitSurvived} from './campaign-events.js';
+import {regularRewards,regularRewardHero,survivalParticipants,validateRegularRewardsVersion} from './regular-rewards.js';
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const ensure=(ok,message='전원 생존 보너스 기록이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+const unique=ids=>Array.isArray(ids)&&ids.length<=80&&new Set(ids).size===ids.length&&ids.every(id=>typeof id==='string'&&/^[-a-zA-Z0-9_]{1,100}$/.test(id));
+export const survivalBonusGold=scenario=>scenario?.act===4?4000:1000*Math.min(3,Math.max(1,Number(scenario?.act)||1));
+export function survivalBonusStatus(state,scenario){
+ if(state?.survivalBonusVersion!==1)return null;
+ const participants=survivalParticipants(state),participantIds=participants.map(u=>u.id),records=state.battleRecords;
+ const lost=new Set(records?.retreatedIds??[]);
+ for(const defeat of records?.defeats??[])if(participantIds.includes(defeat.targetId))lost.add(defeat.targetId);
+ for(const unit of participants)if(records?.minHpRatios?.[unit.id]===0||!storyUnitSurvived(state,unit))lost.add(unit.id);
+ const retreatedIds=participantIds.filter(id=>lost.has(id)),eligible=participants.length>0&&retreatedIds.length===0&&participants.every(u=>storyUnitSurvived(state,u));
+ return {id:'survival_'+scenario.id,name:'전원 생존 보너스',condition:regularRewards(state)?'정규 출전 장수 전원 생존 · 의병·게스트 제외':'출전 아군 전원 생존 · 퇴각 없음',gold:survivalBonusGold(scenario),achieved:state.result==='victory'&&eligible,eligible,participantIds,retreatedIds};
+}
+export function validateSurvivalBonusReceipt(receipt,scenario=null){
+ validateRegularRewardsVersion(receipt);
+ if(receipt.survivalBonusVersion===undefined){ensure(receipt.survivalBonus===undefined);return;}
+ const bonus=receipt.survivalBonus;
+ ensure(receipt.survivalBonusVersion===1&&object(bonus)&&same(Object.keys(bonus).sort(),['id','name','condition','gold','achieved','eligible','participantIds','retreatedIds'].sort()));
+ ensure(typeof bonus.id==='string'&&/^survival_[-a-zA-Z0-9_]{1,100}$/.test(bonus.id)&&typeof bonus.name==='string'&&bonus.name.length>0&&bonus.name.length<=100&&typeof bonus.condition==='string'&&bonus.condition.length>0&&bonus.condition.length<=500);
+ ensure([1000,2000,3000,4000].includes(bonus.gold)&&typeof bonus.achieved==='boolean'&&bonus.eligible===bonus.achieved&&unique(bonus.participantIds)&&bonus.participantIds.length>0&&unique(bonus.retreatedIds)&&bonus.retreatedIds.every(id=>bonus.participantIds.includes(id))&&bonus.achieved===(bonus.retreatedIds.length===0));
+ if(regularRewards(receipt))ensure(bonus.condition==='정규 출전 장수 전원 생존 · 의병·게스트 제외'&&bonus.participantIds.every(regularRewardHero));
+ if(scenario){const allowed=new Set([...Object.keys(HERO_DATA),...(scenario.extraAllies??[]).map(u=>u.id)]);ensure(bonus.id==='survival_'+scenario.id&&bonus.gold===survivalBonusGold(scenario)&&bonus.participantIds.every(id=>allowed.has(id)));}
+}
+export function validateSurvivalBonusRecords(state){
+ validateRegularRewardsVersion(state);
+ ensure(state.survivalBonusVersion===undefined||state.survivalBonusVersion===1);
+ if(state.survivalBonusVersion!==1)return;
+ const records=state.battleRecords,allies=state.units.filter(u=>u.team==='ally'),ids=new Set(allies.map(u=>u.id));
+ ensure(records.retreatedIds.every(id=>ids.has(id)));
+ for(const defeat of records.defeats)if(ids.has(defeat.targetId))ensure(records.retreatedIds.includes(defeat.targetId)&&records.minHpRatios[defeat.targetId]===0,'아군 퇴각 이력이 누락되었습니다.');
+ for(const unit of allies)if(records.minHpRatios[unit.id]===0)ensure(records.retreatedIds.includes(unit.id),'아군 퇴각 이력이 누락되었습니다.');
+}

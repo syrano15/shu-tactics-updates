@@ -1,0 +1,18 @@
+import {UNIT_TEMPLATES} from './roster.js';
+
+const chapters=new Set(['s01_zhuoxian','s02_yellow_camp']);
+export const openingPressureApplies=scenario=>scenario?.campaignLayoutVersion===1&&chapters.has(scenario.id);
+export function openingPressureExcludedIds(scenario){
+ if(!openingPressureApplies(scenario))return [];
+ const ordinary=scenario.enemies.filter(e=>e.id.startsWith('layout_e')&&!e.boss&&UNIT_TEMPLATES[e.templateId]?.generic&&(!e.combatTier||['troop','elite'].includes(e.combatTier)));
+ if(ordinary.length<2)throw new Error('초반 전장의 일반 적 편성을 확인하세요.');
+ return ordinary.slice(-2).map(e=>e.id);
+}
+// Keep source orders for old saves and loot validation; only new sorties use
+// the lighter opening formation. Existing battles retain their original units.
+export function openingPressureOrders(scenario,orders,version=1){
+ if(![0,1].includes(version))throw new Error('초반 적 편성 버전이 올바르지 않습니다.');
+ if(version===0||!openingPressureApplies(scenario))return orders;
+ const excluded=new Set(openingPressureExcludedIds(scenario));
+ return orders.filter(order=>!excluded.has(order.id));
+}

@@ -1,0 +1,41 @@
+import {HERO_DATA} from './heroes.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {storyUnitSurvived} from './campaign-events.js';
+import {regularRewards,regularRewardHero,survivalParticipants,validateRegularRewardsVersion} from './regular-rewards.js';
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const ensure=(ok,message='생존 부대 보상 기록이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+const unique=ids=>Array.isArray(ids)&&ids.length<=80&&new Set(ids).size===ids.length&&ids.every(id=>typeof id==='string'&&/^[-a-zA-Z0-9_]{1,100}$/.test(id));
+export const survivorRewardGold=scenario=>500;
+const rewardCondition=(gold,regular=false)=>regular?'정규 출전 장수 생존 · 장수당 '+gold+'골 · 의병·게스트 제외':'실제 출전 전투 부대 생존 · 부대당 '+gold+'골';
+// Only units that actually reached the battlefield participate. Escort vehicles
+// are protected objectives, not combat units; a scheduled story exit is survival.
+export function survivorRewardStatus(state,scenario){
+ if(state?.survivorRewardVersion!==1)return null;
+ const participants=survivalParticipants(state,{combatOnly:true}),participantIds=participants.map(unit=>unit.id),records=state.battleRecords;
+ const lost=new Set(records?.retreatedIds??[]);
+ for(const defeat of records?.defeats??[])if(participantIds.includes(defeat.targetId))lost.add(defeat.targetId);
+ for(const unit of participants)if(records?.minHpRatios?.[unit.id]===0||!storyUnitSurvived(state,unit))lost.add(unit.id);
+ const retreatedIds=participantIds.filter(id=>lost.has(id)),survivorIds=participantIds.filter(id=>!lost.has(id)),goldPerUnit=survivorRewardGold(scenario);
+ return {id:'survivors_'+scenario.id,name:'생존 부대 보상',condition:rewardCondition(goldPerUnit,regularRewards(state)),goldPerUnit,gold:survivorIds.length*goldPerUnit,achieved:state.result==='victory',participantIds,survivorIds,retreatedIds};
+}
+export function validateSurvivorRewardReceipt(receipt,scenario=null){
+ validateRegularRewardsVersion(receipt);
+ if(receipt.survivorRewardVersion===undefined){ensure(receipt.survivorReward===undefined);return;}
+ const reward=receipt.survivorReward;
+ ensure(receipt.survivorRewardVersion===1&&object(reward)&&same(Object.keys(reward).sort(),['id','name','condition','goldPerUnit','gold','achieved','participantIds','survivorIds','retreatedIds'].sort()));
+ ensure(typeof reward.id==='string'&&/^survivors_[-a-zA-Z0-9_]{1,100}$/.test(reward.id)&&reward.name==='생존 부대 보상'&&reward.goldPerUnit===survivorRewardGold(scenario)&&reward.condition===rewardCondition(reward.goldPerUnit,regularRewards(receipt))&&reward.achieved===true);
+ ensure(unique(reward.participantIds)&&unique(reward.survivorIds)&&unique(reward.retreatedIds)&&reward.retreatedIds.every(id=>reward.participantIds.includes(id)));
+ const lost=new Set(reward.retreatedIds);ensure(same(reward.survivorIds,reward.participantIds.filter(id=>!lost.has(id)))&&reward.gold===reward.survivorIds.length*reward.goldPerUnit);
+ if(regularRewards(receipt))ensure(reward.participantIds.every(regularRewardHero));
+ if(scenario){const allowed=new Set([...Object.keys(HERO_DATA),...(scenario.extraAllies??[]).filter(unit=>!UNIT_TEMPLATES[unit.templateId]?.nonCombat).map(unit=>unit.id)]);ensure(reward.id==='survivors_'+scenario.id&&reward.participantIds.every(id=>allowed.has(id)));}
+}
+export function validateSurvivorRewardRecords(state){
+ validateRegularRewardsVersion(state);
+ ensure(state.survivorRewardVersion===undefined||state.survivorRewardVersion===1);
+ if(state.survivorRewardVersion!==1)return;
+ const records=state.battleRecords,ids=new Set(state.units.filter(unit=>unit.team==='ally').map(unit=>unit.id));
+ ensure(records.retreatedIds.every(id=>ids.has(id)));
+ for(const defeat of records.defeats)if(ids.has(defeat.targetId))ensure(records.retreatedIds.includes(defeat.targetId)&&records.minHpRatios[defeat.targetId]===0,'아군 퇴각 이력이 누락되었습니다.');
+ for(const unit of state.units.filter(unit=>unit.team==='ally'))if(records.minHpRatios[unit.id]===0)ensure(records.retreatedIds.includes(unit.id),'아군 퇴각 이력이 누락되었습니다.');
+}

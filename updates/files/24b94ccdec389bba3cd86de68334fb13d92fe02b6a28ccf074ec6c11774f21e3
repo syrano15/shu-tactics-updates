@@ -1,0 +1,15 @@
+// A replay stays within one completed chapter; it does not advance the main journey.
+export const isReplayState=state=>typeof state?.replayChapterId==='string';
+const ensure=(ok,message)=>{if(!ok)throw new Error('재도전 저장 오류: '+message);};
+export function validateReplaySave(state,chapter,army){
+ if(state.replayChapterId===undefined){ensure(state.replayDepartedGuests===undefined,'재도전 장 기록 없이 동행 기록이 있습니다.');return;}
+ ensure(state.replayChapterId===chapter.id,'재도전 장이 현재 전투와 다릅니다.');
+ ensure(Array.isArray(state.replayDepartedGuests)&&new Set(state.replayDepartedGuests).size===state.replayDepartedGuests.length&&state.replayDepartedGuests.every(id=>(chapter.fixedGuests??[]).includes(id)&&army.heroes[id]&&state.units.some(u=>u.id===id&&u.team==='ally'&&!u.extra)),'임시 동행 복원 목록이 올바르지 않습니다.');
+ ensure(army.claimed.includes(chapter.id)&&army.rewardReceipts?.[chapter.id],'재도전의 무보상 정산 기록이 없습니다.');
+ for(const id of state.replayDepartedGuests)ensure(army.heroes[id].departed===(state.result!==null),'임시 복귀 장수의 이탈 상태가 다릅니다.');
+}
+export function restoreReplayGuests(state,army){
+ if(!isReplayState(state)||state.result===null)return;
+ for(const id of state.replayDepartedGuests??[])if(army.heroes[id])army.heroes[id].departed=true;
+}
+

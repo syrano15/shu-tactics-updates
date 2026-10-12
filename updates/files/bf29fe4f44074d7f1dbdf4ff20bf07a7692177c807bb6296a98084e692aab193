@@ -1,0 +1,8 @@
+export function mapSize(terrain,campaignLayoutVersion=0){
+ const expanded=campaignLayoutVersion===1;
+ if(![0,1].includes(campaignLayoutVersion))throw new Error('맵 배치 버전이 올바르지 않습니다.');
+ if(!Array.isArray(terrain)||terrain.length<8||terrain.length>(expanded?20:10))throw new Error(expanded?'확대 맵 세로는 8~20칸이어야 합니다.':'맵 세로는 8~10칸이어야 합니다.');
+ const width=terrain[0]?.length;
+ if(!Number.isInteger(width)||width<10||width>(expanded?26:12)||terrain.some(r=>typeof r!=='string'||r.length!==width||!/^[.F#]+$/.test(r)))throw new Error(expanded?'확대 맵 가로는 10~26칸, 모든 행의 길이와 지형 문자가 유효해야 합니다.':'맵 가로는 10~12칸, 모든 행의 길이와 지형 문자가 유효해야 합니다.');
+ return {width,height:terrain.length};
+}

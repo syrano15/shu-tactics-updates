@@ -1,0 +1,10 @@
+/* Art and typography entry point. Set --title-art to url('./art/title.webp') later. */
+:root {
+  --font-body: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-heading: 'Noto Serif KR', 'Batang', serif;
+  --title-art: none;
+  --bg: #101915;
+  --gold: #d7b779;
+}
+body { font-family: var(--font-body); }
+button,input,select { font-family: inherit; }

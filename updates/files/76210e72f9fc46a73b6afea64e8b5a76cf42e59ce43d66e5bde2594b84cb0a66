@@ -1,0 +1,23 @@
+import {CHAPTERS} from './campaign.js';
+import {normalizeBattleFeatures,recordDefeatLoot} from './battle-rewards.js';
+export function initBattleRecords(state){return normalizeBattleFeatures(state).battleRecords;}
+export function recordBattleAction(state,actor,target,result,beforeHP){
+ const records=initBattleRecords(state);
+ if(!actor||!target||actor.id===target.id||!Number.isFinite(beforeHP)||beforeHP<=0)return null;
+ const finalHP=Number.isFinite(result.targetHp)?result.targetHp:Math.max(0,beforeHP-(result.hit??0));
+ if(!result.counter){const pair=[actor.id,target.id].sort().join('|');records.engagements[pair]=(records.engagements[pair]??0)+1;}
+ if(beforeHP>finalHP)records.hitCounts[target.id]=(records.hitCounts[target.id]??0)+1;
+ records.minHpRatios[target.id]=Math.min(records.minHpRatios[target.id]??1,finalHP/target.maxHp);
+ if(finalHP===0&&!records.defeats.some(d=>d.targetId===target.id)){
+  records.defeats.push({actorId:actor.id,targetId:target.id,round:state.round,critical:!!result.critical});
+  if(target.team==='ally'&&!records.retreatedIds.includes(target.id))records.retreatedIds.push(target.id);
+  const scenario=state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter];
+  return recordDefeatLoot(state,actor,{...target,hp:0},scenario);
+ }
+ return null;
+}
+export function recordBattleRound(state){
+ const records=initBattleRecords(state);
+ for(const unit of state.units.filter(u=>!u.withdrawn))records.minHpRatios[unit.id]=Math.min(records.minHpRatios[unit.id]??1,unit.hp/unit.maxHp);
+ return records;
+}

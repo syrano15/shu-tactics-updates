@@ -1,0 +1,12 @@
+const COLORS={guanyu:'#79e8a4',zhangfei:'#ff6254',zhaoyun:'#a6dfff',zhugeliang:'#cbb3ff',xushu:'#cbb3ff'};
+export function promotionVisual(unit){
+ const rank=unit?.team==='ally'&&!unit.extra?Math.max(0,Math.min(2,unit.promotion??0)):0;
+ return {rank,label:rank===2?'정예':rank===1?'강화':'기본',color:COLORS[unit?.id]??(unit?.cls==='strategist'?'#cbb3ff':'#f6cf72')};
+}
+export function promotionAuraHTML(unit){
+ const v=promotionVisual(unit);if(!v.rank)return '';
+ return '<span aria-hidden="true" class="promotion-aura promotion-rank-'+v.rank+'" style="--promotion-color:'+v.color+'"><i></i><i></i><i></i></span><span aria-hidden="true" class="promotion-rank-mark">'+v.label+'</span>';
+}
+export function applyPromotionVisual(node,unit){
+ const v=promotionVisual(unit);node.dataset.promotionRank=String(v.rank);node.style.setProperty('--promotion-color',v.color);return v;
+}

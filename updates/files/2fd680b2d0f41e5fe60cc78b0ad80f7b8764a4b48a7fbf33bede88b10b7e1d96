@@ -1,0 +1,276 @@
+import {validateTerrainEffect} from './terrain-effects.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {installEnemyProgressionTemplates} from './enemy-progression.js';
+import {PARTS} from './equipment.js';
+import {CHAPTERS,CHARACTERS} from './campaign.js';
+import {DEFAULT_BALANCE} from './balance.js';
+import {validateStoryEvents} from './story-events.js';
+import {mapSize} from './maps.js';
+import {PORTRAIT_FACES} from './story-assets.js';
+export const FACTION_NAMES={yellow:'황건군',dong:'동탁군',cao:'조조군',lu:'여포군',shu:'촉군',wei:'위군',wu:'오군',yuan:'원소군'};
+const assert=(ok,message)=>{if(!ok)throw new Error('장 데이터 오류: '+message);};
+const object=v=>v&&typeof v==='object'&&!Array.isArray(v);
+const plainText=v=>typeof v==='string'&&v.length>0&&!/[<>]/.test(v);
+// v1 manuscripts have no speakers map. Known story names are provided explicitly.
+const names={...Object.fromEntries(Object.entries(UNIT_TEMPLATES).map(([id,u])=>[id,u.name])),narrator:'내레이션',caocao:'조조',lvbu:'여포',dongzhuo:'동탁',kongrong:'공융',taoqian:'도겸',huaxiong:'화웅',guanhai:'관해',yellow_boss:'황건 두목'};
+export function readDialogue(doc,legacySpeakers=names){
+ assert(object(doc)&&[1,2,3].includes(doc.schemaVersion)&&Array.isArray(doc.chapters),'대사 형식');
+ const speakers=doc.schemaVersion>=2?doc.speakers:legacySpeakers;
+ assert(object(speakers)&&Object.keys(speakers).length>0&&Object.entries(speakers).every(([id,name])=>/^[a-z][a-z0-9_]*$/.test(id)&&plainText(name)),'화자 목록');
+ const v3=doc.schemaVersion===3,seen=new Set();
+ const asset=(value,prefix)=>typeof value==='string'&&new RegExp('^'+prefix+'_[a-z0-9_]+$').test(value);
+ const keys=(value,allowed,label)=>assert(object(value)&&Object.keys(value).every(key=>allowed.includes(key)),label);
+ const fx=value=>{
+  keys(value,['id','unit','tile','at'],'맵 효과 항목');assert(asset(value.id,'fx'),'맵 효과 ID');
+  assert(!(Object.hasOwn(value,'unit')&&Object.hasOwn(value,'tile')),'맵 효과 대상 중복');
+  if(Object.hasOwn(value,'unit'))assert(typeof value.unit==='string'&&/^[a-z][a-z0-9_]*$/.test(value.unit),'맵 효과 부대');
+  if(Object.hasOwn(value,'tile'))assert(Array.isArray(value.tile)&&value.tile.length===2&&value.tile.every(n=>Number.isInteger(n)&&n>=0),'맵 효과 좌표');
+  if(Object.hasOwn(value,'at'))assert(['before','after'].includes(value.at),'맵 효과 시점');
+ };
+ const section=(lines,isEvent=false)=>{
+  assert(Array.isArray(lines)&&lines.length>0&&lines.length<=(isEvent?4:200),'대사 줄 수');
+  let cg=null;
+  for(const line of lines){
+   assert(object(line)&&Object.hasOwn(speakers,line.speaker)&&plainText(line.text),'알 수 없는 화자 또는 대사');
+   if(!v3)continue;
+   keys(line,['speaker','text','cg','face','bg','cutin'],'대사 항목');
+   assert(line.text.length>=20&&line.text.length<=75&&line.text===line.text.trim()&&!/[\n\r\t]/.test(line.text),'대사 길이/공백');
+   if(Object.hasOwn(line,'cg')){assert(line.cg===null||asset(line.cg,'cg'),'CG ID');cg=line.cg;}
+   if(Object.hasOwn(line,'face'))assert(PORTRAIT_FACES.includes(line.face),'표정');
+   if(Object.hasOwn(line,'bg'))assert(asset(line.bg,'bg'),'대사 배경');
+   if(Object.hasOwn(line,'cutin'))assert(isEvent&&line.cutin===true,'컷인은 이벤트에만 사용');
+  }
+  if(v3)assert(cg===null,'구역/이벤트 끝의 CG 닫기 누락');
+ };
+ for(const ch of doc.chapters){
+  assert(plainText(ch.id)&&!seen.has(ch.id)&&plainText(ch.title)&&plainText(ch.location),'장 이름/중복');seen.add(ch.id);
+  if(v3){
+   keys(ch,['id','title','location','pre','post','defeat','events','era','actMap','fate','bg','bgm','victoryFx'],'장 항목');
+   if(Object.hasOwn(ch,'era'))assert(typeof ch.era==='string'&&ch.era.length>0&&ch.era.length<=10&&plainText(ch.era),'연도');
+   if(Object.hasOwn(ch,'actMap'))assert(asset(ch.actMap,'map'),'막 지도');
+   if(Object.hasOwn(ch,'fate')){keys(ch.fate,['front','back'],'운명 카드 항목');for(const key of ['front','back'])assert(plainText(ch.fate[key])&&ch.fate[key].length<=60,'운명 카드 문구');}
+   for(const [field,allowed,prefix] of [['bg',['pre','post','defeat'],'bg'],['bgm',['pre','battle','post'],'bgm']])if(Object.hasOwn(ch,field)){keys(ch[field],allowed,field+' 항목');assert(Object.values(ch[field]).every(value=>asset(value,prefix)),field+' ID');}
+   if(Object.hasOwn(ch,'victoryFx'))fx(ch.victoryFx);
+  }
+  for(const phase of ['pre','post',...(doc.schemaVersion>=2?['defeat']:[])])section(ch[phase]);
+  if(ch.events!==undefined){
+   assert(Array.isArray(ch.events)&&ch.events.length<=100,'이벤트 목록');
+   const triggerIds=new Set();
+   for(const ev of ch.events){
+    assert(object(ev),'이벤트');
+    if(v3){
+     keys(ev,['trigger','lines','fx','bgm','requiresAlive','requiresEnemy','terrainEffect','withdrawal'],'이벤트 항목');
+     const t=ev.trigger,allowed={battleStart:['type'],roundStart:['type','round'],unitDefeated:['type','unit'],unitTroopsBelow:['type','unit','ratio'],unitEngaged:['type','unit'],enemyCountBelow:['type','count','minRound','fallbackRound','unit'],reinforcementArrived:['type','wave']}[t?.type];
+     assert(allowed,'이벤트 트리거');keys(t,allowed,'이벤트 트리거 항목');
+     if(t.type==='roundStart')assert(Number.isInteger(t.round)&&t.round>=1,'이벤트 라운드');
+     if(ev.requiresAlive!==undefined)assert(Array.isArray(ev.requiresAlive)&&ev.requiresAlive.every(id=>/^[a-z][a-z0-9_]*$/.test(id)),'필수 생존 부대');
+     if(ev.requiresEnemy!==undefined)assert(typeof ev.requiresEnemy==='boolean','적 생존 조건');
+     if(ev.terrainEffect!==undefined)validateTerrainEffect(ev.terrainEffect,Object.keys(speakers));
+     if(ev.withdrawal!==undefined){keys(ev.withdrawal,['unit'],'이탈 부대 항목');assert(typeof ev.withdrawal.unit==='string'&&Object.hasOwn(speakers,ev.withdrawal.unit)&&t.type==='roundStart','이탈 부대/시점');}
+     if(t.type.startsWith('unit'))assert(typeof t.unit==='string'&&/^[a-z][a-z0-9_]*$/.test(t.unit),'이벤트 부대 ID');
+     if(t.type==='unitTroopsBelow')assert(Number.isFinite(t.ratio)&&t.ratio>0&&t.ratio<1,'이벤트 병력 비율');
+     const triggerId=JSON.stringify(t);assert(!triggerIds.has(triggerId),'이벤트 트리거 중복');triggerIds.add(triggerId);
+     if(Object.hasOwn(ev,'fx'))fx(ev.fx);
+     if(Object.hasOwn(ev,'bgm'))assert(asset(ev.bgm,'bgm'),'이벤트 BGM ID');
+    }
+    section(ev.lines,true);
+   }
+  }
+ }
+ return {speakers:structuredClone(speakers),chapters:structuredClone(doc.chapters)};
+}
+export const COMPARISON_DATA_VERSION='v018-act1';
+const removableSupport=new Set(['militia_inf','militia_arc','coal_cav','coal_arc']);
+export function comparisonStages(stages,comparison){
+ const copy=structuredClone(stages);
+ if(!comparison)return copy;
+ assert(object(comparison)&&['A','B'].includes(comparison.variant)&&Number.isInteger(comparison.seed)&&comparison.seed>=0&&comparison.seed<=0xffffffff,'비교 조건');
+ if(comparison.variant==='B')for(const stage of copy.stages)stage.extraAllies=stage.extraAllies.filter(unit=>!removableSupport.has(unit.template));
+ return copy;
+}function template(t,extra=false){
+ assert(object(t)&&Object.hasOwn(DEFAULT_BALANCE.classes,t.class)&&plainText(t.name),'부대 원본');
+ for(const k of ['troops','attack','defense','intellect','move'])assert(Number.isInteger(t[k])&&t[k]>=0,'부대 수치');
+ return {name:t.name,han:t.name[0],cls:t.class,hpBonus:0,atkBonus:0,playable:false,generic:false,...(extra?{extra:true}:{}),baseStats:{hp:t.troops,atk:t.attack,def:t.defense,int:t.intellect,move:t.move}};
+}
+function equipmentDropMetadata(stage,enemies,extraAllies){
+ const drops=structuredClone(stage.equipmentDrops??[]);
+ assert(Array.isArray(drops)&&drops.length<=8,'조건 장비 목록');
+ const available=id=>UNIT_TEMPLATES[id]?.playable&&!stage.sortie.unavailable.includes(id)&&(!stage.sortie.fixed||stage.sortie.required.includes(id)||stage.sortie.fixedGuests?.includes(id))||extraAllies.some(unit=>unit.id===id);
+ for(const drop of drops)assert(object(drop)&&Object.keys(drop).every(key=>['targetId','actorId','itemId','condition'].includes(key))&&enemies.some(unit=>unit.id===drop.targetId)&&Object.hasOwn(PARTS,drop.itemId)&&plainText(drop.condition)&&(drop.actorId===undefined||available(drop.actorId)),'조건 장비 대상/출전 장수');
+ assert(new Set(drops.map(drop=>[drop.targetId,drop.actorId??'',drop.itemId].join(':'))).size===drops.length,'조건 장비 중복');
+ return drops.length?{equipmentDrops:drops}:{};
+}
+export function installAct1(stages,dialogue,{comparison=null}={}){
+ stages=comparisonStages(stages,comparison);
+ assert(stages.schemaVersion===1&&Array.isArray(stages.stages),'스테이지 형식');
+ const story=readDialogue(dialogue),templates={};
+ for(const [id,t] of Object.entries(stages.namedEnemyTemplates))templates['act1_'+id]=template(t);
+ for(const [id,t] of Object.entries(stages.extraAllyTemplates))templates['act1_extra_'+id]=template(t,true);
+ for(const [cls,c] of Object.entries(DEFAULT_BALANCE.classes))templates['act1_generic_'+cls]={name:c.name,han:c.name[0],cls,hpBonus:0,atkBonus:0,playable:false,generic:true};
+ const result=stages.stages.map(s=>{
+  const d=story.chapters.find(c=>c.id===s.id);assert(d,'장 대사 누락');validateStoryEvents(d.events??[],[...s.sortie.required,...s.enemies.map(e=>e.id),...s.extraAllies.map(e=>e.id)]);const size=mapSize(s.terrain);assert(s.size[0]===size.width&&s.size[1]===size.height,'맵 크기');
+  const enemies=s.enemies.map(e=>{const templateId='act1_'+e.template;assert(templates[templateId]&&!templates[templateId].extra,'적 원본');assert(Object.hasOwn(FACTION_NAMES,e.faction)&&['charge','hold'].includes(e.aiMode),'적 진영/AI');return {id:e.id,templateId,position:[e.x,e.y],level:e.level,aiMode:e.aiMode,faction:e.faction};});
+  const extraAllies=s.extraAllies.map(e=>{const templateId='act1_extra_'+e.template;assert(templates[templateId],'추가 아군 원본');return {id:e.id,templateId,position:[e.x,e.y]};});
+  assert(['defeatAll','defeatUnit','surviveRounds','reachTile'].includes(s.victory.type),'승리 조건');
+  return {id:s.id,contentVersion:1,aliases:[],title:d.title,location:d.location,subtitle:'1막 의용 · '+d.title,rosterMode:'story',lockRequired:true,positionLocked:s.sortie.fixed?[...s.sortie.required]:s.sortie.required.filter(id=>id==='liubei'),
+   ...structuredClone(s.sortie),terrain:[...s.terrain],allyPositions:structuredClone(s.allySlots),enemies,extraAllies,...equipmentDropMetadata(s,enemies,extraAllies),
+   objective:s.victory.type==='defeatUnit'?{type:'defeatUnit',targetId:s.victory.unit}:structuredClone(s.victory),defeat:structuredClone(s.defeat),
+   era:d.era,actMap:d.actMap,fate:structuredClone(d.fate),bg:structuredClone(d.bg),bgm:structuredClone(d.bgm),victoryFx:structuredClone(d.victoryFx),episodeTitle:dialogue.episodeTitle,
+   ...(comparison?{comparison:{variant:comparison.variant,seed:comparison.seed,dataVersion:COMPARISON_DATA_VERSION}}:{}),
+   events:d.events??[],pre:d.pre,post:d.post,defeatDialogue:d.defeat??[],speakers:story.speakers,enemyLabel:FACTION_NAMES[s.enemies[0].faction]};
+ });
+ assert(result.length===6&&new Set(result.map(s=>s.id)).size===6,'1막 장 수');
+ installEnemyProgressionTemplates(templates);Object.assign(UNIT_TEMPLATES,templates);
+ for(const [id,name] of Object.entries(story.speakers))CHARACTERS[id]={...CHARACTERS[id],name,title:'',han:name[0],side:'left'};
+ CHAPTERS.splice(0,CHAPTERS.length,...result);return result;
+}
+
+export function comparisonFromSearch(search=''){
+ const query=new URLSearchParams(search),variant=query.get('compare');
+ if(!variant)return null;
+ assert(['A','B'].includes(variant),'비교는 A 또는 B');
+ const input=query.get('seed')??'20261006';
+ assert(/^\d+$/.test(input)&&Number.isSafeInteger(Number(input))&&Number(input)>=0&&Number(input)<=0xffffffff,'비교 난수 시드');
+ return {variant,seed:Number(input),dataVersion:COMPARISON_DATA_VERSION};
+}
+
+// Act 1 keeps its six-chapter installer and comparison contract. The main game
+// appends Act 2 only after the same immutable Act 1 scenarios are installed.
+export function appendAct2(stages,dialogue){
+ assert(stages?.schemaVersion===1&&Array.isArray(stages.stages)&&stages.stages.length===7,'2막 스테이지 형식/장 수');
+ assert(CHAPTERS.length===6&&CHAPTERS[5]?.id==='s06_xuzhou_fall','2막은 1막 다음에 연결');
+ const story=readDialogue(dialogue),templates={},tiers=['troop','elite','officer','boss'];
+ assert(story.chapters.length===7,'2막 원고 장 수');
+ for(const [id,t] of Object.entries(stages.namedEnemyTemplates??{})){
+  assert(tiers.includes(t.combatTier),'2막 적 등급');
+  templates['act2_'+id]={...template(t),combatTier:t.combatTier};
+ }
+ for(const [id,t] of Object.entries(stages.extraAllyTemplates??{}))templates['act2_extra_'+id]={...template(t,true),...(t.nonCombat===true?{nonCombat:true}:{})};
+ const seen=new Set(CHAPTERS.map(ch=>ch.id));
+ const result=stages.stages.map((s,i)=>{
+  assert(plainText(s.id)&&!seen.has(s.id)&&s.act===2&&s.combatProfile==='act2'&&s.no===i+7,'2막 장 ID/순서/프로필');seen.add(s.id);
+  const d=story.chapters.find(c=>c.id===s.id);assert(d,'2막 장 대사 누락');
+  assert(object(s.sortie)&&Array.isArray(s.sortie.required)&&Array.isArray(s.sortie.unavailable)&&typeof s.sortie.fixed==='boolean'&&Number.isInteger(s.sortie.maxSortie)&&s.sortie.maxSortie>=1,'2막 편성');
+  const fixedGuests=s.sortie.fixedGuests??[],regularMax=s.sortie.regularSortie??s.sortie.maxSortie;
+  assert(Array.isArray(fixedGuests)&&new Set(fixedGuests).size===fixedGuests.length&&Number.isInteger(regularMax)&&regularMax>=1&&regularMax<=6&&s.sortie.maxSortie===regularMax+fixedGuests.length&&s.sortie.required.length<=regularMax&&fixedGuests.every(id=>UNIT_TEMPLATES[id]?.playable&&!s.sortie.required.includes(id)&&!s.sortie.unavailable.includes(id)),'2막 고정 동행 편성');
+  assert(s.sortie.required.every(id=>UNIT_TEMPLATES[id]?.playable)&&new Set(s.sortie.required).size===s.sortie.required.length,'2막 필수 장수');
+  assert(Array.isArray(s.allySlots)&&s.allySlots.length===s.sortie.maxSortie&&Array.isArray(s.enemies)&&s.enemies.length>0&&Array.isArray(s.extraAllies),'2막 배치 목록');
+  const size=mapSize(s.terrain);assert(Array.isArray(s.size)&&s.size[0]===size.width&&s.size[1]===size.height,'2막 맵 크기');
+  const positions=s.allySlots.map(p=>[...p]),ids=[...s.sortie.required];
+  const enemies=s.enemies.map(e=>{
+   let templateId='act2_'+e.template;const base=templates[templateId];
+   assert(base&&!base.extra&&tiers.includes(e.combatTier)&&e.combatTier===base.combatTier,'2막 적 원본/등급');
+   assert(Object.hasOwn(FACTION_NAMES,e.faction)&&['charge','hold'].includes(e.aiMode)&&Number.isInteger(e.level)&&e.level>=1&&e.level<=60,'2막 적 진영/AI/레벨');
+   assert(Number.isInteger(e.gold)&&e.gold>=0&&e.gold<=100000000,'2막 전리금');
+   if(e.loot!==undefined)assert(Array.isArray(e.loot)&&e.loot.every(id=>typeof id==='string'),'2막 전리품');
+   if(e.advanceRound!==undefined)assert(Number.isInteger(e.advanceRound)&&e.advanceRound>=1,'예비대 전진 라운드');
+   if(e.rank!==undefined)assert(Number.isInteger(e.rank)&&e.rank>=0&&e.rank<=2,'적 승급');
+   if(e.introducedFormationVersion!==undefined)assert(s.id==='s15_chibi'&&e.introducedFormationVersion===4,'신규 적 명단 버전');
+   // Explicit templates retain full statistics while their faction names remain accurate.
+   if(['troop','elite'].includes(e.combatTier)){
+    templateId='act2_'+e.faction+'_'+e.template;
+    templates[templateId]={...base,name:FACTION_NAMES[e.faction]+' '+(e.combatTier==='elite'?'정예 ':'')+DEFAULT_BALANCE.classes[base.cls].name};
+   }
+   positions.push([e.x,e.y]);ids.push(e.id);
+   if(e.campaignTemplate!==undefined)assert(s.id==='s09_baima'&&e.id==='e06'&&templates['act2_'+e.campaignTemplate]?.combatTier===e.campaignCombatTier&&Array.isArray(e.campaignPosition)&&e.campaignPosition.length===2&&e.campaignPosition.every(Number.isInteger)&&s.terrain[e.campaignPosition[1]]?.[e.campaignPosition[0]]!=='#','백마 후속 적장');
+   return {id:e.id,templateId,position:[e.x,e.y],level:e.level,aiMode:e.aiMode,faction:e.faction,combatTier:e.combatTier,gold:e.gold,...(e.rank!==undefined?{rank:e.rank}:{}),...(e.introducedFormationVersion?{introducedFormationVersion:e.introducedFormationVersion}:{}),...(e.boss?{boss:true}:{}),...(e.loot?{loot:[...e.loot]}:{}),...(e.advanceRound?{advanceRound:e.advanceRound}:{}),...(e.campaignTemplate?{campaignTemplateId:'act2_'+e.campaignTemplate,campaignCombatTier:e.campaignCombatTier,campaignPosition:[...e.campaignPosition]}:{})};
+  });
+  const extraAllies=s.extraAllies.map(e=>{
+   const templateId='act2_extra_'+e.template;assert(templates[templateId]?.extra,'2막 협력 부대 원본');positions.push([e.x,e.y]);ids.push(e.id);
+   return {id:e.id,templateId,position:[e.x,e.y]};
+  });
+  assert(new Set(ids).size===ids.length&&ids.every(id=>/^[a-z][a-z0-9_]*$/.test(id)),'2막 부대 ID');
+  assert(positions.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isInteger)&&p[0]>=0&&p[1]>=0&&p[0]<size.width&&p[1]<size.height&&s.terrain[p[1]][p[0]]!=='#')&&new Set(positions.map(p=>p.join(','))).size===positions.length,'2막 통행/중복 배치');
+  const reinforcements=structuredClone(s.reinforcements??[]),waveUnits=reinforcements.flatMap(wave=>wave.unitIds??[]);
+  assert(Array.isArray(reinforcements)&&reinforcements.length<=3&&new Set(reinforcements.map(wave=>wave.id)).size===reinforcements.length&&new Set(waveUnits).size===waveUnits.length,'유한 증원 목록');
+  for(const wave of reinforcements){assert(/^[a-z][a-z0-9_]*$/.test(wave.id)&&Array.isArray(wave.unitIds)&&wave.unitIds.length>0&&wave.unitIds.length<=4&&wave.unitIds.every(id=>(wave.team==='ally'?extraAllies:enemies).some(e=>e.id===id))&&['enemyCountBelow','roundStart','unitDefeated'].includes(wave.trigger?.type)&&(wave.team===undefined||wave.team==='ally')&&(wave.campaignEventsVersion===undefined||wave.campaignEventsVersion===1),'증원 원본/조건');validateStoryEvents([{trigger:wave.trigger,lines:[{speaker:'narrator',text:'증원 조건'}]}],ids);}
+  validateStoryEvents(d.events??[],ids,reinforcements.map(wave=>wave.id),s.terrain);
+  assert(['defeatAll','defeatUnit','surviveRounds','reachTile'].includes(s.victory?.type)&&Array.isArray(s.defeat),'2막 승리/패배 조건');
+  assert(plainText(s.brief)&&plainText(s.intermissionHint),'2막 전투/정비 조언');
+  return {id:s.id,contentVersion:1,aliases:[],title:d.title,location:d.location,subtitle:'2막 유랑 · '+d.title,act:2,combatProfile:'act2',rosterMode:'story',battleEventsVersion:s.battleEventsVersion??0,lockRequired:true,positionLocked:s.sortie.fixed?[...s.sortie.required]:s.sortie.required.filter(id=>id==='liubei'),
+   ...structuredClone(s.sortie),terrain:[...s.terrain],allyPositions:structuredClone(s.allySlots),enemies,extraAllies,...equipmentDropMetadata(s,enemies,extraAllies),
+   objective:s.victory.type==='defeatUnit'?{type:'defeatUnit',targetId:s.victory.unit}:structuredClone(s.victory),defeat:structuredClone(s.defeat),
+   brief:s.brief,intermissionHint:s.intermissionHint,blockedLabel:s.id==='s10_thousand_li'?'암벽':'강',...(reinforcements.length?{reinforcements}:{}),reward:structuredClone(s.reward),art:structuredClone(s.art),
+   era:d.era,actMap:d.actMap,fate:structuredClone(d.fate),bg:structuredClone(d.bg),bgm:structuredClone(d.bgm),victoryFx:structuredClone(d.victoryFx),episodeTitle:dialogue.episodeTitle,
+   events:d.events??[],pre:d.pre,post:d.post,defeatDialogue:d.defeat??[],speakers:story.speakers,enemyLabel:FACTION_NAMES[s.enemies[0].faction]};
+ });
+ installEnemyProgressionTemplates(templates);Object.assign(UNIT_TEMPLATES,templates);
+ for(const [id,name] of Object.entries(story.speakers))CHARACTERS[id]={...CHARACTERS[id],name,title:'',han:name[0],side:'left'};
+ CHAPTERS.push(...result);return result;
+}
+// Act 3 uses the current Act 2 combat profile without changing old callers or comparisons.
+export function appendAct3(stages,dialogue){
+ assert(stages?.schemaVersion===1&&Array.isArray(stages.stages)&&stages.stages.length===8,'3막 스테이지 형식/장 수');
+ assert(CHAPTERS.length===13&&CHAPTERS[12]?.id==='s13_changban','3막은 2막 다음에 연결');
+ const story=readDialogue(dialogue),templates={},tiers=['troop','elite','officer','boss'];
+ assert(story.chapters.length===8,'3막 원고 장 수');
+ for(const [id,t] of Object.entries(stages.namedEnemyTemplates??{})){
+  assert(tiers.includes(t.combatTier),'3막 적 등급');
+  templates['act3_'+id]={...template(t),combatTier:t.combatTier};
+ }
+ for(const [id,t] of Object.entries(stages.extraAllyTemplates??{})){
+  assert(t.protectedFromFaction===undefined||t.protectedFromFaction==='wu'&&t.nonCombat===true,'3막 비전투 협력병 진영 보호');
+  templates['act3_extra_'+id]={...template(t,true),...(t.nonCombat===true?{nonCombat:true}:{}),...(t.protectedFromFaction?{protectedFromFaction:t.protectedFromFaction}:{})};
+ }
+ const seen=new Set(CHAPTERS.map(ch=>ch.id));
+ const result=stages.stages.map((s,i)=>{
+  assert(plainText(s.id)&&!seen.has(s.id)&&s.act===3&&s.combatProfile==='act2'&&s.no===i+14,'3막 장 ID/순서/프로필');seen.add(s.id);
+  const d=story.chapters.find(c=>c.id===s.id);assert(d,'3막 장 대사 누락');
+  assert(object(s.sortie)&&Array.isArray(s.sortie.required)&&Array.isArray(s.sortie.unavailable)&&typeof s.sortie.fixed==='boolean'&&Number.isInteger(s.sortie.maxSortie)&&s.sortie.maxSortie>=1,'3막 편성');
+  const fixedGuests=s.sortie.fixedGuests??[],regularMax=s.sortie.regularSortie??s.sortie.maxSortie;
+  assert(Array.isArray(fixedGuests)&&new Set(fixedGuests).size===fixedGuests.length&&Number.isInteger(regularMax)&&regularMax>=1&&regularMax<=6&&s.sortie.maxSortie===regularMax+fixedGuests.length&&s.sortie.required.length<=regularMax&&fixedGuests.every(id=>UNIT_TEMPLATES[id]?.playable&&!s.sortie.required.includes(id)&&!s.sortie.unavailable.includes(id)),'3막 고정 동행 편성');
+  assert(s.sortie.required.every(id=>UNIT_TEMPLATES[id]?.playable)&&new Set(s.sortie.required).size===s.sortie.required.length,'3막 필수 장수');
+  assert(Array.isArray(s.allySlots)&&s.allySlots.length===s.sortie.maxSortie&&Array.isArray(s.enemies)&&s.enemies.length>0&&Array.isArray(s.extraAllies),'3막 배치 목록');
+  const size=mapSize(s.terrain);assert(Array.isArray(s.size)&&s.size[0]===size.width&&s.size[1]===size.height,'3막 맵 크기');
+  const positions=s.allySlots.map(p=>[...p]),ids=[...s.sortie.required];
+  const enemies=s.enemies.map(e=>{
+   let templateId='act3_'+e.template;const base=templates[templateId];
+   assert(base&&!base.extra&&tiers.includes(e.combatTier)&&e.combatTier===base.combatTier,'3막 적 원본/등급');
+   assert(Object.hasOwn(FACTION_NAMES,e.faction)&&['charge','hold'].includes(e.aiMode)&&Number.isInteger(e.level)&&e.level>=1&&e.level<=60,'3막 적 진영/AI/레벨');
+   assert(Number.isInteger(e.gold)&&e.gold>=0&&e.gold<=100000000,'3막 전리금');
+   if(e.loot!==undefined)assert(Array.isArray(e.loot)&&e.loot.every(id=>typeof id==='string'),'3막 전리품');
+   if(e.advanceRound!==undefined)assert(Number.isInteger(e.advanceRound)&&e.advanceRound>=1,'예비대 전진 라운드');
+   if(e.rank!==undefined)assert(Number.isInteger(e.rank)&&e.rank>=0&&e.rank<=2,'적 승급');
+   if(e.introducedFormationVersion!==undefined)assert(s.id==='s15_chibi'&&e.introducedFormationVersion===4,'신규 적 명단 버전');
+   // Explicit templates retain full statistics while their faction names remain accurate.
+   if(['troop','elite'].includes(e.combatTier)){
+    templateId='act3_'+e.faction+'_'+e.template;
+    templates[templateId]={...base,name:FACTION_NAMES[e.faction]+' '+(e.combatTier==='elite'?'정예 ':'')+DEFAULT_BALANCE.classes[base.cls].name};
+   }
+   positions.push([e.x,e.y]);ids.push(e.id);
+   return {id:e.id,templateId,position:[e.x,e.y],level:e.level,aiMode:e.aiMode,faction:e.faction,combatTier:e.combatTier,gold:e.gold,...(e.rank!==undefined?{rank:e.rank}:{}),...(e.introducedFormationVersion?{introducedFormationVersion:e.introducedFormationVersion}:{}),...(e.boss?{boss:true}:{}),...(e.loot?{loot:[...e.loot]}:{}),...(e.advanceRound?{advanceRound:e.advanceRound}:{})};
+  });
+  const extraAllies=s.extraAllies.map(e=>{
+   const templateId='act3_extra_'+e.template;assert(templates[templateId]?.extra,'3막 협력 부대 원본');positions.push([e.x,e.y]);ids.push(e.id);
+   return {id:e.id,templateId,position:[e.x,e.y]};
+  });
+  assert(new Set(ids).size===ids.length&&ids.every(id=>/^[a-z][a-z0-9_]*$/.test(id)),'3막 부대 ID');
+  assert(positions.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isInteger)&&p[0]>=0&&p[1]>=0&&p[0]<size.width&&p[1]<size.height&&s.terrain[p[1]][p[0]]!=='#')&&new Set(positions.map(p=>p.join(','))).size===positions.length,'3막 통행/중복 배치');
+  const reinforcements=structuredClone(s.reinforcements??[]),waveUnits=reinforcements.flatMap(wave=>wave.unitIds??[]);
+  assert(Array.isArray(reinforcements)&&reinforcements.length<=3&&new Set(reinforcements.map(wave=>wave.id)).size===reinforcements.length&&new Set(waveUnits).size===waveUnits.length,'유한 증원 목록');
+  for(const wave of reinforcements){
+   const allies=wave.team==='ally';
+   assert(Object.keys(wave).every(key=>['id','unitIds','trigger','team'].includes(key))&&[undefined,'enemy','ally'].includes(wave.team)&&/^[a-z][a-z0-9_]*$/.test(wave.id)&&Array.isArray(wave.unitIds)&&wave.unitIds.length>0&&wave.unitIds.length<=4&&wave.unitIds.every(id=>(allies?extraAllies:enemies).some(e=>e.id===id))&&wave.trigger?.type===(allies?'roundStart':'enemyCountBelow'),'3막 증원 원본/조건');
+   validateStoryEvents([{trigger:wave.trigger,lines:[{speaker:'narrator',text:'증원 조건'}]}],ids);
+  }
+  validateStoryEvents(d.events??[],ids,reinforcements.map(wave=>wave.id),s.terrain);
+  assert(['defeatAll','defeatUnit','surviveRounds','reachTile','occupyTiles'].includes(s.victory?.type)&&Array.isArray(s.defeat),'3막 승리/패배 조건');
+  assert(plainText(s.brief)&&plainText(s.intermissionHint),'3막 전투/정비 조언');
+  return {id:s.id,contentVersion:1,aliases:[],title:d.title,location:d.location,subtitle:'3막 적벽·형주 · '+d.title,act:3,combatProfile:'act2',rosterMode:'story',battleEventsVersion:s.battleEventsVersion??0,lockRequired:true,positionLocked:s.sortie.fixed?[...s.sortie.required]:s.sortie.required.filter(id=>id==='liubei'),
+   ...structuredClone(s.sortie),terrain:[...s.terrain],allyPositions:structuredClone(s.allySlots),enemies,extraAllies,...equipmentDropMetadata(s,enemies,extraAllies),
+   objective:s.victory.type==='defeatUnit'?{type:'defeatUnit',targetId:s.victory.unit}:structuredClone(s.victory),defeat:structuredClone(s.defeat),
+   brief:s.brief,intermissionHint:s.intermissionHint,blockedLabel:s.blockedLabel??'강',...(reinforcements.length?{reinforcements}:{}),reward:structuredClone(s.reward),art:structuredClone(s.art),
+   era:d.era,actMap:d.actMap,fate:structuredClone(d.fate),bg:structuredClone(d.bg),bgm:structuredClone(d.bgm),victoryFx:structuredClone(d.victoryFx),episodeTitle:dialogue.episodeTitle,
+   events:d.events??[],pre:d.pre,post:d.post,defeatDialogue:d.defeat??[],speakers:story.speakers,enemyLabel:FACTION_NAMES[s.enemies[0].faction]};
+ });
+ installEnemyProgressionTemplates(templates);Object.assign(UNIT_TEMPLATES,templates);
+ for(const [id,name] of Object.entries(story.speakers))CHARACTERS[id]={...CHARACTERS[id],name,title:'',han:name[0],side:'left'};
+ CHAPTERS.push(...result);return result;
+}
+export function installCampaign(act1,dialogue1,act2,dialogue2,{comparison=null,act3=null,dialogue3=null}={}){
+ const first=installAct1(act1,dialogue1,{comparison});
+ if(comparison)return first;
+ const second=appendAct2(act2,dialogue2);
+ assert((act3===null)===(dialogue3===null),'3막 전장과 원고는 함께 전달');
+ return [...first,...second,...(act3!==null?appendAct3(act3,dialogue3):[])];
+}

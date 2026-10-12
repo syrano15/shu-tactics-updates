@@ -1,0 +1,68 @@
+// 2막의 실제 지형과 일치하는 표시 전용 전장 그림. 게임 규칙과 독립적이다.
+const maps={
+  "s07_xiapi": {
+    "id": "s07_xiapi",
+    "src": "art/act2/s07_xiapi-v0282.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": ".......#....\n..FF...#....\n............\n..F....#....\n............\n............\n..F....#....\n............\n..FF...#....\n.......#...."
+  },
+  "s08_xiaopei": {
+    "id": "s08_xiaopei",
+    "src": "art/act2/s08_xiaopei-v0282.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "............\n..FFF.......\n..F....FF...\n.....##.....\n.....##.....\n............\n.FF.........\n.F....FFF...\n............\n............"
+  },
+  "s09_baima": {
+    "id": "s09_baima",
+    "src": "art/act2/s09_baima-v0282.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "......#.....\n...FF.#.....\n......#..FF.\n......#.....\n............\n............\n......#.....\n.FF...#..FF.\n......#.....\n......#....."
+  },
+  "s10_thousand_li": {
+    "id": "s10_thousand_li",
+    "src": "art/act2/s10_thousand_li-v0282.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "###..#######\n###..#....##\n###..#....##\n##........##\n##....###.##\n##....###.##\n##........##\n##..#.....##\n##..#..F..##\n##..#.....##"
+  },
+  "s11_bowang": {
+    "id": "s11_bowang",
+    "src": "art/act2/s11_bowang-v028.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "FFF......FFF\nFF........FF\nF...F..F...F\n...FF..FF...\n....F..F....\n............\n...FF..FF...\nF...F..F...F\nFF........FF\nFFF......FFF"
+  },
+  "s12_xinye": {
+    "id": "s12_xinye",
+    "src": "art/act2/s12_xinye-v0282.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": "......#.....\n..FF..#..FF.\n......#.....\n......#.....\n............\n............\n......#.....\n..FF..#..FF.\n......#.....\n......#....."
+  },
+  "s13_changban": {
+    "id": "s13_changban",
+    "src": "art/act2/s13_changban-v0282.webp",
+    "width": 1200,
+    "height": 1000,
+    "columns": 12,
+    "rows": 10,
+    "terrainKey": ".......#....\n.FF....#....\n....F..#....\n.......#....\n............\n............\n...FF..#....\n.......#....\n.FF....#..FF\n.......#...."
+  }
+};
+export const ACT2_STAGE_MAP_ART=Object.freeze(Object.fromEntries(Object.entries(maps).map(([id,art])=>[id,Object.freeze(art)])));
+export const ACT2_TERRAIN_ART=Object.freeze({rock:Object.freeze({kind:'rock',src:'art/act2/pass-rock-v028.webp'})});

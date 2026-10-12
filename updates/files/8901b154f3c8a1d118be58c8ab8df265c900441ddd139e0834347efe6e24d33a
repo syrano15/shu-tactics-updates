@@ -1,0 +1,29 @@
+// Decode once per URL, then let the current presentation decide whether to commit.
+const entries = new Map();
+export function prepareArtwork(src, {createImage = () => document.createElement('img'), ready, failed} = {}) {
+  const cached = entries.get(src);
+  if (cached?.state === 'ready') { ready?.(); return cached.image; }
+  if (cached) { cached.listeners.push({ready, failed}); return cached.image; }
+  const image = createImage(), entry = {state:'loading', image, listeners:[{ready, failed}]};
+  entries.set(src, entry);
+  const finish = () => {
+    if (entries.get(src) !== entry || entry.state !== 'loading') return;
+    entry.state = 'ready';
+    const listeners = entry.listeners.splice(0);
+    for (const listener of listeners) listener.ready?.();
+  };
+  const fail = () => {
+    if (entries.get(src) !== entry || entry.state !== 'loading') return;
+    entries.delete(src);
+    for (const listener of entry.listeners.splice(0)) listener.failed?.();
+  };
+  image.onload = () => {
+    if (typeof image.decode === 'function') Promise.resolve().then(() => image.decode()).then(finish, fail);
+    else finish();
+  };
+  image.onerror = fail;
+  image.src = src;
+  return image;
+}
+export function clearArtworkCache() { entries.clear(); }
+
