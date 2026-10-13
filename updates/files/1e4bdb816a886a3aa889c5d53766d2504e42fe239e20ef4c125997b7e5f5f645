@@ -1,0 +1,2 @@
+// Shared without importing growth/campaign modules, which depend on each other.
+export const MAX_LEVEL = 99;
