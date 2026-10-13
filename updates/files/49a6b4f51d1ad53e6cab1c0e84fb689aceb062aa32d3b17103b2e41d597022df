@@ -1,0 +1,48 @@
+import {CHAPTERS} from './campaign.js';
+import {awardAct6ObjectiveExperience} from './growth.js';
+
+const scenarioFor=state=>state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter];
+const atTile=(unit,[x,y])=>unit.x===x&&unit.y===y;
+const regular=unit=>unit.team==='ally'&&!unit.extra&&!unit.generic&&!unit.nonCombat&&unit.hp>0&&!unit.withdrawn&&!unit.escaped;
+
+export function initializeAct6Mission(state,scenario){
+ if(scenario?.act===6){state.act6MissionVisits=[];state.act6OptionalObjectiveAchieved=false;}
+}
+// Moving alone is cancellable. A goal is credited only after the unit commits
+// an action; selection, hover, preview and cancelled movement never grant EXP.
+export function recordAct6MissionProgress(state){
+ const scenario=scenarioFor(state);
+ if(scenario?.act!==6||state.act6GrowthVersion!==1||state.phase!=='ally'||state.result||state.replayChapterId)return [];
+ const events=[];
+ for(const unit of state.units.filter(unit=>regular(unit)&&unit.done)){
+  for(const goal of scenario.act6Objectives??[]){
+   if(!goal.tiles.some(tile=>atTile(unit,tile)))continue;
+   if(!state.act6MissionVisits.some(v=>v.key===goal.key&&v.unitId===unit.id)){
+    state.act6MissionVisits.push({key:goal.key,unitId:unit.id,round:state.round});
+   }
+   const event=awardAct6ObjectiveExperience(state,unit,goal.key);if(event)events.push(event);
+  }
+ }
+ const optional=scenario.act6OptionalObjective;
+ if(!state.act6OptionalObjectiveAchieved&&optional?.tiles?.length&&optional.tiles.every(tile=>state.units.some(unit=>regular(unit)&&unit.done&&atTile(unit,tile)))){
+  const unit=state.units.find(unit=>regular(unit)&&unit.done&&atTile(unit,optional.tiles[0]));
+  state.act6OptionalObjectiveAchieved=true;
+  state.act6MissionVisits.push({key:'optional_supply',unitId:unit.id,round:state.round});
+ }
+ return events;
+}
+export function validateAct6Mission(state,scenario){
+ const fail=()=>{throw new Error('6막 거점 기여 기록이 올바르지 않습니다.');};
+ if(scenario?.act!==6){if(state.act6MissionVisits!==undefined||state.act6OptionalObjectiveAchieved!==undefined)fail();return;}
+ if(!Array.isArray(state.act6MissionVisits)||state.act6MissionVisits.length>37||typeof state.act6OptionalObjectiveAchieved!=='boolean')fail();
+ const keys=new Set();
+ for(const visit of state.act6MissionVisits){
+  if(!visit||Object.keys(visit).some(key=>!['key','unitId','round'].includes(key))||!Number.isInteger(visit.round)||visit.round<1||visit.round>state.round||!state.units.some(unit=>regular({...unit,hp:1})&&unit.id===visit.unitId))fail();
+  const id=visit.unitId+'|'+visit.key;if(keys.has(id))fail();keys.add(id);
+  if(visit.key==='optional_supply'){if(!scenario.act6OptionalObjective?.tiles?.length||!state.act6OptionalObjectiveAchieved)fail();}
+  else if(!scenario.act6Objectives?.some(goal=>goal.key===visit.key))fail();
+ }
+ const optionalVisits=state.act6MissionVisits.filter(v=>v.key==='optional_supply');
+ if(optionalVisits.length!==(state.act6OptionalObjectiveAchieved?1:0))fail();
+ for(const key of Object.keys(state.act6Growth?.record?.objectiveKeys??{}))if(!scenario.act6Objectives?.some(goal=>key.endsWith('|'+goal.key)))fail();
+}

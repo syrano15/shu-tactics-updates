@@ -1,0 +1,6 @@
+// These manuscript cues use native display layers; no external FX file is needed.
+export const ACT6_NATIVE_FX=Object.freeze({
+ fx_night:'낭중의 밤 · 어두운 진영',
+ fx_forest_fire:'이릉 · 숲 영채 화공',
+ fx_escape:'맹획 · 숲길 재배치',
+});

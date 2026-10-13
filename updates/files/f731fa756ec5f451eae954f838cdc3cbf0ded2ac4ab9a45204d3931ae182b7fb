@@ -1,0 +1,20 @@
+import {HERO_DATA} from './heroes.js';
+import {portraitAsset} from './story-assets.js';
+import {unitPortraitIdentity as priorIdentity} from './act5-portraits.js';
+export const ACT6_NEW_PORTRAITS=Object.freeze([
+ ['caopi','조비'],['menghuo','맹획'],['zhurong','축융'],['wutugu','올돌골'],['fanqiang','범강'],['zhangda','장달'],
+].map(([id,name])=>Object.freeze({id,name,src:'art/act6/portraits/'+id+'-v060.webp'})));
+export const ACT6_TEMPORARY_HERO_IDS=Object.freeze(['guanxing','zhangbao','fengxi','fudong','zhangni','mazhong']);
+const temporaryNames=Object.fromEntries(ACT6_TEMPORARY_HERO_IDS.map(id=>[HERO_DATA[id].name,id]));
+const named=Object.freeze({'조비':{id:'caopi',faction:'wei'},'맹획':{id:'menghuo',faction:'south'},'축융':{id:'zhurong',faction:'south'},'올돌골':{id:'wutugu',faction:'south'},'범강':{id:'fanqiang',faction:'shu'},'장달':{id:'zhangda',faction:'shu'},'위군 선봉장':{id:'wei_vanguard',faction:'wei'}});
+export function unitPortraitIdentity(unit){
+ if(!unit||unit.nonCombat)return null;
+ // These six officers are temporary guests before their canonical roster join.
+ if(unit.team==='ally'&&unit.extra&&temporaryNames[unit.name])return {id:temporaryNames[unit.name],faction:'shu'};
+ if(unit.team==='ally'&&unit.extra&&unit.faction==='wu')return {id:'wu_officer',faction:'wu'};
+ const person=named[unit.name];if(person&&!unit.generic){const faction=unit.faction==='cao'?'wei':unit.faction==='nanman'?'south':unit.faction;if(faction&&faction!==person.faction&&!(['fanqiang','zhangda'].includes(person.id)&&['rebel','shu'].includes(faction)))return null;return {id:person.id,faction:faction??person.faction};}
+ return priorIdentity(unit);
+}
+export function portraitForUnit(unit,chapterId='s38_langzhong',face='normal'){
+ const identity=unitPortraitIdentity(unit);return identity?portraitAsset(identity.id,face,chapterId,{faction:identity.faction}):null;
+}

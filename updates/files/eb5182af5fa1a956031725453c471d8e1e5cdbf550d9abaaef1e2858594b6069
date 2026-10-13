@@ -1,0 +1,280 @@
+// Act 6 display-only artwork. Original geometry and saved terrain stay unchanged.
+export const ACT6_MAP_STYLE=Object.freeze({
+  "s38_langzhong": {
+    "blockedKind": "wall",
+    "ground": [
+      "#9c9a85",
+      "#596c60"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "night-camp-enclosure"
+  },
+  "s39_wuxia": {
+    "blockedKind": "rock",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "mountain-gorge-exits"
+  },
+  "s40_yiling": {
+    "blockedKind": "rock",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "woodland-camp-before-fire"
+  },
+  "s41_ruxu": {
+    "blockedKind": "water",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "cooperative-river-defense"
+  },
+  "s42_alliance": {
+    "blockedKind": "water",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "eastern-alliance-ferry"
+  },
+  "s43_lushui": {
+    "blockedKind": "water",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "southern-river-jungle"
+  },
+  "s44_menghuo": {
+    "blockedKind": "rock",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "deep-southern-jungle"
+  },
+  "s45_rattan": {
+    "blockedKind": "rock",
+    "ground": [
+      "#b6ad8f",
+      "#789074"
+    ],
+    "forest": [
+      "#345638",
+      "#76986c"
+    ],
+    "rock": [
+      "#a4a38c",
+      "#59695d"
+    ],
+    "mood": "rattan-gorge-before-fire"
+  }
+});
+// Loader dimensions are the physical WebP pixels. SVG/spec coordinates remain
+// the independent 2600x2000 reference canvas used for terrain and bridge masks.
+export const ACT6_STAGE_MAPS=Object.freeze(Object.keys(ACT6_MAP_STYLE).map(id=>Object.freeze({id,src:'art/act6/maps/'+id+'-v060.webp',width:1430,height:1100})));
+const CELL=100;
+const number=value=>Number(value.toFixed(2));
+const seedFor=id=>[...id].reduce((n,c)=>Math.imul(n^c.charCodeAt(0),16777619)>>>0,2166136261);
+const fraction=(i,s,seed)=>{let n=Math.imul(i+117,374761393)^Math.imul(s+79,668265263)^seed;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;};
+const escape=value=>String(value).replace(/[&<>\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[ch]));
+function validate(chapter){
+ if(!chapter||!Object.hasOwn(ACT6_MAP_STYLE,chapter.id))throw new Error('Unknown Act 6 artwork chapter');
+ const terrain=chapter.terrain,width=terrain?.[0]?.length,height=terrain?.length;
+ if(!Array.isArray(terrain)||width<10||width>26||height<8||height>20||terrain.some(row=>typeof row!=='string'||row.length!==width||!/^[.F#]+$/.test(row)))throw new Error('Invalid Act 6 artwork terrain');
+ return {width,height};
+}
+export function act6MapSpec(chapter){
+ const {width,height}=validate(chapter),style=ACT6_MAP_STYLE[chapter.id];
+ return {id:chapter.id,columns:width,rows:height,width:width*CELL,height:height*CELL,terrainKey:chapter.terrain.join('\n'),blockedKind:style.blockedKind,src:'art/act6/maps/'+chapter.id+'-v060.webp',...(chapter.bridgeCells?.length?{overlaySrc:'art/act6/maps/'+chapter.id+'-bridges-v060.svg'}:{})};
+}
+export function terrainRegions(terrain,code){
+ const seen=new Set(),regions=[];
+ for(let y=0;y<terrain.length;y++)for(let x=0;x<terrain[0].length;x++){
+  const key=x+','+y;if(terrain[y][x]!==code||seen.has(key))continue;
+  const cells=[[x,y]];seen.add(key);
+  for(let i=0;i<cells.length;i++)for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+   const nx=cells[i][0]+dx,ny=cells[i][1]+dy,k=nx+','+ny;
+   if(terrain[ny]?.[nx]!==code||seen.has(k))continue;seen.add(k);cells.push([nx,ny]);
+  }
+  regions.push(cells);
+ }
+ return regions;
+}
+function regionPath(terrain,predicate){
+ let path='';for(let y=0;y<terrain.length;y++)for(let x=0;x<terrain[0].length;x++)if(predicate(terrain[y][x]))path+='M'+x*CELL+' '+y*CELL+'h100v100h-100z';return path;
+}
+// Only outer region edges are drawn. Adjacent cells have no visible seam.
+export function terrainBoundaryPath(terrain,code){
+ let path='';const has=(x,y)=>terrain[y]?.[x]===code;
+ for(let y=0;y<terrain.length;y++)for(let x=0;x<terrain[0].length;x++)if(has(x,y)){
+  const px=x*CELL,py=y*CELL;
+  if(!has(x,y-1))path+='M'+px+' '+py+'h100';
+  if(!has(x+1,y))path+='M'+(px+100)+' '+py+'v100';
+  if(!has(x,y+1))path+='M'+px+' '+(py+100)+'h100';
+  if(!has(x-1,y))path+='M'+px+' '+py+'v100';
+ }
+ return path;
+}
+function organicShape(x,y,rx,ry,i,seed){
+ const points=Array.from({length:12},(_,j)=>{const angle=j*Math.PI/6,r=.79+fraction(i*12+j,44,seed)*.22;return [number(x+Math.cos(angle)*rx*r),number(y+Math.sin(angle)*ry*r)];});
+ let path='M'+number((points.at(-1)[0]+points[0][0])/2)+' '+number((points.at(-1)[1]+points[0][1])/2);
+ for(let j=0;j<points.length;j++){const p=points[j],next=points[(j+1)%points.length];path+='Q'+p[0]+' '+p[1]+' '+number((p[0]+next[0])/2)+' '+number((p[1]+next[1])/2);}return path+'z';
+}
+function groundDetails(chapter,spec,style,seed){
+ let out='<rect width="100%" height="100%" fill="url(#ground)"/><g filter="url(#softWash)">';
+ for(let i=0;i<24;i++){
+  const x=number(fraction(i,1,seed)*spec.width),y=number(fraction(i,2,seed)*spec.height),rx=140+fraction(i,3,seed)*360,ry=80+fraction(i,4,seed)*210;
+  out+='<path d="'+organicShape(x,y,rx,ry,i,seed)+'" fill="'+(i%2?'#e5ce9a':'#62734e')+'" opacity=".12"/>';
+ }
+ out+='</g><g clip-path="url(#passable)" opacity=".3" fill="none" stroke-linecap="round">';
+ for(let i=0;i<450;i++){
+  const x=number(fraction(i,5,seed)*spec.width),y=number(fraction(i,6,seed)*spec.height),len=3+fraction(i,7,seed)*9;
+  out+='<path d="M'+x+' '+y+'q'+number(len*.3)+' -'+number(len)+' '+number(len*.8)+' -'+number(len*.7)+'" stroke="'+(i%3?'#65794d':'#dcc5a0')+'" stroke-width="1.3"/>';
+ }
+ out+='</g>';
+ if(style.blockedKind==='wall'){
+  out+='<g clip-path="url(#passable)" opacity=".13" fill="none" stroke="#526050" stroke-width="1">';
+  for(let y=36;y<spec.height;y+=42){out+='<path d="M0 '+y+'H'+spec.width+'"/>';for(let x=30+(y%84?0:42);x<spec.width;x+=84)out+='<path d="M'+x+' '+(y-42)+'v42"/>';}
+  out+='</g>';
+ }
+ return out;
+}
+function roads(chapter,spec){
+ const terrain=chapter.terrain,rows=[Math.floor(spec.rows*.23),Math.floor(spec.rows*.5),Math.floor(spec.rows*.76)];let out='<g clip-path="url(#passable)" fill="none" stroke-linecap="round" stroke-linejoin="round">';
+ for(const row of rows){
+  const start=[0,row],goal=[spec.columns-1,row];if(terrain[row]?.[0]==='#'||terrain[row]?.[goal[0]]==='#')continue;
+  const queue=[start],prev=new Map([[start.join(','),null]]);
+  for(let i=0;i<queue.length;i++){const [x,y]=queue[i];if(x===goal[0]&&y===goal[1])break;for(const [dx,dy] of [[1,0],[0,-1],[0,1],[-1,0]]){const nx=x+dx,ny=y+dy,k=nx+','+ny;if(terrain[ny]?.[nx]===undefined||terrain[ny][nx]==='#'||prev.has(k))continue;prev.set(k,x+','+y);queue.push([nx,ny]);}}
+  let cursor=goal.join(',');if(!prev.has(cursor))continue;const path=[];while(cursor){const [x,y]=cursor.split(',').map(Number);path.unshift([x*CELL+50,y*CELL+50]);cursor=prev.get(cursor);}
+  const d=path.map(([x,y],i)=>(i?'L':'M')+x+' '+y).join('');out+='<path d="'+d+'" stroke="#6b6145" stroke-width="44" opacity=".08"/><path d="'+d+'" stroke="#d7c398" stroke-width="35" opacity=".32"/><path d="'+d+'" stroke="#eee0b8" stroke-width="17" opacity=".1"/>';
+ }
+ return out+'</g>';
+}
+function forest(chapter,spec,style,seed){
+ const boundary=terrainBoundaryPath(chapter.terrain,'F');let out='<g clip-path="url(#woodland)"><rect width="100%" height="100%" fill="url(#forest)"/>';
+ for(const [regionIndex,region] of terrainRegions(chapter.terrain,'F').entries()){
+  const minX=Math.min(...region.map(c=>c[0]))*CELL,minY=Math.min(...region.map(c=>c[1]))*CELL,maxX=(Math.max(...region.map(c=>c[0]))+1)*CELL,maxY=(Math.max(...region.map(c=>c[1]))+1)*CELL,count=Math.ceil(region.length*6.4);
+  for(let j=0;j<count;j++){
+   const i=j+regionIndex*107,x=minX+fraction(i,20,seed)*(maxX-minX),y=minY+fraction(i,21,seed)*(maxY-minY);if(chapter.terrain[Math.floor(y/CELL)]?.[Math.floor(x/CELL)]!=='F')continue;
+   const rx=26+fraction(i,22,seed)*32,ry=19+fraction(i,23,seed)*29,d=organicShape(x,y,rx,ry,i,seed);
+   out+='<path d="'+d+'" transform="translate(5 7)" fill="#19362b" opacity=".38"/><path d="'+d+'" fill="url(#canopy'+j%3+')" stroke="#274b32" stroke-width="1"/>';
+   for(let leaf=0;leaf<16;leaf++){
+    const angle=fraction(i*16+leaf,27,seed)*Math.PI*2,r=Math.sqrt(fraction(i*16+leaf,28,seed))*.74,lx=x+Math.cos(angle)*rx*r,ly=y+Math.sin(angle)*ry*r;
+    out+='<path d="M'+number(lx-4)+' '+number(ly+2)+'q4 -7 9 -3" fill="none" stroke="'+(leaf%3?'#b4c27c':'#294c36')+'" stroke-width="'+number(1+fraction(leaf+i,29,seed))+'" opacity=".28"/>';
+   }
+  }
+ }
+ return out+'<path d="'+boundary+'" stroke="#374f33" stroke-width="6" opacity=".25" fill="none"/></g>';
+}
+function cliffs(chapter,spec,style,seed){
+ const edge=terrainBoundaryPath(chapter.terrain,'#');let out='<g clip-path="url(#blocked)"><rect width="100%" height="100%" fill="url(#rock)"/>';
+ // Broad strata are drawn across the complete mountain region, not per cell.
+ for(let y=-80;y<spec.height+120;y+=44){let d='M-80 '+y;for(let x=0;x<=spec.width+100;x+=120)d+='L'+x+' '+number(y+Math.sin(x*.006+y*.003)*24);out+='<path d="'+d+'" fill="none" stroke="'+(y%88?'#d4c9b0':'#475146')+'" stroke-width="'+(y%88?4:12)+'" opacity="'+(y%88?.26:.33)+'"/>';}
+ for(let i=0;i<190;i++){
+  const x=fraction(i,31,seed)*spec.width,y=fraction(i,32,seed)*spec.height,r=32+fraction(i,33,seed)*105;
+  out+='<path d="M'+number(x-r)+' '+number(y+r*.7)+'L'+number(x-r*.45)+' '+number(y-r*.2)+'L'+number(x+r*.1)+' '+number(y-r*.7)+'L'+number(x+r*.8)+' '+number(y+r*.25)+'L'+number(x+r)+' '+number(y+r*.75)+'z" fill="'+(i%2?'#c4bca3':'#737867')+'" opacity=".32"/><path d="M'+number(x-r*.45)+' '+number(y-r*.2)+'L'+number(x+r*.1)+' '+number(y-r*.7)+'L'+number(x+r*.8)+' '+number(y+r*.25)+'" fill="none" stroke="#e0d0b1" stroke-width="2.8" opacity=".35"/>';
+ }
+ return out+'<path d="'+edge+'" fill="none" stroke="#344238" stroke-width="17" opacity=".5"/><path d="'+edge+'" fill="none" stroke="#d0bea0" stroke-width="4" opacity=".55"/></g>';
+}
+function walls(chapter,spec){
+ const edge=terrainBoundaryPath(chapter.terrain,'#');let out='<g clip-path="url(#blocked)"><rect width="100%" height="100%" fill="url(#rock)"/>';
+ for(let y=0;y<spec.height;y+=34){out+='<path d="M0 '+y+'H'+spec.width+'" stroke="#444e42" stroke-width="3" opacity=".45"/>';for(let x=y%68?0:44;x<spec.width;x+=88)out+='<path d="M'+x+' '+y+'v34" stroke="#444e42" stroke-width="2" opacity=".4"/>';}
+ return out+'<path d="'+edge+'" fill="none" stroke="#343f35" stroke-width="30"/><path d="'+edge+'" fill="none" stroke="#dfcfac" stroke-width="10"/><path d="'+edge+'" fill="none" stroke="#696d58" stroke-width="4" stroke-dasharray="20 12"/></g>';
+}
+function water(chapter,spec,seed){
+ const edge=terrainBoundaryPath(chapter.terrain,'#');let out='<g clip-path="url(#blocked)"><rect width="100%" height="100%" fill="url(#river)"/>';
+ for(let y=12;y<spec.height;y+=18){let d='M0 '+y;for(let x=30;x<=spec.width;x+=30)d+='L'+x+' '+number(y+Math.sin(x*.014+y*.008)*4);out+='<path d="'+d+'" fill="none" stroke="#c1d8be" stroke-width="'+(y%36?1:2)+'" opacity="'+(y%36?.17:.24)+'"/>';}
+ return out+'<path d="'+edge+'" fill="none" stroke="#445b41" stroke-width="26"/><path d="'+edge+'" fill="none" stroke="#c8bc8d" stroke-width="13"/><path d="'+edge+'" fill="none" stroke="#eee1b5" stroke-width="3" opacity=".6"/></g>';
+}
+function bridges(chapter){
+ let out='';for(const pair of chapter.bridgeCells??[]){const [x,y]=pair;if(chapter.terrain[y]?.[x]!=='.')throw new Error('Act 6 bridge artwork must remain on passable terrain');const px=x*CELL,py=y*CELL;out+='<g><rect x="'+px+'" y="'+(py+16)+'" width="100" height="69" fill="#554d39"/><rect x="'+px+'" y="'+(py+20)+'" width="100" height="59" fill="#bca47a"/>';for(let i=8;i<100;i+=10)out+='<path d="M'+(px+i)+' '+(py+20)+'v59" stroke="#675841" stroke-width="2"/>';out+='<path d="M'+px+' '+(py+16)+'h100M'+px+' '+(py+83)+'h100" stroke="#544b35" stroke-width="5"/></g>';}
+ return out;
+}
+export function renderAct6MapSVG(chapter){
+ const spec=act6MapSpec(chapter),style=ACT6_MAP_STYLE[chapter.id],seed=seedFor(chapter.id),forestMask=regionPath(chapter.terrain,c=>c==='F'),blockedMask=regionPath(chapter.terrain,c=>c==='#'),passableMask=regionPath(chapter.terrain,c=>c!=='#');
+ const gradient=(id,colors)=>'<linearGradient id="'+id+'" x2=".35" y2="1"><stop stop-color="'+colors[0]+'"/><stop offset="1" stop-color="'+colors[1]+'"/></linearGradient>';
+ const canopyGradients=[['#97ad67','#375b3c'],['#829d59','#294e34'],['#aac17c','#40613c']].map(([light,dark],i)=>'<radialGradient id="canopy'+i+'" cx="35%" cy="25%" r="75%"><stop stop-color="'+light+'"/><stop offset=".45" stop-color="'+style.forest[1]+'"/><stop offset="1" stop-color="'+dark+'"/></radialGradient>').join('');
+ const defs=gradient('ground',style.ground)+gradient('forest',style.forest)+gradient('rock',style.rock)+gradient('river',['#618b82','#345c62'])+canopyGradients+'<filter id="softWash" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="45"/></filter><clipPath id="woodland"><path d="'+forestMask+'"/></clipPath><clipPath id="blocked"><path d="'+blockedMask+'"/></clipPath><clipPath id="passable"><path d="'+passableMask+'"/></clipPath>';
+ const blocked=style.blockedKind==='water'?water(chapter,spec,seed):style.blockedKind==='wall'?walls(chapter,spec):cliffs(chapter,spec,style,seed);
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+spec.width+'" height="'+spec.height+'" viewBox="0 0 '+spec.width+' '+spec.height+'"><title>'+escape(chapter.name??chapter.title??chapter.id)+'</title><desc>Display-only continuous Act 6 landscape. Woodland and blocked areas follow the unchanged tactical terrain mask exactly. '+escape(style.mood)+'</desc><defs>'+defs+'</defs>'+groundDetails(chapter,spec,style,seed)+roads(chapter,spec)+blocked+forest(chapter,spec,style,seed)+bridges(chapter)+'</svg>';
+}
+export function installAct6MapArt(chapters,register){
+ if(typeof register!=='function')throw new Error('Act 6 artwork registration function required');
+ return chapters.filter(ch=>Object.hasOwn(ACT6_MAP_STYLE,ch.id)).map(ch=>{const spec=act6MapSpec(ch),bitmap=ACT6_STAGE_MAPS.find(row=>row.id===ch.id);register({...spec,width:bitmap.width,height:bitmap.height,logicalWidth:spec.width,logicalHeight:spec.height});return spec;});
+}
+
+// A bridge is one connected deck, even when its two rows shift sideways.
+// This small native overlay repairs raster bridge footprints without editing rules.
+export function renderAct6BridgeOverlaySVG(chapter){
+ const spec=act6MapSpec(chapter),mask=chapter.terrain.map(()=>'.'.repeat(spec.columns)).map(row=>[...row]);
+ for(const [x,y] of chapter.bridgeCells??[]){if(chapter.terrain[y]?.[x]!=='.')throw new Error('Bridge overlay on blocked terrain');mask[y][x]='B';}
+ const terrain=mask.map(row=>row.join('')),deckPaths=terrainRegions(terrain,'B').map(region=>{
+  const cells=new Set(region.map(([x,y])=>x+','+y)),edges=new Map(),has=(x,y)=>cells.has(x+','+y),add=(x1,y1,x2,y2)=>edges.set(x1+','+y1,[x2,y2]);
+  for(const [x,y] of region){if(!has(x,y-1))add(x,y,x+1,y);if(!has(x+1,y))add(x+1,y,x+1,y+1);if(!has(x,y+1))add(x+1,y+1,x,y+1);if(!has(x-1,y))add(x,y+1,x,y);}
+  const first=edges.keys().next().value;let cursor=first,path='M'+first.split(',').map(n=>Number(n)*CELL).join(' '),count=0;
+  do{const next=edges.get(cursor);if(!next||count++>edges.size)throw new Error('Invalid bridge contour');path+='L'+next.map(n=>n*CELL).join(' ');cursor=next.join(',');}while(cursor!==first);return path+'z';
+ }),deck=deckPaths.join(''),edge=terrainBoundaryPath(terrain,'B');
+ let grain='';for(let x=0;x<spec.width;x+=15){grain+='<path d="M'+x+' 0v'+spec.height+'" stroke="#634d35" stroke-width="1.7" opacity=".42"/>';grain+='<path d="M'+(x+2)+' 0v'+spec.height+'" stroke="#dec394" stroke-width="1.1" opacity=".36"/>';}
+ const seed=seedFor(chapter.id);for(let i=0;i<420;i++){const x=number(fraction(i,84,seed)*spec.width),y=number(fraction(i,85,seed)*spec.height);grain+='<path d="M'+x+' '+y+'q-3 12 1 28t0 24" stroke="#705538" stroke-width=".8" opacity=".3" fill="none"/>';}
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+spec.width+'" height="'+spec.height+'" viewBox="0 0 '+spec.width+' '+spec.height+'"><defs><clipPath id="deck">'+deckPaths.map(d=>'<path d="'+d+'"/>').join('')+'</clipPath><linearGradient id="oak" x2=".05" y2="1"><stop stop-color="#b49366"/><stop offset=".45" stop-color="#b99b6c"/><stop offset="1" stop-color="#9a794f"/></linearGradient></defs><g clip-path="url(#deck)"><rect width="100%" height="100%" fill="url(#oak)"/>'+grain+'<path d="'+edge+'" fill="none" stroke="#5b4834" stroke-width="7" opacity=".75"/><path d="'+edge+'" fill="none" stroke="#d8bb88" stroke-width="2" opacity=".75"/></g></svg>';
+}
