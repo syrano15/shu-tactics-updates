@@ -1,0 +1,48 @@
+import {CHAPTERS} from './campaign.js';
+import {awardAct5ObjectiveExperience} from './growth.js';
+
+const scenarioFor=state=>state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter];
+const atTile=(unit,[x,y])=>unit.x===x&&unit.y===y;
+const regular=unit=>unit.team==='ally'&&!unit.extra&&!unit.generic&&!unit.nonCombat&&unit.hp>0&&!unit.withdrawn&&!unit.escaped;
+
+export function initializeAct5Mission(state,scenario){
+ if(scenario?.act===5){state.act5MissionVisits=[];state.act5OptionalObjectiveAchieved=false;}
+}
+// Moving alone is cancellable. A goal is credited only after the unit commits
+// an action; selection, hover, preview and cancelled movement never grant EXP.
+export function recordAct5MissionProgress(state){
+ const scenario=scenarioFor(state);
+ if(scenario?.act!==5||state.act5GrowthVersion!==1||state.phase!=='ally'||state.result||state.replayChapterId)return [];
+ const events=[];
+ for(const unit of state.units.filter(unit=>regular(unit)&&unit.done)){
+  for(const goal of scenario.act5Objectives??[]){
+   if(!goal.tiles.some(tile=>atTile(unit,tile)))continue;
+   if(!state.act5MissionVisits.some(v=>v.key===goal.key&&v.unitId===unit.id)){
+    state.act5MissionVisits.push({key:goal.key,unitId:unit.id,round:state.round});
+   }
+   const event=awardAct5ObjectiveExperience(state,unit,goal.key);if(event)events.push(event);
+  }
+ }
+ const optional=scenario.act5OptionalObjective;
+ if(!state.act5OptionalObjectiveAchieved&&optional?.tiles?.length&&optional.tiles.every(tile=>state.units.some(unit=>regular(unit)&&unit.done&&atTile(unit,tile)))){
+  const unit=state.units.find(unit=>regular(unit)&&unit.done&&atTile(unit,optional.tiles[0]));
+  state.act5OptionalObjectiveAchieved=true;
+  state.act5MissionVisits.push({key:'optional_supply',unitId:unit.id,round:state.round});
+ }
+ return events;
+}
+export function validateAct5Mission(state,scenario){
+ const fail=()=>{throw new Error('5막 거점 기여 기록이 올바르지 않습니다.');};
+ if(scenario?.act!==5){if(state.act5MissionVisits!==undefined||state.act5OptionalObjectiveAchieved!==undefined)fail();return;}
+ if(!Array.isArray(state.act5MissionVisits)||state.act5MissionVisits.length>37||typeof state.act5OptionalObjectiveAchieved!=='boolean')fail();
+ const keys=new Set();
+ for(const visit of state.act5MissionVisits){
+  if(!visit||Object.keys(visit).some(key=>!['key','unitId','round'].includes(key))||!Number.isInteger(visit.round)||visit.round<1||visit.round>state.round||!state.units.some(unit=>regular({...unit,hp:1})&&unit.id===visit.unitId))fail();
+  const id=visit.unitId+'|'+visit.key;if(keys.has(id))fail();keys.add(id);
+  if(visit.key==='optional_supply'){if(!scenario.act5OptionalObjective?.tiles?.length||!state.act5OptionalObjectiveAchieved)fail();}
+  else if(!scenario.act5Objectives?.some(goal=>goal.key===visit.key))fail();
+ }
+ const optionalVisits=state.act5MissionVisits.filter(v=>v.key==='optional_supply');
+ if(optionalVisits.length!==(state.act5OptionalObjectiveAchieved?1:0))fail();
+ for(const key of Object.keys(state.act5Growth?.record?.objectiveKeys??{}))if(!scenario.act5Objectives?.some(goal=>key.endsWith('|'+goal.key)))fail();
+}

@@ -1,0 +1,36 @@
+const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const number=value=>Number(value??0).toLocaleString();
+
+/** Present already settled battle data; this module never grants rewards or EXP. */
+export function renderResultHTML({complete=false,win=false,replay=false,chapter=0,state,army,victoryReward=0,completionMessage='',growthResultsHTML='',rewardHTML=''}){
+ if(complete)return '<div class="result-compact result-complete"><div class="result-verdict"><span class="eyebrow gold">전투 여정을 마치다</span><div class="result-seal">완료</div><h3>다음 여정을 기다리며</h3><p>'+esc(completionMessage)+'</p></div><div class="result-actions"><button class="primary" data-flow="replay-records">완료한 장 재도전 · 기록</button><button data-flow="restart">처음부터 다시 보기</button></div></div>';
+ const officers=state.units.filter(unit=>unit.team==='ally'&&!unit.extra&&!unit.nonCombat);
+ const growth=officers.map(unit=>'<article class="result-growth-officer"><span class="result-growth-initial" aria-hidden="true">'+esc(unit.name.slice(0,1))+'</span><div><b>'+esc(unit.name)+(unit.withdrawn?'<small>전장 이탈</small>':unit.hp===0?'<small>퇴각</small>':'')+'</b><span>Lv'+unit.startLevel+' <i aria-hidden="true">→</i> Lv'+unit.level+'</span></div><strong>+'+number(unit.battleExp)+' <small>EXP</small></strong></article>').join('');
+ const act4Details=state.act4GrowthVersion===1?'<section class="result-act4-details"><h4>4막 성장과 군수 정산</h4>'+officers.map(u=>{const x=state.act4Growth.breakdown[u.id]??{};return '<p>'+esc(u.name)+' · 지원 '+number(x.support)+' EXP · 목표 '+number(x.objective)+' EXP · 성장 지원 추가 '+number((x.supportBonus??0)+(x.objectiveBonus??0))+' EXP · 승리 '+number(x.victory)+' EXP</p>';}).join('')+(state.rewardSummary?.act4Rewards?'<p>첫 승리 군수금 '+number(state.rewardSummary.act4Rewards.militaryGold)+' · 선택 목표 '+number(state.rewardSummary.act4Rewards.optionalGold)+'골</p>':'')+'</section>':'';
+ const act5Details=state.act5GrowthVersion===1?'<section class="result-act4-details result-act5-details"><h4>5막 성장과 군수 정산</h4>'+officers.map(u=>{const x=state.act5Growth.breakdown[u.id]??{};return '<p>'+esc(u.name)+' · 지원 '+number(x.support)+' EXP · 목표 '+number(x.objective)+' EXP · 성장 지원 추가 '+number((x.supportBonus??0)+(x.objectiveBonus??0))+' EXP · 승리 '+number(x.victory)+' EXP</p>';}).join('')+(state.rewardSummary?.act5Rewards?'<p>첫 승리 군수금 '+number(state.rewardSummary.act5Rewards.militaryGold)+' · 선택 목표 '+number(state.rewardSummary.act5Rewards.optionalGold)+'골</p>':'')+'</section>':'';
+ const title=replay?(win?'재도전 승리':'재도전 패배'):(win?'촉군 승리':'전투 패배');
+ const alive=state.units.filter(unit=>unit.team==='ally'&&(unit.hp>0||unit.withdrawn)).length,total=state.units.filter(unit=>unit.team==='ally').length;
+ const continueAction=replay?'replay-records':win?'post':'retry',continueLabel=replay?'재도전 기록 보기':win?'전후 대화로 →':'현재 전투 재도전';
+ const stats='<div class="result-stats"><span>소요 턴<strong>'+state.round+'</strong></span><span>아군 생존<strong>'+alive+' / '+total+'</strong></span><span>남은 군량<strong>'+state.items+'</strong></span></div>';
+ return '<div class="result-compact '+(win?'result-victory':'result-defeat')+'"><div class="result-verdict"><span class="eyebrow gold">CHAPTER '+(chapter+1)+' / 전투 완료</span><div class="result-seal">'+(win?'승리':'패배')+'</div><h3>'+title+'</h3>'+(win?'':'<p>획득한 경험치와 레벨은 유지됩니다. 성장한 장수로 다시 도전하세요.</p>')+'</div><section class="result-growth-summary" aria-labelledby="result-growth-title"><h4 id="result-growth-title">출전 장수 성장</h4><div class="result-growth-grid">'+growth+'</div></section><div class="result-actions"><button data-result-details="open">상세보기</button><button class="primary" data-flow="'+continueAction+'">'+continueLabel+'</button></div><dialog id="result-details-dialog" class="result-details-dialog" aria-labelledby="result-details-title"><div class="dialog-heading"><h3 id="result-details-title">전투 결과 상세</h3><button data-result-details="close" aria-label="전투 결과 상세 닫기">닫기</button></div>'+(win?'<p>획득 자금 '+number(victoryReward+(state.rewardSummary?.gold??0))+' · 보유 금 '+number(army.gold)+'</p>':'')+stats+act4Details+act5Details+growthResultsHTML+rewardHTML+'</dialog></div>';
+}
+
+/** Native dialogs keep hidden detail text out of the active result/deployment layout. */
+export function installResultUI(doc=globalThis.document){
+ const listener=event=>{
+  const button=event.target?.closest?.('[data-result-details],[data-deployment-details]');
+  if(!button||button.disabled)return;
+  const result=button.hasAttribute('data-result-details'),action=result?button.dataset.resultDetails:button.dataset.deploymentDetails;
+  const dialog=doc.getElementById(result?'result-details-dialog':'deployment-details-dialog');
+  if(!dialog)return;
+  event.stopPropagation();
+  if(action==='open'&&!dialog.open)dialog.showModal();
+  if(action==='close'&&dialog.open)dialog.close();
+ };
+ const keydown=event=>{
+  if(event.key==='Escape'&&(doc.getElementById('result-details-dialog')?.open||doc.getElementById('deployment-details-dialog')?.open))event.stopPropagation();
+ };
+ doc.addEventListener('click',listener,true);
+ doc.addEventListener('keydown',keydown,true);
+ return ()=>{doc.removeEventListener('click',listener,true);doc.removeEventListener('keydown',keydown,true);};
+}

@@ -1,0 +1,194 @@
+import {ACT3_STAGE_MAP_ART,ACT3_TERRAIN_ART} from './act3-art.js';
+import {ACT2_STAGE_MAP_ART,ACT2_TERRAIN_ART} from './act2-art.js';
+import {mapBlockedKind} from './campaign-map-presentation.js';
+// 지형 그림은 표시 전용이다. 맵 코드·이동 비용·방어·저장 규칙은 바꾸지 않는다.
+export const TERRAIN_ART = Object.freeze({
+  ground: Object.freeze({kind:'ground',src:'art/terrain/ground-v020.webp'}),
+  'city-ground': Object.freeze({kind:'city-ground',src:'art/terrain/city-ground-v020.webp'}),
+  forest: Object.freeze({kind:'forest',src:'art/terrain/forest-v020.webp'}),
+  water: Object.freeze({kind:'water',src:'art/terrain/water-v0282.webp'}),
+  building: Object.freeze({kind:'building',src:'art/terrain/building-v020.webp'}),
+});
+// 완성된 전장 그림의 지형 서명도 표시 계층에서 확인한다. 다른 배치에는 적용하지 않는다.
+const revisedWaterStages=new Set(['s02_yellow_camp','s03_hulao','s04_beihai','s05_xuzhou_relief']);
+const stageMap=(id,terrain)=>Object.freeze({id,src:'art/maps/'+id+(revisedWaterStages.has(id)?'-v0282.webp':'-v021.webp'),width:1200,height:1000,columns:12,rows:10,terrainKey:terrain.join('\n')});
+export const STAGE_MAP_ART = Object.freeze({
+  s01_zhuoxian:stageMap('s01_zhuoxian',['............','..FF......F.','........FF..','...F........','............','......F.....','..F.....F...','........FF..','.FF.........','............']),
+  s02_yellow_camp:stageMap('s02_yellow_camp',['............','.....F...FF.','..F.....F...','......##....','............','............','......##....','..F.....F...','.....F...FF.','............']),
+  s03_hulao:stageMap('s03_hulao',['........####','..F.....####','.........###','....F.......','............','............','....F.......','.........###','..F.....####','........####']),
+  s04_beihai:stageMap('s04_beihai',['............','...F....F...','..F.........','........###.','...F....#...','............','...F....#...','........###.','..F.........','...F....F...']),
+  s05_xuzhou_relief:stageMap('s05_xuzhou_relief',['............','.FF.....F...','.F..........','...##.......','..F.........','..F.........','...##.......','.F..........','.FF.....F...','............']),
+  s06_xuzhou_fall:stageMap('s06_xuzhou_fall',['............','.##.##.##.#.','.##.##.##.#.','............','............','.##.##.##...','.##.##.##.##','............','.##.##.##.##','............']),
+});
+export const ALL_STAGE_MAP_ART=Object.freeze({...STAGE_MAP_ART,...ACT2_STAGE_MAP_ART,...ACT3_STAGE_MAP_ART});
+const expandedStageMaps=new Map(),expandedTerrain=new Map();
+const wallArt=Object.freeze({kind:'wall',src:'art/terrain/wall-stone-v0384.webp'});
+const stageArt=id=>expandedStageMaps.get(id)??(Object.hasOwn(ALL_STAGE_MAP_ART,id)?ALL_STAGE_MAP_ART[id]:null);
+const knownSources = new Set([...Object.values(TERRAIN_ART),...Object.values(ACT2_TERRAIN_ART),...Object.values(ACT3_TERRAIN_ART)].map(art=>art.src));
+const unavailableSources = new Set();
+const installedRoots = new WeakSet();
+const stageMapLoads = new Map();
+// 같은 지형의 상하좌우 연결 구역마다 가장 위·왼쪽 칸을 대표 표식으로 삼는다.
+function terrainLabelAnchors(terrain) {
+  const visited=new Set(),anchors=new Set(),width=terrain[0].length,height=terrain.length;
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+    const code=terrain[y][x],start=x+','+y;
+    if(!['F','#'].includes(code)||visited.has(start))continue;
+    anchors.add(start);visited.add(start);
+    const queue=[[x,y]];
+    for(let i=0;i<queue.length;i++){
+      const [cx,cy]=queue[i];
+      for(const [dx,dy] of [[0,-1],[-1,0],[1,0],[0,1]]){
+        const nx=cx+dx,ny=cy+dy,cell=nx+','+ny;
+        if(nx<0||ny<0||nx>=width||ny>=height||terrain[ny][nx]!==code||visited.has(cell))continue;
+        visited.add(cell);queue.push([nx,ny]);
+      }
+    }
+  }
+  return anchors;
+}
+const stageMapAnchors=new Map(Object.values(ALL_STAGE_MAP_ART).map(art=>[art.id,terrainLabelAnchors(art.terrainKey.split('\n'))]));
+
+export function installExpandedTerrainMetadata(chapters){
+ for(const ch of chapters)if(ch.campaignLayoutVersion===1)expandedTerrain.set(ch.id,{terrainKey:ch.terrain.join('\n'),blockedKind:[4,5].includes(ch.act)?ch.blockedKind:mapBlockedKind(ch)});
+ knownSources.add(wallArt.src);
+}
+export function registerExpandedStageMapArt(art){
+ if(!art||typeof art.id!=='string'||typeof art.src!=='string'||!Number.isInteger(art.width)||!Number.isInteger(art.height)||art.width<1||art.height<1||!Number.isInteger(art.columns)||!Number.isInteger(art.rows)||art.columns<10||art.columns>26||art.rows<8||art.rows>20||typeof art.terrainKey!=='string'||art.terrainKey.split('\n').length!==art.rows||art.terrainKey.split('\n').some(row=>row.length!==art.columns||!/^[.F#]+$/.test(row)))throw new Error('확대 전장 그림 설정 오류');
+ expandedStageMaps.set(art.id,Object.freeze({...art}));stageMapAnchors.set(art.id,terrainLabelAnchors(art.terrainKey.split('\n')));stageMapLoads.delete(art.id);
+ return art;
+}
+
+export function stageMapCropFor(code,scenarioId,geometry) {
+  const art=stageArt(scenarioId);
+  if(!art || stageMapLoads.get(scenarioId)?.status==='failed' || !geometry)return null;
+  const {x,y,width,height,terrain}=geometry;
+  if(!Number.isInteger(x)||!Number.isInteger(y)||width!==art.columns||height!==art.rows||x<0||x>=width||y<0||y>=height)return null;
+  if(!Array.isArray(terrain)||terrain.length!==height||terrain.some(row=>typeof row!=='string'||row.length!==width)||terrain.join('\n')!==art.terrainKey||terrain[y][x]!==code)return null;
+  return {...art,x,y,labelAnchor:!['F','#'].includes(code)||stageMapAnchors.get(scenarioId).has(x+','+y),left:x*art.width/width,top:y*art.height/height,cropWidth:art.width/width,cropHeight:art.height/height,
+    backgroundSize:(width*100)+'% '+(height*100)+'%',backgroundPosition:(x/(width-1)*100)+'% '+(y/(height-1)*100)+'%'};
+}
+
+function applyStageMap(root,scenarioId,ready) {
+  for(const layer of root?.querySelectorAll?.('[data-stage-map="'+scenarioId+'"]')??[]){
+    if(layer.dataset?.stageMap!==scenarioId)continue;
+    layer.classList.toggle('stage-map-ready',ready);
+    layer.classList.toggle('terrain-art-ready',ready||layer.querySelector?.('.terrain-art-image')?.hidden===false);
+    layer.parentElement?.classList.toggle('stage-map-cell',ready);
+  }
+}
+
+export function loadStageMapArt(scenarioId,root=globalThis.document,ImageType=globalThis.Image) {
+  const art=stageArt(scenarioId);
+  if(!art||!root?.querySelectorAll||!ImageType)return Promise.resolve(false);
+  let record=stageMapLoads.get(scenarioId);
+  if(!record){
+    record={status:'loading'};stageMapLoads.set(scenarioId,record);
+    record.promise=new Promise(resolve=>{
+      const finish=ready=>{
+        if(record.status!=='loading')return;
+        if(stageMapLoads.get(scenarioId)!==record){resolve(false);return;}
+        record.status=ready?'ready':'failed';resolve(ready);
+      };
+      try{
+        const image=new ImageType();
+        image.onload=()=>{
+          if(record.status!=='loading'||record.decoding)return;
+          if(image.naturalWidth!==art.width||image.naturalHeight!==art.height){finish(false);return;}
+          record.decoding=true;
+          Promise.resolve().then(()=>image.decode?.()).then(()=>finish(true),()=>finish(false));
+        };
+        image.onerror=()=>finish(false);
+        image.src=art.src;
+      }catch{finish(false);}
+    });
+  }
+  // 재렌더나 다른 장으로 이동한 뒤의 오래된 로드 완료는 같은 장의 그림층만 갱신한다.
+  return record.promise.then(ready=>{
+    if(stageMapLoads.get(scenarioId)!==record)return false;
+    applyStageMap(root,scenarioId,ready);return ready;
+  });
+}
+
+export function resetStageMapArtFailures() {
+  stageMapLoads.clear();
+}
+
+export function terrainArtFor(code, scenarioId='') {
+  const expanded=expandedTerrain.get(scenarioId);
+  if(expanded&&code==='#'&&expanded.blockedKind==='wall')return unavailableSources.has(wallArt.src)?null:wallArt;
+  if(expanded&&code==='#'&&expanded.blockedKind==='rock')return unavailableSources.has(ACT2_TERRAIN_ART.rock.src)?null:ACT2_TERRAIN_ART.rock;
+  const kind = code==='.' ? (scenarioId==='s06_xuzhou_fall' ? 'city-ground' : 'ground') : code==='F' ? (ACT3_STAGE_MAP_ART[scenarioId]?.coverKind==='woodenCargo'?'cargo':'forest') :
+    code==='#' ? (scenarioId==='s06_xuzhou_fall' ? 'building' : scenarioId==='s10_thousand_li' ? 'rock' : ACT3_STAGE_MAP_ART[scenarioId]?.blockedKind??'water') : null;
+  const art = kind ? (TERRAIN_ART[kind]??ACT2_TERRAIN_ART[kind]??ACT3_TERRAIN_ART[kind]) : null;
+  return art && !unavailableSources.has(art.src) ? art : null;
+}
+
+// 완성 전장 그림이 없을 때만 쓰는 물-둑 연결이다. 인접한 물 사이에는 테두리를 만들지 않는다.
+export function waterShoreFor(code,scenarioId='',geometry=null) {
+  if(terrainArtFor(code,scenarioId)?.kind!=='water'||!geometry)return null;
+  const {x,y,width,height,terrain}=geometry;
+  if(!Number.isInteger(x)||!Number.isInteger(y)||!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1||x<0||y<0||x>=width||y>=height)return null;
+  if(!Array.isArray(terrain)||terrain.length!==height||terrain.some(row=>typeof row!=='string'||row.length!==width)||terrain[y][x]!==code)return null;
+  // 보드 밖으로 흐르는 물은 막지 않는다.
+  const water=(nx,ny)=>nx<0||ny<0||nx>=width||ny>=height||terrain[ny][nx]==='#';
+  const north=water(x,y-1)?0:12,east=water(x+1,y)?0:12,south=water(x,y+1)?0:12,west=water(x-1,y)?0:12;
+  return {north,east,south,west,northWest:north&&west?18:0,northEast:north&&east?18:0,southEast:south&&east?18:0,southWest:south&&west?18:0};
+}
+
+export function terrainHTML(code, scenarioId='',geometry=null) {
+  const art=terrainArtFor(code,scenarioId);
+  const crop=stageMapCropFor(code,scenarioId,geometry);
+  if(!art&&!crop)return '';
+  const ready=crop&&stageMapLoads.get(scenarioId)?.status==='ready';
+  const shore=waterShoreFor(code,scenarioId,geometry);
+  const mapAttributes=crop?' data-stage-map="'+scenarioId+'" data-map-label="'+(crop.labelAnchor?'anchor':'secondary')+'"':'';
+  // River crossings use one native vector deck per continuous bridge, above
+  // the painted landscape, with the same whole-map coordinates and cropping.
+  const images=crop?(crop.overlaySrc?'url(\''+crop.overlaySrc+'\'),':'')+'url(\''+crop.src+'\')':'';
+  const mapStyle=crop?'--stage-map-image:'+images+';--stage-map-size:'+crop.backgroundSize+';--stage-map-position:'+crop.backgroundPosition:'';
+  const shoreStyle=shore?Object.entries(shore).map(([name,value])=>'--water-'+name+':'+value+'%').join(';'):'';
+  const layerStyle=[mapStyle,shoreStyle].filter(Boolean).join(';');
+  const presentationAttributes=mapAttributes+(shore?' data-water-shore="true"':'')+(layerStyle?' style="'+layerStyle+'"':'');
+  // 기존 색·무늬는 그림 로드 전과 로드 실패 후에도 그대로 남는다.
+  return '<span class="terrain-art'+(ready?' terrain-art-ready stage-map-ready':'')+'" aria-hidden="true"'+presentationAttributes+'>'+(art?'<img class="terrain-art-image" data-terrain-asset="'+art.src+'" src="'+art.src+'" alt="" draggable="false" decoding="async" hidden>':'')+'</span>';
+}
+
+export function markTerrainUnavailable(source) {
+  if(!knownSources.has(source))return false;
+  unavailableSources.add(source);
+  return true;
+}
+
+export function resetTerrainArtFailures() {
+  unavailableSources.clear();
+}
+
+export function installTerrainArtFallback(root=globalThis.document) {
+  if(!root?.addEventListener || installedRoots.has(root))return false;
+  installedRoots.add(root);
+  const imageFrom = event => {
+    const image=event.target;
+    return image?.classList?.contains('terrain-art-image') &&
+      knownSources.has(image.dataset?.terrainAsset) ? image : null;
+  };
+  root.addEventListener('load',event=>{
+    const image=imageFrom(event);
+    if(!image || unavailableSources.has(image.dataset.terrainAsset))return;
+    const layer=image.closest('.terrain-art');
+    if(!layer)return;
+    image.hidden=false;
+    layer.classList.add('terrain-art-ready');
+  },true);
+  root.addEventListener('error',event=>{
+    const image=imageFrom(event);
+    if(!image || !markTerrainUnavailable(image.dataset.terrainAsset))return;
+    const layer=image.closest('.terrain-art');
+    if(layer?.dataset?.stageMap&&stageArt(layer.dataset.stageMap)){
+      image.remove();
+      if(stageMapLoads.get(layer.dataset.stageMap)?.status!=='ready')layer.classList.remove('terrain-art-ready');
+    }else layer?.remove();
+  },true);
+  return true;
+}
+

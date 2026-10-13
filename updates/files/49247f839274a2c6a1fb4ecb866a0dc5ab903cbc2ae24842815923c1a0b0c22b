@@ -1,0 +1,30 @@
+import {HERO_DATA} from './heroes.js';
+import {portraitAsset} from './story-assets.js';
+
+// Portrait identity is independent of combat class and never replaces a battle body.
+export const ACT5_NEW_PORTRAITS=Object.freeze([
+ ['jiangwei','강유','future-regular'],['guanxing','관흥','future-regular'],['zhangbao','장포','future-regular'],
+ ['fengxi','풍습','future-regular'],['fudong','부동','future-regular'],['dengzhi','등지','future-regular'],
+ ['zhangni','장의','future-regular'],['mazhong','마충','future-regular'],['gaoxiang','고상','future-regular'],
+ ['feishi','비시','act5-named'],['pangde','방덕','act5-named'],['yujin','우금','act5-named'],
+ ['xuhuang','서황','act5-named'],['lvmeng','여몽','act5-named'],['luxun','육손','act5-named'],
+ ['fushiren','부사인','act5-named'],['mifang','미방','act5-named'],
+].map(([id,name,scope])=>Object.freeze({id,name,scope,src:'art/act5/portraits/'+id+'-v050.webp'})));
+export const ACT5_SHARED_PORTRAITS=Object.freeze({wu_soldier:'wu_officer',wu_envoy:'wu_officer'});
+const namedCharacters=Object.freeze({
+ '조인':{id:'caoren',faction:'wei'},'서황':{id:'xuhuang',faction:'wei'},'우금':{id:'yujin',faction:'wei'},
+ '방덕':{id:'pangde',faction:'wei'},'여몽':{id:'lvmeng',faction:'wu'},'육손':{id:'luxun',faction:'wu'},
+ '미방':{id:'mifang',faction:'shu'},'부사인':{id:'fushiren',faction:'shu'},'비시':{id:'feishi',faction:'shu'},
+});
+export function unitPortraitIdentity(unit){
+ if(!unit||unit.generic||unit.nonCombat)return null;
+ if(unit.team==='ally'&&!unit.extra&&HERO_DATA[unit.id])return {id:unit.id,faction:'shu'};
+ const named=namedCharacters[unit.name];if(!named)return null;
+ const faction=unit.faction==='cao'?'wei':unit.faction;
+ // Mi Fang and Fu Shiren later fight for Wu; keep their person, not their former side.
+ if(faction&&faction!==named.faction&&!(['mifang','fushiren'].includes(named.id)&&faction==='wu'))return null;
+ return {id:named.id,faction:faction??named.faction};
+}
+export function portraitForUnit(unit,chapterId='s32_fancheng',face='normal'){
+ const identity=unitPortraitIdentity(unit);return identity?portraitAsset(identity.id,face,chapterId,{faction:identity.faction}):null;
+}

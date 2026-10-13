@@ -1,0 +1,147 @@
+import {HERO_DATA} from './heroes.js';
+import {CHAPTERS} from './campaign.js';
+import {MAX_LEVEL} from './growth-rules.js';
+
+export const ACT5_GROWTH_VERSION=1;
+export const ACT5_MILITARY_GOLD=20000,ACT5_OPTIONAL_GOLD=3000;
+const object=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
+const integer=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+const ensure=(ok,message='5막 육성·군수 기록이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+const regular=(army,id)=>HERO_DATA[id]&&!HERO_DATA[id].guest&&army.heroes[id]&&!army.heroes[id].departed;
+export const act5Scenario=state=>state?.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state?.chapter];
+export const act5GrowthActive=state=>state?.act5GrowthVersion===1&&object(state.act5Growth);
+export function act5ReferenceLevel(army){
+ const levels=army.joined.filter(id=>regular(army,id)).map(id=>army.heroes[id].growth?.level??1).sort((a,b)=>b-a).slice(0,12);
+ if(!levels.length)return 1;const middle=Math.floor(levels.length/2);
+ return Math.floor(levels.length%2?levels[middle]:(levels[middle-1]+levels[middle])/2);
+}
+export function initializeAct5Progression(army){
+ army.act5Progression??={version:1,referenceLevel:act5ReferenceLevel(army),selectedIds:[],assistClears:{},chapters:{}};
+ return army.act5Progression;
+}
+export function act5GrowthCandidates(army){
+ const referenceLevel=army.act5Progression?.referenceLevel??act5ReferenceLevel(army);
+ return army.joined.filter(id=>regular(army,id)).map(id=>({id,name:HERO_DATA[id].name,level:army.heroes[id].growth.level,referenceLevel,eligible:army.heroes[id].growth.level<=referenceLevel-3,selected:army.act5Progression?.selectedIds.includes(id)??false,remaining:Math.max(0,3-(army.act5Progression?.assistClears[id]?.length??0))}));
+}
+export function selectAct5GrowthSupport(army,ids){
+ ensure(Array.isArray(ids)&&ids.length<=6&&new Set(ids).size===ids.length,'성장 지원은 정규 장수 최대 6명을 선택하세요.');
+ const progress=initializeAct5Progression(army),candidates=act5GrowthCandidates(army);
+ ensure(ids.every(id=>candidates.some(h=>h.id===id&&(h.eligible||h.selected)&&h.remaining>0)),'성장 기준보다 3레벨 이상 낮은 장수를 선택하세요.');
+ const committed=new Set(Object.values(progress.chapters).filter(r=>r.completed||Object.keys(r.supportSpent).length||Object.keys(r.objectiveSpent).length).flatMap(r=>r.assistedIds));
+ ensure(new Set([...committed,...ids]).size<=6,'한 막에서 성장 지원을 받는 장수는 총 6명까지입니다.');
+ // Once a chapter starts, its chosen multiplier is frozen in that chapter ledger.
+ progress.selectedIds=[...ids];return act5GrowthCandidates(army);
+}
+const emptyRecord=()=>({supportSpent:{},objectiveSpent:{},supportKeys:{},objectiveKeys:{},assistedIds:[],completed:false});
+export function initializeAct5Battle(state,army,scenario=act5Scenario(state)){
+ if(scenario?.act!==5)return state;
+ const progress=initializeAct5Progression(army),chapterId=scenario.id;
+ const record=progress.chapters[chapterId]??=emptyRecord();
+ if(!record.started){
+  record.started=true;record.assistedIds=progress.selectedIds.filter(id=>state.units.some(u=>u.id===id&&u.team==='ally'&&!u.extra)&&army.heroes[id].growth.level<progress.referenceLevel-1&&(progress.assistClears[id]?.length??0)<3);
+ }
+ state.act5GrowthVersion=1;state.act5Growth={chapterId,referenceLevel:progress.referenceLevel,record:structuredClone(record),breakdown:{}};
+ return state;
+}
+export function syncAct5Progression(state,army){
+ if(!act5GrowthActive(state))return;
+ const progress=initializeAct5Progression(army),growth=state.act5Growth;
+ ensure(progress.referenceLevel===growth.referenceLevel);
+ progress.chapters[growth.chapterId]=structuredClone(growth.record);
+}
+function breakdown(state,id){return state.act5Growth.breakdown[id]??={support:0,supportBonus:0,objective:0,objectiveBonus:0,victory:0};}
+function assisted(state,unit){return !state.replayChapterId&&!state.act5Growth.record.completed&&state.act5Growth.record.assistedIds.includes(unit.id)&&unit.startLevel<state.act5Growth.referenceLevel-1;}
+function grant(state,unit,base,category,award){
+ // Round the cumulative base, rather than each 25-point action: six actions
+ // must reach 150×1.5=225 and retries retain the same fractional remainder.
+ if(!base)return null;const spent=state.act5Growth.record[category+'Spent'][unit.id];
+ const bonus=assisted(state,unit)?Math.floor(spent*1.5)-Math.floor((spent-base)*1.5)-base:0;
+ const event=award(unit,base+bonus);if(!event)return null;
+ const actualBase=Math.min(event.gained,base),actualBonus=Math.max(0,event.gained-actualBase),row=breakdown(state,unit.id);
+ row[category]+=actualBase;row[category+'Bonus']+=actualBonus;
+ return {...event,category,base:actualBase,bonus:actualBonus};
+}
+export function act5SupportExperience(state,actor,{kind='supply',heals=[],spHeals=[],buffs=[]}={},award){
+ if(!act5GrowthActive(state)||actor?.team!=='ally'||actor.extra||actor.hp<=0)return null;
+ if(state.act5Growth.record.sealed)return null;
+ const ids=new Set([...heals.filter(h=>h.amount>0).map(h=>h.id),...spHeals.filter(h=>h.amount>0&&h.id!==actor.id).map(h=>h.id),...buffs.filter(h=>h.cleared||h.morale>0||h.fresh).map(h=>h.id)]);
+ if(!ids.size)return null;const record=state.act5Growth.record,keys=[...ids].map(id=>actor.id+'|'+state.round+'|'+id+'|'+kind);
+ // A retried opening round cannot pay the same actor's same support action
+ // again merely because the target changed. One action, one grant.
+ if(Object.keys(record.supportKeys).some(key=>key.startsWith(actor.id+'|'+state.round+'|')&&key.endsWith('|'+kind)))return null;
+ const unused=keys.filter(key=>!Object.hasOwn(record.supportKeys,key));if(!unused.length)return null;
+ const base=kind==='ration'?20:kind==='supply'?25:30,spent=record.supportSpent[actor.id]??0,amount=Math.min(base,Math.max(0,150-spent));
+ if(!amount)return null;for(const key of unused)record.supportKeys[key]=actor.id;record.supportSpent[actor.id]=spent+amount;
+ return grant(state,actor,amount,'support',award);
+}
+export function act5ObjectiveExperience(state,unit,key,award){
+ if(!act5GrowthActive(state)||unit?.team!=='ally'||unit.extra||unit.hp<=0||typeof key!=='string'||!/^[-a-zA-Z0-9_]{1,100}$/.test(key))return null;
+ if(state.act5Growth.record.sealed)return null;
+ const record=state.act5Growth.record,unique=unit.id+'|'+key;
+ if(Object.hasOwn(record.objectiveKeys,unique))return null;
+ const spent=record.objectiveSpent[unit.id]??0,amount=Math.min(20,40-spent);if(amount<=0)return null;
+ record.objectiveKeys[unique]=true;record.objectiveSpent[unit.id]=spent+amount;return grant(state,unit,amount,'objective',award);
+}
+export function settleAct5Growth(state,army){
+ if(!act5GrowthActive(state))return;
+ const growth=state.act5Growth,record=growth.record;
+ if(state.result==='victory'&&!record.completed&&!state.replayChapterId){
+  const progress=initializeAct5Progression(army);
+  for(const id of record.assistedIds){const clears=progress.assistClears[id]??=[];if(!clears.includes(growth.chapterId)&&clears.length<3)clears.push(growth.chapterId);}
+  record.completed=true;
+ }
+ if(record.completed){record.sealed=true;record.supportKeys={};record.objectiveKeys={};}
+ syncAct5Progression(state,army);
+}
+export function recordAct5VictoryExperience(state,unit,event){if(act5GrowthActive(state)&&event)breakdown(state,unit.id).victory+=event.gained;}
+export function act5RecruitLevel(army,id,baseline){return Math.min(MAX_LEVEL,Math.max(baseline,act5ReferenceLevel(army)-2,1));}
+export function act5OptionalObjectiveStatus(state,scenario){
+ const spec=scenario?.act5OptionalObjective;
+ if(!spec)return {achieved:false,gold:ACT5_OPTIONAL_GOLD,label:'선택 목표'};
+ // Position alone is cancellable. Only the committed mission visit grants it.
+ const achieved=state.act5OptionalObjectiveAchieved===true;
+ return {achieved:state.result==='victory'&&achieved,gold:ACT5_OPTIONAL_GOLD,label:spec.label??'선택 거점 확보'};
+}
+export function act5RewardStatus(state,scenario){
+ if(scenario?.act!==5||!act5GrowthActive(state))return null;
+ const optional=act5OptionalObjectiveStatus(state,scenario);
+ return {version:1,militaryGold:ACT5_MILITARY_GOLD,optionalGold:optional.achieved?ACT5_OPTIONAL_GOLD:0,optionalAchieved:optional.achieved};
+}
+export function validateAct5RewardReceipt(receipt,scenario=null){
+ if(receipt.act5Rewards===undefined)return;
+ const r=receipt.act5Rewards;
+ ensure(object(r)&&r.version===1&&r.militaryGold===ACT5_MILITARY_GOLD&&typeof r.optionalAchieved==='boolean'&&r.optionalGold===(r.optionalAchieved?ACT5_OPTIONAL_GOLD:0));
+ if(scenario)ensure(scenario.act===5&&(!r.optionalAchieved||scenario.act5OptionalObjective?.tiles?.length>0));
+}
+function validateRecord(record,army){
+ ensure(object(record)&&object(record.supportSpent)&&object(record.objectiveSpent)&&object(record.supportKeys)&&object(record.objectiveKeys)&&Array.isArray(record.assistedIds)&&record.assistedIds.length<=6&&new Set(record.assistedIds).size===record.assistedIds.length&&record.assistedIds.every(id=>army.joined.includes(id))&&typeof record.completed==='boolean'&&record.started===true);
+ for(const [id,v] of Object.entries(record.supportSpent))ensure(army.joined.includes(id)&&integer(v,0,150));
+ for(const [id,v] of Object.entries(record.objectiveSpent))ensure(army.joined.includes(id)&&integer(v,0,40));
+ ensure(record.completed?record.sealed===true:record.sealed===undefined,'5막 육성 원장의 완료·봉인 상태가 다릅니다.');
+ if(record.sealed){ensure(Object.keys(record.supportKeys).length===0&&Object.keys(record.objectiveKeys).length===0,'봉인된 5막 육성 원장은 행동 키를 보관하지 않습니다.');return;}
+ ensure(Object.keys(record.supportKeys).length<=2000&&Object.keys(record.objectiveKeys).length<=80);
+ const supportActions=new Map();
+ for(const [key,id] of Object.entries(record.supportKeys)){
+  ensure(/^[-a-zA-Z0-9_]{1,100}\|\d+\|[-a-zA-Z0-9_]{1,100}\|[-a-zA-Z0-9_]{1,100}$/.test(key)&&army.joined.includes(id));
+  const [actorId,round,targetId,kind]=key.split('|');ensure(actorId===id&&army.joined.includes(targetId)&&integer(Number(round),1,100000)&&['ration','supply','special'].includes(kind));
+  supportActions.set(actorId+'|'+round+'|'+kind,kind==='ration'?20:kind==='supply'?25:30);
+ }
+ for(const [id,v] of Object.entries(record.supportSpent))ensure(v===Math.min(150,[...supportActions].filter(([key])=>key.startsWith(id+'|')).reduce((n,[,amount])=>n+amount,0)));
+ for(const key of supportActions.keys())ensure(Object.hasOwn(record.supportSpent,key.split('|')[0]));
+ for(const [key,value] of Object.entries(record.objectiveKeys))ensure(/^[-a-zA-Z0-9_]{1,100}\|[-a-zA-Z0-9_]{1,100}$/.test(key)&&value===true&&army.joined.includes(key.split('|')[0]));
+ for(const [id,v] of Object.entries(record.objectiveSpent))ensure(v===Object.keys(record.objectiveKeys).filter(key=>key.startsWith(id+'|')).length*20);
+}
+export function validateAct5Progression(army,state=null,scenario=null){
+ if(state&&scenario?.act===5)ensure(state.act5GrowthVersion===1&&object(state.act5Growth),'5막 출전 육성 규칙 기록이 없습니다.');
+ const p=army.act5Progression;
+ if(p===undefined){ensure(!state||state.act5GrowthVersion===undefined&&state.act5Growth===undefined);return;}
+ ensure(object(p)&&p.version===1&&integer(p.referenceLevel,1,MAX_LEVEL)&&Array.isArray(p.selectedIds)&&p.selectedIds.length<=6&&new Set(p.selectedIds).size===p.selectedIds.length&&p.selectedIds.every(id=>army.joined.includes(id)&&!HERO_DATA[id]?.guest)&&object(p.assistClears)&&object(p.chapters));
+ for(const [id,clears] of Object.entries(p.assistClears))ensure(army.joined.includes(id)&&Array.isArray(clears)&&clears.length<=3&&new Set(clears).size===clears.length&&clears.every(ch=>p.chapters[ch]?.completed&&p.chapters[ch].assistedIds.includes(id)));
+ for(const [id,record] of Object.entries(p.chapters)){ensure(CHAPTERS.some(ch=>ch.id===id&&ch.act===5));validateRecord(record,army);}
+ if(!state)return;
+ if(state.act5GrowthVersion===undefined){ensure(state.act5Growth===undefined);return;}
+ ensure(state.act5GrowthVersion===1&&scenario?.act===5&&object(state.act5Growth));
+ const g=state.act5Growth;ensure(g.chapterId===scenario.id&&g.referenceLevel===p.referenceLevel&&object(g.breakdown));validateRecord(g.record,army);
+ ensure(JSON.stringify(g.record)===JSON.stringify(p.chapters[g.chapterId]),'5막 육성 원장과 전투 기록이 다릅니다.');
+ for(const [id,row] of Object.entries(g.breakdown)){ensure(state.units.some(u=>u.id===id&&u.team==='ally'&&!u.extra)&&object(row)&&integer(row.support,0,g.record.supportSpent[id]??0)&&integer(row.supportBonus,0,Math.floor(row.support/2)+1)&&integer(row.objective,0,g.record.objectiveSpent[id]??0)&&integer(row.objectiveBonus,0,row.objective/2)&&integer(row.victory,0,20));}
+}

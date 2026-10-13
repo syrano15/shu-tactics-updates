@@ -1,0 +1,118 @@
+import {act4GrowthActive,act4SupportExperience,act4ObjectiveExperience,syncAct4Progression,settleAct4Growth,recordAct4VictoryExperience} from './act4-progression.js';
+import {act5GrowthActive,act5SupportExperience,act5ObjectiveExperience,syncAct5Progression,settleAct5Growth,recordAct5VictoryExperience} from './act5-progression.js';
+import {HERO_DATA} from './heroes.js';
+import {CHAPTERS} from './campaign.js';
+import {applyClassTraining} from './class-change.js';
+import {specializationFor} from './specializations.js';
+import {MAX_LEVEL} from './growth-rules.js';
+export {MAX_LEVEL} from './growth-rules.js';
+export const BENCH_GROWTH_CAP_VERSION = 2;
+// G1 growth is separate from hero.level, which remains the existing weapon upgrade.
+export const GROWTH_RULES = {
+  maxLevel:MAX_LEVEL, veteranMax:MAX_LEVEL, nextBase:60, nextStep:6, gapRate:.1, minRate:.8, maxRate:2,
+  hit:20, miss:5, counter:10, kill:50, tacticSuccess:30, tacticFail:10, ration:10, victory:20, catchupGap:3, benchBase:10, benchGapRate:2, benchMax:20,
+};
+export const GROWTH_TYPES = {
+  balanced:{name:'균형',rates:[10,10,10]}, early:{name:'조숙',rates:[16,9,5]},
+  late:{name:'대기만성',rates:[5,9,17]}, sturdy:{name:'강골',rates:[8,8,8]},
+  fragile:{name:'섬세',rates:[12,12,12]}, veteran:{name:'노장',rates:[10,10,10]},
+};
+export const HERO_GROWTH=Object.fromEntries(Object.values(HERO_DATA).map(h=>[h.id,{type:h.growthType,intellect:h.intellect}]));
+export const growthType = id => HERO_GROWTH[id]?.type ?? 'balanced';
+export const levelCap = type => type==='veteran'?GROWTH_RULES.veteranMax:GROWTH_RULES.maxLevel;
+export const expNeeded = level => GROWTH_RULES.nextBase+GROWTH_RULES.nextStep*(level-1);
+export function validateProgress(value,type='balanced') {
+  if(!value||!Object.hasOwn(GROWTH_TYPES,type)||!Number.isInteger(value.level)||value.level<1||value.level>levelCap(type)||!Number.isInteger(value.exp)||value.exp<0||value.exp>=(value.level===levelCap(type)?1:expNeeded(value.level)))throw new Error('장수 레벨·경험치가 올바르지 않습니다.');
+  return value;
+}
+export function levelBonuses(level,type='balanced') {
+  validateProgress({level,exp:0},type);
+  const r=GROWTH_TYPES[type].rates;
+  // Integer tenths avoid rounding errors at growth band boundaries.
+  const offense=Math.floor((Math.min(level-1,19)*r[0]+Math.max(0,Math.min(level-20,20))*r[1]+Math.max(0,level-40)*r[2])/10);
+  return {offense,def:type==='balanced'?Math.floor(level/10):type==='sturdy'?Math.floor(level/5):0,hp:type==='sturdy'?(level-1)*30:0,sp:level-1};
+}
+export function adjustedExp(base,ownLevel,otherLevel) {
+  // Use integer percentages so 20 against level+3 is exactly 26.
+  const percent=Math.max(GROWTH_RULES.minRate*100,Math.min(GROWTH_RULES.maxRate*100,100+Math.round(GROWTH_RULES.gapRate*100)*(otherLevel-ownLevel)));
+  return Math.max(1,Math.floor(base*percent/100));
+}
+export function gainProgress(progress,amount,type='balanced') {
+  return gainProgressAtCap(progress,amount,type,levelCap(type));
+}
+function gainProgressAtCap(progress,amount,type,cap) {
+  validateProgress(progress,type);
+  if(progress.level>cap||progress.level===cap&&progress.exp!==0)throw new Error('이전 훈련 기록의 성장 상한이 올바르지 않습니다.');
+  if(!Number.isInteger(amount)||amount<0)throw new Error('경험치 획득량 오류');
+  let {level,exp}=progress;const from=level;
+  if(level===cap)return {level,exp:0,from,gained:0};
+  exp+=amount;
+  while(level<cap&&exp>=expNeeded(level)){exp-=expNeeded(level);level++;}
+  if(level===cap)exp=0;
+  return {level,exp,from,gained:amount};
+}
+// Pre-v0.40.2 receipts paid against Lv60 and discarded overflow at that cap.
+// Keep their actual settlement rather than minting EXP when loading them later.
+export function gainLegacyProgress(progress,amount,type='balanced') {
+  return gainProgressAtCap(progress,amount,type,60);
+}
+// Legacy completed bench receipts used a hard Lv45 cap, including discarded
+// overflow EXP. Recompute those receipts with the rules that actually paid them.
+export function gainLegacyVeteranProgress(progress,amount){
+ return gainProgressAtCap(progress,amount,'veteran',45);
+}
+export function awardExperience(unit,base,opponentLevel=null) {
+  if(unit.team!=='ally'||unit.extra)return null;
+  const type=growthType(unit.id),amount=opponentLevel===null?base:adjustedExp(base,unit.level,opponentLevel);
+  const change=gainProgress(unit,amount,type),before=levelBonuses(unit.level,type),after=levelBonuses(change.level,type);
+  unit.level=change.level;unit.exp=change.exp;unit.battleExp+=change.gained;
+  unit[unit.cls==='strategist'?'int':'atk']+=after.offense-before.offense;
+  if(unit.cls!=='strategist'&&Number.isFinite(unit.baseAtk))unit.baseAtk+=after.offense-before.offense;
+  unit.def+=after.def-before.def;applyClassTraining(unit,after);const capacity=unit.allyHpVersion===1?Infinity:10000+Math.min(0,specializationFor(unit)?.bonuses.hp??0);unit.maxHp=Math.min(capacity,unit.maxHp+after.hp-before.hp);
+  // Maximum troops increase without healing current troops or reviving a retreated unit.
+  unit.maxSp+=after.sp-before.sp;unit.sp+=after.sp-before.sp;
+  return {id:unit.id,name:unit.name,from:change.from,to:change.level,gained:change.gained};
+}
+export function awardSupportExperience(state,unit,details={}) {
+  if(act5GrowthActive(state))return act5SupportExperience(state,unit,details,awardExperience);
+  if(act4GrowthActive(state))return act4SupportExperience(state,unit,details,awardExperience);
+  return awardExperience(unit,['ration','supply'].includes(details.kind)?GROWTH_RULES.ration:GROWTH_RULES.tacticSuccess);
+}
+export function awardAct4ObjectiveExperience(state,unit,key){return act4ObjectiveExperience(state,unit,key,awardExperience);}
+export function awardAct5ObjectiveExperience(state,unit,key){return act5ObjectiveExperience(state,unit,key,awardExperience);}
+export function syncGrowth(state,army) {
+  syncAct4Progression(state,army);
+  syncAct5Progression(state,army);
+  for(const u of state.units.filter(u=>u.team==='ally'&&!u.extra))if(army.heroes[u.id]){
+    validateProgress(u,growthType(u.id));army.heroes[u.id].growth={level:u.level,exp:u.exp};
+  }
+}
+export function settleGrowth(state,army) {
+  if(!state.result||state.growthSettled)return [];
+  const events=[];
+  if(state.result==='victory')for(const u of state.units.filter(u=>u.team==='ally'&&!u.extra)){const event=awardExperience(u,GROWTH_RULES.victory);events.push(event);recordAct4VictoryExperience(state,u,event);recordAct5VictoryExperience(state,u,event);}
+  syncGrowth(state,army);
+  state.benchGrowth=[];
+  const chapterId=CHAPTERS[state.chapter]?.id??state.chapterId;
+  army.benchTrainingReceipts??=[...new Set([...(army.claimed??[]),...Object.keys(army.rewardReceipts??{})])];
+  const claimed=army.benchTrainingReceipts.includes(chapterId)||army.claimed?.includes(chapterId)||state.rewardSummary?.alreadyClaimed||state.replayChapterId;
+  if(state.result==='victory'&&chapterId&&!claimed){
+    const participants=state.units.filter(u=>u.team==='ally'&&!u.extra),ids=new Set(participants.map(u=>u.id));
+    const ceiling=Math.max(1,...participants.map(u=>u.level));
+    for(const id of army.joined){
+      const hero=army.heroes[id],person=HERO_DATA[id];if(!person||person.guest||hero.departed||ids.has(id))continue;
+      const type=growthType(id),progress=hero.growth;if(progress.level>=Math.min(ceiling,levelCap(type)))continue;
+      const amount=Math.min(GROWTH_RULES.benchMax,GROWTH_RULES.benchBase+(ceiling-progress.level)*GROWTH_RULES.benchGapRate);
+      const change=gainProgress(progress,amount,type);hero.growth={level:change.level,exp:change.exp};
+      state.benchGrowth.push({id,from:change.from,to:change.level,gained:change.gained,fromExp:progress.exp,toExp:change.exp,capVersion:BENCH_GROWTH_CAP_VERSION});
+    }
+    // Ledger is created even when everyone is at the ceiling or in the sortie.
+    army.benchTrainingReceipts.push(chapterId);
+  }
+  settleAct4Growth(state,army);settleAct5Growth(state,army);state.growthSettled=true;return events;
+}
+export function joiningLevel(army,type='balanced') {
+  const levels=army.joined.filter(id=>!army.heroes[id].departed).map(id=>army.heroes[id].growth?.level??1).sort((a,b)=>b-a).slice(0,10);
+  const average=levels.length?levels.reduce((a,b)=>a+b,0)/levels.length:1;
+  return Math.min(levelCap(type),Math.max(1,Math.floor(average-GROWTH_RULES.catchupGap))+(type==='veteran'?3:0));
+}

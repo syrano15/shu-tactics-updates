@@ -1,0 +1,21 @@
+import {CHAPTERS} from './campaign.js';
+import {act4RecruitLevel} from './act4-progression.js';
+import {act5RecruitLevel} from './act5-progression.js';
+import {initialPromotion} from './promotion.js';
+import {HERO_DATA} from './heroes.js';
+import {joiningLevel,growthType} from './growth.js';
+// Story entry is independent of the strength of the existing roster. These levels
+// apply only to a genuinely new story recruit, never to an already owned hero.
+export const STORY_JOIN_LEVELS=Object.freeze({chendao:14,zhoucang:18,zhaoyun:20,zhugeliang:20,xushu:20,guanping:24,maliang:24,huangzhong:26,weiyan:26,masu:26,liaohua:26,liufeng:26,pangtong:28});
+export function applyRosterVictory(army,chapterId){
+ army.rosterEvents??=[];
+ if(army.rosterEvents.includes(chapterId))return {joined:[],departed:[]};
+ // Compute simultaneous joins against the same prior roster.
+ const act4=CHAPTERS.some(ch=>(ch.id===chapterId||ch.rosterEventId===chapterId)&&ch.act===4);
+ const act5=CHAPTERS.some(ch=>(ch.id===chapterId||ch.rosterEventId===chapterId)&&ch.act===5);
+ const pending=Object.values(HERO_DATA).filter(h=>h.joinAfterChapter===chapterId&&!army.joined.includes(h.id)).map(h=>({id:h.id,level:act5?act5RecruitLevel(army,h.id,STORY_JOIN_LEVELS[h.id]??joiningLevel(army,growthType(h.id))):act4?act4RecruitLevel(army,h.id,STORY_JOIN_LEVELS[h.id]??joiningLevel(army,growthType(h.id))):STORY_JOIN_LEVELS[h.id]??joiningLevel(army,growthType(h.id))}));
+ const result={joined:[],departed:[]};
+ for(const h of pending){army.joined.push(h.id);army.heroes[h.id]={slots:[null,null],level:0,troopLevel:0,promotion:HERO_DATA[h.id].guest?0:initialPromotion(h.level),growth:{level:h.level,exp:0},departed:false};result.joined.push(h.id);}
+ for(const id of army.joined)if(HERO_DATA[id]?.leaveAfterChapter===chapterId&&!army.heroes[id].departed){army.heroes[id].departed=true;result.departed.push(id);}
+ army.rosterEvents.push(chapterId);return result;
+}

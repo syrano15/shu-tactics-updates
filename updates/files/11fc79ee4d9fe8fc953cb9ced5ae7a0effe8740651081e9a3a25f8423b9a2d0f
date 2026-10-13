@@ -1,0 +1,81 @@
+import {campaignWaves,campaignEnemyOrder} from './campaign-events.js';
+import {validateAct2Relief} from './act2-relief-save.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {battleOutcome} from './objectives.js';
+import {progressionEnemyOrder,enemyHealthCapacity} from './enemy-progression.js';
+// Fresh battles capture reserve statistics once. Old marker-less saves never acquire a wave.
+const fail=message=>{throw new Error('증원 기록 오류: '+message);};
+const same=(a,b)=>a.length===b.length&&new Set(a).size===a.length&&a.every(id=>b.includes(id));
+export function initReinforcements(state,chapter){
+ if(chapter?.rosterMode!=='story'||![2,3,5].includes(chapter.act)||chapter.battleEventsVersion!==1)return;
+ state.battleEventsVersion=1;
+ const waves=campaignWaves(state,chapter);if(!waves.length)return;
+ const ids=new Set(waves.flatMap(wave=>wave.unitIds));
+ state.reinforcements={version:1,spawned:[],pending:waves.map(wave=>({id:wave.id,units:state.units.filter(u=>wave.unitIds.includes(u.id)).map(u=>structuredClone(u))}))};
+ state.units=state.units.filter(u=>!ids.has(u.id));
+}
+export function enemyCountCondition(state,trigger){
+ if(state.round<(trigger.minRound??1))return false;
+ if(trigger.unit&&!state.units.some(u=>u.id===trigger.unit&&u.hp>0))return false;
+ const count=state.units.filter(u=>u.team==='enemy'&&u.hp>0).length;
+ return count<=trigger.count||Number.isInteger(trigger.fallbackRound)&&state.round>=trigger.fallbackRound;
+}
+export function reinforcementReferenceUnits(state){
+ return [...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+}
+export function applyEnemyReinforcements(state,chapter){
+ const record=state.reinforcements;if(state.battleEventsVersion!==1||!record||state.result||battleOutcome(state))return [];
+ const arrived=[];
+ for(const wave of campaignWaves(state,chapter)){
+  const pending=record.pending.find(entry=>entry.id===wave.id);
+  const wipedOut=chapter.id==='s12_xinye'&&state.campaignEventsVersion===1&&!state.units.some(u=>u.team==='enemy'&&u.hp>0);
+  const cleanupArrival=state.bossCleanupVersion===1&&state.bossCleanup?.status==='cleanup'&&wave.team!=='ally'&&!state.units.some(u=>u.team==='enemy'&&u.hp>0);
+  if(!pending||!(wipedOut||cleanupArrival||(wave.trigger.type==='roundStart'?state.phase==='ally'&&state.round>=wave.trigger.round:wave.trigger.type==='unitDefeated'?state.units.some(u=>u.id===wave.trigger.unit&&u.hp===0):enemyCountCondition(state,wave.trigger))))continue;
+  const occupied=new Set(state.units.filter(u=>u.hp>0).map(u=>u.x+','+u.y)),places=[];
+  for(const unit of pending.units){
+   const cells=[];for(let y=0;y<state.terrain.length;y++)for(let x=0;x<state.terrain[0].length;x++){
+    const distance=Math.abs(x-unit.x)+Math.abs(y-unit.y);
+    if(distance<=2&&state.terrain[y][x]!=='#'&&!occupied.has(x+','+y))cells.push({x,y,distance});
+   }
+   cells.sort((a,b)=>a.distance-b.distance||a.y-b.y||a.x-b.x);
+   const place=cells[0];if(!place)break;places.push(place);occupied.add(place.x+','+place.y);
+  }
+  // A blocked entrance postpones the whole finite wave, without overwriting any unit.
+  if(places.length!==pending.units.length)continue;
+  pending.units.forEach((unit,i)=>state.units.push({...structuredClone(unit),x:places[i].x,y:places[i].y,done:false,moved:false,moveOrigin:null}));
+  if(state.battleRecords)for(const unit of pending.units)state.battleRecords.minHpRatios[unit.id]=unit.hp/unit.maxHp;
+  record.pending=record.pending.filter(entry=>entry.id!==wave.id);record.spawned.push(wave.id);arrived.push(wave.id);
+ }
+ return arrived;
+}
+export function validateReinforcementRecord(state,chapter,refs=null){
+ validateAct2Relief(state,chapter);
+ if(state.battleEventsVersion===undefined){if(state.reinforcements!==undefined)fail('구 전투에 증원을 추가할 수 없습니다.');return;}
+ if(state.battleEventsVersion!==1||chapter?.rosterMode!=='story'||![2,3,5].includes(chapter.act))fail('전투 버전');
+ const waves=campaignWaves(state,chapter),record=state.reinforcements;
+ if(!waves.length){if(record!==undefined)fail('증원 없는 전장');return;}
+ if(!record||record.version!==1||!Array.isArray(record.spawned)||!Array.isArray(record.pending)||Object.keys(record).some(key=>!['version','spawned','pending'].includes(key)))fail('형식');
+ if(!same([...record.spawned,...record.pending.map(w=>w.id)],waves.map(w=>w.id)))fail('누락·중복 증원');
+ const active=state.units.map(u=>u.id);
+ for(const wave of waves){
+  const pending=record.pending.find(entry=>entry.id===wave.id);
+  if(pending){
+   const reserveHp=unit=>{const hit=state.enemyProgressionVersion===3&&state.shipFire?.hits.find(h=>h.unitId===unit.id);return hit?hit.afterHp:unit.maxHp;};
+   if(Object.keys(pending).some(key=>!['id','units'].includes(key))||!Array.isArray(pending.units)||!same(pending.units.map(u=>u.id),wave.unitIds)||pending.units.some(u=>u.team!==(wave.team??'enemy')||u.hp!==reserveHp(u)||u.done||u.moved||u.status!==null||active.includes(u.id)))fail('대기 부대');
+   for(const unit of pending.units){
+    const allied=wave.team==='ally',rawOrder=(allied?chapter.extraAllies:chapter.enemies).find(e=>e.id===unit.id),order=allied?rawOrder:progressionEnemyOrder(chapter,campaignEnemyOrder(chapter,rawOrder,state.campaignEventsVersion??0),state.enemyProgressionVersion??1,state.act2EnemyDifficultyVersion??0),template=UNIT_TEMPLATES[order?.templateId];
+    if(allied){
+     const ref=refs?.find(r=>r.id===unit.id);
+     if(!template?.extra||!unit.extra||unit.team!=='ally'||unit.level!==1||unit.exp!==0||unit.battleExp!==0||unit.startLevel!==1||unit.sp!==0||unit.maxSp!==0||unit.cls!==template.cls||unit.x!==order.position[0]||unit.y!==order.position[1]||unit.moveOrigin!==null||unit.firstGuardUsed!==false||unit.confusionLost!==false||unit.ralliedRound!==0||unit.promotion!==0||unit.morale!==100||Object.keys(unit.spirits).length)fail('아군 대기 원본');
+     if(ref)for(const key of ['protectedFromFaction','nonCombat','generic','rank','promotion','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','hp','atk','def','int','move','min','max','attackAfterMove'])if(unit[key]!==ref[key])fail('아군 대기 능력치');
+     continue;
+    }
+    if(!template||unit.cls!==template.cls||unit.extra||unit.nonCombat||!!unit.generic!==!!template.generic||unit.moveOrigin!==null||unit.attackAfterMove!==true||unit.firstGuardUsed!==false||unit.confusionLost!==false||unit.ralliedRound!==0)fail('대기 병과·행동');
+    if(unit.level!==order.level||unit.startLevel!==unit.level||unit.exp!==0||unit.battleExp!==0||unit.sp!==0||unit.maxSp!==0||unit.promotion!==(order.rank??0)||unit.combatTier!==order.combatTier||unit.faction!==order.faction||unit.x!==order.position[0]||unit.y!==order.position[1])fail('대기 원본');
+    for(const key of ['maxHp','hp','atk','def','int','baseAtk','move','min','max'])if(!Number.isInteger(unit[key])||unit[key]<(['maxHp','hp','move','min','max'].includes(key)?1:0)||unit[key]>({maxHp:enemyHealthCapacity(state,unit),hp:enemyHealthCapacity(state,unit),move:20,min:8,max:8}[key]??1000))fail('대기 능력치');
+    if(refs){const ref=refs.find(r=>r.id===unit.id);if(!ref)fail('대기 참조');for(const key of ['promotion','rank','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','atk','def','int','move','min','max'])if(unit[key]!==ref[key])fail('대기 원본 능력치');}
+    if(unit.min>unit.max||unit.hp!==reserveHp(unit)||Object.keys(unit.spirits).length||unit.morale<50||unit.morale>150)fail('대기 상태');
+   }
+  }else if(!wave.unitIds.every(id=>active.includes(id)))fail('등장 부대');
+ }
+}
