@@ -1,0 +1,56 @@
+import {HERO_DATA} from './heroes.js';
+import {CLASS_IDS} from './balance.js';
+import {validateHeroSpecialization,clearHeroSpecialization,applySpecializationCombatStats} from './specializations.js';
+export const APTITUDE_FACTORS=Object.freeze({S:1,A:.9,B:.75,C:.6,D:.4});
+const SPECIFIC={
+ guanyu:['A','S','A','C','C','C'],zhangfei:['S','S','A','D','D','D'],
+ zhaoyun:['A','S','S','B','C','C'],liubei:['A','B','B','A','B','B'],
+ zhugeliang:['D','D','D','C','C','S'],chendao:['A','B','S','C','C','C'],
+ zhoucang:['A','B','A','D','D','D'],jianyong:['C','D','D','C','C','A'],
+ sunqian:['C','D','D','C','C','A'],mizhu:['B','C','C','C','B','B'],
+ xushu:['B','C','B','B','B','S'],huangzhong:['B','B','B','S','A','C'],
+ madai:['B','S','A','C','C','D'],machao:['A','S','A','C','C','D'],
+ jiangwei:['A','A','S','B','B','A'],pangtong:['D','D','D','C','C','S'],
+ weiyan:['S','A','A','B','C','C'],wangping:['A','C','A','B','S','B'],
+};
+export function classAptitude(id,cls,preparationVersion=1){
+ if(!HERO_DATA[id]||!CLASS_IDS.includes(cls))throw new Error('장수·병과를 확인하세요.');
+ // Old active battles keep Zhang Fei cavalry A and its stored 0.9 training factor.
+ if(preparationVersion===0&&id==='zhangfei'&&cls==='cavalry')return 'A';
+ return SPECIFIC[id]?.[CLASS_IDS.indexOf(cls)]??(cls===HERO_DATA[id].class?(HERO_DATA[id].tier==='1군'?'S':'A'):cls==='strategist'?(HERO_DATA[id].intellect>=80?'A':HERO_DATA[id].intellect>=65?'B':HERO_DATA[id].intellect>=50?'C':'D'):HERO_DATA[id].class==='strategist'?'D':'B');
+}
+export function classTrainingFactor(id,cls,preparationVersion=1){return APTITUDE_FACTORS[classAptitude(id,cls,preparationVersion)]/APTITUDE_FACTORS[classAptitude(id,HERO_DATA[id].class,preparationVersion)];}
+export function classAptitudes(id){return CLASS_IDS.map(cls=>({cls,grade:classAptitude(id,cls),factor:classTrainingFactor(id,cls)}));}
+export function effectiveClass(army,id,fallback=HERO_DATA[id]?.class){return army?.heroes?.[id]?.selectedClass??fallback;}
+export function validateHeroClass(id,hero){
+ if(hero.selectedClass!==undefined&&(!CLASS_IDS.includes(hero.selectedClass)||!HERO_DATA[id]||HERO_DATA[id].guest))throw new Error('병과 변경 기록이 올바르지 않습니다.');
+ validateHeroSpecialization(id,hero);
+ return hero;
+}
+export function classChangeReason(army,id,cls,chapter){
+ const hero=army?.heroes?.[id];
+ if(!hero||!army.joined?.includes(id)||!HERO_DATA[id])return '합류한 장수를 선택하세요.';
+ if(hero.departed)return '이탈한 장수는 병과를 변경할 수 없습니다.';
+ if(HERO_DATA[id].guest)return '고정 게스트의 병과는 변경할 수 없습니다.';
+ if((chapter?.act!==2&&chapter?.combatProfile!=='act2'))return '2막 출전을 준비하는 정비부터 병과를 변경할 수 있습니다.';
+ if(!CLASS_IDS.includes(cls))return '존재하지 않는 병과입니다.';
+ return '';
+}
+export function changeHeroClass(army,id,cls,chapter){
+ const reason=classChangeReason(army,id,cls,chapter);if(reason)throw new Error(reason);
+ const before=effectiveClass(army,id),hero=army.heroes[id];
+ if(before!==cls)clearHeroSpecialization(hero);
+ if(cls===HERO_DATA[id].class)delete hero.selectedClass;else hero.selectedClass=cls;
+ return {id,before,cls,grade:classAptitude(id,cls),factor:classTrainingFactor(id,cls)};
+}
+// The original class is the calibration point: existing armies keep identical stats.
+export function applyClassTraining(unit,growth){
+ const t=unit.classTraining;if(!t)return unit;
+ const offense=unit.cls==='strategist'?0:growth.offense;
+ unit.atk=Math.round((t.atkBase+offense)*t.factor);
+ unit.baseAtk=Math.round((t.baseAtkBase+offense)*t.factor);
+ unit.int=Math.round((t.intBase+(unit.cls==='strategist'?growth.offense:0))*t.factor);
+ unit.def=Math.round((t.defBase+growth.def)*t.factor);
+ applySpecializationCombatStats(unit);
+ return unit;
+}

@@ -1,0 +1,197 @@
+// Presentation only: these selections never draw from or modify the battle RNG.
+import {SPIRITS} from './spirits-system.js';
+
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const key=/^[a-z][a-z0-9_]{0,99}$/;
+const situations=new Set(['pair','defeated','retreat','ally_down','crit','crit_taken','defeat_boss','defeat','low','spirit','strat_success','strat_fire','strat_confuse','strat_rumor','strat_fail','strat_fail_rain','attack_boss','attack_adv','attack','counter','miss','dodge','damaged_big','damaged','ration','levelup','promote']);
+const conditionKeys=new Set(['vs','vsClass','ally','chapterMin','chapterMax','roundMin']);
+const classes=new Set(['infantry','spear','cavalry','archer','crossbow','strategist']);
+const ensure=(ok,message)=>{if(!ok)throw new Error('전투 한마디 오류: '+message);};
+const freeze=v=>{if(v&&typeof v==='object'){Object.values(v).forEach(freeze);Object.freeze(v);}return v;};
+const length=text=>[...text].length;
+const meta=(data,situation)=>data.situations[situation.startsWith('spirit_')?'spirit':situation];
+
+// Display timing is separate from selection: it must never affect rates, hashes or history.
+export function battleBarkPhase(situation){
+ if(['pair','attack','attack_boss','attack_adv'].includes(situation))return 'prepare';
+ if(['retreat','defeated','defeat','defeat_boss','ally_down'].includes(situation))return 'retreat';
+ if(situation==='low')return 'hp';
+ if(['levelup','promote'].includes(situation))return 'finish';
+ return 'impact';
+}
+
+export function readBattleBarks(raw){
+ ensure(object(raw)&&raw.schemaVersion===1&&raw.kind==='battleLines','데이터 형식');
+ ensure(object(raw.textRule)&&raw.textRule.min===4&&raw.textRule.max===32,'글자 규칙');
+ ensure(object(raw.situations)&&Object.keys(raw.situations).length===situations.size,'상황 목록');
+ for(const [id,v] of Object.entries(raw.situations)){
+  ensure(situations.has(id)&&object(v)&&typeof v.name==='string','상황 키');
+  ensure(Number.isInteger(v.rate)&&v.rate>=0&&v.rate<=100&&Number.isInteger(v.priority)&&v.priority>=1&&v.priority<=10,'발생 확률·우선순위');
+ }
+ ensure(Array.isArray(raw.lines)&&raw.lines.length<=5000&&Array.isArray(raw.pairs)&&raw.pairs.length<=1000,'대사 목록');
+ const ids=new Set();
+ const text=t=>ensure(typeof t==='string'&&length(t)>=4&&length(t)<=32,'대사 4~32자');
+ const condition=c=>{
+  if(c===undefined)return;
+  ensure(object(c)&&Object.keys(c).every(k=>conditionKeys.has(k)),'조건 키');
+  for(const k of ['vs','vsClass','ally'])if(c[k]!==undefined){
+   ensure(Array.isArray(c[k])&&c[k].length>0&&c[k].length<=100&&c[k].every(v=>typeof v==='string'&&(k==='vsClass'?classes.has(v):key.test(v)))&&new Set(c[k]).size===c[k].length,'조건 대상');
+  }
+  for(const k of ['chapterMin','chapterMax','roundMin'])if(c[k]!==undefined)ensure(Number.isInteger(c[k])&&c[k]>=1&&c[k]<=(k==='roundMin'?1000000:56),'조건 범위');
+  ensure(c.chapterMin===undefined||c.chapterMax===undefined||c.chapterMin<=c.chapterMax,'조건 장 범위');
+ };
+ const id=v=>{ensure(typeof v==='string'&&key.test(v)&&!ids.has(v),'대사 ID 중복·형식');ids.add(v);};
+ for(const line of raw.lines){
+  ensure(object(line)&&Object.keys(line).every(k=>['id','speaker','side','situation','text','cond'].includes(k)),'대사 항목');
+  id(line.id);ensure(typeof line.speaker==='string'&&key.test(line.speaker)&&['ally','enemy'].includes(line.side),'화자·진영');
+  ensure(situations.has(line.situation)&&!['pair','spirit'].includes(line.situation)||typeof line.situation==='string'&&line.situation.startsWith('spirit_')&&Object.hasOwn(SPIRITS,line.situation.slice(7)),'대사 상황');
+  text(line.text);condition(line.cond);
+ }
+ for(const pair of raw.pairs){
+  ensure(object(pair)&&Object.keys(pair).every(k=>['id','attacker','defender','attackerText','defenderText','cond'].includes(k)),'특수 대사 항목');
+  id(pair.id);ensure(typeof pair.attacker==='string'&&typeof pair.defender==='string'&&key.test(pair.attacker)&&key.test(pair.defender)&&pair.attacker!==pair.defender,'특수 대사 화자');
+  text(pair.attackerText);text(pair.defenderText);condition(pair.cond);
+ }
+ return freeze(JSON.parse(JSON.stringify(raw)));
+}
+
+export async function loadBattleBarks(url='data/battle-lines.json'){
+ const response=await fetch(url);if(!response.ok)throw new Error('전투 한마디를 불러오지 못했습니다.');
+ return readBattleBarks(await response.json());
+}
+
+export function createBattleBarkSession(data){
+ return {data:readBattleBarks(data),action:0,shown:new Map(),limits:new Set(),lowSeen:new Set()};
+}
+
+export function battleBarkSpeaker(unit,scenario){
+ if(!unit)return null;
+ const entry=[...(scenario?.enemies??[]),...(scenario?.extraAllies??[])].find(v=>v.id===unit.id);
+ const id=entry?.templateId??entry?.template??unit.templateId??unit.id;
+ return typeof id==='string'?id.replace(/^act3_extra_/,'').replace(/^act\d+_/,''):null;
+}
+
+function chapterNumber(state,scenario){
+ const match=/^s(\d+)_/.exec(scenario?.id??state?.chapterId??'');
+ return match?Number(match[1]):Number.isInteger(state?.chapter)?state.chapter+1:1;
+}
+
+function hash(value){
+ let h=2166136261;for(const c of String(value)){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return h>>>0;
+}
+
+function conditionMatches(cond,unit,opponent,ctx,situation){
+ if(!cond)return true;
+ const chapter=chapterNumber(ctx.state,ctx.scenario),round=ctx.state?.round??1;
+ if(cond.chapterMin!==undefined&&chapter<cond.chapterMin||cond.chapterMax!==undefined&&chapter>cond.chapterMax||cond.roundMin!==undefined&&round<cond.roundMin)return false;
+ if(cond.vs&&!cond.vs.includes(battleBarkSpeaker(opponent,ctx.scenario))&&!cond.vs.includes(opponent?.id))return false;
+ if(cond.vsClass&&!cond.vsClass.includes(opponent?.cls))return false;
+ if(cond.ally){
+  if(situation==='ally_down'||situation==='spirit_rally'){
+   if(!cond.ally.includes(battleBarkSpeaker(opponent,ctx.scenario))&&!cond.ally.includes(opponent?.id))return false;
+  }else if(!(ctx.state?.units??[]).some(v=>v.team===unit.team&&v.hp>0&&cond.ally.includes(battleBarkSpeaker(v,ctx.scenario))))return false;
+ }
+ return true;
+}
+
+function isBoss(unit,scenario){
+ const entry=scenario?.enemies?.find(v=>v.id===unit?.id);
+ return unit?.team==='enemy'&&(entry?.boss===true||unit.id==='e_boss'||scenario?.objective?.targetId===unit.id||scenario?.victory?.unit===unit.id);
+}
+
+/**
+ * Call once after a confirmed action, with HP captured before that action.
+ * Normal barks use 50% in this build. ordinaryRate:null preserves manuscript rates.
+ * Session history is intentionally ephemeral; loading starts fresh bark history.
+ */
+export function selectBattleBarks(session,context){
+ ensure(session?.data&&session.shown instanceof Map&&session.limits instanceof Set&&session.lowSeen instanceof Set,'전투별 세션');
+ const ctx={kind:'attack',mode:'all',ordinaryRate:50,...context};
+ ensure(['attack','spirit','ration','promote'].includes(ctx.kind)&&['all','important','off'].includes(ctx.mode),'표시 설정·행동');
+ ensure(ctx.ordinaryRate===null||Number.isInteger(ctx.ordinaryRate)&&ctx.ordinaryRate>=0&&ctx.ordinaryRate<=100,'일반 대사 확률');
+ const {state,scenario,actor,target,result={}}=ctx,data=session.data;
+ const action=++session.action,candidates=[],pairs=[];let combatStep=0;
+ const add=(unit,situation,opponent=null,limit=null)=>{
+  if(!unit)return;const speaker=battleBarkSpeaker(unit,scenario);
+  const rows=data.lines.filter(l=>l.speaker===speaker&&l.side===unit.team&&l.situation===situation&&conditionMatches(l.cond,unit,opponent,ctx,situation));
+  if(rows.length)candidates.push({unit,opponent,situation,rows,limit,priority:meta(data,situation).priority,combatStep});
+ };
+ const pairFor=(a,b)=>{
+  if(!a||!b)return;
+  for(const p of data.pairs)if(p.attacker===battleBarkSpeaker(a,scenario)&&p.defender===battleBarkSpeaker(b,scenario)&&conditionMatches(p.cond,a,b,ctx,'pair')&&!session.limits.has('pair:'+p.id))pairs.push({pair:p,actor:a,target:b,combatStep});
+ };
+ const aftermath=(attacker,defender,beforeHP,hit)=>{
+  if(!defender||!Number.isFinite(beforeHP)||beforeHP<=0)return;
+  if(defender.hp===0){
+   add(defender,defender.team==='ally'?'retreat':'defeated',attacker,defender.id+':fallen');
+   if(attacker?.hp>0)add(attacker,isBoss(defender,scenario)?'defeat_boss':'defeat',defender,isBoss(defender,scenario)?attacker.id+':defeat_boss':null);
+   if(defender.team==='ally')for(const ally of state?.units??[])if(ally.id!==defender.id&&ally.team===defender.team&&ally.hp>0)add(ally,'ally_down',defender,'ally_down:'+defender.id);
+  }else{
+   const lowKey=defender.id+':low';
+   if(defender.hp/defender.maxHp<.3&&beforeHP/defender.maxHp>=.3&&!session.lowSeen.has(lowKey)){
+    session.lowSeen.add(lowKey);add(defender,'low',attacker,lowKey);
+   }
+   if(hit>0)add(defender,hit>=defender.maxHp*.25?'damaged_big':'damaged',attacker);
+  }
+ };
+ const strike=(a,b,counter=false)=>{
+  combatStep=counter?1:0;
+  const landed=counter?result.counterLanded:result.landed,critical=counter?result.counterCritical:result.critical;
+  const hit=counter?result.returnHit:result.hit,matchup=counter?result.counterMatchup:result.matchup;
+  pairFor(a,b);
+  if(critical)add(a,'crit',b);
+  if(critical&&b?.hp>0)add(b,'crit_taken',a);
+  if(landed===false){add(a,'miss',b);add(b,'dodge',a);}
+  else{
+   if(b?.team==='enemy'&&(isBoss(b,scenario)||!b.generic))add(a,'attack_boss',b,a.id+':attack_boss:'+b.id);
+   if(matchup>=1.6)add(a,'attack_adv',b);
+   add(a,counter?'counter':'attack',b);
+  }
+  aftermath(a,b,counter?ctx.beforeActorHP:ctx.beforeTargetHP,hit??0);
+ };
+ if(ctx.kind==='attack'&&actor&&target){
+  if(result.kind){
+   if(result.success){
+    add(actor,({fire:'strat_fire',confusion:'strat_confuse',deception:'strat_rumor'})[result.kind]??'strat_success',target);
+    add(actor,'strat_success',target);
+   }else add(actor,result.rain&&result.kind==='fire'?'strat_fail_rain':'strat_fail',target,result.rain?actor.id+':rain':null);
+   aftermath(actor,target,ctx.beforeTargetHP,result.hit??0);
+  }else{
+   strike(actor,target);if(result.counter)strike(target,actor,true);
+  }
+ }else if(ctx.kind==='spirit'){
+  ensure(Object.hasOwn(SPIRITS,ctx.spiritId),'정신기');add(actor,'spirit_'+ctx.spiritId,target);
+ }else add(actor,ctx.kind==='ration'?'ration':'promote',target);
+ for(const growth of result.growth??ctx.growth??[])if(growth.to>growth.from){
+  const unit=(state?.units??[]).find(u=>u.id===growth.id)??(actor?.id===growth.id?actor:null);
+  add(unit,'levelup');
+ }
+ // Mandatory defeat clears pending story events, so it needs its own guard.
+ if(ctx.mode==='off'||ctx.storyPending===true||state?.storyEvents?.pending?.length||state?.result==='defeat')return [];
+ const out=(unit,id,text,situation,step)=>({id,text,speakerId:battleBarkSpeaker(unit,scenario),unitId:unit.id,name:unit.name,team:unit.team,situation,priority:meta(data,situation).priority,...(ctx.kind==='attack'?{combatStep:step,combatPhase:battleBarkPhase(situation)}:{})});
+ if(pairs.length){
+  const p=pairs[hash(`${state?.initialSeed??0}|${state?.round??1}|${action}|pair`)%pairs.length];
+  session.limits.add('pair:'+p.pair.id);session.shown.set(p.pair.id,action);
+  return [out(p.actor,p.pair.id+'_a',p.pair.attackerText,'pair',p.combatStep),out(p.target,p.pair.id+'_d',p.pair.defenderText,'pair',p.combatStep)];
+ }
+ const selected=[],speakers=new Set();
+ candidates.sort((a,b)=>a.priority-b.priority||Number(b.unit.id===actor?.id)-Number(a.unit.id===actor?.id));
+ for(const candidate of candidates){
+  if(selected.length===2)break;
+  const {unit,situation,limit,priority}=candidate;
+  if(speakers.has(unit.id)||limit&&session.limits.has(limit)||ctx.mode==='important'&&priority>4)continue;
+  // After the principal bark, only a major response/retreat/ally reaction can follow.
+  if(selected.length&&priority>3)continue;
+  const info=meta(data,situation),rate=info.rate<100&&ctx.ordinaryRate!==null?ctx.ordinaryRate:info.rate;
+  const salt=`${state?.initialSeed??0}|${state?.round??1}|${action}|${unit.id}|${situation}`;
+  if(hash(salt+'|rate')%100>=rate)continue;
+  let rows=candidate.rows;
+  if(rows.some(l=>l.cond&&Object.keys(l.cond).length))rows=rows.filter(l=>l.cond&&Object.keys(l.cond).length);
+  const unseen=rows.filter(l=>!session.shown.has(l.id));
+  if(unseen.length)rows=unseen;
+  else{const oldest=Math.min(...rows.map(l=>session.shown.get(l.id)));rows=rows.filter(l=>session.shown.get(l.id)===oldest);}
+  const line=rows[hash(salt+'|line')%rows.length];
+  selected.push(out(unit,line.id,line.text,situation,candidate.combatStep));speakers.add(unit.id);session.shown.set(line.id,action);if(limit)session.limits.add(limit);
+ }
+ return selected;
+}

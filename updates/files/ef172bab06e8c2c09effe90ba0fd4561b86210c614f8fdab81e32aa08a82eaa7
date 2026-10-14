@@ -1,0 +1,48 @@
+import {PARTS,INITIAL_STOCK} from './equipment.js';
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const quantity=value=>Number.isInteger(value)&&value>=0&&value<=1000000?value:null;
+const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+
+// A view of existing inventory and receipts. It does not infer missing awards or mutate the army.
+export function inventorySourceModel(army,chapters=[]){
+ const records=object(army?.rewardReceipts)?army.rewardReceipts:null;
+ const heroes=object(army?.heroes)?Object.values(army.heroes):null;
+ const equipmentKnown=!!heroes&&heroes.every(hero=>object(hero)&&Array.isArray(hero.slots)&&hero.slots.every(id=>id===null||Object.hasOwn(PARTS,id)));
+ const titles=new Map(chapters.filter(ch=>ch&&typeof ch.id==='string').map(ch=>[ch.id,ch.title]));
+ const rows=Object.entries(PARTS).map(([id,part])=>{
+  const initial=INITIAL_STOCK[id]??0,sources=initial?[{kind:'initial',label:'초기 군수 지급',count:initial}]:[];
+  let malformed=false;
+  for(const [chapterId,receipt] of Object.entries(records??{})){
+   if(!object(receipt)||!Array.isArray(receipt.lootItems)){malformed=true;continue;}
+   const title=titles.get(chapterId)??'전투명 확인 불가';
+   const loot=receipt.lootItems.filter(item=>item===id).length;
+   if(loot)sources.push({kind:'loot',chapterId,label:title+' · 적 전리품',count:loot});
+   if(receipt.merit?.achieved===true){
+    if(!Array.isArray(receipt.merit.items)){malformed=true;continue;}
+    const merit=receipt.merit.items.filter(item=>item===id).length;
+    if(merit)sources.push({kind:'merit',chapterId,label:title+' · 공적 보상',count:merit});
+   }
+  }
+  const recorded=sources.reduce((sum,source)=>sum+source.count,0);
+  const stock=quantity(army?.stock?.[id]),held=quantity(army?.inventoryTotals?.[id]),sold=quantity(army?.soldStock?.[id]);
+  const equipped=equipmentKnown?heroes.reduce((sum,hero)=>sum+hero.slots.filter(item=>item===id).length,0):null;
+  const accounted=held!==null&&sold!==null?held+sold:null;
+  const untraced=accounted!==null?Math.max(0,accounted-recorded):null;
+  const ownershipMatches=held!==null&&stock!==null&&equipped!==null&&held===stock+equipped;
+  const acquisitionMatches=accounted!==null&&accounted===recorded;
+  const verified=!!records&&!malformed&&ownershipMatches&&acquisitionMatches;
+  let warning='';
+  if(!records||malformed||accounted===null)warning='전투 보상 기록 또는 수량 정보가 없어 추가 획득 출처를 확인할 수 없습니다.';
+  else if(!ownershipMatches)warning='보유·장착·재고 수량 기록을 확인할 수 없습니다.';
+  else if(accounted<recorded)warning='획득 출처 기록과 현재 보유·매각 수량이 일치하지 않습니다.';
+  else if(untraced>0)warning='기록에 없는 획득 출처는 확인 불가로 표시합니다.';
+  if(untraced>0)sources.push({kind:'unknown',label:'획득 출처 확인 불가',count:untraced});
+  return{id,name:part.name,initial,recorded,held,equipped,stock,sold,untraced,verified,warning,sources};
+ });
+ return{rows:rows.filter(row=>row.recorded>0||(row.held??0)>0||(row.stock??0)>0||(row.equipped??0)>0||(row.sold??0)>0),verified:rows.every(row=>row.verified)};
+}
+
+export function inventorySourcesHTML(army,chapters=[]){
+ const model=inventorySourceModel(army,chapters),number=value=>value===null?'확인 불가':value.toLocaleString('ko-KR');
+ return `<section class="inventory-sources" aria-label="소지품 출처와 보유 현황"><p class="inventory-sources-intro">처음 군수 지원·명마·병법서를 각 2개 지급합니다. 아래 재고는 장착·매각 후 남은 수량입니다.</p><details><summary>장비별 획득 출처와 보유 현황</summary><p class="inventory-sources-guide">총 보유 = 장착 + 재고 · 누적 획득에는 매각한 장비도 포함합니다.</p><div class="inventory-sources-list">${model.rows.map(row=>`<article class="inventory-source-part" data-inventory-source="${row.id}"><header><h5>${esc(row.name)}</h5><small>${row.verified?'획득 누적':'확인된 획득'} ${number(row.recorded)}</small></header><dl>${[['총 보유',row.held],['장착',row.equipped],['재고',row.stock],['매각',row.sold]].map(([label,value])=>`<div><dt>${label}</dt><dd>${number(value)}</dd></div>`).join('')}</dl><ul>${row.sources.map(source=>`<li data-inventory-kind="${source.kind}"><span>${esc(source.label)}</span><b>${number(source.count)}개</b></li>`).join('')}</ul>${row.warning?`<p class="inventory-source-warning">${esc(row.warning)}</p>`:''}</article>`).join('')}</div></details></section>`;
+}

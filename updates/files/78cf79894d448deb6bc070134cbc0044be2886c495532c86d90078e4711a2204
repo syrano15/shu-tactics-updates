@@ -1,0 +1,54 @@
+// Keep old enemy waves as historical references. New sorties and fully validated
+// active checkpoints cancel only reserves which have not arrived on the board.
+export const THOUSAND_LI_REINFORCEMENT_VERSION=1;
+const fail=message=>{throw new Error('천리행 증원 제한 기록 오류: '+message);};
+const ensure=(ok,message)=>{if(!ok)fail(message);};
+const unique=ids=>Array.isArray(ids)&&new Set(ids).size===ids.length;
+const enemyWave=wave=>wave.team!=='ally';
+export const thousandLiReinforcementApplies=chapter=>chapter?.id==='s10_thousand_li'&&chapter.rosterMode==='story'&&chapter.act===2&&chapter.campaignLayoutVersion===1&&chapter.battleEventsVersion===1;
+export const thousandLiEnemyReserveIds=chapter=>thousandLiReinforcementApplies(chapter)?(chapter.reinforcements??[]).filter(enemyWave).flatMap(wave=>wave.unitIds):[];
+export function installThousandLiReinforcementPolicy(chapter){
+ if(!thousandLiReinforcementApplies(chapter))return;
+ const reserve=thousandLiEnemyReserveIds(chapter);
+ ensure(!(chapter.objective?.requiredDefeated??[]).some(id=>reserve.includes(id)),'승리 필수 수문장은 처음부터 배치해야 합니다.');
+ chapter.thousandLiReinforcementPolicy={version:1,maximumNewEnemyWaves:0,preserveAlreadyArrived:true,preserveAlliedRecruits:true};
+}
+export function initializeThousandLiReinforcementLimit(state,chapter,{thousandLiReinforcementVersion=1,thousandLiReinforcementRemovedIds=null}={}){
+ ensure([0,1].includes(thousandLiReinforcementVersion),'지원하지 않는 버전');
+ if(!thousandLiReinforcementApplies(chapter)||thousandLiReinforcementVersion===0)return;
+ const allowed=thousandLiEnemyReserveIds(chapter),present=new Set(state.units.map(unit=>unit.id));
+ ensure(thousandLiReinforcementRemovedIds===null||unique(thousandLiReinforcementRemovedIds),'제외 명단 형식·중복');
+ const removed=thousandLiReinforcementRemovedIds===null?allowed.filter(id=>present.has(id)):[...thousandLiReinforcementRemovedIds];
+ ensure(removed.every(id=>allowed.includes(id)&&!state.act2ReliefRemovedIds?.includes(id)),'미등장 적 예비대 원본·중복 제외');
+ state.thousandLiReinforcementVersion=1;state.thousandLiReinforcementRemovedIds=removed;state.units=state.units.filter(unit=>!removed.includes(unit.id));
+}
+export function thousandLiLimitedWaves(state,chapter,waves){
+ if(state?.thousandLiReinforcementVersion!==1||!thousandLiReinforcementApplies(chapter))return waves;
+ const removed=new Set(state.thousandLiReinforcementRemovedIds??[]);
+ return waves.map(wave=>enemyWave(wave)?{...wave,unitIds:wave.unitIds.filter(id=>!removed.has(id))}:wave).filter(wave=>wave.unitIds.length>0);
+}
+export function thousandLiLimitedEnemyOrders(state,chapter,orders){
+ if(state?.thousandLiReinforcementVersion!==1||!thousandLiReinforcementApplies(chapter))return orders;
+ const removed=new Set(state.thousandLiReinforcementRemovedIds??[]);return orders.filter(order=>!removed.has(order.id));
+}
+export function validateThousandLiReinforcementLimit(state,chapter){
+ const marker=state.thousandLiReinforcementVersion,removed=state.thousandLiReinforcementRemovedIds;
+ if(marker===undefined){ensure(removed===undefined,'이전 전투에 제외 명단');return;}
+ ensure(marker===1&&thousandLiReinforcementApplies(chapter)&&state.battleEventsVersion===1,'버전/전장');
+ const allowed=thousandLiEnemyReserveIds(chapter),record=state.reinforcements;
+ ensure(unique(removed)&&removed.every(id=>allowed.includes(id)&&!state.act2ReliefRemovedIds?.includes(id)),'제외 명단 원본·중복');
+ const all=[...state.units,...(record?.pending??[]).flatMap(wave=>wave.units)];ensure(removed.every(id=>!all.some(unit=>unit.id===id)),'제외한 적의 재등장');
+ for(const wave of record?.pending??[])ensure(wave.units.every(unit=>unit.team==='ally'),'적 증원은 새로 도착할 수 없습니다.');
+}
+export function upgradeValidatedThousandLiReinforcement(value,chapter){
+ const state=value.state;
+ if(!thousandLiReinforcementApplies(chapter)||state.thousandLiReinforcementVersion!==undefined||state.battleEventsVersion!==1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const allowed=new Set(thousandLiEnemyReserveIds(chapter)),removedIds=[],cancelledWaveIds=[];
+ for(const wave of state.reinforcements?.pending??[]){
+  if(!wave.units.some(unit=>unit.team==='enemy'))continue;
+  ensure(wave.units.every(unit=>unit.team==='enemy'&&allowed.has(unit.id)),'이행 대상 대기 부대');removedIds.push(...wave.units.map(unit=>unit.id));cancelledWaveIds.push(wave.id);
+ }
+ if(state.reinforcements){state.reinforcements.pending=state.reinforcements.pending.filter(wave=>!cancelledWaveIds.includes(wave.id));if(!state.reinforcements.pending.length&&!state.reinforcements.spawned.length)delete state.reinforcements;}
+ state.thousandLiReinforcementVersion=1;state.thousandLiReinforcementRemovedIds=removedIds;validateThousandLiReinforcementLimit(state,chapter);
+ return {removedIds,cancelledWaveIds,preservedSpawned:[...(state.reinforcements?.spawned??[])],alliedRecruitPending:!!state.reinforcements?.pending.some(wave=>wave.units.some(unit=>unit.team==='ally'))};
+}

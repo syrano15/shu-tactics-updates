@@ -1,0 +1,6005 @@
+{
+  "schemaVersion": 3,
+  "episodeTitle": "4막 익주·한중",
+  "premise": "명분을 내려놓고 익주로 들어가 나라를 세운다. 낙봉파에서 처음으로 역사를 바꾸고, 한중왕에 오른다.",
+  "speakers": {
+    "narrator": "내레이션",
+    "liubei": "유비",
+    "zhangfei": "장비",
+    "zhaoyun": "조운",
+    "zhugeliang": "제갈량",
+    "huangzhong": "황충",
+    "weiyan": "위연",
+    "pangtong": "방통",
+    "machao": "마초",
+    "fazheng": "법정",
+    "madai": "마대",
+    "yanyan": "엄안",
+    "huangquan": "황권",
+    "wangping": "왕평",
+    "jianyong": "간옹",
+    "liyan": "이엄",
+    "wuban": "오반",
+    "caocao": "조조",
+    "zhanghe": "장합",
+    "xiahouyuan": "하후연",
+    "zhangren": "장임",
+    "fucheng_captain": "부성 수비 대장",
+    "guanyu": "관우",
+    "guanping": "관평",
+    "zhoucang": "주창",
+    "maliang": "마량",
+    "chendao": "진도",
+    "militia_leader": "의병 대장",
+    "messenger": "전령",
+    "shu_soldier": "유비군 병사",
+    "villager": "마을 사람",
+    "liaohua": "요화",
+    "zhangsong": "장송",
+    "yizhou_soldier": "익주군 병사",
+    "hanzhong_captain": "장로군 장수",
+    "wei_soldier": "조조군 병사",
+    "mizhu": "미축",
+    "xiahoudun": "하후돈",
+    "yangxiu": "양수",
+    "wuyi": "오의",
+    "zhangyi": "장익",
+    "chengdu_captain": "성문 수비 대장",
+    "yizhou_official": "익주 관리"
+  },
+  "chapters": [
+    {
+      "id": "s22_jiameng",
+      "title": "가맹관",
+      "location": "가맹관 · 익주로 들어가는 길",
+      "era": "211년",
+      "actMap": "map_act4",
+      "bg": {
+        "pre": "bg_pass",
+        "post": "bg_mountain_path"
+      },
+      "bgm": {
+        "pre": "bgm_march",
+        "battle": "bgm_battle",
+        "post": "bgm_scheme"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "익주의 주인 유장이 한중의 장로를 막아 달라며 유비를 불러들였다.",
+          "bg": "bg_city_night"
+        },
+        {
+          "speaker": "narrator",
+          "text": "211년, 조조가 한중의 장로를 친다는 소문이 돌았다. 한중이 무너지면 그다음은 익주였다."
+        },
+        {
+          "speaker": "zhangsong",
+          "text": "효직, 주공께서 마침내 허락하셨네. 유황숙을 불러 장로를 막게 하자는 말을."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "황권이 끝까지 반대했다 들었습니다. 범을 불러 문을 지키게 하는 꼴이라고요."
+        },
+        {
+          "speaker": "zhangsong",
+          "text": "황공형의 말이 틀린 건 아니지. 허나 우리 주공은 문을 지킬 힘조차 없는 분일세."
+        },
+        {
+          "speaker": "zhangsong",
+          "text": "나는 허도에서 조조를 보았네. 그는 내 얼굴이 못났다고 눈길 한 번 주지 않더군."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그래서 형주의 유비를 고르셨습니까. 얼굴 대신 사람을 보는 주인을요."
+        },
+        {
+          "speaker": "zhangsong",
+          "text": "그렇다네. 이 지도를 가져가게. 익주의 산길과 창고가 모두 적혀 있네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "이 몸도 이곳에서는 쓸모없는 사람이었습니다. 쓸모를 알아볼 주인에게 가겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "며칠 뒤 형주. 익주에서 온 사신이 유비 앞에 엎드려 유장의 편지를 바쳤다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "장군, 우리 주공께서 같은 종친의 정으로 청하십니다. 북쪽의 장로를 막아 주십시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그리고 이것은 장송이 따로 보낸 것입니다. 익주로 들어오는 길이 모두 그려져 있습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "길을 그린 지도라. 장로를 막는 데는 북쪽 길 하나면 될 텐데, 어찌 모든 길을 주시오?"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그 까닭은 장군께서 이미 아실 겁니다. 답은 서두르지 않으셔도 됩니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "법정이 물러가자, 방통이 지도를 펼쳤다. 그 눈이 아이처럼 빛났다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "익주로 들어갈 좋은 명분이지요. 이런 기회는 두 번 오지 않습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "유장공은 나와 같은 종친일세. 그 부탁을 핑계로 삼는 것은 마음이 편치 않네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 천하를 얻으려면 때로는 마음을 접어야 합니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 융중에서 형주와 익주를 아울러야 한다고 말씀드렸지요. 그 문이 지금 열렸습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명 선생, 그 말은 기억하네. 허나 문을 열어 준 사람의 집을 빼앗는 것이 우리 길인가.",
+          "face": "sad"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "조조가 먼저 들어가면 그 집은 불에 탑니다. 주공이 들어가시면 적어도 백성은 남지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "알겠네. 장로를 막으러 가는 것까지는 하겠네. 그 뒤의 일은 그때 다시 묻겠네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "일단 장로의 군사부터 쓸어버립시다. 생각은 그다음에 하시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 자네는 이번에 형주에 남게. 운장과 자룡, 공명 선생도 함께일세."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "뭐라고 하셨소? 형님이 산 넘어 남의 땅에 가는데 나더러 집을 보라고?"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "북쪽에는 조조가, 동쪽에는 손권이 있습니다. 형주가 비면 주공은 돌아올 곳을 잃습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하나, 둘, 셋. 열. 스물. 서른. 마흔. 군사, 마흔까지 세 본 건 처음이오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 익덕. 마흔에서 멈췄으니 다행이오. 쉰이면 이 관청 기둥이 남아나지 않았을 거요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 형주는 내가 돌아올 문일세. 그 문을 맡길 사람이 자네들 말고 누가 있겠나."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "문이라. 형님은 그 말을 하면 내가 꼼짝 못 하는 걸 아시는구려. 알겠소, 남겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나와 함께 가는 사람은 사원과 노장군, 문장일세. 숙지와 헌화도 가세."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "산길이라면 이 늙은이 다리도 아직 쓸 만하오. 앞장서지는 않겠지만 뒤처지지도 않겠소."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "주공, 선봉은 제게 주십시오. 익주 사람들에게 형주 군사의 걸음을 보여 주겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "떠나는 날 아침, 강가 나루. 서쪽으로 거슬러 올라갈 배들이 줄지어 서 있었다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 형주는 제가 지키겠습니다. 형님의 등 뒤는 한 걸음도 비우지 않겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 자네가 있으니 마음 놓고 가네. 다만 혼자 다 지려 하지 말게."
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "관 장군님, 저도 여기 남겠습니다. 장군님 계신 곳이 제가 있을 곳입니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "그러려무나, 주창. 춘추는 챙겼느냐. 긴 밤이 될 테니 함께 읽자."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 공자님은 제가 지키겠습니다. 강 위에서 한 번 놓칠 뻔했으니, 두 번은 없습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 아두를 부탁하네. 그 아이가 자라면 자네 이야기부터 들려주게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "사냥꾼 대장, 당신은 형님을 따라가시오. 팔씨름 빚은 돌아와서 받겠소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 그 빚은 제가 진 게 아니라 장군이 진 겁니다. 지난번엔 제가 이겼잖습니까."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그건 내가 봐준 거요! 돌아오면 두 판 하시오. 그때까지 팔 아끼시오!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원, 주공을 부탁하오. 그분은 마음이 먼저 움직이는 분이니 곁에서 붙잡아 주시오."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명, 걱정 마시오. 와룡이 형주를 지키는 동안 봉추는 서쪽 하늘을 날아 보겠소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "날되 너무 높이는 날지 마시오. 바람은 높은 곳에서 먼저 꺾이니까."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명은 늘 걱정이 한 걸음 빠르구려. 그 걱정, 고맙게 받아 두겠소.",
+          "face": "smile"
+        },
+        {
+          "speaker": "narrator",
+          "text": "배가 물을 거슬러 움직였다. 관우는 형님의 배가 굽이를 돌아 보이지 않을 때까지 서 있었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "강을 거슬러 산을 넘은 끝에, 유비의 군사는 북쪽 관문 가맹관 아래에 닿았다.",
+          "bg": "bg_pass"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 이 길은 사람이 다니라고 낸 길이 아니구려. 산양이나 다니는 길이오."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 길이 좁아 대열이 길게 늘어집니다. 저는 주공 바로 뒤에 서겠습니다."
+        },
+        {
+          "speaker": "hanzhong_captain",
+          "text": "형주의 떠돌이가 남의 집 문지기로 왔다더니 정말이구나. 산 위에서 내려다봐 주마."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "저들이 벌써 높은 데를 잡았구려. 위에서 쏘는 화살은 아래에서 쏘는 것보다 멀리 가오."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "산길에서는 높은 곳을 먼저 차지하는 쪽이 이깁니다. 봉추의 첫 출전, 지켜보시지요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "liubei",
+          "text": "좋네, 오늘은 장로의 군사만 보세. 익주의 일은 나중에 생각하겠네."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "pangtong",
+              "text": "고지에 오르면 방어가 단단해집니다. 산 위부터 차지하십시오."
+            },
+            {
+              "speaker": "pangtong",
+              "text": "산을 오를 때는 걸음이 무겁습니다. 서두르지 말고 한 칸씩 발을 디디십시오."
+            },
+            {
+              "speaker": "liubei",
+              "text": "알겠네, 사원. 다들 산비탈에서 서로 손을 놓지 말게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "hanzhong_captain",
+              "text": "산 아래 놈들이 기어오른다! 돌을 굴려라, 한중의 산은 한중 사람 편이다!"
+            },
+            {
+              "speaker": "pangtong",
+              "text": "저들이 산을 믿는군요. 산이 누구 편인지는 먼저 오른 쪽이 정하는 겁니다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "산길이 이리 험할 줄이야. 그래도 여기서 물러서면 형주로 돌아갈 낯이 없네.",
+              "face": "resolve"
+            },
+            {
+              "speaker": "pangtong",
+              "text": "주공, 비탈 위로 몸을 피하십시오. 높은 곳에 서면 적의 창이 덜 닿습니다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "장로의 군사는 물러났고, 유비는 가맹관에 머물며 익주의 사정을 살폈다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "보셨지요, 주공. 봉추가 날개를 펴니 산 하나쯤은 금방 넘더군요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 오늘 자네 덕에 다친 사람이 적었네. 그게 제일 고맙네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "유장공은 선한 사람이네. 하지만 이 땅을 지킬 힘은 없어 보이는구려."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그 마음이 주공의 약점이자 힘입니다. 곧 결단하실 날이 옵니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그날이 오더라도, 오늘은 장로를 막으러 온 손님일세. 손님답게 지내세."
+        },
+        {
+          "speaker": "narrator",
+          "text": "관문 아래에는 장로와 유장 사이에서 몇 해째 세금을 두 번 바치던 마을이 있었다."
+        },
+        {
+          "speaker": "villager",
+          "text": "나리, 형주 군사는 곡식을 빼앗지 않는다는 게 참말입니까? 그런 군사는 처음 봅니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "참말이오. 우리가 먹을 것은 우리가 지고 왔소. 무너진 우물이 있으면 말해 주시오."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 좋은 수입니다. 익주 사람들 마음을 먼저 얻으면 성문은 저절로 열리지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 이건 수가 아닐세. 내가 아는 방법이 이것뿐이라 그러는 것이네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "수가 아니라서 더 좋은 수입니다. 꾸민 친절은 사람들이 금방 알아보니까요."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "주공, 장로를 막으러 와서 우물만 고치고 있습니다. 창이 녹슬겠습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 창은 기다리는 동안 녹스는 게 아니오. 조급한 손이 녹슬게 하지."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "노장군은 기다리는 게 익숙하시겠지요. 저는 아직 젊어서 그게 안 됩니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 그 조급함 덕에 장사에서 이 늙은이 목이 붙어 있으니 더는 나무라지 못하겠구려."
+        },
+        {
+          "speaker": "narrator",
+          "text": "가맹관에서의 날들이 이어졌다. 유비는 장로를 치는 대신 관문 아래 마을을 돌보았다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "간 선생, 오늘도 장부를 쓰십니까. 여기서는 적을 게 마을 우물 고친 일뿐일 텐데요."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "그게 제일 중요한 거요. 칼 쓴 일은 남들이 적어 주지만 우물 고친 일은 아무도 안 적지."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "탁현을 떠난 지 스물일곱 해입니다. 어깨 우는 소리도 이제 노래 같습니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "대장, 그 말은 노장군 앞에서는 하지 마시오. 그분은 나이 얘기만 나오면 활부터 드니까."
+        },
+        {
+          "speaker": "chendao",
+          "text": "오늘 밤도 제가 주공의 문 앞에 섭니다. 이 관문은 낯선 사람이 너무 많이 드나듭니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 그럼 저는 장군 뒤에 서지요. 문 앞에 하나, 그 뒤에 하나. 탁현식입니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "좋소, 그럼 나는 그 둘 뒤에서 자겠소. 탁현식으로 제일 안전한 자리지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 밤, 형주. 관우는 등불 아래에서 춘추를 펼쳐 두고 한 줄도 읽지 못하고 있었다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "관 장군님, 서쪽에서 아직 편지가 없습니다. 산길이 험해 늦는 것이겠지요."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님은 편지를 늦게 쓰시는 분이 아니다. 길이 늦을 뿐이다. 앉아라, 주창."
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "장군님, 춘추에도 형님을 멀리 보내고 집을 지킨 사람 이야기가 있습니까?"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "있다. 집을 지킨 사람은 이름이 덜 남는다. 그래도 그 집이 있어야 돌아올 사람이 있다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "붓을 가져오너라. 형님이 늦으시면 내가 먼저 쓰면 된다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "보름 뒤, 가맹관. 형주에서 온 편지를 펼친 유비의 입가가 처음으로 풀렸다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장의 글일세. 형주는 무사하고, 익덕은 날마다 서쪽을 보며 숫자를 센다는군."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 몇까지 셌답니까? 마흔을 넘었으면 형주 관청 기둥부터 걱정해야 하오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "쉰셋이라 적혀 있네. 그리고 끝에 한 줄. 형님, 저는 아직 하나도 세지 않았습니다.",
+          "face": "smile"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "주공, 성도에서 사람이 왔습니다. 유장의 신하 중 주공을 따르려는 자가 있다 합니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "장송의 사람이겠지요. 장송은 기다림이 짧은 사람입니다. 그게 걱정이군요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 사람을 조용히 들이게. 그리고 아무도 모르게 돌려보내게. 그 사람 목숨도 소중하네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 바뀌었다. 유장은 유비를 부성으로 불러 잔치를 열겠다는 편지를 보내왔다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "잔치라. 주공, 잔치 다음 날이 결단하실 날일지도 모릅니다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "pangtong",
+          "text": "산 위를 빼앗겼군요. 높은 곳을 먼저 잡고 다시 가시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "첫걸음부터 넘어졌구려. 형주의 아우들 볼 낯이 없네. 다시 오르세."
+        }
+      ]
+    },
+    {
+      "id": "s23_fucheng",
+      "title": "부성 결별",
+      "location": "부성 · 연회 다음 날",
+      "era": "212년",
+      "bg": {
+        "pre": "bg_hall",
+        "post": "bg_castle_gate"
+      },
+      "bgm": {
+        "pre": "bgm_scheme",
+        "battle": "bgm_battle",
+        "post": "bgm_scheme"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "212년, 부성. 유장은 성 밖까지 나와 유비를 맞았다. 잔치는 며칠이고 이어졌다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "narrator",
+          "text": "유장은 손수 잔을 채우며 말했다. 현덕공은 내 형님 같은 분이니 익주를 부탁한다고."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유장은 수레 가득 비단과 쌀을 내주었다. 그 수레들이 유비의 진영 앞에 길게 늘어섰다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "같은 유씨의 잔이라 더 무겁구려. 이 잔을 받은 손으로 무엇을 하게 될지."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 지금 이 자리에서 유장을 붙잡으면 칼 한 번 쓰지 않고 익주가 주공의 것입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 남의 나라에 막 들어왔네. 아직 은혜도 믿음도 보여 주지 못했는데 잔칫상을 엎겠나."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그 말씀, 오늘은 따르겠습니다. 다만 그 은혜를 보여 줄 날이 길지는 않을 겁니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "주공, 유장의 호위들이 잔치 내내 칼자루에서 손을 떼지 않습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "저쪽도 우리를 손님으로만 보지는 않는구려. 잔은 달아도 눈빛은 차갑소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "부성에서 유장과 연회를 나눈 다음 날, 유비의 막사에 은밀한 손님이 찾아왔다.",
+          "cg": "cg_feast_after"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "다시 뵙습니다. 사신으로 왔을 땐 못 드린 말을 오늘 드리겠습니다. 유장은 익주를 지킬 그릇이 못 됩니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "법정, 그대의 뜻은 알겠네. 하지만 유장과 칼을 맞대는 건 괴로운 일이네.",
+          "face": "sad"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "유장의 장수 고패와 양회가 주공을 해치려 했습니다. 먼저 치셔야 합니다.",
+          "cg": null
+        },
+        {
+          "speaker": "messenger",
+          "text": "급보입니다! 성도에서 장송 별가가 붙잡혔습니다. 주공께 보낸 편지가 드러났다 합니다!"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "장송의 형 장숙이 고발했습니다. 장송은 이미 저잣거리에서 목이 떨어졌을 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나를 믿은 사람이 나 때문에 죽었네. 나는 아직 칼 한 번 뽑지 않았는데.",
+          "face": "sad"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "유장은 관문마다 주공과 통하지 말라는 명을 내렸습니다. 이제 저쪽이 먼저 칼을 뽑았습니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "지난달 주공이 청한 군사 만 명에도 사천만 보냈지요. 군량은 절반이었고요. 그게 유장의 속입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나는 그걸 인색함이라 여겼네. 두려움이었구려. 두려운 사람의 칼이 제일 먼저 뽑히지."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "망설이는 사이 저쪽이 먼저 움직입니다. 지금이 기회입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "장송은 주공의 결단이 늦어 죽은 겁니다. 이 말이 아프시겠지만, 사실입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 아프네. 그래도 듣겠네. 틀린 말이 아니어서 더 아프군."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "계책은 셋입니다. 상책은 날랜 군사를 골라 밤낮없이 달려 곧장 성도를 치는 것입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "중책은 형주로 돌아간다고 알리고, 배웅 나온 양회와 고패를 붙잡아 그 군사로 나아가는 것."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "하책은 백제성으로 물러나 형주와 손을 잡고 천천히 도모하는 것입니다. 고르십시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "상책이 가장 빠릅니다. 성도는 아직 싸울 준비가 되어 있지 않습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "상책이오! 날랜 군사라면 제게 맡기십시오. 사흘이면 성도 성벽 아래 서겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 사흘 만에 닿아도 성문이 닫혀 있으면 성벽만 구경하고 오는 거요."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하책은 내 마음에 드는데. 가장 덜 걷는 길이니까. 하하, 농담이오, 현덕."
+        },
+        {
+          "speaker": "liubei",
+          "text": "상책은 너무 서두르고, 하책은 너무 느리네. 가운데 길로 가세."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "역시 주공은 가운데를 고르시는군요. 그래도 앞으로 가시는 길입니다. 그거면 됩니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 형주로 돌아가겠다는 편지를 보냈다. 백수관의 양회와 고패가 배웅을 나왔다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "두 장수는 돌아가지 못했다. 유비는 그들의 군사를 거두어 부성으로 말머리를 돌렸다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 유비의 막사에는 등불이 늦게까지 꺼지지 않았다. 문 앞에는 진도가 서 있었다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 아직 안 자오? 숙지가 문 앞에서 서서 졸고 있소. 저러다 넘어지겠구려."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 허도에서 조조가 내게 말했지. 천하의 영웅은 그대와 나뿐이라고."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오늘 나는 나를 믿은 사람의 잔을 받고, 그 사람의 장수를 베었네. 조조와 무엇이 다른가."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "다른 게 하나 있지. 조조는 이런 일로 밤을 새우지 않소. 현덕은 지금 새우고 있고."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "탁현 뽕나무 아래서 천자의 수레 덮개 얘기를 하던 꼬마가 지금 그 값을 치르는 거요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "값이라. 그 값을 내가 아니라 장송이 치렀네. 그게 견디기 어렵네."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "그럼 장송 몫까지 잘 살아야지. 장부에 적어 두겠소. 장송, 현덕에게 꾸어 준 목숨 하나."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 문 앞은 제가 지키고 있습니다. 오늘 밤 일은 제가 증인입니다. 주공은 주무십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "숙지, 고맙네. 증인이 있으니 잊지 않겠군. 내일 부성으로 가세."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 교대하지요. 주공이 저렇게 괴로워하시는 건 서주를 잃던 밤 이후 처음입니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "괜찮습니다. 저는 문 앞에 서 있을 때가 제일 편합니다. 아버지가 돌아가신 밤부터."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "그 밤에도 누가 문을 지켰더라면, 하셨지요. 저도 누이 마을을 두고 늘 그 생각을 합니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공이 괴로워하시는 동안은 괜찮습니다. 괴로워하지 않으시는 날이 오면 그때 걱정하지요."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "그럼 그날이 오면 진 장군이 증인 하시고, 제가 주공 귀를 잡아당기겠습니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "귀는 간 선생 몫입니다. 저는 증인만 하겠습니다."
+        },
+        {
+          "speaker": "fucheng_captain",
+          "text": "장송이 목이 잘렸다. 유비와 몰래 편지를 주고받았다지. 손님이라더니 도둑이었구나.",
+          "bg": "bg_castle_gate"
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "대장, 유비군이 양회 장군과 고패 장군을 베고 군사를 거두었답니다. 이쪽으로 옵니다!"
+        },
+        {
+          "speaker": "fucheng_captain",
+          "text": "부성은 유장공께서 손님을 맞으신 성이다. 그 손님에게 성문까지 내줄 수는 없다."
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "대장, 형주 군사는 강하다 합니다. 성도에서 원군이 오기 전에 버틸 수 있겠습니까?"
+        },
+        {
+          "speaker": "fucheng_captain",
+          "text": "버티는 게 장수의 일이다. 성도에 처자식을 두고 온 놈은 너 하나가 아니다. 성문을 걸어라!"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "성 안의 대장만 베면 나머지는 흩어질 것이오. 제가 앞장서겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이도 가겠소. 결단이 섰다면 미룰 까닭이 없지."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "주공, 탁현 사냥꾼들은 성벽 아래 길을 맡겠습니다. 성 쪽에서 내려오는 화살은 저희가 셉니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "수비 대장은 성문 안쪽에 버티고 있을 겁니다. 그자만 쓰러뜨리면 부성은 열립니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "성도에서 원군이 오기까지 며칠은 걸립니다. 그 전에 끝내십시오. 지금이 가장 싼 값입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "알겠네. 오늘부로 유장과 갈라서고 익주로 나아가세.",
+          "face": "resolve"
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "fucheng_captain",
+              "text": "유비가 배신했다! 성문을 닫고 한 놈도 들이지 마라!"
+            },
+            {
+              "speaker": "fucheng_captain",
+              "text": "장송의 목을 보고도 모르겠느냐! 유비와 통한 자는 모두 그렇게 된다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "배신이라는 말, 피하지 않겠네. 그 말을 듣더라도 성 안 백성은 다치게 하지 말게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "fucheng_captain",
+              "text": "유비의 군대가 이리도 빠를 줄이야. 부성이 무너진다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "부성의 수비 대장이 쓰러지자, 성문 위의 깃발이 하나둘 내려갔다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "성문이 열렸네. 항복하는 자는 묶지 말고, 다친 자는 적이든 아군이든 먼저 돌보게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "fucheng_captain",
+              "text": "유비의 군사들아! 유장공의 잔을 받은 손으로 이 성문을 두드리느냐!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "그 잔은 잊지 않겠소. 허나 오늘은 물러설 수 없소. 장군도 물러서지 않겠지."
+            },
+            {
+              "speaker": "fucheng_captain",
+              "text": "물러서지 않는다. 성도에 있는 처자식 얼굴을 보고 싶으면 여기서 버텨야 한다!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "여기서 쓰러지면 장송에게도, 형주의 아우들에게도 낯을 들 수 없네.",
+              "face": "resolve"
+            },
+            {
+              "speaker": "narrator",
+              "text": "유비는 고삐를 다시 쥐었다. 이제 돌아갈 길은 뒤에 없었다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "모두 내 곁으로 모이게. 흩어지면 길을 잃네. 함께 성문까지 가세."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "부성이 열렸다. 유비의 군사는 성 안으로 들어가며 창끝을 아래로 내렸다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "이제 돌아갈 길은 없습니다. 낙성만 넘으면 성도가 눈앞입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "백성의 집에는 한 발도 들이지 말게. 창고를 열 때는 미 별가에게 배운 대로 반은 남기게."
+        },
+        {
+          "speaker": "villager",
+          "text": "나리, 형주 군사가 문을 두드리지 않고 지나갔습니다. 부성 사람들이 다 놀라고 있습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "놀라게 해서 미안하오. 문을 두드리지 않는 게 당연한 일이었어야 하는데."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 부성 관청에서 군사들에게 잔치가 베풀어졌다. 유비는 평소보다 잔을 빨리 비웠다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "liubei",
+          "text": "오늘 잔치는 즐겁구려. 다들 마시게. 오늘만은 아무 생각도 하지 마세."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 남의 나라를 치고 즐거워하는 것은 어진 이의 군사가 아닙니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "잔칫상이 조용해졌다. 유비는 잔을 내려놓고 한참 동안 방통을 보았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 오늘 밤만은 그 말을 듣고 싶지 않았네. 잠시 나가 있어 주게.",
+          "face": "sad"
+        },
+        {
+          "speaker": "narrator",
+          "text": "방통은 아무 말 없이 일어나 나갔다. 유비는 빈자리를 오래 보다가, 진도를 불렀다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "숙지, 사원을 다시 모셔 오게. 내가 잘못했다고는 말하지 말고, 그냥 자리가 비었다고만 하게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "방통은 돌아와 사과 한마디 없이 자리에 앉았다. 그리고 태연히 고기를 집어 먹었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 아까 일은 누가 잘못한 것인가?"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "임금과 신하가 함께 잘못했지요. 그러니 함께 마시면 됩니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 크게 웃었다. 그날 밤 처음으로 막힌 숨이 트이는 웃음이었다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 봉추 선생. 현덕한테 저렇게 대들고 고기까지 먹는 사람은 나 말고 처음 보오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "잔치가 파한 뒤, 관청 마당. 방통이 혼자 달을 보고 있었다. 유비가 그 곁에 섰다.",
+          "bg": "bg_city_night"
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 아까는 고마웠네. 오늘 내가 즐거워했다면 장송에게 두 번 죄를 짓는 것이었네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "압니다. 그래서 말씀드렸지요. 주공이 즐거우시면 안 되는 날도 있습니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 저는 겉모습 때문에 오래 쓰이지 못했습니다. 이제야 판 위에 섰지요."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그래서 조금 서두르게 됩니다. 판이 끝나기 전에 제 수를 다 두고 싶어서요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "서두르지 말게. 판은 길고, 나는 자네가 끝까지 내 곁에서 두기를 바라네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "잔치가 끝난 뒤, 관청 회랑. 법정이 새로 받은 인끈을 매만지고 있었다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "법 선생, 주인을 바꾸신 기분이 어떻소. 우리 주공도 언젠가 바꾸실 셈이오?"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "바꾼 것이 아니라 고른 것입니다, 위 장군. 저는 받은 것은 반드시 돌려주는 사람입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "은혜도, 원한도요. 주공께는 은혜를 돌려드릴 겁니다. 오래, 많이."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "두 사람 다 무섭구려. 이 늙은이는 받은 것도 준 것도 다 잊어버려서 편하오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "노장군은 잊은 척만 하시지. 장사에서 진 빚을 한 번도 잊은 적 없잖소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 들켰구려. 그럼 법 선생, 우리 셋이 빚 장부를 하나 같이 씁시다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 무렵, 형주. 제갈량은 성루에 올라 오래도록 서쪽 하늘을 보고 있었다.",
+          "bg": "bg_city_night"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "군사, 별을 그렇게 보면 형님 소식이 보이오? 나는 날마다 서쪽을 봐도 산밖에 안 보이오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "장군, 별은 소식을 전하지 않습니다. 다만 마음이 쓰이는 곳을 보게 할 뿐이지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원은 높이 나는 것을 즐기는 사람입니다. 그래서 편지를 한 장 써야겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "방 군사가 군사 말을 들을 사람이오? 나도 처음엔 군사 말 안 들었소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그래서 씁니다. 장군도 결국 들으셨으니까요. 이래라저래라 해도 된다고 하셨지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그건 내가 한 말이니 할 말이 없구려. 오늘은 예순까지 셌소, 군사."
+        },
+        {
+          "speaker": "messenger",
+          "text": "형주에서 군사의 편지가 왔습니다. 방 군사께 따로 전하라 하셨습니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명의 글이군요. 올해는 서쪽 하늘의 별이 장수에게 좋지 않으니 몸을 아끼라고."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명 선생이 그런 말을 할 때는 까닭이 있네. 사원, 마음에 두게."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 공명은 제가 먼저 성도에 닿을까 봐 붙잡아 두려는 겁니다. 그 속은 제가 압니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "와룡이 형주에서 별을 보는 동안, 봉추는 땅을 걷겠습니다. 별보다 길이 정직하지요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "별은 저도 믿지 않습니다. 다만 낙성의 장임은 믿을 만한 적입니다. 그건 별이 아니라 사람이지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "낙성은 장임이 지키고 있습니다. 유장의 장수 중 가장 끈질긴 자입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "낙성으로 가는 길은 둘입니다. 저는 지름길인 산길로 가겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 그 길은 좁고 험하네. 부디 조심하게."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "걱정 마십시오. 길이 험할수록 적도 방심하는 법이지요."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "방 군사, 산길이라면 탁현 사냥꾼들이 앞에 서겠습니다. 산은 저희 집 마당입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "산길 선봉은 제가 서겠습니다. 방 군사보다 한 걸음 앞에서 길을 열겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "방 군사 곁은 이 늙은이와 위 장군이 맡겠소. 주공은 큰길로 본대를 이끄시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그렇다면 내 백마를 타고 가게. 걸음이 빨라야 하네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공의 백마라. 봉추가 백마를 타다니, 오늘은 제 그림이 좀 근사하겠군요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 백마까지 내주면 자네는 뭘 타고 가오? 설마 내 나귀를 빌릴 셈이오?"
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 나귀가 자네보다 걸음이 빠르면 빌리겠네. 사원, 그 말은 오래 나를 태운 말일세."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그럼 낙성 성문 앞에서 돌려드리지요. 성문을 연 다음에요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 큰길로 나아가 낙성을 에워쌌다. 낙성은 해가 바뀌도록 성문을 열지 않았다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "fazheng",
+          "text": "성문을 뚫지 못했습니다. 다음 기회를 노리시지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "저쪽은 시간을 벌수록 강해집니다. 망설이지 말고 다시 치십시오."
+        }
+      ]
+    },
+    {
+      "id": "s24_luofengpo",
+      "title": "낙봉파",
+      "location": "낙봉파 · 좁은 산길",
+      "era": "214년",
+      "fate": {
+        "front": "정사: 봉추는 낙성을 치다가 화살에 맞아 떨어졌다",
+        "back": "그러나 봉황은 떨어지지 않았다"
+      },
+      "bg": {
+        "pre": "bg_mountain_path",
+        "post": "bg_mountain_path"
+      },
+      "bgm": {
+        "pre": "bgm_fate",
+        "battle": "bgm_crisis",
+        "post": "bgm_fate"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "214년 봄, 낙성 앞 진영. 성을 에워싼 지 한 해가 되도록 성문은 열리지 않았다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 이 성 앞에서 겨울을 한 번 났소. 한 번 더 나면 여기 뽕나무라도 심어야겠구려."
+        },
+        {
+          "speaker": "liubei",
+          "text": "성 안 사람들도 같은 겨울을 났을 걸세. 굶는 건 장임이 아니라 백성일 텐데."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "굶어야 문을 엽니다, 주공. 다만 그 전에 우리 쪽이 먼저 지칠 수도 있습니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "장임은 성 안의 쌀을 한 톨씩 세어 가며 버티고 있습니다. 정면으로는 한 해가 더 걸립니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그러니 옆구리를 치지요. 서쪽 산길로 돌아가면 낙성의 등 뒤에 닿습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 길은 좁고 험하다고 이미 말했네. 사원, 본대가 산길 어귀까지 갈 때까지 사흘만 기다리게."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "사흘이면 장임도 그 길을 봅니다. 길은 먼저 밟는 사람의 것이지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "방 군사의 말이 맞습니다. 지금 가야 싼 값으로 낙성을 삽니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 걱정은 공명 한 사람으로 족합니다. 주공까지 걱정하시면 제 어깨가 무거워 못 납니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "두 사람이 같은 말을 하면 나는 이길 수가 없구려. 노장군과 문장을 꼭 곁에 두게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "회의가 끝난 뒤, 방통과 법정이 진영 뒤 언덕에 나란히 앉았다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "방 군사, 주공 앞에서는 사흘을 못 기다린다 하셨지만, 속으로는 하루도 못 기다리시지요."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "들켰구려, 효직. 공명이 형주에 있는 동안 내 손으로 성도의 문을 열고 싶소."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그 마음은 압니다. 저도 유장 밑에서 십 년을 썩었습니다. 쓸모를 보일 날은 늘 급하지요."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "효직, 하나만 부탁하오. 내가 늦으면 주공이 직접 달려오실 거요. 그분은 그런 분이니."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "말리지는 않겠습니다. 더 빨리 가시라고 하겠지요. 그게 제가 아는 가장 싼 값입니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 방통의 막사. 황충과 위연이 지도 앞에서 서로 자리를 다투고 있었다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "앞은 내가 서겠소. 노장군은 뒤에서 방 군사 등이나 봐 주시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 산길에서는 뒤가 앞이 되는 일이 흔하오. 매복은 늘 허리를 치지."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "두 분, 그만 다투시오. 이 얼굴을 지키겠다고 장수 둘이 다투는 걸 보니 출세했구려."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "방 군사, 그런 농담은 웃어야 할지 말아야 할지 모르겠소."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "웃으시오. 공명은 별이 나쁘다고 편지를 썼는데, 나는 얼굴이 나빠서 별도 날 피해 갈 거요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 군사는 입이 화살보다 빠르구려. 그 입만큼 걸음도 조심하시오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "방 군사, 내일 길잡이는 저희 사냥꾼들이 섭니다. 새벽에 깨우러 오겠습니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "대장, 내일은 봉황 대신 사냥꾼이 앞장서는구려. 봉황 체면이 말이 아니군."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "산에서는 사냥꾼이 봉황보다 높습니다. 대신 성 앞에서는 군사께 양보하지요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "떠나는 새벽. 유비는 손수 흰 말의 안장 끈을 조이고 있었다. 방통이 놀라 다가왔다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 그런 일은 마부에게 맡기십시오. 주공이 안장을 매 주시니 몸 둘 바를 모르겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "돗자리 짜던 손일세. 끈 조이는 건 아직 내가 마부보다 낫네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 서쪽 길에서 무슨 일이 생기면 체면 차리지 말고 물러서게. 그게 내 부탁일세."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "봉황은 물러서는 법을 모릅니다만, 주공의 부탁이니 한 번쯤은 배워 두지요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 밤, 낙성 서쪽 고개. 장임이 궁병 수백을 이끌고 양쪽 언덕 수풀에 몸을 숨겼다.",
+          "bg": "bg_forest_valley"
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 형주 군사 한 갈래가 서쪽 산길로 들어섰습니다. 맨 앞에 흰 말이 있습니다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "유비는 흰 말을 탄다고 들었다. 제 목을 직접 들고 산길로 오는구나."
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 이 고개 이름이 낙봉파입니다. 봉황이 떨어지는 언덕이라고들 합니다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "이름은 상관없다. 우리 주공은 착하셔서 손님을 들이셨다. 그 착함을 지키는 게 내 일이다."
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 성도에서는 아직 원군 소식이 없습니다. 우리끼리 버텨야 합니다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "원군을 기다리는 장수는 성을 못 지킨다. 활을 나눠라. 흰 말 하나만 노리면 된다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "나는 가난한 집 자식이었다. 주공께서 그런 나를 장수로 세워 주셨다. 그 빚을 오늘 갚는다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "장송은 주인을 팔았고, 유비는 잔을 받은 손으로 칼을 뽑았다. 이 고개에서 셈을 끝낸다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "새벽, 산길 어귀. 의병 대장이 땅에 귀를 대고 한참을 엎드려 있었다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "방 군사, 이상합니다. 짐승은 숨으면 새가 울고, 사람이 숨으면 새가 입을 다뭅니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "새가 늦잠을 자는 걸 수도 있지요. 대장, 해가 뜨기 전에 고개를 넘어야 하오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "산을 탄 지 사십 년입니다. 오늘 이 산은 숨을 참고 있습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "앞에는 돌쇠와 막동을 세우겠습니다. 탁현 사냥꾼 중 눈이 제일 밝은 녀석들입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "돌쇠와 막동이라. 이름 참 투박하구려. 봉추라는 이름보다는 산을 잘 타겠소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "탁현 뽕나무 마을 이름이 다 그렇습니다. 주공 어릴 적 동무들 이름도 그랬지요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "214년, 낙성으로 가는 좁은 산길. 방통은 유비가 내준 백마를 타고 앞장섰다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "이 고개 이름이 낙봉파라고? 봉황이 떨어지는 언덕이라니 불길하구나."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "방 군사, 이 길은 너무 조용합니다. 매복이 있을지 모릅니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이 귀에도 수풀이 너무 고요하오. 군사는 내 뒤에 서시오."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "백마를 탄 자가 유비다. 일제히 활을 쏘아라!",
+          "cg": "cg_luofeng_ambush"
+        },
+        {
+          "speaker": "narrator",
+          "text": "양쪽 언덕에서 시위 소리가 한꺼번에 울렸다. 하늘이 잠깐 어두워졌다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "매복이다! 양쪽 언덕에 궁수가 가득합니다! 앞쪽 길이 바위로 막혔습니다!"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "백마라니. 저들은 나를 주공으로 알고 노리고 있구나."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그렇다면 차라리 잘됐군. 주공은 지금 큰길에 계시니, 화살은 내가 다 받아 주지."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "방 군사를 구해야 합니다. 매복병을 헤치고 산길로 올라가겠습니다!",
+          "cg": null
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "방 군사가 쓰러지면 끝이오. 군량을 아끼지 말고 군사 곁을 지키시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "언덕 위 궁수는 이 늙은이가 셉니다. 하나, 둘. 머리를 내미는 놈부터 떨어뜨리겠소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "사냥꾼들, 바위 뒤로! 언덕 위 궁수가 머리를 내밀 때만 쏴라!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "방 군사, 왼쪽 비탈에 짐승 길이 있습니다. 거기라면 위에서 화살이 덜 닿습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "대장, 그 길로 군사를 모셔 주시오. 나는 오른쪽 언덕으로 올라가 궁수 놈들 목을 치겠소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "앞서 가던 사냥꾼 둘이 쓰러졌다. 의병 대장은 이를 악물고 다음 바위로 몸을 날렸다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 혼자 올라가지 마시오! 이 늙은이가 아래에서 언덕 위를 쏘아 길을 내겠소!"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "양쪽 언덕의 궁병이 문제입니다. 몸을 숨길 수풀부터 찾으십시오."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "서두른 값을 치르는군. 공명, 이번만은 자네 말을 들을 걸 그랬소."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "아니, 후회는 나중이오. 노장군, 위 장군. 본대가 올 때까지 버팁시다. 그게 오늘의 판이오."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "주공! 서쪽 산길에서 사냥꾼 하나가 피투성이로 달려왔습니다. 방 군사가 매복에 걸렸답니다!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원이 매복에 걸렸다고? 저 말은 내가 사원에게 내준 말이네!",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "liubei",
+          "text": "흰 말을 탄 자를 노렸다면, 그 화살은 내 몫이었네. 내가 내 화살을 사원에게 떠넘겼구나.",
+          "face": "sad"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 지금은 자책할 때가 아니오. 오늘은 나도 농담 안 하겠소. 가시오."
+        },
+        {
+          "speaker": "chendao",
+          "text": "말을 바꿔 타십시오, 주공. 제 말이 이 진영에서 가장 빠릅니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "고맙네, 숙지. 오늘 내 말은 고개 위에 있네. 자네 말로 그 녀석을 데리러 가세."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "산길 어귀까지 큰길로 가면 반나절입니다. 짐수레를 버리면 그보다 빠릅니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "고개에 닿으면 먼저 언덕 위 궁수를 치십시오. 방 군사를 감싼 장수들이 숨을 돌릴 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "수레는 버리게. 장판에서 아이 하나 때문에 장수를 잃을 순 없다고 했네. 오늘도 같네."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 백이병이 앞장서겠습니다. 주공 곁은 한 치도 비우지 않습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 서두르게! 사원을 잃을 수는 없네!",
+          "face": "resolve"
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "zhangren",
+              "text": "화살을 아끼지 마라! 백마 탄 자를 반드시 쓰러뜨려라!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "화살비가 좁은 고개를 덮었다. 흰 말이 비명을 지르며 앞발을 들었다."
+            },
+            {
+              "speaker": "pangtong",
+              "text": "백마야, 조금만 버텨 다오. 주공이 오실 때까지는 둘 다 쓰러지면 안 된다."
+            },
+            {
+              "speaker": "weiyan",
+              "text": "방 군사 곁을 비우지 마라! 언덕을 오르는 자는 나를 따르고, 나머지는 군사를 감싸라!"
+            }
+          ],
+          "fx": {
+            "id": "fx_arrow_rain",
+            "unit": "pangtong"
+          }
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "pangtong",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "pangtong",
+              "text": "봉황이 정말 여기서 떨어지는가. 아니, 아직 수가 남았다!"
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "방 군사, 이 늙은이 뒤로 붙으시오! 화살은 이 활이 먼저 받겠소!"
+            },
+            {
+              "speaker": "weiyan",
+              "text": "군사, 고개를 숙이시오! 봉황이든 뭐든 오늘은 땅에 엎드려 있어야 하오!"
+            },
+            {
+              "speaker": "pangtong",
+              "text": "그래, 엎드리지. 살아 있어야 다시 날지. 오늘은 체면보다 목숨이오."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "사원, 조금만 버티게! 본대가 왔네!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "언덕의 궁병부터 걷어 내게! 사원이 고개를 들 수 있도록!"
+            },
+            {
+              "speaker": "pangtong",
+              "text": "주공이 오셨다. 이제 봉황도 날개를 펼 수 있겠군."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "weiyan",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "weiyan",
+              "text": "이 정도로 물러설 내가 아니오! 방 군사 앞은 끝까지 이 위연이 막겠소!"
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "위 장군, 물러설 줄도 알아야 오래 막는 법이오. 잠깐 내 뒤로 오시오!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "위연의 방패에 화살이 겹겹이 꽂혔다. 그래도 그는 방통 앞에서 한 걸음도 비키지 않았다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "huangzhong",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "huangzhong",
+              "text": "시위가 무겁구려. 그래도 이 늙은이 활은 아직 빗나가지 않소!"
+            },
+            {
+              "speaker": "pangtong",
+              "text": "노장군, 무리하지 마십시오. 장군을 잃으면 저는 살아도 산 게 아닙니다."
+            },
+            {
+              "speaker": "weiyan",
+              "text": "노장군, 장사에서 한 번 구했으면 두 번도 구하오. 이번엔 내 뒤로 오시오!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 4
+          },
+          "lines": [
+            {
+              "speaker": "zhangren",
+              "text": "어째서 쓰러지지 않는 거냐. 화살이 바닥나기 전에 끝내라!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "고개 위 화살 소리가 성기어지기 시작했다. 장임의 궁병들도 지쳐 가고 있었다."
+            },
+            {
+              "speaker": "pangtong",
+              "text": "저쪽 화살이 줄었습니다. 한 고비만 더 넘기면 이 고개는 우리 겁니다!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "pangtong",
+          "text": "하마터면 이 고개에서 끝날 뻔했습니다. 주공, 목숨을 빚졌습니다.",
+          "cg": "cg_phoenix_lives"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "방 군사, 백마는 잃었지만 군사는 살았습니다. 그거면 됐소."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "위 장군, 부축은 고맙지만 이제 혼자 설 수 있소. 다리가 떨리는 건 산길 탓이오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "알겠소. 그럼 떨리는 건 산길 탓으로 해 둡시다. 내 팔도 좀 떨리니까."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 말에서 뛰어내려 방통에게 달려갔다. 그리고 아무 말 없이 그 어깨를 붙잡았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그대를 잃었다면 익주를 얻어도 기쁘지 않았을 걸세.",
+          "cg": null,
+          "face": "smile"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 오늘은 이 늙은 활이 제값을 했구려."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "봉황은 오늘 떨어지지 않았습니다. 이제 낙성을 함께 무너뜨리지요.",
+          "face": "smile"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "노장군, 위 장군, 대장. 오늘 이 방통의 목숨은 세 사람에게 나누어 빚졌소."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "그런 말은 그만두시오. 방 군사가 고개를 숙이니 어디 아픈 사람 같소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "받아 두시오, 위 장군. 군사가 고개를 숙이는 날은 흔치 않으니 장부에 적어 둬야지."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "방 군사, 저는 길만 알려 드렸습니다. 그 길을 걸은 건 군사의 다리입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "그나저나 방 군사, 아까 땅에 엎드리신 모습은 봉황이 아니라 메추라기 같았소."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "위 장군, 메추라기는 살아남는 새요. 오늘은 그 이름도 고맙게 받겠소.",
+          "face": "smile"
+        },
+        {
+          "speaker": "narrator",
+          "text": "고갯마루에 흰 말이 쓰러져 있었다. 화살이 고슴도치처럼 박혀 있었다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 주공의 말을 잃었습니다. 성문 앞에서 돌려드리겠다고 했는데."
+        },
+        {
+          "speaker": "liubei",
+          "text": "말은 다시 구하면 되네. 사람은 그렇지 않네. 그건 내가 오래전에 배운 걸세."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그래도 이 녀석은 여기 묻어 주세. 오래 나를 태웠고, 오늘은 사원을 태웠으니."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 오늘은 농담을 하나도 안 했소. 장부에 적어 두시오. 간옹, 하루 쉼."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 고맙네. 자네가 입을 다물고 있으니 정말 무서웠네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 이 고개 이름을 바꾸고 싶습니다. 봉황이 떨어지는 언덕이라니 억울하지 않습니까."
+        },
+        {
+          "speaker": "liubei",
+          "text": "이름은 그대로 두세. 다만 오늘부터 여기는 봉황이 일어선 고개라고 내가 기억하겠네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 유비는 잔을 들다 말고 내려놓았다. 손이 떨려 술이 넘쳤다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 손이 떨리십니다. 잔을 제가 받아 두겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "숙지, 내가 사원을 그 길로 보냈네. 내 말을 태워서. 이 손으로 말일세."
+        },
+        {
+          "speaker": "liubei",
+          "text": "다음에 누군가를 험한 길로 보낼 때, 오늘 이 손을 기억하겠네. 자네가 증인이 되어 주게."
+        },
+        {
+          "speaker": "chendao",
+          "text": "예, 주공. 증인이 되겠습니다. 그리고 그 길에는 제가 먼저 가 보겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "아니, 숙지. 자네도 먼저 가지 말게. 이제는 함께 가는 길만 고르겠네."
+        },
+        {
+          "speaker": "chendao",
+          "text": "알겠습니다. 함께 가는 길이라면 저는 늘 주공 바로 뒤에 있겠습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "노장군, 제 방패에 박힌 화살이 스물셋이오. 장군 쪽은 몇 개요?"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "세어 보진 않았소. 다만 내가 쏜 화살은 서른하나, 빗나간 건 둘이오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "쏜 걸 세는 게 어디 있소! 받은 걸 세야지!"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 받은 것만 세는 장수는 오래 못 가오. 준 것도 세야 장부가 맞지."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "두 분, 그 장부에 하나 더 적어 주십시오. 탁현 사냥꾼 둘이 돌아오지 못했습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "그 둘의 이름을 알려 주시오. 오늘 고개를 넘은 건 그 사람들 덕도 있소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "돌쇠와 막동입니다. 둘 다 탁현 뽕나무 마을 출신이지요. 주공을 처음부터 따랐습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "탁현 사람이라. 그럼 주공과 같은 뽕나무 그늘에서 자란 사람들이구려."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "아침에 그 둘이 앞에 서는 걸 봤소. 둘 다 웃고 있었는데."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "예. 싸움이 끝나면 고향에 돌려보내 달라 했습니다. 뼈라도 그 그늘에 묻어 주려 합니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "깊은 밤, 방통은 등불을 켜고 형주로 보낼 편지를 썼다. 먼저 쓴 것은 두 사람의 이름이었다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명에게. 자네 편지를 시샘으로 읽었소. 끝까지 읽지 않은 것을 사과하오."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "오늘 나 대신 화살을 맞은 말이 있고, 돌아오지 못한 사냥꾼이 둘 있소. 이름은 돌쇠와 막동."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "판 위의 돌에도 이름이 있다는 걸 오늘 배웠소. 다음 판부터는 천천히 두겠소."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그리고 형주의 걱정 많은 와룡에게. 서쪽으로 오시오. 이번엔 같이 둡시다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 아직 안 잤나. 무얼 그리 오래 쓰나."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "빚 장부입니다, 주공. 오늘은 갚을 사람이 많아서요. 서두르지 않고 다 갚겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 장부에 나도 적어 두게. 사원에게 백마 한 필, 그리고 산길로 보낸 빚 하나."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공의 빚은 낙성 성문으로 받겠습니다. 성벽 위 궁수부터 걷어 내면 됩니다. 이번엔 천천히요."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "이번엔 놓쳤지만 낙성은 다르다. 성벽 위에서 다시 기다리겠다.",
+          "bg": "bg_castle_gate"
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 흰 말에 탄 자는 유비가 아니었습니다. 방통이라는 책사였답니다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "그랬구나. 주인의 말을 타고 주인 대신 화살을 받았다. 저쪽에도 충신이 있구나."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "좋다. 충신과 충신이 성벽을 사이에 두고 만난다. 성문은 내 목으로 걸어 잠근다."
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 성 안 사람들은 장군 한 분만 보고 있습니다. 부디 몸을 아끼십시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 낙성은 한 해를 버텼습니다. 형주의 군사를 부르실 때입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나도 그 생각을 했네. 오늘 같은 날을 두 번 겪고 싶지 않네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "앞은 장임이 막고, 뒤에서는 형주가 옵니다. 그러면 셈이 맞습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명 선생과 익덕, 자룡을 부르세. 형주는 운장에게 맡기고."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "와룡이 오면 저는 좀 쉬어도 되겠군요. 아니, 그 전에 낙성은 제 손으로 열고 싶습니다.",
+          "face": "smile"
+        },
+        {
+          "speaker": "liubei",
+          "text": "같이 여세, 사원. 이번엔 누구 손이 먼저인지 세지 말고."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 형주로 가는 전령이 동쪽 산길로 말을 달렸다. 편지에는 한 줄이 더 붙어 있었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "사원은 무사하다. 그러니 서두르지 말고, 모두 무사히 오라."
+        },
+        {
+          "speaker": "narrator",
+          "text": "열흘 뒤, 형주 관청. 제갈량은 편지 두 통을 나란히 펴 놓고 한참을 말없이 앉아 있었다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공께서 부르십니다. 저와 익덕 장군, 자룡 장군. 그리고 사원의 답장도 왔습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원이 사과를 했군요. 그 사람이 사과하는 글은 처음 봅니다. 많이 놀랐던 모양입니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님이 부르시면 가셔야지요, 군사. 형주는 제가 맡겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "드디어! 군사, 오늘로 숫자 세기는 끝이오. 일흔둘에서 멈췄소!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 형님 곁에 가거든 숫자는 그만 세고 형님 등 뒤만 지켜라. 한 번도 비우지 말고."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "관 장군, 공자님은 형주에 두고 갑니다. 공자님을 부탁드립니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "자룡, 걱정 마시오. 공자님 곁은 내가 지키겠소. 형님께는 형주가 무사하다고 전해 주시오."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "역사대로 봉황이 이 고개에서 떨어지려 한다. 다시 도전한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "아직이네. 사원을 이 고개에 두고 갈 수는 없네. 다시 가세."
+        }
+      ]
+    },
+    {
+      "id": "s25_luocheng",
+      "title": "낙성",
+      "location": "낙성 · 성벽 앞",
+      "era": "214년",
+      "bg": {
+        "pre": "bg_castle_gate",
+        "post": "bg_castle_gate"
+      },
+      "bgm": {
+        "pre": "bgm_siege",
+        "battle": "bgm_siege",
+        "post": "bgm_scheme"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "214년, 형주의 나루. 서쪽으로 거슬러 오를 배들 앞에 남는 사람과 떠나는 사람이 마주 섰다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "관 장군, 형주를 부탁합니다. 북쪽으로는 조조를 막고, 동쪽으로는 손권과 화친하십시오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "군사, 그 두 마디는 잊지 않겠소. 북쪽은 막고, 동쪽은 달래라."
+        },
+        {
+          "speaker": "guanping",
+          "text": "아버님, 저도 숙부님들을 따라 서쪽으로 가고 싶습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "평아, 너는 여기 남는다. 형님의 집을 지키는 것도 형님을 돕는 일이다."
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "관 장군님, 저는 묻지도 않겠습니다. 장군님 곁이 제 자리니까요."
+        },
+        {
+          "speaker": "maliang",
+          "text": "형주의 선비들은 제가 달래 두겠습니다. 군사께서는 마음 놓고 가십시오."
+        },
+        {
+          "speaker": "liaohua",
+          "text": "강가 망루는 제가 맡겠습니다. 물이 불면 가장 먼저 알려 드리지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님, 이번엔 내가 형님 곁에 가오. 형주 문단속 잘하시오!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 술은 입에도 대지 마라. 그리고 형님께 내가 보고 싶어 한다고는 말하지 마라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그 말을 지금 했으니 이미 전한 거나 마찬가지요, 둘째 형님!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "배는 삼협을 거슬렀다. 장비는 강주를 지나 파군으로, 조운은 다른 물길로 나아갔다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "narrator",
+          "text": "몇 달 뒤, 형주의 깃발들이 낙성 앞 진영에 닿았다. 진영 문 앞에 유비가 먼저 나와 있었다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님! 이 장비가 왔소! 오는 길에 산을 몇 개나 넘었는지 세다가 잊어버렸소!",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 숫자 세는 버릇은 여전하구려. 다들 무사히 와 주었네. 그거면 됐네.",
+          "face": "smile"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 형주는 무사합니다. 공자님은 관 장군께서 지키고 계십니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 먼 길 고생했네. 자네가 오니 등 뒤가 든든하네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원, 그 메추라기 이야기는 형주까지 들렸소. 위 장군의 입이 빠르더군요."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명, 그 이야기를 꺼내러 이 먼 길을 왔소? 편지도 기다리지 않고."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "편지는 기다렸소. 다만 이번엔 직접 보고 싶었소. 살아 있는 사원을."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "보시오, 멀쩡하오. 얼굴은 여전히 못났지만. 자, 이제 같이 둡시다.",
+          "face": "smile"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "사냥꾼 대장! 팔씨름 빚 받으러 왔소. 두 판이오, 두 판!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 저는 이제 어깨가 웁니다. 대신 아들놈을 내보내겠습니다. 저보다 셉니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그거 반칙이오! 좋소, 아들 다음엔 당신이오. 이 장비는 빚을 잊지 않소!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "대장, 떠나오기 전에 강 남쪽 사냥꾼 마을에 들렀습니다. 노인들이 안부를 전하라 하더군요."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "조 장군, 그 늙은이들 아직 활은 쏩니까? 다들 저보다 어깨가 먼저 울 텐데요."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "과녁은 못 맞혀도 참새는 잡는다고 큰소리치더군요. 마을 어귀에 뽕나무도 심었습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "뽕나무라. 그럼 돌쇠와 막동을 그 그늘로 보낼 수 있겠습니다. 고맙습니다, 장군."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그 둘의 일은 들었습니다. 돌아가는 길은 제가 호위를 붙이겠습니다. 맡은 일로 하지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 오는 길에 파군에서 노장 하나를 사로잡았다고 들었네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "엄안이라는 늙은이요. 왜 항복하지 않았느냐고 소리쳤더니, 꿈쩍도 안 하고 이러더이다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "우리 고을에는 목이 잘리는 장군은 있어도 항복하는 장군은 없다. 목을 치려면 치라고."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 그 말을 듣는데 내가 부끄럽더이다. 그래서 내 손으로 밧줄을 풀어 줬소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 그 밧줄을 푼 손이 오늘은 자네 창보다 크게 보이네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "지금 내 막사에 손님으로 있소. 마음이 정해지면 제 입으로 말하겠다더이다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "파군의 엄안이 손님으로 있다는 소문만으로도 익주 장수들의 마음이 흔들릴 겁니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 그 노장 나이가 이 늙은이와 비슷하다던데. 한번 만나 활이나 겨뤄 봐야겠소."
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 형주에서 원군이 왔습니다. 성 밖 깃발이 두 배로 늘었습니다.",
+          "bg": "bg_castle_gate"
+        },
+        {
+          "speaker": "zhangren",
+          "text": "익주는 남의 땅이 아니다. 침입자는 하나도 돌려보내지 않는다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "깃발이 늘어도 성벽은 그대로다. 활을 쥔 손이 남아 있는 한 성문은 열리지 않는다."
+        },
+        {
+          "speaker": "yizhou_soldier",
+          "text": "장군, 낙봉파에서 놓친 책사도 저 진영에 있답니다. 이번엔 성벽 위에서 노리겠습니다."
+        },
+        {
+          "speaker": "zhangren",
+          "text": "책사는 놔둬라. 이번엔 성문을 지키는 싸움이다. 쫓는 화살과 지키는 화살은 다르다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "낙성의 성벽은 높습니다. 궁병과 노병으로 성벽 위를 먼저 비워야 합니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "성문만 열면 됩니다. 성문으로 가는 길목은 제가 뚫겠습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "성벽 위의 궁수라면 이 늙은이와 활 솜씨를 겨뤄 보지."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "성문 쪽 길목은 위 장군과 함께 열겠습니다. 성벽이 비면 바로 들어가겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "자룡, 성문은 내가 먼저요! 낙성 성문 정도는 이 장비 고함 한 번이면 열리오!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "성벽 아래로 서두르면 위에서 쏟아지는 화살을 다 받게 됩니다. 활이 길을 연 뒤에 가십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "장임은 적이지만 충신이네. 되도록 성문만 노리세."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "성벽은 칼로 넘을 수 없습니다. 활이 먼저, 칼은 그다음입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "이번엔 천천히 둡니다, 주공. 한 칸씩, 성벽 위부터."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "zhangren",
+              "text": "주공, 끝까지 지켜 드리지 못했습니다. 그래도 항복은 없다.",
+              "cutin": true
+            },
+            {
+              "speaker": "narrator",
+              "text": "장임은 무너진 성루에서 끝까지 활을 놓지 않았다. 낙성의 성문이 열렸다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "장임을 해치지 말게. 쓰러진 충신에게 칼을 더하는 것은 부끄러운 일이네."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "zhangren",
+              "text": "성벽 위의 궁수들은 들어라! 우리 화살이 다하는 날이 낙성이 무너지는 날이다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "성벽 위부터 비우세. 서두르지 말고, 한 사람도 성벽 아래 헛되이 서 있게 하지 말게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhangren",
+              "text": "성이 무너져도 내 충심은 무너지지 않는다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "장임의 둘레에 남은 익주 군사는 얼마 되지 않았다. 그래도 아무도 활을 내려놓지 않았다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "성벽 위 궁수들의 화살이 조금씩 성기어졌다. 낙성의 성문 앞까지 길이 트이기 시작했다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "이제 성문일세. 다친 사람은 뒤로 물리고, 성 안 백성의 집에는 불을 대지 말게."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "낙성이 열렸다. 장임은 끝내 무릎을 꿇지 않았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "적이지만 충신이었네. 예를 갖추어 장례를 치러 주게.",
+          "face": "sad"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "주공, 성루에서 장임의 활을 찾았습니다. 시위가 다 닳아 있었습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 엄안 그 늙은이하고 똑같은 눈이었소. 익주에는 이런 사람들이 많구려."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그러니 이 땅을 함부로 다스려서는 안 되네. 이 사람들이 지키려던 것을 우리가 지켜야 하네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 낙성 사람들에게 먼저 쌀을 푸십시오. 성도 사람들이 그 소문을 먼저 들을 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그리하세, 공명 선생. 성문은 칼로 열었지만, 마음은 쌀로 열어야지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "낙성 북쪽 언덕에 작은 무덤이 생겼다. 방통이 그 앞에 오래 서 있었다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "낙봉파에서 저를 노린 사람입니다. 백마를 주공으로 알고 화살을 아끼지 않았지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 자네를 노린 사람일세. 원망스럽지 않은가."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "아닙니다. 저 사람은 자기 주인을 지키려 했고, 저는 제 주인을 지키려 했을 뿐입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "예전의 저라면 이긴 판만 보았겠지요. 오늘은 진 쪽의 돌도 세어 두고 싶습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 활은 이 무덤에 같이 묻어 주세. 끝까지 쥐고 있던 것이니."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "낙성이 열렸습니다. 이제 성도까지 막을 것이 없습니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그런데 북쪽 가맹관에 마초가 나타났다는 급보입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조에게 아비와 형제를 잃고 장로에게 몸을 의탁한 자입니다. 장로가 그를 앞세운 것이지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "서량의 기병은 들판에서 바람과 같습니다. 가맹관 앞 들판이 넓은 것이 걱정입니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "금마초라는 그놈 말이오? 비단옷 입고 다닌다는. 형님, 그놈은 이 장비가 맡겠소!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 마초는 조조에게 모든 것을 잃은 사람일세. 이길 생각만 하지 말고 얻을 생각을 하게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "얻는다라. 형님은 늘 어려운 걸 시키시오. 알겠소. 때려눕히고 나서 생각하겠소."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 익덕다운 계책이오. 때려눕히고 생각한다. 장부에 장비 병법이라고 적어 두지."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 성도로 가는 길은 제가 열어 두겠습니다. 익덕 장군은 북쪽만 보시면 됩니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "마초를 얻으면 성도는 싸우기 전에 흔들립니다. 서량의 이름이 성벽보다 높으니까요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 장비는 북쪽으로 떠날 채비를 하며 물 한 바가지를 단숨에 들이켰다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 가맹관은 형님들이 처음 익주에 들어온 문입니다. 이번엔 장군이 그 문을 지키시는군요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 또 문이오? 나는 이 문 저 문 다 지키는 문지기 팔자인가 보오."
+        },
+        {
+          "speaker": "chendao",
+          "text": "장 장군, 장판의 다리도 문이었습니다. 그날도 제가 증인이었습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "숙지, 이번에도 증인 해 주시오. 비단옷 애송이를 죽이지 않고 꺾는 걸 말이오."
+        },
+        {
+          "speaker": "chendao",
+          "text": "알겠습니다. 다만 저는 주공 곁을 떠날 수 없으니, 증인은 횃불에게 맡기겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "횃불이 증인이라. 숙지가 그런 말도 할 줄 아는구려. 좋소, 밤새 붙어 보지!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "한 달 뒤, 형주. 서쪽에서 온 편지를 읽던 관우가 붓을 내려놓았다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "관 장군님, 낙성이 열렸답니까? 장 장군님은 무사하십니까?"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "무사하다. 익덕이 오는 길에 적의 노장을 사로잡았다가 밧줄을 풀어 주었다는구나."
+        },
+        {
+          "speaker": "guanping",
+          "text": "숙부님이 말입니까? 숙부님이라면 목부터 치실 줄 알았습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "평아, 익덕은 형님을 닮아 가고 있다. 나도 그리되어야 할 텐데."
+        },
+        {
+          "speaker": "guanping",
+          "text": "아버님도 화용도에서 놓아주셨잖습니까. 숙부님은 아버님도 닮으신 겁니다."
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "장군님은 이미 닮으셨습니다. 저를 풀어 준 건 주공이지만, 글을 가르쳐 준 건 장군님이니까요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 무렵, 가맹관 아래 들판에는 서량의 기병이 바람처럼 몰려들고 있었다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "pangtong",
+          "text": "성벽 위 궁병이 아직 많습니다. 활로 먼저 비우시지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "서두르면 성벽이 이깁니다. 한 칸씩 다시 가지요."
+        }
+      ]
+    },
+    {
+      "id": "s26_machao",
+      "title": "가맹관의 금마초",
+      "location": "가맹관 · 성 아래 들판",
+      "era": "214년",
+      "bg": {
+        "pre": "bg_pass",
+        "post": "bg_camp_night"
+      },
+      "bgm": {
+        "pre": "bgm_boss",
+        "battle": "bgm_boss",
+        "post": "bgm_oath"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "214년, 한중의 군영. 서량에서 쫓겨 온 장수가 홀로 창을 닦고 있었다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 장로의 신하들이 또 형님을 헐뜯었답니다. 언젠가 장로를 찌를 사람이라고요."
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 내버려 둬라. 아비와 형제를 조조에게 잃은 놈을 누가 믿겠느냐."
+        },
+        {
+          "speaker": "madai",
+          "text": "그래서 가맹관을 치겠다고 하셨습니까. 장로에게 쓸모를 보이시려고요."
+        },
+        {
+          "speaker": "machao",
+          "text": "쓸모를 보이지 못하면 서량의 마초는 남의 집 처마 밑에서 늙어 죽는다. 그건 못 한다."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 장로는 이겨도 형님을 믿지 않을 겁니다. 져도, 이겨도 마찬가지입니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "알고 있다. 그러니 나는 장로를 위해 싸우는 게 아니다. 나를 꺾을 자가 있는지 보러 간다."
+        },
+        {
+          "speaker": "machao",
+          "text": "아무도 없다면, 이 창으로 갈 데까지 가 볼 뿐이다."
+        },
+        {
+          "speaker": "hanzhong_captain",
+          "text": "마 장군, 사군의 말씀이오. 가맹관을 넘지 못하면 한중으로 돌아올 생각은 마시라고."
+        },
+        {
+          "speaker": "machao",
+          "text": "돌아올 생각은 처음부터 없었다. 사군께 전해라. 마초는 빚지고 사는 법을 모른다고."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 저 말은 감시하겠다는 뜻입니다. 뒤에서도 창이 겨누어져 있습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 무렵, 낙성. 마초가 가맹관에 나타났다는 급보에 유비는 다시 북쪽 산길로 말을 돌렸다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 성도로 가는 길은 제가 노장군, 위 장군과 함께 닦아 두겠습니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "성도 쪽 판은 제가 펴 두지요. 이번엔 천천히, 돌 하나하나 이름을 세어 가며."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 자룡, 성도 앞에서 다시 만나세. 그때는 모두 함께일세."
+        },
+        {
+          "speaker": "narrator",
+          "text": "며칠 뒤, 가맹관. 유비는 장비와 함께 관문 위에 올라 들판을 내려다보았다.",
+          "bg": "bg_pass"
+        },
+        {
+          "speaker": "narrator",
+          "text": "들판 끝에 흰 갑옷의 기병들이 늘어서 있었다. 그 앞에 사자 투구를 쓴 장수가 있었다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "저게 금마초요? 갑옷이 번쩍번쩍하구려. 저걸 입고 싸움이 되나 모르겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 마초는 조조에게 가문을 잃은 사람일세. 죽이지 말고 꺾게."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "마초가 쓰러지면 그 병사들도 무기를 내려놓을 것입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "장로는 마초를 믿지 않습니다. 이 싸움에서 마초가 지면 돌아갈 곳이 없지요. 그때가 기회입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "돌아갈 곳이 없는 사람에게 돌아올 곳을 주세. 그게 우리가 할 일이네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 이번 싸움은 이기는 것보다 이긴 뒤가 어렵습니다. 장비 장군께 그 말을 꼭 새겨 주십시오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "주공, 들판 끝까지 서량 기병이 덮었습니다. 말들이 산을 넘어와도 지친 기색이 없습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "저 말들도 고향을 잃고 왔겠구려. 대장, 사냥꾼들은 관문 아래 길만 지켜 주게."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "군사, 장로의 신하 가운데 재물을 좋아하는 자가 있습니다. 마초를 의심하는 말을 조금만 보태면 됩니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "효직, 남의 의심을 키우는 일은 내키지 않소. 그 의심이 마초를 벼랑으로 밀 수도 있으니."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "벼랑 끝에 우리가 서 있으면 됩니다. 떨어지는 사람을 받는 쪽이 되면 그만이지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "받아 줄 손이 확실하다면, 하겠소. 주공의 손이라면 확실하오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그렇다면 계산은 끝났습니다. 남은 건 장비 장군이 마초를 죽이지 않는 것뿐입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그게 가장 어려운 셈이오. 장군이 숫자를 세기 시작하면 위험하다는 뜻이니 지켜봅시다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 죽이지 말고 꺾으라는 게 제일 어렵소. 나는 창을 들면 손이 먼저 나가오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "파군에서 엄안의 밧줄을 푼 손이 있지 않나. 그 손이면 되네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "장판에선 고함으로 조조를 세웠소. 오늘은 창으로 저 녀석을 세워 보겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "세우고 나서 손을 내밀게. 그 손을 잡을지는 마초가 정하겠지."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 둘째 형님이 형주에서 이 얘기 들으면 뭐라 하실까. 아우가 사람을 얻었다고 하실까."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 말없이 고개를 끄덕일 걸세. 그리고 편지에 딱 한 줄 쓰겠지. 잘했다, 익덕."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "알겠소, 형님. 대신 저 녀석이 손을 안 잡으면 한 판 더 해도 되오?"
+        },
+        {
+          "speaker": "liubei",
+          "text": "하루에 한 판만 하게. 자네도 마초도 내일 또 살아 있어야 하니.",
+          "face": "smile"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "자, 걸어 보시오. 익덕이 이기면 내가 국수 한 그릇, 마초가 이기면 대장이 한 그릇."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "저는 장 장군에게 겁니다. 팔씨름에서 저한테 진 사람이 저 마초한테까지 지면 제 체면이 안 섭니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 그건 응원인지 협박인지 모르겠구려. 숙지는 어느 쪽이오?"
+        },
+        {
+          "speaker": "chendao",
+          "text": "저는 걸지 않습니다. 증인은 한쪽에 걸면 안 됩니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "역시 숙지는 장부 쓰기 제일 쉬운 사람이오. 늘 같은 칸에 같은 말이니."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "간 선생은 어느 쪽에 거십니까? 말만 하고 안 거시면 반칙입니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "나는 둘 다 지쳐서 비긴다에 걸겠소. 그러면 국수는 내가 둘 다 먹는 거요."
+        },
+        {
+          "speaker": "machao",
+          "text": "서량의 마초다! 유비의 장수 중에 나와 겨룰 자가 있느냐!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "비단옷 입은 애송이가 큰소리는! 이 장비가 상대해 주마."
+        },
+        {
+          "speaker": "machao",
+          "text": "네가 장판의 장비냐. 다리 하나로 조조를 세웠다더니, 오늘은 다리도 없구나."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "다리는 없어도 이 장비가 문이다! 지나가고 싶으면 나를 넘어 봐라!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 서쪽 산마루에 걸렸다. 두 장수가 들판 한가운데로 말을 몰아 나왔다."
+        },
+        {
+          "speaker": "machao",
+          "text": "창을 들어라, 장비. 서량에서는 말 위에서 인사를 대신한다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "탁현에서는 고함으로 인사한다! 연인 장익덕이다, 잘 기억해 둬라!"
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 장로는 형님을 믿지 않습니다. 이 싸움에 목숨을 걸 이유가 없습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "유비, 네 아우가 나를 꺾으면 그때 네 얼굴을 보러 가겠다. 꺾지 못하면 관문을 열어라!"
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 물러서라. 나를 꺾을 자가 있는지 보고 싶을 뿐이다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "마초는 기병입니다. 넓은 들에서 정면으로 받지 말고 창병을 앞세우십시오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "군사는 걱정도 많구려. 오늘은 이 장비가 날이 샐 때까지 붙어 주겠소!",
+          "face": "smile"
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 내 말 잊지 말게. 꺾되, 잃지 말게.",
+          "face": "resolve"
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "machao",
+              "text": "제법이구나! 이 마초의 창을 몇 번이나 받아 내다니!"
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "하하, 너도 제법이다! 끝장을 볼 때까지 붙자!"
+            },
+            {
+              "speaker": "machao",
+              "text": "서량에서는 나와 열 합을 겨룬 자가 없었다. 너는 벌써 몇 합째냐!"
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "안 셌다! 이 장비가 숫자를 안 세는 건 오늘이 처음이다!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 4
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "해가 지고 횃불이 켜졌다. 두 장수의 겨루기는 밤이 되어도 끝나지 않았다.",
+              "cg": "cg_torch_duel"
+            },
+            {
+              "speaker": "machao",
+              "text": "밤이 되었다고 멈출 내가 아니다! 끝까지 덤벼라!",
+              "cg": null
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "횃불을 더 밝혀라! 저 녀석 얼굴이 잘 보여야 꺾어도 꺾은 맛이 난다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "관문 위에서 유비는 끝내 자리를 뜨지 않았다. 횃불 그림자 속에서 두 창이 다시 맞부딪쳤다."
+            }
+          ],
+          "fx": {
+            "id": "fx_night"
+          }
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhangfei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "팔이 저리는구나. 그래도 형님이 보고 계신다. 여기서 물러서면 문이 무너진다!",
+              "face": "resolve"
+            },
+            {
+              "speaker": "machao",
+              "text": "숨이 거칠구나, 장비! 이제 물러서도 부끄럽지 않을 텐데!"
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "부끄러운 건 물러서는 게 아니라 약속을 못 지키는 거다! 아직 안 끝났다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "관문 아래 탁현 사냥꾼들이 일제히 활대로 방패를 두드렸다. 장비의 등을 미는 소리였다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "madai",
+              "text": "형님, 그만 물러나십시오! 저 장수는 형님을 죽이려는 게 아닙니다. 꺾으려는 겁니다!"
+            },
+            {
+              "speaker": "machao",
+              "text": "대, 알고 있다. 그래서 더 물러설 수가 없다. 꺾일 거라면 끝까지 맞서다 꺾인다!"
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "좋다, 마초! 그 말이 마음에 든다. 이제 꺾어 주마!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "새벽이 가까워질 무렵, 관문 위에서 징 소리가 울렸다. 유비가 겨루기를 멈추게 한 것이었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "마초는 창을 땅에 꽂고 숨을 몰아쉬었다. 장비도 창에 몸을 기댄 채 그를 보고 있었다."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 한중에서 전갈이 왔습니다. 장로가 형님이 유비와 내통한다며 길을 막았답니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "결국 그렇게 되는구나. 이겨도, 져도 마찬가지라던 네 말이 맞았다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "마초, 오늘은 비긴 걸로 해 두자. 나도 팔이 안 올라간다. 형님이 그만하라시니 그만이다."
+        },
+        {
+          "speaker": "machao",
+          "text": "비겼다고? 아니다. 나는 밤새 한 번도 이기지 못했다. 그건 진 거다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 나도 한 번도 못 이겼으니 진 거로구나. 둘 다 졌다! 하하, 이런 싸움은 처음이오!"
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 저 장수는 웃고 있습니다. 밤새 창을 맞댄 상대 앞에서요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 떠오르자, 유비가 관문을 내려와 들판으로 걸어 나왔다. 호위는 진도 한 사람뿐이었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "마초 장군, 나는 장군의 창을 꺾으려 한 게 아니오. 장군이 머물 곳을 내주려 한 것이오."
+        },
+        {
+          "speaker": "machao",
+          "text": "이 마초를 꺾은 자를 따르는 것은 부끄럽지 않소. 오늘부터 유비공을 모시겠소."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님과 함께 저 마대도 따르겠습니다. 서량 기병의 힘을 보여 드리지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 싸울 맛 나는 장수가 들어왔구려! 다음엔 같은 편에서 붙어 봅시다.",
+          "face": "smile"
+        },
+        {
+          "speaker": "liubei",
+          "text": "마초 장군, 조조에게 진 빚은 함께 갚아 가세."
+        },
+        {
+          "speaker": "machao",
+          "text": "유비공, 그 말을 믿겠소. 서량 철기가 앞장서겠소."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 증인으로 말씀드립니다. 장 장군은 오늘 약속을 지키셨습니다. 꺾되, 잃지 않으셨습니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "대장, 국수 내기는 내가 이겼소. 둘 다 지쳐서 끝났으니 비긴 거요. 두 그릇 내시오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "간 선생, 마초 장군이 진 거라 했으니 제가 이긴 겁니다. 국수는 선생이 내십시오."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 이래서 증인이 필요하오. 숙지, 누가 이겼소?"
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공이 이기셨습니다. 사람을 하나 더 얻으셨으니까요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "자, 마시시오. 물이오. 나는 술을 끊은 지 오래라 줄 게 이것뿐이오.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "machao",
+          "text": "장비가 술을 끊었다고? 서량까지 들린 소문과는 영 다르구려."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "술 때문에 형님 성을 잃은 적이 있소. 그 뒤로는 물만 마시오. 맹기, 당신은 뭘 잃었소?"
+        },
+        {
+          "speaker": "machao",
+          "text": "아비와 형제, 처자식. 다 잃었소. 남은 건 이 창과 저기 있는 대 하나뿐이오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 이제 하나 늘었소. 형님들이 생겼으니까. 우리 형님은 사람을 잘 안 놓으시오."
+        },
+        {
+          "speaker": "machao",
+          "text": "익덕, 그 말을 오늘 밤만은 믿어 보겠소. 내일 밤에도 믿게 될지는 두고 봅시다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "내일 밤에도 물 한 바가지 들고 오겠소. 모레도, 그다음 날도. 믿을 때까지."
+        },
+        {
+          "speaker": "machao",
+          "text": "물 들고 쫓아다니는 장비라. 서량 사람들이 들으면 아무도 안 믿겠구려."
+        },
+        {
+          "speaker": "machao",
+          "text": "유비공, 하나만 묻겠소. 어젯밤 장비가 나를 벨 수 있었던 때가 두 번은 있었소. 왜 베지 않았소?"
+        },
+        {
+          "speaker": "liubei",
+          "text": "내가 부탁했소. 나는 땅보다 사람을 얻으러 다니는 사람이라."
+        },
+        {
+          "speaker": "machao",
+          "text": "조조의 진영에 있던 자에게서 들은 말이 있소. 조조가 그대를 두고 그랬다더군."
+        },
+        {
+          "speaker": "machao",
+          "text": "현덕은 사람만은 끝까지 놓지 않는다고. 그게 제일 부럽다고. 그 말이 정말인지 보러 온 셈이오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 사람이 그런 말을 했소? 그렇다면 오늘은 조조에게 부러움을 하나 더 얹어 주었구려."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 새 진영의 한쪽. 마대가 형님의 갑옷에 박힌 흙을 털고 있었다."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 오랜만에 형님이 웃는 걸 봤습니다. 장 장군과 물을 마시면서요."
+        },
+        {
+          "speaker": "machao",
+          "text": "웃었다고? 기억이 안 나는구나. 웃는 법은 서량에 두고 온 줄 알았다."
+        },
+        {
+          "speaker": "madai",
+          "text": "여기서는 조금 내려놓으셔도 될 것 같습니다. 저는 형님이 돌아오지 못할까 늘 그게 무서웠습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 너만은 끝까지 살아남아라. 마씨 집안의 이름은 네가 이어야 한다."
+        },
+        {
+          "speaker": "madai",
+          "text": "그 말씀은 형님이 먼저 지키십시오. 저는 형님 옆과 뒤를 보겠습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "마 장군, 서량 말들 먹이는 저희 사냥꾼들이 거들겠습니다. 산에서 먹일 풀은 저희가 압니다."
+        },
+        {
+          "speaker": "madai",
+          "text": "고맙습니다. 저희 말들은 산을 넘어오느라 굽이 많이 닳았습니다. 형님 말이 특히 그렇습니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "굽 가는 일은 백이병에 잘하는 자가 있습니다. 내일 아침에 보내겠습니다."
+        },
+        {
+          "speaker": "madai",
+          "text": "이 군대는 처음 온 사람에게도 말굽부터 챙겨 주는군요. 한중에서는 의심부터 받았는데."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "저희도 다 처음 온 사람이었습니다. 탁현에서 온 사냥꾼이 이제는 제일 오래된 사람이 됐지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 마초 장군을 성도 북쪽에 세우십시오. 서량의 이름만으로 성안이 흔들릴 겁니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "싸우지 않고 이기는 길이 열렸습니다. 다만 성안 백성이 놀라지 않게 깃발만 세우시지요."
+        },
+        {
+          "speaker": "machao",
+          "text": "유비공, 깃발만 세우라니 몸이 근질거리오. 그래도 그게 백성을 덜 다치게 한다면 따르겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "고맙소, 맹기. 성도 사람들은 이제 곧 내 백성이 될 사람들이오. 놀라게 하고 싶지 않소."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 깃발만 세우는 싸움은 처음입니다. 서량 기병이 그걸 견딜지 모르겠습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 견디게 해라. 오늘부터 우리는 빼앗는 군대가 아니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 성문을 칼로 안 열 거면 말로 열 사람이 필요하겠구려. 그때 가서 생각해 보시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 그 말투는 이미 생각해 둔 사람의 말투일세. 그때 가서 다시 묻겠네."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "주공, 저희 사냥꾼들은 성도 근처 마을부터 살피겠습니다. 씨앗 빼앗는 군대라는 소문은 막아야지요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "214년 여름, 유비의 군사는 성도를 향해 나아갔다. 그 북쪽에 서량의 깃발이 함께 펄럭였다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "madai",
+          "text": "형님이 너무 강하십니다. 정면으로 받지 말고 다시 겨루시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 서두르지 말게. 꺾는 싸움은 한 번에 끝나지 않네. 다시 가세."
+        }
+      ]
+    },
+    {
+      "id": "s27_chengdu",
+      "title": "성도 포위",
+      "location": "성도 · 익주의 수도",
+      "era": "214년",
+      "bg": {
+        "pre": "bg_castle_gate",
+        "post": "bg_hall"
+      },
+      "bgm": {
+        "pre": "bgm_siege",
+        "battle": "bgm_siege",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "유비의 군대는 마침내 익주의 수도 성도를 에워쌌다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "214년 여름. 가맹관에 들어선 지 삼 년, 낙성을 떨어뜨린 지 얼마 되지 않은 때였다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "성벽 위에는 아직 깃발이 빽빽했다. 성안에는 정병 삼만과 한 해를 버틸 곡식이 있다고 했다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "성안은 이미 마초가 왔다는 소식에 흔들리고 있습니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "군사와 곡식은 남았어도 마음이 먼저 떨어졌습니다. 성은 마음부터 무너지는 법입니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "성문을 차지하면 유장은 항복할 것입니다. 성안 깊이 들어갈 필요는 없습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사원, 성안 깊이 들어가지 않는다니 다행이네. 저 안에도 백성이 살고 있네."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "그래서 문만 두드리자는 것이지요. 문이 열리면 주인은 스스로 걸어 나옵니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직, 그대에겐 옛 주인의 성일세. 마음이 괴롭지는 않은가."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "괴로워할 만큼 받은 것이 없습니다. 저를 알아보신 분은 주공이 처음입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "다만 성안에는 저를 알아보지 못한 자들도 많지요. 그 셈은 나중에 하겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "셈은 하되 칼로는 하지 말게. 성문이 열리면 익주 사람은 다 우리 사람이네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원, 직접 따라와 보니 판이 더 크구려. 성도까지 오는 길을 다 짜 두었으니."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명이 형주를 붙들고 있었으니 나는 판만 벌이면 됐소. 뒷정리는 늘 와룡 몫이지."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "성벽이 길고 높습니다. 한 곳에 힘을 모아 성문으로 가십시오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "군사가 둘이나 나란히 서 있으니 머리가 아프오. 둘이 다른 말 하면 나는 누굴 따르오?"
+        },
+        {
+          "speaker": "pangtong",
+          "text": "익덕 장군, 오늘은 둘이 같은 말을 하니 걱정 마시오. 성문, 딱 그것 하나요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "딱 하나라니 좋구려! 머리 좋은 사람 둘이 같은 말을 하면 틀릴 리가 없지!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명 선생, 운장에게서 새 편지는 없었소? 강 건너가 늘 마음에 걸리네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "운장 장군은 관평, 마량과 함께 계십니다. 다만 강 건너 오의 눈길이 늘 그쪽에 있습니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 부성 잔치 기억나오? 유장공이 내 우스갯소리에 제일 크게 웃었지."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 그 웃던 사람의 성을 지금 우리가 에워싸고 있네. 그 이야기는 아프네.",
+          "face": "sad"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "아프니까 꺼내는 거요. 한 번 웃은 사람은 다시 웃을 수 있소. 그 길은 내가 기억해 두지."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "헌화 선생, 오랜만에 쓸데없는 말을 하는구려. 그런데 이상하게 듣기 좋소."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 익덕 장군. 쓸데없는 말이 내 무기라 했잖소. 오늘은 칼집에 꽂아 두겠소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 파군의 엄 노장이 손님 자리에서 일어나 제 입으로 따르겠다 했소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕이 사람을 얻어 오다니 놀랍구려. 엄안 장군, 잘 와 주었소.",
+          "face": "smile"
+        },
+        {
+          "speaker": "yanyan",
+          "text": "항복하는 장군은 없다 했을 뿐이오. 장 장군이 그 말에 밧줄을 풀더이다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그런 말을 하는 노장은 살려 둬야 하오! 그날 나는 존경이라는 걸 배웠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "엄 장군, 이 군에 노장 자리는 하나뿐인 줄 알았는데 둘이 되었구려. 허허."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "황 노장, 자리는 하나면 되오. 먼저 앉는 쪽이 임자지. 성벽 앞에서 겨뤄 봅시다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "성도 북쪽 들판의 마을. 문을 닫아건 집들 사이로 탁현 사냥꾼들이 물동이를 지고 지나갔다.",
+          "bg": "bg_village"
+        },
+        {
+          "speaker": "villager",
+          "text": "나리들, 형주 군대는 곡식을 다 쓸어 간다던데요. 우리 집엔 씨앗밖에 없습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "아주머니, 저희는 탁현에서 온 사냥꾼들입니다. 씨앗을 가져가는 군대는 굶어 죽어도 싸지요."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "저도 누이의 마을을 황건에게 잃었습니다. 씨앗까지 빼앗긴 마을이 어찌 되는지 압니다."
+        },
+        {
+          "speaker": "villager",
+          "text": "그럼 그 물동이는 다 뭡니까. 군사들 마실 물을 우리 우물에서 퍼 가는 겁니까?"
+        },
+        {
+          "speaker": "chendao",
+          "text": "마을 우물이 말랐다고 들었습니다. 강물을 길어 왔습니다. 그것뿐입니다."
+        },
+        {
+          "speaker": "villager",
+          "text": "이상한 군대구먼. 물을 퍼 가는 군대는 봤어도 물을 주고 가는 군대는 처음입니다."
+        },
+        {
+          "speaker": "villager",
+          "text": "우리 영감이 그러는데, 그 유비라는 장군이 귀가 어깨까지 닿는다던데 정말입니까?"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "정말입니다. 탁현에선 그 귀로 백성 말을 다 듣는다고들 했지요. 반은 농담입니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 이 사람들 눈이 탁현을 처음 떠나던 날 우리 마을 노인들 눈하고 똑같습니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "그 노인들도 끝내 짚신을 내밀었지요. 여기도 그리될 겁니다. 증인이 되겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "저녁 무렵, 그 마을의 노인 하나가 진영 앞에 짚신 두 켤레를 놓고 갔다. 아무 말도 없었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 시각 성도의 관청. 익주의 주인 유장은 며칠째 말없이 성벽 쪽만 바라보고 있었다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "yizhou_official",
+          "text": "주공, 성안에 정병 삼만과 한 해 곡식이 있습니다. 백성들도 죽기로 싸우겠다 합니다."
+        },
+        {
+          "speaker": "yizhou_official",
+          "text": "유비는 같은 종친이라 하나, 손님으로 와서 주인의 성을 에워싼 자입니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유장은 고개를 저었다. 아버지와 자신이 익주를 다스린 이십여 년, 백성에게 베푼 것이 없다고 했다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "삼 년 싸움에 익주 백성의 피가 들판을 적셨는데, 무엇을 위해 더 싸우겠느냐고 했다."
+        },
+        {
+          "speaker": "yizhou_official",
+          "text": "서량의 마초까지 성 북쪽에 와 있다 합니다. 성벽 위 병사들이 그 이름만 들어도 떱니다."
+        },
+        {
+          "speaker": "chengdu_captain",
+          "text": "성문은 내가 지킨다. 나가 싸우지 말라 하셨으니, 들어오는 자만 막으면 된다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유장은 끝내 대답하지 않았다. 다만 성문 쪽으로 난 창을 오래 열어 두었다."
+        },
+        {
+          "speaker": "machao",
+          "text": "서량 철기는 성의 북쪽에서 기다리겠소. 때가 되면 나타나지.",
+          "bg": "bg_castle_gate"
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 성안에서 형님 이름만 듣고도 떤다 합니다. 오늘은 이름만으로 반은 이긴 셈입니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 이름으로 이기는 싸움은 성에 차지 않는다. 그래도 백성이 덜 다친다면 그걸로 됐다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "마초, 북쪽에서 기다리다 싸움이 끝나 버려도 나를 원망하지 마시오. 성문은 내가 먼저요!"
+        },
+        {
+          "speaker": "machao",
+          "text": "익덕, 문이든 깃발이든 먼저 닿는 쪽이 임자요. 서량 철기는 늦는 법이 없소."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "선봉은 이 위연이 서겠소. 성문 앞까지 길은 내가 열어 두겠소!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "성벽 위의 활부터 줄이십시오. 마 장군의 깃발이 보이면 성안이 먼저 흔들릴 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "성도의 백성은 앞으로 우리 백성이네. 성안은 다치지 않게 하게."
+        },
+        {
+          "speaker": "liubei",
+          "text": "불화살은 쓰지 말게. 성문 하나만 열면 되네. 모두 함께 돌아오세.",
+          "face": "resolve"
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "machao",
+              "text": "서량의 마초다! 성도는 이미 포위되었다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "마초의 깃발을 본 성벽 위 병사들이 술렁이기 시작했다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "성벽 위의 활이 하나둘 멈췄다. 성안 어딘가에서 문을 열자는 소리가 들렸다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "성문 수비 대장이 쓰러지자 성도의 깃발이 하나둘 내려갔다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "성문 앞의 장수들은 칼을 거두었다. 아무도 성안으로 먼저 뛰어들지 않았다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "여기까지네. 성안으로는 한 걸음도 들이지 말게. 이제 문은 저쪽에서 열 차례네."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "성도의 북문 앞. 성벽 위에서 익주의 깃발이 바람에 흔들렸다."
+            },
+            {
+              "speaker": "chengdu_captain",
+              "text": "형주 군대가 왔다! 활을 겨눠라. 주공의 명이다, 성문 밖으로는 나가지 마라!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "활은 성벽 위만 노리게. 성안 지붕 너머로는 한 발도 넘기지 말게."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "성벽이 높구나. 그래도 여기서 물러서면 싸움이 길어지고, 백성의 겨울도 길어지네.",
+              "face": "resolve"
+            },
+            {
+              "speaker": "narrator",
+              "text": "유비의 깃발이 흔들리자 탁현 사냥꾼들이 활을 들고 그 곁으로 모여들었다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "chengdu_captain",
+              "text": "이 문은 주공께서 맡기신 문이다. 열어 달라 해도 내 손으로는 못 연다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "수비 대장의 목소리는 컸다. 그러나 그 뒤의 병사들은 자꾸만 성안을 돌아보았다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "성문은 열렸지만 유비의 군대는 문 앞에서 멈췄다. 성안 거리에는 사람 그림자 하나 없었다.",
+          "bg": "bg_castle_gate"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 성안에는 내가 들어가 보겠소. 말로 끝낼 수 있으면 그게 제일이지."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 혼자 가겠다는 말인가. 성안에는 아직 칼을 든 자가 삼만일세."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "칼 든 자가 삼만이면 입 가진 자는 그보다 많소. 말로 하는 싸움이라면 내가 낫지."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "헌화 선생, 해 지기 전에 안 나오면 이 장비가 성벽을 넘어가겠소. 진짜요!"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 익덕 장군. 그러면 내 말이 다 헛수고가 되오. 사흘만 숫자를 세며 참으시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "간옹은 홀로 성에 들어갔고, 며칠 뒤 유장과 같은 수레를 타고 나왔다.",
+          "cg": "cg_liuzhang_surrender"
+        },
+        {
+          "speaker": "narrator",
+          "text": "수레에는 익주 목의 인수가 놓여 있었다. 유장은 고개를 숙인 채 성 쪽을 돌아보지 않았다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 유장공도 백성이 다치는 건 원치 않으셨소. 싸움보다 말이 빨랐지."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "사실 유장공은 수레 안에서 내 손을 잡고 한참 울었소. 나도 우스갯소리 하나 못 했소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 수레 앞으로 걸어가 유장에게 먼저 고개를 숙였다. 같은 유씨, 같은 종친이었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "계옥 공, 미안하다는 말로 덮을 일이 아님을 아오. 다만 공의 백성은 내가 끝까지 지키겠소.",
+          "face": "sad"
+        },
+        {
+          "speaker": "narrator",
+          "text": "유장은 말없이 고개를 끄덕였다. 그리고 가족과 재물을 챙겨 형주의 공안으로 떠났다.",
+          "cg": null
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 수레라는 거 생각보다 덜컹거리더이다. 천자의 수레는 오죽하겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 그 수레 이야기는 탁현에 두고 오게. 지금은 유장공의 뒷모습만 보이네.",
+          "face": "sad"
+        },
+        {
+          "speaker": "narrator",
+          "text": "성도의 관청에 익주의 장수와 관리들이 모여 섰다.",
+          "cg": "cg_yizhou_talents",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "huangquan",
+          "text": "황권입니다. 처음엔 주공의 입성을 반대했으나, 이제는 익주를 위해 모시겠습니다."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "엄안이오. 무릎 꿇는 장수는 없다던 늙은이가 이렇게 되었구려."
+        },
+        {
+          "speaker": "wuyi",
+          "text": "오의입니다. 이엄, 장익, 오반과 함께 익주의 장수들을 대신해 인사드립니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 반갑네. 어제의 적이라 여기지 말게. 같은 땅의 백성을 지키던 사람들이네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "황권, 그대가 유장공께 나를 들이지 말라 했다지. 그 말을 한 사람이라 더 믿음이 가네."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "그때의 말을 지금 거두지는 않겠습니다. 다만 들어오신 이상, 익주가 다치지 않게 하겠습니다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 익주의 살림은 제가 맡겠습니다. 싸움이 있으면 언제든 부르십시오.",
+          "cg": null
+        },
+        {
+          "speaker": "fazheng",
+          "text": "봉추께서 장부를 쥐시면 저는 셈만 하면 되겠군요. 받을 것과 돌려줄 것은 다 적어 두었습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "효직, 셈은 하되 주공의 이름에 흠이 가지 않게 하시오. 익주는 아직 우리를 지켜보고 있소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원, 익주의 살림을 맡겠다니 뜻밖이구려. 판 벌이기를 그렇게 좋아하던 사람이."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "공명, 낙봉파에서 한 번 떨어질 뻔하니 생각이 바뀌었소. 판은 지킬 땅이 있어야 벌이는 거요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그 말을 들으니 안심이오. 그대가 뒤에 있으면 앞에 선 사람들이 마음 놓고 싸울 수 있소."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "대신 큰 싸움에 나를 빼면 서운하오. 그때는 장부를 덮고 바로 달려가겠소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "며칠 뒤, 장수들 사이에서 성도의 집과 밭을 공을 세운 이들에게 나눠 주자는 말이 나왔다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 다들 고생했으니 집 한 채씩은 줍시다! 나는 마당 넓은 집이면 되오!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 그 일은 거두어 주십시오. 나눠서는 안 되는 것이 있습니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "옛날 곽거병은 흉노를 멸하기 전에는 집이 필요 없다 했습니다. 지금 도적은 흉노만이 아닙니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "익주 백성은 막 싸움을 겪었습니다. 집과 밭은 그들에게 돌려주고, 세금을 가볍게 하십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 그대 말이 옳네. 기쁜 마음에 내 눈이 잠시 흐렸네. 집과 밭은 백성에게 돌려주게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "마당 넓은 집은 물 건너갔구려. 자룡, 그 말 할 거면 내가 입 열기 전에 하지 그랬소!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "익덕 장군, 장판에서는 다리 하나가 장군의 집이었습니다. 그만한 집도 없지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그 말은 좋구려! 좋소, 내 집은 다리요. 성도의 다리는 다 내 집으로 치겠소!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤 성도의 거리. 닫혔던 문이 하나둘 열리고, 등불이 다시 켜지기 시작했다.",
+          "bg": "bg_city_night"
+        },
+        {
+          "speaker": "villager",
+          "text": "나리, 형주 군대가 집에 손 하나 안 댔대요. 곡식 창고도 그대로고요. 정말입니까?"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "저희 주공은 원래 그렇습니다. 탁현에서도, 신야에서도, 장판에서도 그러셨지요."
+        },
+        {
+          "speaker": "villager",
+          "text": "그 귀 큰 장군이 아예 왕이라도 되시면 좋겠네요. 그래야 이 성도 오래 편할 테니."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "왕이라. 탁현 사냥꾼이 그런 말을 듣는 날이 올 줄은 몰랐습니다. 이상하게 듣기 좋군요."
+        },
+        {
+          "speaker": "machao",
+          "text": "이 군대는 정말 아무것도 빼앗지 않는구려. 서량에서는 본 적 없는 군대요."
+        },
+        {
+          "speaker": "chendao",
+          "text": "마 장군, 처음 보시면 다들 그렇게 말씀하십니다. 저도 그랬습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "나는 남을 쉽게 믿지 않소. 그런데 이 군대는 이상하게 믿어 보고 싶어지는구려."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "마 장군, 믿어 보십시오. 저는 서른 해 가까이 믿어 왔는데 아직 손해 본 적이 없습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "서른 해라. 나는 아직 서른 날도 안 됐소. 그래도 그 셈은 오늘부터 시작해 보겠소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "성도를 얻은 기쁨은 오래가지 않았다. 동쪽과 북쪽에서 한꺼번에 급보가 날아들었다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "messenger",
+          "text": "급보입니다! 오의 손권이 익주를 얻었으니 이제 형주를 돌려 달라고 사자를 보냈습니다!"
+        },
+        {
+          "speaker": "messenger",
+          "text": "그리고 북쪽에서도, 조조가 직접 대군을 이끌고 한중의 장로를 치러 간다 합니다!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 한중은 익주의 목입니다. 조조가 한중을 쥐면 익주의 문 앞에 칼이 서는 셈입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나라를 얻으니 걱정도 나라만큼 커지는구려. 동쪽도 북쪽도 놓칠 수 없네."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "다만 서두르지는 마십시오. 형주와 한중을 한꺼번에 쥐려 하면 둘 다 놓칠 수 있습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "떠돌던 사내가 처음으로 나라를 얻었다. 그리고 그 나라의 문 앞에, 이제 조조가 서려 하고 있었다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "fazheng",
+          "text": "성벽이 생각보다 단단합니다. 한 곳에 힘을 모아 다시 치시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "서두르다 성안까지 다치게 할 수는 없네. 성문 하나만 보고 다시 가세."
+        }
+      ]
+    },
+    {
+      "id": "s28_dangqu",
+      "title": "탕거",
+      "location": "탕거 · 험한 산골짜기",
+      "era": "215년",
+      "bg": {
+        "pre": "bg_mountain_path",
+        "post": "bg_mountain_path"
+      },
+      "bgm": {
+        "pre": "bgm_march",
+        "battle": "bgm_battle",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "215년. 조조는 대군을 이끌고 양평관을 넘어 한중의 장로를 쳤다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "narrator",
+          "text": "장로는 남쪽 산으로 물러나며 창고를 불태우지 않고 봉해 두었다. 창고는 나라의 것이라 했다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "창고를 봉하고 떠났다고? 장로라는 자, 도사인 줄만 알았더니 백성을 다스릴 줄 알았구나."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "위공, 내친김에 촉까지 치자는 말이 많습니다. 유비는 이제 막 익주를 얻었습니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "사람은 만족을 몰라 괴로운 법이다. 농을 얻었는데 촉까지 바라겠느냐."
+        },
+        {
+          "speaker": "caocao",
+          "text": "동쪽에서는 손권이 합비를 친다. 문원이 잘 막겠지만, 나는 오래 비울 수 없다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "하후연과 장합을 남긴다. 현덕이 익주에 집을 얻었다지. 돗자리 장수가 이제 지붕을 가졌구나."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그해 장로는 끝내 조조에게 나아가 항복했다. 한중 백성의 창고는 하나도 불타지 않았다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "한중이 조조의 손에 떨어졌다는 소식에 성도의 관청이 술렁였다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그해 공자 유선은 형주를 떠나 성도로 옮겨 왔다. 관우가 직접 배를 내주었다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "주공, 한중을 잃으면 파 땅 셋이 위태롭습니다. 익주의 팔다리를 잘리는 것과 같습니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "다만 서두르지는 마십시오. 먼저 파서를 지키고, 한중은 그다음입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "처음엔 나를 들이지 말라던 사람이 이제 익주의 팔다리를 걱정해 주는구려.",
+          "face": "smile"
+        },
+        {
+          "speaker": "huangquan",
+          "text": "그때도 지금도 저는 익주를 걱정할 뿐입니다. 주공께서 익주가 되셨으니 같은 말이지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "손권과는 상수를 경계로 형주를 나누기로 했습니다. 동쪽을 잠시 묶어 두었으니 북쪽을 보십시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "한중은 조조에게 먹기 어려운 고기입니다. 산이 높아 오래 붙들고 있지는 못할 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 파서로 가 주게. 장합이 산골짜기를 따라 내려온다 하네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 드디어 내 차례구려! 형님, 이번엔 머리를 쓰고 오겠소. 두고 보시오!"
+        },
+        {
+          "speaker": "mizhu",
+          "text": "익덕 장군, 군량은 성도 창고에서 넉넉히 보내겠습니다. 이번엔 붉은 표시 없이 다 장군 몫입니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "미 별가, 고맙소! 그 쌀로 주먹밥을 쥐면 장합 놈이 냄새 맡고 산을 내려오겠구려."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "익덕 장군께서 머리를 쓰신다니, 이번엔 다리를 끊기 전에 제게 물으실 일도 없겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "군사, 장판교 다리 얘기는 이제 그만하시오. 그건 다 끊긴 다리요!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조가 한중을 차지하고, 장합을 보내 파서 땅을 노렸다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "파서 땅은 위나라가 차지한다. 촉군을 산골짜기에서 몰아내라!"
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "골짜기가 좁고 길다. 장비는 성미가 급하다 들었다. 기다리면 먼저 무너지는 쪽은 저쪽이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "장합은 탕거 골짜기 세 곳에 진을 치고 버텼다. 장비와 장합은 오십여 일을 마주 보았다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "장합의 군사들은 날마다 골짜기 너머에서 장비를 놀렸다. 고리눈이 산에서 길을 잃었다고 했다."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "고리눈 장비야! 산에서 길을 잃었으면 내려와서 물어보아라. 말 대신 업어 주마!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하나, 둘, 셋, 넷. 참자, 참아. 열, 스물, 서른. 아직이다. 마흔."
+        },
+        {
+          "speaker": "liyan",
+          "text": "장군, 지금 몇까지 세셨습니까? 형주에서는 일흔둘까지 세셨다고 들었습니다만."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "여든이오! 일흔둘로는 모자라서 더 셌소. 이것도 그 보고서에 적으시오."
+        },
+        {
+          "speaker": "liyan",
+          "text": "여든까지 참으셨다고 적겠습니다. 성도에서 다들 장합이 이긴 줄 알고 놀랄 겁니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님이 늘 그랬소. 칼보다 땅을 먼저 보라고. 이엄, 이 골짜기 샛길을 다 그려 오시오."
+        },
+        {
+          "speaker": "liyan",
+          "text": "이미 그려 두었습니다. 동쪽 능선을 돌면 장합의 진 뒤편, 산 위로 나갈 수 있습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "벌써? 이엄, 말만 많은 줄 알았는데 손도 빠르구려!"
+        },
+        {
+          "speaker": "liyan",
+          "text": "말이 많은 것도 손이 빨라서입니다. 일을 먼저 해 두어야 말할 거리가 생기지요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "오십 일째 되던 날, 장비는 진영 앞에 술상을 차려 놓고 장합의 진을 향해 크게 떠들기 시작했다."
+        },
+        {
+          "speaker": "liyan",
+          "text": "장군, 술을 끊으셨다고 들었는데요. 이걸 보고서에 어떻게 적어야 할지 모르겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 동이에 든 건 맹물이오! 이 장비가 술 끊은 걸 장합 놈은 모르지."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하비에서 나는 술 때문에 성을 잃었소. 이번엔 술 흉내로 산을 얻을 거요. 그걸로 갚는 셈이지."
+        },
+        {
+          "speaker": "liyan",
+          "text": "그럼 장군께서 계책으로 술을 드시는 척하셨다고 적겠습니다. 길게 쓰겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "짧게 쓰시오! 장비, 머리 씀. 그 다섯 자면 충분하오!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "장합의 진영에서 그 모습을 본 장수들이 웃었다. 장비가 술에 빠져 정신이 없다고들 했다."
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "취한 척인지 취한 것인지 모르겠다. 오늘 밤 산을 내려가 보면 알 일이다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "장합이 산길로 들어왔다고? 산에서는 말보다 발이 빠른 법이지.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "liyan",
+          "text": "장군, 이 골짜기는 길이 좁고 험합니다. 기병보다 보병이 앞장서야 합니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "좋다, 내가 앞장서겠다. 너희는 뒤를 받치며 따라와라."
+        },
+        {
+          "speaker": "wuban",
+          "text": "장군, 기병인 저는 골짜기 입구를 막겠습니다. 산 위는 맡기겠습니다."
+        },
+        {
+          "speaker": "wuban",
+          "text": "다만 입구만 지키다 끝나면 서운하오. 말발굽이 벌써 근질거리는구려."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "오반, 입구가 막혀야 장합이 독 안에 드오. 근질거리면 나처럼 숫자를 세시오!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "이엄, 뒤를 받치되 보고서는 싸움 끝나고 쓰시오. 붓 들고 따라오지 말고!"
+        },
+        {
+          "speaker": "liyan",
+          "text": "붓은 넣어 두었습니다. 다만 누가 무슨 공을 세우는지는 똑똑히 보아 두겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 장합은 산을 내려왔다. 그러나 장비는 이미 산 위에 있었다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "하하, 장합! 산에서는 이 장비를 못 당하지!",
+              "cutin": true
+            },
+            {
+              "speaker": "zhanghe",
+              "text": "이토록 험한 산에서 패하다니. 말을 버리고 물러나라!"
+            },
+            {
+              "speaker": "zhanghe",
+              "text": "판단을 다시 해야겠다. 술에 취한 자가 이렇게 산을 탈 리가 없다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "zhanghe",
+              "text": "촉군 진영이 비었다고? 장비가 취해 잠든 것이 아니었단 말이냐."
+            },
+            {
+              "speaker": "narrator",
+              "text": "텅 빈 촉군 진영에는 맹물이 든 술동이만 이리저리 굴러다니고 있었다."
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "장합! 여기다, 위쪽이다! 산에서는 내려다보는 놈이 이기는 거다!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhangfei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "이놈들, 산을 기어오르는 건 제법이구나! 그래도 이 장비는 한 발도 안 물러난다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "골짜기 입구는 이미 촉군이 막고 있었다. 장합의 뒤가 서서히 닫히고 있었다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "zhanghe",
+              "text": "여기까지다. 샛길로 흩어져 남정까지 물러난다. 이번엔 내 판단이 늦었다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "장합은 말을 버리고 부하 십여 명과 함께 좁은 샛길로 달아났다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 장합이 말까지 버리고 도망쳤소! 이 장비도 머리를 쓸 줄 안다고!",
+          "face": "smile"
+        },
+        {
+          "speaker": "liyan",
+          "text": "장군의 꾀가 이 정도일 줄은 몰랐습니다. 보고서에 잘 적어 올리지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "이번엔 다섯 자보다 좀 길게 써도 되오. 장비, 머리 씀, 장합, 말 버림!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "골짜기에 남은 위군은 무기를 내려놓았다. 장비는 그들을 묶기 전에 물부터 먹이게 했다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "목마른 놈은 말도 못 하오. 먹이고 나서 고향 갈 놈은 보내 주시오."
+        },
+        {
+          "speaker": "liyan",
+          "text": "장군, 포로 중에 파서 사람이 많습니다. 장합이 한중으로 끌고 가던 백성들입니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 고향으로 돌려보내시오! 파서 땅은 파서 사람 거요. 그건 장합도 알았어야지."
+        },
+        {
+          "speaker": "wuban",
+          "text": "장군, 장합이 버린 말이 골짜기 가득입니다. 쓸 만한 말만 쉰 필이 넘소!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "오반, 다 그대 몫이오! 입구 지키느라 근질거렸을 테니 이제 실컷 타시오."
+        },
+        {
+          "speaker": "wuban",
+          "text": "이 말들이면 바람보다 빨리 성도에 소식을 전하겠소. 이긴 소식은 빨라야 맛이지!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "남정으로 가는 샛길. 장합은 창을 지팡이 삼아 걸었다. 뒤따르는 자는 열 명 남짓이었다.",
+          "bg": "bg_forest_valley"
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "지형은 옳게 보았다. 장비를 잘못 보았다. 술동이 하나에 판단이 흐려졌구나."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "장군, 하후 장군께 무어라 보고합니까. 파서를 내주었다 하면 노하실 겁니다."
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "그대로 말하라. 장비는 머리를 쓰는 장수였다고. 다음에 산에서 만나는 자는 그걸 알아야 한다."
+        },
+        {
+          "speaker": "zhanghe",
+          "text": "하후 장군은 빠르기만 하다. 정군산이 걱정이다. 다음엔 저 산에서 누가 내려올지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "며칠 뒤, 유비가 탕거의 진영을 찾아왔다. 장비는 골짜기 입구까지 뛰어나와 맞았다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님! 봤소? 아니, 못 봤구려. 그럼 들으시오. 오십 일 참고 맹물 마시고 이겼소!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 다친 병사는 몇인가. 공보다 그것부터 듣고 싶네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "스무 명 남짓이오. 돌아오지 못한 놈은 없소! 그것도 자랑이오, 형님."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 큰 공을 세웠네. 이제 한중의 문이 열렸네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "여든까지 숫자를 셌다는 이야기도 들었네. 익덕, 나는 그게 장합을 이긴 것보다 더 기쁘네.",
+          "face": "smile"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 그것도 이엄이 보고서에 적은 거요? 그건 빼라고 했는데!"
+        },
+        {
+          "speaker": "liyan",
+          "text": "빼라 하신 적은 없습니다. 다섯 자로 쓰라 하셨지요. 나머지는 덤으로 적었습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 둘째 형님한테 편지 좀 써 주시오. 익덕이 머리를 썼다고. 형주에서 웃으실 거요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 웃지 않을 걸세. 다만 그 편지를 춘추 사이에 끼워 두고 몇 번이고 꺼내 볼 거네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "이엄, 기록을 잘해 주어 고맙네. 다만 익덕의 공은 그대 공보다 조금 더 크게 적어 주게."
+        },
+        {
+          "speaker": "liyan",
+          "text": "주공, 제 공은 이미 작은 글씨로 맨 끝에 적어 두었습니다. 지워지지만 않으면 됩니다."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "장 장군, 파군에서 이 늙은이 목을 베지 않은 그 장군이 맞소? 머리까지 쓰니 무섭구려."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "엄 노장, 그날 노장 앞에서 칼을 거둔 것도 머리를 쓴 거였소. 이제야 알겠구려!"
+        },
+        {
+          "speaker": "yanyan",
+          "text": "그날은 머리보다 마음을 쓴 것이오. 오늘은 둘 다 썼구려. 장수로서 그만하면 됐소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "장합은 물러났지만 하후연이 정군산을 지키고 있습니다. 다음은 그곳입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "익덕 장군, 다리를 끊기 전에 묻겠다던 약속이 있었지요. 오늘은 묻지 않고도 맞히셨습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "군사, 이번엔 끊을 다리가 없었소. 대신 산을 통째로 썼지!"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "서두를 필요는 없습니다. 조조가 한중에 오래 머물지 않은 데는 까닭이 있습니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조의 발목을 잡는 것들이 풀리기 전에, 우리가 먼저 준비를 마치면 됩니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 뒤 몇 해, 한중을 사이에 두고 양쪽은 숨을 골랐다. 그사이 조조는 위왕이 되었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그리고 217년, 법정은 유비 앞에 지도 한 장을 펼쳤다. 한중으로 가는 길이 그려져 있었다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "liyan",
+          "text": "장군, 골짜기 입구가 뚫렸습니다. 다시 진을 잡으시지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "서두르다 당했소. 오십 일도 참았는데 하루를 못 참다니. 다시 세겠소!"
+        }
+      ]
+    },
+    {
+      "id": "s29_dingjun",
+      "title": "정군산",
+      "location": "정군산 · 산 정상을 앞두고",
+      "era": "219년",
+      "bg": {
+        "pre": "bg_mountain_top",
+        "post": "bg_mountain_top"
+      },
+      "bgm": {
+        "pre": "bgm_scheme",
+        "battle": "bgm_boss",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "217년 성도. 법정은 유비 앞에 한중으로 가는 길을 그린 지도를 펼쳤다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조는 한 번에 장로를 꺾고도 스스로 촉에 오지 않았습니다. 하후연과 장합만 남겼지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "지혜가 모자라서도, 힘이 모자라서도 아닙니다. 안에 근심이 있어 발이 묶인 것입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "하후연과 장합은 우리 장수들을 당해 내지 못합니다. 지금이 한중을 얻을 때입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직, 그대는 늘 때를 먼저 보는구려. 조조와 정면으로 맞서는 일이네. 두렵지 않은가."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "두려운 것은 기회를 놓치는 것뿐입니다. 한중을 얻으면 익주의 문을 우리가 쥡니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "다만 한중 길은 험합니다. 군량이 끊기지 않게 길부터 닦아야 합니다. 그 일은 제가 맡겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 효직의 말이 옳습니다. 성도의 살림은 사원이 쥐고 있으니 군량은 걱정 마십시오."
+        },
+        {
+          "speaker": "machao",
+          "text": "조조가 나온다면 서량 철기도 가겠소. 유비공, 이번엔 나를 빼지 마시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "맹기, 조조의 본대가 오면 그때 그대의 창이 필요하네. 지금은 조금만 기다려 주게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "한중이라! 장합 얼굴도 다시 보겠구려. 이번엔 말을 몇 필이나 더 받을까."
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 해, 강동에서 소식 하나가 건너왔다. 동맹을 지켜 오던 노숙이 병으로 세상을 떠났다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "자경이 떠났다니. 강동에서 동맹을 가장 믿어 준 사람이었습니다. 형주가 걱정입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자경의 자리는 누가 잇는가. 강 건너 사람이 바뀌면 강물의 결도 바뀌는 법이네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "육구는 여몽이라는 장수가 맡았다 합니다. 글을 늦게 배웠지만 생각이 깊다고 들었습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "며칠 뒤, 형주에서 관우의 편지가 왔다. 편지는 늘 그렇듯 짧았다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 형주는 무사합니다. 육구의 장수가 바뀌었다 하나 마음 쓰실 일은 아닙니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님 편지는 늘 짧소! 그래도 무사하다니 됐소. 근데 마음 쓸 일이 아니라니, 그게 더 걱정이오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장다운 편지일세. 그래도 답장에는 꼭 적어 보내게. 강 건너를 가볍게 보지 말라고."
+        },
+        {
+          "speaker": "narrator",
+          "text": "218년, 유비는 양평관에서 하후연과 한 해를 마주 보았다. 어느 쪽도 먼저 물러서지 않았다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 한 해 동안 익주는 남자는 싸우고 여자는 군량을 날랐다. 성도의 창고가 쉬지 않고 열렸다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "219년, 한중을 두고 유비와 조조가 정면으로 맞섰다. 그 첫 고비가 정군산이었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 면수를 건너 산을 따라 나아갔다. 그리고 정군산 아래에 진을 쳤다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "정군산 꼭대기를 차지하면 하후연의 진영이 발아래 보입니다.",
+          "bg": "bg_mountain_top"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "꼭대기라면 이 늙은이가 오르겠소. 다리는 아직 젊은이 못지않지."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "노장군, 꼭대기라면 이 위연이 더 빠르오. 이번엔 양보하시오!"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 장사에서 같은 날 들어온 사이라도 꼭대기는 먼저 본 사람의 것이오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "흥, 그럼 산 아래 길은 내가 쓸어 두겠소. 노장군이 내려올 길은 깨끗할 거요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "정군산 남쪽, 하후연의 진. 녹각을 겹겹이 두른 영채가 산허리를 따라 길게 이어져 있었다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "장군, 촉군의 늙은 장수 하나가 맞은편 산꼭대기로 오르고 있습니다!"
+        },
+        {
+          "speaker": "xiahouyuan",
+          "text": "늙은 장수 하나가 산에 오른다고? 내려오는 길에 목을 베어 주마."
+        },
+        {
+          "speaker": "wangping",
+          "text": "장군, 저 꼭대기에서는 우리 진이 다 보입니다. 길목부터 막아야 합니다."
+        },
+        {
+          "speaker": "xiahouyuan",
+          "text": "왕평, 너는 늘 길목 타령이구나. 나는 사흘 길을 하루에 달려 이겨 온 사람이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "위왕 조조는 하후연에게 늘 일렀다. 장수는 겁낼 줄도 알아야 하고, 용맹만 믿어서는 안 된다고."
+        },
+        {
+          "speaker": "xiahouyuan",
+          "text": "대왕께선 겁낼 줄도 알라 하셨지. 허나 겁을 냈다면 나는 이 산까지 오지도 못했다."
+        },
+        {
+          "speaker": "wangping",
+          "text": "장군, 저는 글을 모릅니다. 그래도 땅이 하는 말은 압니다. 이 땅은 지금 우리 편이 아닙니다."
+        },
+        {
+          "speaker": "xiahouyuan",
+          "text": "그만. 동쪽 장합에게 군사 절반을 보냈다. 너는 녹각이나 살펴라."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "장군, 남쪽 녹각은 오래되어 군데군데 비었습니다. 손을 봐야 합니다."
+        },
+        {
+          "speaker": "xiahouyuan",
+          "text": "빈 곳은 내가 직접 고친다. 내가 가면 반나절이면 된다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "노장군, 서두르지 마십시오. 하후연이 진을 고치러 나올 때가 기회입니다.",
+          "bg": "bg_mountain_top"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "나올 때라니. 그자가 언제 울타리를 고치러 나올 줄 알고 기다리오?"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공께서 동쪽 녹각에 불을 놓으실 겁니다. 불난 울타리는 누구든 고치러 나오지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군, 효직의 신호를 기다리게. 때가 오면 산이 노장군 편이 될 걸세."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 기다리는 것도 활쏘기와 같지. 시위는 끝까지 당겨야 하는 법이오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "두 번은 없습니다. 노장군의 힘은 그 한때에 다 쓰셔야 합니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "좋소. 끝까지 당겼다가 한 번에 놓는 것, 그게 늙은 궁수의 특기지."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "깃발은 제가 듭니다. 깃발이 크게 흔들리면, 그때가 바로 그때입니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "효직, 깃발만 보고 있겠소. 귀는 막고 눈만 열어 두지."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군, 산 아래는 제가 받치겠습니다. 마음껏 내려오십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군, 오늘 이기면 내가 먼저 노장군의 잔을 채우겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "주공, 그 잔은 이 늙은이가 정군산 꼭대기에서 받겠소."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "황 노장, 꼭대기에서 내려올 때 넘어지지나 마시오. 주워 담을 사람이 없소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "엄 장군, 산 아래서 구경이나 잘하시오. 구경값은 나중에 술로 받겠소."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "술은 받되 나이 자랑은 하지 마시오. 내가 황 노장보다 한 살이라도 많을지 모르니."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "그건 내기로 정합시다. 오늘 공이 큰 쪽이 형님이오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 탁현을 떠난 지 서른다섯 해입니다. 이제 활을 당기면 어깨보다 무릎이 먼저 웁니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "chendao",
+          "text": "그래도 오늘 밤도 주공 막사 앞에 서 계시지 않습니까."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "황 노장군을 보면 할 말이 없지요. 저보다 한참 위이신 분이 꼭대기에 오르신다니."
+        },
+        {
+          "speaker": "chendao",
+          "text": "증인이 되겠습니다. 오늘 저 꼭대기에서 무슨 일이 일어나는지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 지자 유비의 본진 쪽에서 횃불이 움직이기 시작했다. 동쪽 녹각으로 가는 불빛이었다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 4
+          },
+          "lines": [
+            {
+              "speaker": "fazheng",
+              "text": "지금입니다! 하후연이 진을 고치러 나왔으니, 높은 곳에서 덮치십시오!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "법정의 깃발이 크게 흔들렸다. 북소리와 함성이 정군산을 흔들었다."
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "기다린 보람이 있구려. 시위를 놓겠소. 모두 이 늙은이를 따르라!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "huangzhong",
+              "text": "이 늙은이의 칼을 받아라! 정군산은 촉의 것이다!",
+              "cg": "cg_dingjun"
+            },
+            {
+              "speaker": "xiahouyuan",
+              "text": "산 위에서 노장이 내려오다니. 내가 너무 서둘렀구나.",
+              "cg": null
+            },
+            {
+              "speaker": "narrator",
+              "text": "하후연이 쓰러지자 위군의 깃발이 산비탈을 따라 흩어졌다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "xiahouyuan",
+              "text": "촉군이 산 위에 자리를 잡았다고? 녹각 안에서 기다려라. 먼저 움직이는 쪽이 진다."
+            },
+            {
+              "speaker": "fazheng",
+              "text": "서두르지 마십시오. 높은 곳을 지키며 기다리십시오. 때는 제가 알려 드립니다."
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "기다리라면 기다리지. 늙은이는 기다리는 데 이골이 난 사람이오."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 2
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "동쪽 녹각 쪽에서 불길이 치솟았다. 유비의 본대가 울타리에 불을 놓은 것이었다."
+            },
+            {
+              "speaker": "xiahouyuan",
+              "text": "동쪽에 불이다! 장합에게 군사를 더 보내라. 남쪽 녹각은 내가 직접 고친다!"
+            },
+            {
+              "speaker": "fazheng",
+              "text": "보십시오. 울타리가 타면 주인이 나옵니다. 조금만 더 기다리십시오."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "huangzhong",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "huangzhong",
+              "text": "이 늙은이 숨이 좀 차구려. 그래도 꼭대기에서 물러설 생각은 없소!"
+            },
+            {
+              "speaker": "fazheng",
+              "text": "노장군, 버티십시오. 지금 내려가시면 그동안 기다린 것이 다 헛것이 됩니다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "huangzhong",
+          "text": "보았소? 이 늙은이의 칼은 아직 녹슬지 않았소.",
+          "face": "smile"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "노장군의 힘을 정확한 때에 쓴 것뿐입니다. 공은 노장군의 것입니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "효직, 그대가 깃발을 흔들 때 그게 북소리보다 크게 들렸소. 공은 반반이오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "반반이라면 사양하지 않겠습니다. 저는 받을 몫은 꼭 챙기는 사람이니까요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군, 공보다 먼저 묻겠소. 다친 데는 없소?"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "어깨가 좀 쑤실 뿐이오. 그건 산을 내려와서가 아니라 원래 그렇소."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "노장군, 내가 쓸어 둔 길로 잘 내려오셨소? 길값은 받아야겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 길값은 내 공 반쪽으로 치르겠소. 반쪽은 효직 것이니 반의반이구려."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "황 노장, 오늘은 그대가 형님이오. 내기는 내기니. 대신 다음 싸움에서 되찾겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 엄 아우. 형님 소리 한 번 듣자고 이 산을 올랐나 보오."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "엄 아우라니. 한 살 차이도 모르면서 형님 노릇은 빠르구려."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군, 이 잔부터 받으시오. 꼭대기에서 받겠다던 그 잔이오.",
+          "face": "smile"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "산은 내려왔지만 잔은 받겠소. 오늘 술값은 이 늙은이가 셈하지 않겠소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 질 무렵, 위군 장교 하나가 무기를 내려놓고 유비의 진영으로 걸어 들어왔다."
+        },
+        {
+          "speaker": "wangping",
+          "text": "왕평이라 합니다. 위군에 있었지만, 이제 촉을 위해 싸우겠습니다."
+        },
+        {
+          "speaker": "wangping",
+          "text": "저는 글을 열 자도 모릅니다. 다만 하후 장군께 저 꼭대기를 먼저 막자 했던 사람입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그 말이 들렸다면 오늘 우리가 이기지 못했겠군요. 주공, 이 사람은 땅을 읽습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "글은 나중에 배워도 되네. 땅을 읽는 눈은 배워서 얻는 게 아니지. 잘 와 주었네."
+        },
+        {
+          "speaker": "wangping",
+          "text": "투항한 장수라 의심하셔도 됩니다. 길목에서 그 의심을 갚겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "의심은 하지 않겠네. 대신 다치지 말게. 땅을 읽는 사람은 귀하네."
+        },
+        {
+          "speaker": "wangping",
+          "text": "주공, 하후 장군의 시신은 제가 수습해 보내도 되겠습니까. 모시던 분입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그리하게. 적이었어도 장수였네. 예를 갖춰 보내 주게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "성도의 방통에게서 편지가 왔다. 군량 수레 쉰 대가 이미 길을 떠났다고 했다."
+        },
+        {
+          "speaker": "pangtong",
+          "text": "주공, 정군산 소식에 성도 장터가 들썩입니다. 군량은 걱정 마시고 판은 끝까지 벌이십시오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사원다운 편지군요. 판이라는 말을 빼고는 편지를 못 쓰는 사람입니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 보셨습니까. 노장군이 산을 내려오는데 바람이 따라 내려오더군요."
+        },
+        {
+          "speaker": "chendao",
+          "text": "보았습니다. 증인입니다. 저는 평생 그 장면을 말하고 다닐 겁니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군이 평생 말을 하고 다니신다니, 그게 더 큰일입니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 법정은 유비의 막사 앞에서 늦게까지 지도를 들여다보고 있었다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직, 이긴 날 밤에도 지도를 보는가. 오늘만은 쉬게."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "이긴 날이 가장 위험합니다. 조조는 오늘을 배웠을 테니, 저도 내일을 배워야지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그대는 은혜도 원한도 꼭 갚는다 들었네. 그대의 장부에서 나는 어느 쪽인가."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공은 장부 맨 앞장입니다. 갚을 것만 적힌 장이지요. 아직 반도 못 갚았습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그럼 그 장부는 천천히 채우게. 서두를 것 없네. 우리 갈 길이 아직 머네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그 말씀은 장부에 적어 두겠습니다. 갈 길이 멀다면, 멀리까지 따라가면 되지요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "장안. 위왕 조조는 하후연이 정군산에서 쓰러졌다는 소식을 들었다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "caocao",
+          "text": "묘재. 겁낼 줄도 알라고 그렇게 일렀거늘. 너는 끝까지 빨랐구나."
+        },
+        {
+          "speaker": "caocao",
+          "text": "정군산의 계책은 누가 짰느냐. 현덕이 이런 꾀를 낼 리 없다. 반드시 누가 가르쳤다."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "대왕, 법정이라는 자라 합니다. 본래 유장의 신하였다 합니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "법정이라. 천하의 인재를 다 모았다 여겼는데, 하나를 놓쳤구나. 유장 같은 자의 곁에서."
+        },
+        {
+          "speaker": "caocao",
+          "text": "그리고 그 늙은 장수. 황충이라 했느냐. 현덕은 늙은이까지 쓸 줄 아는구나."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "대왕, 하후 장군의 시신을 촉군이 예를 갖춰 돌려보냈습니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "현덕답구나. 적의 장수에게도 예를 차리니, 사람이 자꾸 그쪽으로 몰리는 것이다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "군을 정비하라. 내가 직접 한중으로 간다. 현덕, 이번엔 내가 그대 얼굴을 보러 가겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "정군산을 얻었네. 이제 조조가 직접 올 걸세.",
+          "bg": "bg_mountain_top"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "조조의 본대가 한수로 향하고 있습니다. 군량을 노릴 것입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "효직, 오늘의 계책은 훌륭했소. 다만 왕평을 받아들인 일은 그보다 더 잘한 일이오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "군사께서 칭찬을 두 번이나 하시니 무섭군요. 다음 말을 기다리겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "다음 말은 없소. 오늘은 칭찬만 하겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "조조가 온다면 그 군량부터 털어 오겠소. 배고픈 군대는 산을 못 오르지."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군, 너무 깊이 들어가지는 마십시오. 때가 지나면 제가 찾으러 가겠습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "자룡 장군이 찾으러 올 일은 없을 거요. 그래도 그 말은 고맙게 받아 두겠소."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "조조 본대라면 선봉은 이 위연이오. 노장군 혼자 공을 다 가져가게 둘 수는 없지!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그해 봄, 조조는 사곡의 좁은 길을 지나 한중으로 들어왔다. 산길이 깃발로 덮였다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "fazheng",
+          "text": "너무 일찍 움직였습니다. 하후연이 나올 때를 다시 기다리시지요."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이가 성미가 급했소. 이번엔 깃발만 보고 있겠소."
+        }
+      ]
+    },
+    {
+      "id": "s30_hanshui",
+      "title": "한수의 빈 영채",
+      "location": "한수 · 조운의 영채",
+      "era": "219년",
+      "bg": {
+        "pre": "bg_camp_shu",
+        "post": "bg_camp_shu"
+      },
+      "bgm": {
+        "pre": "bgm_crisis",
+        "battle": "bgm_scheme",
+        "post": "bgm_victory"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "219년 봄. 위왕 조조는 장안을 떠나 사곡의 좁은 길을 넘어 한중에 들어섰다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "대왕, 묘재의 원수를 갚게 해 주십시오. 그 늙은 장수의 목은 제가 베겠습니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "원양, 그대마저 서두르지 마라. 묘재도 서두르다 갔다. 남은 눈 하나마저 잃고 싶으냐."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "눈 하나로도 유비의 깃발은 잘 보입니다. 소패에서 잃은 눈값도 아직 받지 못했습니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "받을 값이라면 나도 쌓여 있다. 그러나 먼저 군량을 지켜라. 산이 높으면 배가 먼저 고프다."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "대왕, 듣자니 그 늙은 장수가 이번엔 우리 군량을 노린다 합니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "그럼 군량 곁에 덫을 놓아라. 늙은 범은 배가 고프면 덫을 보지 못한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군이 북산으로 간다고? 자룡이 영채에 남아 있으니 안심은 되네만.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조 본대 곁입니다. 운이 아니라 배짱이 있어야 돌아올 수 있는 길입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 둘이라면 배짱은 넘치네. 걱정은 늘 내 몫이지."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 걱정하시는 동안은 괜찮습니다. 걱정을 안 하시는 날이 더 무섭습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조의 군량은 한수 북쪽, 북산 아래로 쉼 없이 날라졌다. 산길이 수레로 메워졌다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "조조의 군량이 북산 아래 산처럼 쌓여 있다 하오. 이 늙은이가 가서 털어 오겠소.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군, 조조의 본대가 바로 곁에 있습니다. 너무 깊이 들어가지는 마십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "정군산을 내려온 다리요. 북산쯤이야 산책이지. 해 지기 전에 돌아오겠소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그럼 약속하십시오. 정한 때가 지나도 안 오시면 제가 찾으러 가겠습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "자룡 장군은 늘 찾으러 오는 사람이구려. 장판에서도 그랬다지. 좋소, 약속하오."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "조 장군, 영채는 제가 지키겠습니다. 군령대로 문을 단단히 닫아 두겠습니다."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "노장군, 군령으로는 해 질 무렵이 돌아오실 때입니다. 늦으시면 기록에 남습니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "장 장군은 군령을 참 좋아하는구려. 좋소, 해 지기 전이오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 기울었다. 정한 때가 지났다. 황충은 돌아오지 않았다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "장익 장군, 영채를 부탁하오. 기병 수십 기만 데리고 노장군을 찾으러 가겠소."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "수십 기로 조조 본대 곁을 지나신다니요. 군령에도 없는 일입니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "약속에는 있습니다. 노장군과 약속했습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조운은 수십 기를 이끌고 나섰다가, 북산 아래에서 조조의 본대와 정면으로 마주쳤다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조운은 물러서지 않고 적진을 뚫었다. 포위 속에서 황충의 군사들을 하나씩 찾아냈다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "부장 장저가 다쳐 쓰러져 있었다. 조운은 말을 돌려 다시 적진으로 들어갔다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "장저, 눈을 뜨시오. 장판에서는 아이를 안고 나왔소. 한 사람 더 안는 건 일도 아니오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조운은 장저를 말 앞에 싣고 다시 포위를 뚫었다. 창끝이 닿는 곳마다 길이 열렸다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "조조의 군량을 빼앗으러 갔다가 포위당했소. 조조의 본대가 너무 많소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군, 제가 구하러 왔습니다. 일단 영채로 물러나 버티십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "약속대로 왔구려. 약속은 이 늙은이가 어겼는데, 지킨 건 자룡 장군이오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "나중에 말씀하십시오. 지금은 영채까지만 생각하십시오."
+        },
+        {
+          "speaker": "caocao",
+          "text": "조운이 영채로 숨었다. 한꺼번에 밀어붙여 짓밟아라!",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "caocao",
+          "text": "흰 말에 은빛 창이라. 장판에서 내 진을 일곱 번 드나들던 그 장수냐."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "예, 대왕. 상산의 조자룡입니다. 수십 기로 우리 선봉을 뚫고 지나갔습니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "장판에서는 생포하라 했지. 그때 쏘라 했으면 어땠을까. 아니, 그래도 놓쳤겠지."
+        },
+        {
+          "speaker": "caocao",
+          "text": "장수 하나 잡으려다 군량을 다 털리겠구나. 군량 수레부터 지켜라."
+        },
+        {
+          "speaker": "caocao",
+          "text": "현덕은 저런 장수를 어디서 줍는지. 열 해가 지나도 그게 제일 부럽구나."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "대왕, 부러워하실 때가 아닙니다. 저 영채 하나만 밟으면 한수가 우리 것입니다."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "조 장군! 적이 몰려옵니다. 문을 닫고 활을 걸어야 합니다!",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "영채 문을 활짝 열어라. 깃발은 내리고 북도 치지 마라.",
+          "cg": "cg_open_camp"
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "문을 열다니요! 군령에 어긋납니다. 적이 그대로 쏟아져 들어옵니다!"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "문을 열어 두다니 대담하구려. 좋소, 끝까지 함께 버티지."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "조조는 의심이 많은 사람입니다. 빈 영채가 오히려 무서울 겁니다.",
+          "cg": null
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 자룡 장군의 배짱에 이 늙은이가 한 수 배우는구려."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "장익 장군, 활과 쇠뇌는 문 안쪽 그늘에 숨기시오. 신호가 오면 한꺼번에 쏘는 거요."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "군령이라면 따르겠습니다. 다만 이건 제 평생 처음 보는 군령입니다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "조 장군, 적의 깃발이 영채 앞 한 마장까지 왔습니다! 문을 정말 열어 둡니까?"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "열어 둬라. 숨소리도 줄여라. 조조는 소리보다 고요를 더 무서워한다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "다만 그 전에 영채로 들어오는 적은 막아야 합니다. 정해진 때까지 버티십시오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "자룡 장군, 무섭지 않소? 이 늙은이는 솔직히 등에 식은땀이 흐르오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "무섭습니다. 장판에서도 무서웠습니다. 다만 무서워도 할 일은 해야 합니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "그 말을 들으니 덜 무섭구려. 같이 무서워하는 사람이 곁에 있으니."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군이 곁에 계셔서 저도 덜 무섭습니다. 그러니 셈은 같습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조의 대군이 영채 앞에 이르렀다. 문은 활짝 열려 있었고, 안에서는 아무 소리도 나지 않았다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "대왕, 영채 문이 열려 있습니다. 깃발도 북도 없습니다. 장수 하나만 문 앞에 서 있습니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "장판의 다리 위에도 고함지르는 자 하나가 서 있었지. 그때도 뒤에 복병이 있는 줄 알았다."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "그때는 그때입니다, 대왕. 오늘은 밀어붙이시지요."
+        },
+        {
+          "speaker": "caocao",
+          "text": "그래, 밀어라. 다만 문 안쪽을 잘 보아라. 이상한 것이 보이면 바로 알려라."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조의 기병이 영채 문 앞에서 말을 세웠다. 문 안은 여전히 고요했다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "caocao",
+              "text": "영채가 너무 조용하다. 저 안에 무엇을 숨긴 것이냐."
+            },
+            {
+              "speaker": "wei_soldier",
+              "text": "대왕, 문 안쪽 그늘에서 무언가 번쩍였습니다. 쇠뇌 같기도 합니다."
+            },
+            {
+              "speaker": "caocao",
+              "text": "장판에서도 다리 하나 앞에서 멈췄었다. 같은 수에 두 번 당할 수는 없다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 5
+          },
+          "lines": [
+            {
+              "speaker": "caocao",
+              "text": "복병이 있다! 함정에 걸리기 전에 물러날 준비를 하라!"
+            },
+            {
+              "speaker": "zhaoyun",
+              "text": "조조가 흔들린다. 아직이다. 북은 조조가 등을 보일 때 친다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "영채 문은 활짝 열려 있었다. 깃발도 북소리도 없이, 조운 홀로 문 앞에 창을 짚고 섰다."
+            },
+            {
+              "speaker": "zhaoyun",
+              "text": "들어오는 적만 막는다. 쫓아 나가지 마라. 문 밖은 조조에게 맡겨 둬라."
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "문을 열어 두고 싸우는 건 이 늙은이도 처음이오. 재미있구려."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhaoyun",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhaoyun",
+              "text": "물러서지 않는다. 이 문 뒤에 노장군과 병사들이 있다."
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "자룡 장군, 혼자 다 막으려 하지 마시오! 이 늙은이 활도 아직 쓸 만하오!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "huangzhong",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "huangzhong",
+              "text": "이 늙은이 때문에 또 자룡 장군이 고생하는구려. 조금만 더 버티겠소!"
+            },
+            {
+              "speaker": "zhaoyun",
+              "text": "노장군, 제 뒤로 오십시오. 오늘은 제가 이 영채의 문입니다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "조조의 대군은 빈 영채 앞에서 끝내 발길을 돌렸다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 순간 조운은 북을 크게 울리게 했다. 문 안에 숨긴 쇠뇌가 물러나는 등 뒤로 쏟아졌다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "놀란 조조군은 서로 밟고 밟히며 달아났다. 한수에 빠진 자가 셀 수 없었다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "쫓지 마라. 물에 빠진 자는 건져 주어라. 오늘은 여기까지다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조운은 강가로 나가 물에 빠진 위군 병사 몇을 직접 건져 올리게 했다."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "조 장군, 문을 닫자던 제가 부끄럽습니다. 군령에 없는 길도 있다는 걸 오늘 배웠습니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "장익 장군의 말도 옳았소. 오늘은 문을 여는 쪽이 조금 더 옳았을 뿐이오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "장 장군, 그 문을 닫았다면 우리 둘 다 지금 여기 없을 거요."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "다음엔 제가 문을 열어 보겠습니다. 군령에 한 줄 더 적어 두겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "이튿날 아침, 유비가 영채에 왔다. 그는 어제 싸움이 벌어진 자리를 천천히 둘러보았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 다친 데는 없는가. 노장군은 어떤가. 다친 장저는 살았는가."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "장저는 살았습니다. 노장군도 무사하십니다. 저는 팔이 조금 무거울 뿐입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡의 온몸이 담덩어리로구나. 그 배짱에 조조가 물러났네.",
+          "face": "smile"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군과 함께 버틴 덕분입니다. 이제 조조 본대와 결판을 낼 때입니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "주공, 군량을 털겠다고 나섰다가 이 꼴이오. 늙은이의 욕심이었소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "노장군, 욕심이 아니라 용기였소. 덕분에 조조의 군량 수레가 반은 불탔다 하오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "자룡 장군, 오늘 진 빚은 잊지 않겠소. 다음엔 이 늙은이가 갚지."
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "주공, 문을 닫자고 한 것이 저입니다. 벌을 주십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "장익, 문을 닫자는 사람도 있어야 여는 사람이 빛나네. 둘 다 내 사람일세."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 그날 저녁까지 잔치를 열었다. 군중에서는 조운을 호위장군이라 부르기 시작했다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "자룡, 장판에서는 내가 다리, 오늘은 자룡이 문이구려! 우리 둘이 다 해 먹소!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "익덕 장군의 고함에서 배운 것입니다. 소리 없이 고함지르는 법을요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 소리 없는 고함이라! 그건 둘째 형님 특기인데, 자룡도 배웠구려!"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "흥, 문을 열고 버티는 것도 공이오? 다음엔 내가 문을 열고 쳐 나가겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "위 장군, 그건 문을 여는 게 아니라 부수는 거요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 장판 이후 그대는 늘 누군가를 안고 돌아오는구려. 아두, 장저, 오늘은 노장군까지."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 공자님은 많이 크셨습니까. 성도에 두고 온 지 꽤 되었습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "열두 살이네. 자룡 장군은 언제 오느냐고 묻는다더군. 나보다 그대를 더 찾는다네."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "돌아가면 창 쥐는 법을 가르쳐 드리겠습니다. 공자님이 원하신다면."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 조 장군을 호위장군이라 부른답니다. 진 장군은 뭐라 부를까요?"
+        },
+        {
+          "speaker": "chendao",
+          "text": "부르지 않으셔도 됩니다. 문 앞에 서 있으면 다들 압니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "그래도 하나 지어 드리겠습니다. 말 없는 장군. 어떻습니까?"
+        },
+        {
+          "speaker": "chendao",
+          "text": "그건 이미 다들 그렇게 부르고 있습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "노장군도 저 나이에 저렇게 싸우시는데, 저도 활을 놓을 수가 없겠습니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "놓지 마십시오. 대장이 문 뒤에 없으면 제가 허전합니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "한수 북쪽, 조조의 진영. 물에 젖은 깃발들이 모닥불 곁에 널려 있었다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "caocao",
+          "text": "또 그 백마 장수다. 장판에서도, 한수에서도. 현덕의 곁에는 늘 저런 창이 서 있구나."
+        },
+        {
+          "speaker": "wei_soldier",
+          "text": "대왕, 군사들이 지쳤습니다. 군량을 산길로 계속 날라야 하는데 길이 너무 멉니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "한중은 산이 높아 길이 멀고, 길이 멀어 군량이 모자라는구나. 비싼 땅이로다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "현덕은 지금 잔치라도 하겠지. 그자는 이긴 날이면 사람부터 챙기니."
+        },
+        {
+          "speaker": "caocao",
+          "text": "그래도 지금 물러서면 천하가 웃는다. 현덕과 한 번은 정면으로 마주 서야겠다."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "대왕, 장수들 사이에서 한중을 계속 붙들어야 하느냐는 말이 돕니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "돌게 두어라. 아직 정하지 않았다. 정할 때는 내가 정한다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조가 물러났지만 한중을 포기한 것은 아닙니다. 마지막 싸움이 남았습니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조의 군사는 산길에 지쳤고 군량은 줄었습니다. 이제 몰아붙일 때입니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "다만 조조가 직접 온 이상, 물러나는 척도 함정일 수 있습니다. 끝까지 신중하셔야 합니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "조조가 직접 왔다면 이번엔 서량 철기가 빠질 수 없소. 유비공, 약속하셨소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "맹기, 약속은 지키네. 이번엔 그대의 창이 앞장이네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "맹기, 앞장은 같이 서는 거요! 성도에서 먼저 닿는 쪽이 임자라 했잖소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "조조가 직접 와 있네. 허도에서 그와 매실주를 마신 지 스무 해가 지났군."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그날 나는 천둥에 놀란 척 젓가락을 떨어뜨렸지. 이번엔 아무것도 떨어뜨리지 않겠네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 그 이야기는 처음 듣습니다. 다음에 자세히 들려주십시오. 이긴 뒤에."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 이 싸움이 끝나면 정해야 할 일이 하나 있습니다. 그때 말씀드리겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명 선생이 아끼는 말이라니 무섭구려. 그 말은 이긴 뒤에 듣겠네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "219년 봄이 저물 무렵, 유비는 모든 장수를 양평관 아래로 불러 모았다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이 때문에 영채가 무너졌구려. 다시 버텨 봅시다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "문을 너무 일찍 내주었습니다. 노장군, 다시 제 뒤로 오십시오."
+        }
+      ]
+    },
+    {
+      "id": "s31_hanzhong",
+      "title": "한중왕",
+      "location": "한중 · 양평관 아래",
+      "era": "219년",
+      "bg": {
+        "pre": "bg_mountain_path",
+        "post": "bg_hall"
+      },
+      "bgm": {
+        "pre": "bgm_boss",
+        "battle": "bgm_boss",
+        "post": "bgm_oath"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "한중 양평관 아래. 유비와 조조가 처음으로 천하를 걸고 정면으로 맞섰다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조는 한수 북쪽에 진을 펼쳤다. 유비는 험한 산을 등지고 그 앞을 막아섰다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유비는 지키기만 했다. 조조가 싸움을 걸어와도 나가지 않았다. 그렇게 한 달이 넘었다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조는 싸우자고 부르는데 우리는 대답하지 않습니다. 대답 없는 상대가 사람을 제일 지치게 하지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "한 달 내내 대답 안 하느라 내 목이 근질거려 죽는 줄 알았소!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직, 이런 싸움은 처음이네. 이기려고 기다리기만 하는 싸움이라니."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공은 늘 사람을 기다려 오셨지요. 이번엔 조조가 지치기를 기다리는 것뿐입니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "한중을 유비에게 내줄 수는 없다. 끝까지 맞서라!",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "caocao",
+          "text": "돗자리 짜던 자가 감히 내 앞을 막아? 법정 같은 자를 얻더니 기세가 하늘을 찌르는구나."
+        },
+        {
+          "speaker": "caocao",
+          "text": "현덕이 저 산 위에서 무얼 하는지 아느냐. 기다리고 있다. 그자는 기다리는 데 천하제일이다."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "대왕, 군사들이 지쳤습니다. 산길로 날라 오는 군량은 반이 길에서 사라집니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "알고 있다. 그래도 현덕에게 등을 보일 수는 없다. 다른 누구도 아닌 그 사람 앞에서는."
+        },
+        {
+          "speaker": "caocao",
+          "text": "원양, 허도에서 내가 현덕과 매실주를 마신 날을 아느냐. 천둥에 젓가락을 떨어뜨리던 그 얼굴을."
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "그날 일은 들었습니다. 그때 베어 두셨어야 했다고들 합니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "천하의 영웅은 그대와 나뿐이라 했지. 그 말을 후회하진 않는다. 그 말이 맞아서 괴로울 뿐이다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "마초도 왔다지. 동관에서 내 수염을 자르게 만든 그 서량의 아이가."
+        },
+        {
+          "speaker": "caocao",
+          "text": "관운장이 형주에 있다니 다행이다. 화용도에서 길을 비켜 준 그 사람과 여기서 마주치긴 싫구나."
+        },
+        {
+          "speaker": "yangxiu",
+          "text": "대왕, 한중은 산이 높고 길이 멉니다. 이 땅에서 얻을 것과 잃을 것을 셈해 보셔야 합니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "양수, 너는 셈이 너무 빠르다. 때로는 그 빠른 셈이 너를 다치게 할 것이다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조의 군사들은 지쳤습니다. 지금 전력을 다해 몰아붙이면 물러날 것입니다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "조조의 깃발 근처 군사는 사기가 높습니다. 바깥부터 깎아 내십시오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "성도의 방 군사가 군량을 넉넉히 보내왔습니다. 오래 싸워도 걱정 없습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "방통은 편지 끝에 한 줄을 덧붙였다. 이 판이 끝나면 성도에서 큰 잔치를 열 준비를 해 두겠다고."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "다만 이번엔 조조가 직접 왔습니다. 무너지는 듯 보여도 함정일 수 있으니 퇴로는 남기십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "조공이 와도 어쩌지 못할 것이네. 한수는 반드시 우리 것이 될 걸세.",
+          "face": "resolve"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공의 말씀에 오늘은 힘이 있습니다. 예전엔 늘 물러날 길부터 찾으셨지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "물러날 곳이 없어져서 그렇소. 이제 등 뒤에 익주의 백성이 있으니."
+        },
+        {
+          "speaker": "machao",
+          "text": "서량 기병이 앞장서겠소. 조조에게 진 빚을 오늘 갚겠소!",
+          "face": "resolve"
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 조조의 깃발만 보시면 앞뒤를 안 보십니다. 오늘은 제가 형님 옆을 맡겠습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 아버님과 아우들이 허도에서 죽었다. 그 깃발 아래서 내려진 명이었다. 앞뒤를 볼 겨를이 없다."
+        },
+        {
+          "speaker": "madai",
+          "text": "그래서 제가 보겠다는 겁니다. 형님이 앞을 보시면 저는 옆과 뒤를 보겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "맹기, 빚은 갚되 돌아와서 갚게. 그대가 돌아오지 않으면 이번엔 내가 그대에게 빚을 지네."
+        },
+        {
+          "speaker": "machao",
+          "text": "유비공은 이상한 분이오. 빚 셈을 그렇게 하는 사람은 처음 보오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "마초, 조조 얼굴은 나도 보고 싶소. 먼저 닿는 쪽이 한 대 치는 거요!"
+        },
+        {
+          "speaker": "machao",
+          "text": "익덕, 한 대로는 모자라오. 그래도 양보하지. 먼저 닿는 자가 임자요."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "마대, 그대 형님만 챙기지 말고 앞도 좀 보시오. 앞은 늘 비어 있으니."
+        },
+        {
+          "speaker": "madai",
+          "text": "위 장군, 앞은 위 장군이 보시니 저는 옆을 보는 겁니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 조조가 직접 진두에 섰습니다. 우리도 물러설 수 없습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 드디어 조조 놈 얼굴을 보는구려! 이번엔 도망 안 가오!"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이도 마지막 화살까지 쏘겠소. 정군산의 기세를 이어 가지."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "자룡 장군, 한수의 빚은 오늘 갚겠소. 장군의 등 뒤는 이 늙은이 화살이 지키겠소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "노장군, 빚은 없습니다. 다만 등 뒤를 맡겨 주신다니 든든합니다."
+        },
+        {
+          "speaker": "yanyan",
+          "text": "황 노장, 오늘은 형님 자리를 되찾겠소. 공은 내가 더 세우겠소."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "엄 아우, 형님 자리는 쉽게 안 내주오. 정군산을 한 번 더 오르는 셈 치지."
+        },
+        {
+          "speaker": "wangping",
+          "text": "주공, 한수 남쪽 길목은 제가 압니다. 물길 옆에 서면 무너지지 않습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "선봉은 이 위연에게 주십시오. 공은 먼저 잡는 사람의 것입니다!"
+        },
+        {
+          "speaker": "zhangyi",
+          "text": "주공, 군령은 다 정비했습니다. 이번엔 문을 열지 닫을지 먼저 여쭙겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "싸움 전날 밤. 진영 뒤편 모닥불 곁에 오래된 얼굴 몇이 모여 앉았다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 탁현 들판에서 처음 활을 들 때는 마을 하나 지키는 게 꿈이었습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "그런데 내일 맞은편에 조조가 있습니다. 천하의 조조요. 탁현 사냥꾼이 여기까지 왔습니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "저는 예주에서부터입니다. 그래도 여기까지는 같습니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "탁현에서 여기까지라. 하하, 짚신이 몇 켤레 닳았는지 아오? 나는 다 적어 두었소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "간 선생, 그 장부는 아직도 쓰십니까? 장판에서 다리를 다치셨을 때도 붓은 안 놓으셨지요."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "장부는 두 권이오. 하나는 쌀, 하나는 사람. 계책 칸은 공명에게 넘겼고, 사람 장부는 내 거요."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "오늘 밤 사람 장부 맨 앞장을 넘겨 봤소. 탁현 사냥꾼들 이름이 다 있더이다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "돌쇠와 막동 이름 옆에는 낙봉파라고 적었소. 글씨가 좀 떨렸소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "몇이나 남았습니까. 아니, 말씀하지 마십시오. 오늘 밤은 셈하지 않겠습니다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "그래, 셈은 내일 이긴 뒤에 하지. 그게 현덕 식이니까."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "다들 여기서 뭐 하오? 잠 안 오는 사람만 모였구려. 사냥꾼 대장, 팔씨름 한 판 합시다!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 이번엔 지셔도 일부러 져 주신 걸로 치겠습니다. 제 팔이 예전 같지 않아서요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "무슨 소리요! 오늘은 진짜로 하는 거요. 탁현에서부터 내가 몇 번 져 줬는지 아시오?"
+        },
+        {
+          "speaker": "chendao",
+          "text": "서른한 번입니다. 증인으로 말씀드립니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 숙지는 그걸 다 세고 있었소? 좋소, 오늘은 서른두 번째로 져 주겠소!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 잠 안 오시오? 나도 안 오오. 싸움 전날엔 원래 이렇소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 싸움 전날이니 술은 안 되네. 탁현 복숭아밭에서 우리가 한 첫 약속이지."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "안 마시오! 서른 해 넘게 지킨 약속이오. 아니, 중간에 한 번 깨긴 했지만."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님도 여기 계셨으면 좋았을 거요. 셋이 조조 앞에 같이 서는 날을 기다렸는데."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 형주를 지키고 있네. 형주가 있어야 우리가 여기 설 수 있지. 셋이 함께인 걸세."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님은 늘 그렇게 말하오. 그래도 내일 이기면 둘째 형님한테 제일 먼저 알립시다."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 익덕. 둘이 그 얘기를 하니 탁현 복숭아밭 냄새가 나는 것 같소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 자네도 아직 안 자는가. 탁현 사람들은 싸움 전날 잠이 없구먼."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕 덕에 서른다섯 해째 잠이 모자라오. 장부에 다 달아 두었으니 언젠가 갚으시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "날이 밝았다. 유비는 해진 짚신 끈을 다시 묶었다. 갑옷 아래에도 그는 늘 짚신을 신었다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "liubei",
+          "text": "이 싸움을 이기면 한중은 우리 땅이 되네. 모두의 힘을 모아 주게.",
+          "face": "resolve"
+        },
+        {
+          "speaker": "liubei",
+          "text": "그리고 모두 함께 돌아오세. 탁현에서부터 우리는 늘 그렇게 해 왔네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "한수 건너편 언덕 위로 위왕의 깃발이 높이 올랐다. 그 깃발 아래 조조가 서 있었다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "caocao",
+              "text": "유비, 돗자리 장수가 여기까지 오다니. 천하가 좁구나."
+            },
+            {
+              "speaker": "liubei",
+              "text": "조조, 나는 백성을 위해 왔소. 그대의 천하와는 다르오."
+            },
+            {
+              "speaker": "caocao",
+              "text": "현덕, 허도에서 천하의 영웅은 둘뿐이라 했지. 오늘 그 둘이 이 골짜기에 섰구려."
+            },
+            {
+              "speaker": "liubei",
+              "text": "그날 떨어뜨린 젓가락은 오늘 이 깃발로 대신 들었소. 이번엔 놓지 않겠소.",
+              "face": "resolve"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 5
+          },
+          "lines": [
+            {
+              "speaker": "caocao",
+              "text": "앞줄이 무너진다. 이 한중이 이토록 비싼 땅이었던가."
+            },
+            {
+              "speaker": "xiahoudun",
+              "text": "대왕, 군사들이 산비탈에서 밀립니다. 이대로면 앞줄이 다 꺾입니다!"
+            },
+            {
+              "speaker": "caocao",
+              "text": "현덕, 그대에게서 받을 잔값이 이리도 비쌀 줄은 몰랐구려."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "형님한테 손대는 놈은 이 장비가 다 베어 버리겠다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "물러서지 않네. 여기서 물러나면 한수가 다시 조조의 것이 되네.",
+              "face": "resolve"
+            },
+            {
+              "speaker": "narrator",
+              "text": "화살이 비처럼 쏟아졌다. 그래도 유비는 깃발 아래에서 한 걸음도 물러서지 않았다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "caocao",
+              "text": "현덕의 깃발 아래 장수들이 저리 많구나. 하나같이 내가 탐내던 자들이다."
+            },
+            {
+              "speaker": "caocao",
+              "text": "호뢰관에서는 말석에 앉았던 자가, 이제는 내 앞에 장수들을 줄 세우는구나."
+            },
+            {
+              "speaker": "liubei",
+              "text": "조공, 내 곁의 사람들은 탐낸다고 오는 이들이 아니오. 함께 굶어 본 사람들이오."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 7
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "해가 기울었다. 조조의 깃발 아래로 물러나는 병사들의 발걸음이 점점 빨라졌다."
+            },
+            {
+              "speaker": "caocao",
+              "text": "아직이다. 나는 아직 물러난다고 하지 않았다. 깃발을 세워라!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "물러나는 등은 쫓지 말게. 오늘은 한수를 지키면 되네."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 조조의 막사. 저녁상에 닭갈비를 끓인 국 한 그릇이 올라왔다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "대왕, 오늘 밤의 군호를 정해 주십시오. 장수들이 기다립니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조는 국그릇 속의 닭갈비를 한참 내려다보았다. 그리고 낮게 중얼거렸다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "계륵이로다, 먹자니 먹을 게 없고 버리자니 아깝구나. 군을 물려라.",
+          "cg": "cg_chicken_rib"
+        },
+        {
+          "speaker": "xiahoudun",
+          "text": "계륵이라 전하겠습니다. 다만 장수들이 그 뜻을 알아들을지 모르겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "군호를 전해 들은 양수는 말없이 짐을 꾸리기 시작했다. 대왕이 곧 돌아가실 거라 했다."
+        },
+        {
+          "speaker": "yangxiu",
+          "text": "닭갈비는 버리기 아깝지만 먹을 것이 없지요. 대왕께서는 한중을 그렇게 보신 겁니다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "양수. 너는 내 속을 너무 잘 읽는구나. 읽은 것은 입 밖에 내지 않는 법이다."
+        },
+        {
+          "speaker": "caocao",
+          "text": "현덕, 끝내 그대에게서 잔값을 받지 못하는구려. 호뢰관에서부터 쌓인 값을."
+        },
+        {
+          "speaker": "caocao",
+          "text": "천하의 영웅은 그대와 나뿐이라 했지. 오늘 보니 그대 쪽에는 영웅이 너무 많구려."
+        },
+        {
+          "speaker": "caocao",
+          "text": "이것이 그대 얼굴을 보는 마지막일지도 모르겠소. 나도 이제 늙었으니."
+        },
+        {
+          "speaker": "narrator",
+          "text": "조조는 국그릇을 물렸다. 이튿날 위군은 깃발을 거두어 장안으로 물러갔다.",
+          "cg": null
+        },
+        {
+          "speaker": "liubei",
+          "text": "조조가 물러갔네. 한중이 우리 손에 들어왔네.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 무사한가. 다친 사람부터 말해 주게. 공은 그다음일세."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "크게 다친 장수는 없습니다. 다친 병사들은 산 아래 막사로 옮기고 있습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "조조는 또 등을 보였소. 이 창이 그 등에 닿지 못했구려."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님, 조조가 형님 앞에서 등을 보였습니다. 그것만으로도 오늘은 이긴 겁니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "대, 네 말이 맞다. 오늘은 여기까지다. 그래도 빚 장부는 덮지 않겠다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직, 화살이 쏟아질 때 그대가 내 앞을 막아섰지. 칼도 못 쓰는 사람이."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공께서 화살 아래 서 계신데 저 같은 사람이 뒤에 숨을 수야 없지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "다음엔 숨게. 그대 머리는 화살 한 대와 바꿀 수 있는 게 아니네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그 셈은 제가 합니다. 이번엔 주공 쪽이 훨씬 무거웠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "219년 가을. 한중의 관청에 유비의 장수와 신하들이 모두 모였다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 이제 한중왕을 칭하실 때입니다. 천하에 촉의 이름을 알리십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "왕이라니. 천자께서 허도에 계시는데, 신하가 스스로 왕을 칭할 수는 없네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "조조는 이미 스스로 위왕이 되었습니다. 그 이름에 맞설 이름이 우리에게도 있어야 합니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 이것은 욕심이 아니라 깃발입니다. 백성은 깃발을 보고 어디로 갈지 정합니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "다만 왕까지입니다. 그 위의 이름은 천하가 바로 선 뒤의 일로 남겨 두셔야 합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "황권의 말이 내 마음이네. 왕까지만 하겠네. 천자의 자리는 천자의 것일세."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그리고 천자께 표를 올리겠네. 내가 왕이 되는 것은 한 황실을 지키기 위해서라고."
+        },
+        {
+          "speaker": "narrator",
+          "text": "즉위 전날 밤. 유비는 관청 뒤뜰에 홀로 앉아 있었다. 간옹이 술병 대신 물병을 들고 왔다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 내일 왕의 수레를 탄다지. 탁현 뽕나무 아래 그 꼬마가 들으면 기절하겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "헌화, 또 그 이야기인가. 그때는 철없는 소리였지. 지금은 무서운 소리일세."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "무서울 게 뭐 있소. 수레 덮개까지 이제 몇 걸음 안 남았는데."
+        },
+        {
+          "speaker": "liubei",
+          "text": "덮개는 필요 없다고 서주에서 말했지. 지금도 같네. 이 위로는 한 걸음도 더 가지 않겠네."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "그럴 줄 알았소. 그래서 덮개 대신 이걸 가져왔지. 사냥꾼 대장, 들어오시오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "현덕 어른. 내일 왕이 되시면 다시는 이렇게 못 부를 것 같아서, 오늘만 부르겠습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "탁현을 떠나던 새벽, 마을 노인들이 내밀던 짚신 기억하십니까. 그 짚신입니다. 제가 삼았습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "사냥꾼 대장. 탁현에서 여기까지, 그대는 늘 맨 끝에 서 주었지. 하비에서도, 장판에서도."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "끝에 서는 게 저희 몫이었습니다. 이제 어른이 왕이 되시면 저희는 그 끝을 지키는 백성입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "내일 이 짚신을 신고 단에 오르겠네. 왕의 옷 아래서도 내가 어디서 왔는지 잊지 않게.",
+          "face": "smile"
+        },
+        {
+          "speaker": "jianyong",
+          "text": "하하, 짚신 신은 왕이라. 천하에 하나뿐이겠구려. 사람 장부에 크게 적어 두겠소."
+        },
+        {
+          "speaker": "jianyong",
+          "text": "현덕, 꼬마는 수레를 갖고 싶어 했지만 어른은 짚신을 골랐소. 나는 그게 더 좋소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 헌화 선생, 여기 있었소? 나 혼자 복숭아밭 생각을 하고 있었소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "복숭아꽃 아래서 셋이 절했지. 그날 나는 막내라고 떠들었소. 그런데 그 큰형님이 왕이라니."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 왕이 되어도 나는 자네의 큰형일세. 그날 한 말은 하나도 바뀌지 않았네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그날 위로는 나라, 아래로는 백성이라 했지요. 형님은 정말 그걸 하고 있구려."
+        },
+        {
+          "speaker": "liubei",
+          "text": "셋이 한 약속이네. 운장은 형주를, 자네는 한중을 지켰으니 셋이 함께 한 걸세."
+        },
+        {
+          "speaker": "narrator",
+          "text": "219년 가을, 유비는 한중왕에 올랐다. 돗자리를 짜던 사내가 왕이 된 날이었다.",
+          "cg": "cg_king_hanzhong"
+        },
+        {
+          "speaker": "narrator",
+          "text": "면양의 단 아래 장수와 신하들이 늘어섰다. 단에 오르는 왕의 발에는 새 짚신이 신겨 있었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "나는 왕이 되어도 백성의 사람이네. 모두 지금처럼 곁에 있어 주게.",
+          "face": "smile"
+        },
+        {
+          "speaker": "narrator",
+          "text": "단 아래에는 성도에서 온 공자 유선이 서 있었다. 조운이 그 곁에서 조용히 고개를 숙였다."
+        },
+        {
+          "speaker": "machao",
+          "text": "주공. 이제부터 그렇게 부르겠소. 서량의 마초, 오늘부터 이 깃발 아래 창을 세우오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "맹기, 그 한마디를 오래 기다렸네. 그대의 등 뒤는 이제 우리가 지키겠네."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님이 주공이라 부르셨습니다. 저 마대도 오늘 다시 다짐하겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "관우, 장비, 조운, 마초, 황충 다섯 장군을 오호대장으로 삼으십시오.",
+          "cg": "cg_five_tigers"
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 전장군, 익덕은 우장군, 맹기는 좌장군, 노장군은 후장군으로 삼겠네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡은 익군장군일세. 이름이 무엇이든, 늘 그랬듯 내 곁을 지켜 주게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 오호대장이라! 둘째 형님도 형주에서 들으면 기뻐하시겠구려!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "받들겠습니다. 이름이 바뀌어도 맡은 일은 같습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "호랑이 다섯이라. 그 이름에 부끄럽지 않게 싸우겠소, 주공."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이가 오호대장이라니. 허허, 오래 살고 볼 일이오.",
+          "cg": null
+        },
+        {
+          "speaker": "yanyan",
+          "text": "황 노장, 호랑이가 되었구려. 이제 형님 자리는 영영 그대 거요."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "엄 아우, 이제부터는 호랑이 형님이라 부르시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "모두 장비가 한중을 맡으리라 여겼다. 그러나 유비가 부른 이름은 위연이었다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "문장, 한중을 그대에게 맡기겠네. 이 땅을 어떻게 지킬 텐가."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "조조가 천하의 군사를 몰고 오면 막겠습니다. 장수 하나가 십만을 몰고 오면 삼키겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "이런, 나는 한중 주인 자리를 기대했는데! 위연, 그 말 잊지 마시오. 내가 다 들었소!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 다만 운장 장군께 보낼 글은 제가 말을 골라 쓰겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명 선생, 무슨 걱정인가. 운장이라면 기뻐할 걸세."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "운장 장군이 노장군과 한 줄에 서는 것을 어찌 여기실지 모릅니다. 자존심이 높은 분이시니까요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "사자에게 말을 잘 일러 두면 됩니다. 형주는 멀고, 오해는 말보다 빠르니까요."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "이 늙은이 때문에 걱정이라면 이름을 사양하겠소. 군사, 솔직히 말해 주시오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "노장군, 사양하실 일이 아닙니다. 정군산의 공은 천하가 압니다. 형주도 곧 알게 될 겁니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "며칠 뒤, 임명장을 품은 사자가 형주를 향해 떠났다.",
+          "bg": "bg_mountain_path"
+        },
+        {
+          "speaker": "messenger",
+          "text": "형주의 관 장군께 전하겠습니다. 한중왕께서 전장군으로 삼으셨다고요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장에게 전하게. 형님이 왕이 되었어도 그날 복숭아밭의 형님 그대로라고."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그리고 익덕이 탕거에서 머리를 썼다는 것도요! 그건 꼭 전하시오!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "사자의 말발굽이 산길 너머로 사라졌다. 그 길 끝, 형주 강릉에서 관우가 북쪽을 보고 있었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "북쪽 번성에는 조인이 있었고, 동쪽 강 건너에는 여몽이 있었다. 형주의 하늘이 낮게 내려앉고 있었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "제4막 익주·한중, 끝. 다음 막에서 관우는 형주에서 북쪽으로 칼을 든다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "fazheng",
+          "text": "아직 기회는 있습니다. 조조의 군사도 지쳐 있으니 다시 치시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "조조가 아직 버티고 있네. 물러서지 말고 다시 진을 짜세. 이번엔 놓지 않네."
+        }
+      ]
+    }
+  ]
+}

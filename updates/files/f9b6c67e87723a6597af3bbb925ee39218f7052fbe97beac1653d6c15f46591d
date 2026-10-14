@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "version": "0.38.0",
+  "mode": "built-in image_gen",
+  "identity": "문추 · 자주색 천 · 검은 깃 · 짧은 수염 · 볼 흉터 · 흑마/마상 창",
+  "originalYanLiangRetained": true,
+  "assets": [
+    {
+      "id": "wenchou",
+      "kind": "portrait",
+      "path": "assets/portrait/v038/wenchou/normal.png",
+      "size": [
+        1122,
+        1402
+      ],
+      "visiblePixelBounds": [
+        0,
+        0,
+        1122,
+        1402
+      ],
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.2894845916579574,
+      "sha256": "59c42a3292e70006028abef806a1bb0d0ebe5ac1fdd0831adc08fa3e86690093",
+      "prompt": "Create a NEW character variant for the Korean Three Kingdoms SRPG '촉한전기': Wen Chou (문추), a named Yuan Shao general. The referenced Yan Liang portrait is ONLY the established painting style, lighting quality and face-focused shoulders framing reference; do not reuse his face, red scarf or red plume. Make Wen Chou visibly a different man: a forceful middle-aged Northern Chinese warrior with a broader flatter nose, heavy straight eyebrows, short horseshoe mustache and a short squared beard instead of Yan Liang's longer pointed beard; small old diagonal scar on his left cheek, both eyes visible, thick jaw and fierce steady gaze. Distinct identity clothes: dark iron lamellar armor with restrained aged-gold rivets and fittings, helmet with a low ridged crest and a black horsehair plume, muted deep-purple scarf and shoulder cape, no red scarf or red plume. Use realistic painterly character illustration exactly matching the reference's mature rendering, not photoreal photography, not anime and not SD/chibi. Composition is face and shoulders centered, cropped upper chest, his head occupies 48-55 percent of the portrait height, room above the helmet so it is fully readable; hands and weapons outside frame. Three-quarter body with face looking toward viewer, calm aggressive normal expression. One character only, completely cut out on genuinely transparent alpha background, no scenery, no colored rectangle, no shadow plane, no frame, no text, no badges, no letters, no logo or watermark. Keep a coherent costume and face that can be used as reference for a matching compact SD mounted battle sprite.",
+      "references": [
+        "assets/portrait/v031/yanliang/normal.png"
+      ],
+      "generated": "C:/Users/LeeJunhee/.codex/generated_images/01a1261d-a979-77d0-8198-bb4ce04e5065/exec-531dacdf-41d0-4a56-95fb-a80acff61d5e.png"
+    },
+    {
+      "id": "wenchou",
+      "kind": "mounted SD",
+      "path": "art/v038/wenchou.png",
+      "size": [
+        1226,
+        1283
+      ],
+      "visiblePixelBounds": [
+        20,
+        8,
+        1198,
+        1258
+      ],
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.5661982074537273,
+      "sha256": "da4d8df3fe0344127916df99dbd589ee830856f063f98eaf406571f67f832335",
+      "prompt": "Create one matching battle/map sprite variant for Wen Chou (문추), a named enemy general in the Three Kingdoms Korean SRPG 촉한전기. REFERENCE 1 is Wen Chou's approved normal portrait and fixes the facial identity, scar, short squared beard, black horsehair plume, dark-iron and aged-gold armor, and deep-purple scarf/cape. REFERENCE 2 is Guan Yu's existing mounted SD sprite and is ONLY the established compact painterly SD rendering, mounted body proportions, readable pose and quality standard. Do not use Guan Yu's green clothing, long beard or face. Show Wen Chou on one charcoal-black warhorse, complete horse and rider, all four hooves and helmet fully inside the frame with about 5 percent clear padding. Three-quarter front view with horse's head and rider oriented toward the LEFT, ready to attack the left-side allied character. The horse is standing in an alert readable battle pose, not jumping and not galloping; Wen Chou has one long iron spear held diagonally upright with the sharp tip on upper left and both arms anatomically correct. No shield. Reproduce the portrait identity in compact SD proportions that are clearly stylized like the reference mounted game sprite: substantial head, short compact body, painterly detailed lamellar armor, no realistic full-height photographic figure. Use identical dark armor with restrained gold fittings, low ridged helmet with black plume, purple cloth; coat and horse tack should have modest purple accents. Only one rider and one horse. Genuinely transparent alpha background with no ground, no oval base, no cast shadow plane, no scenery, no glow/aura, no frame, no text or logo. This sprite must remain a distinct character from the red-plumed red-caped Yan Liang and green Guan Yu while matching their established game art tone.",
+      "references": [
+        "assets/portrait/v038/wenchou/normal.png",
+        "art/units/guanyu-v08.png"
+      ],
+      "generated": "C:/Users/LeeJunhee/.codex/generated_images/01a1261d-a979-77d0-8198-bb4ce04e5065/exec-89d566c9-045c-4a6a-bb2d-45b87be2fd2a.png"
+    }
+  ]
+}

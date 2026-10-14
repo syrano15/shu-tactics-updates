@@ -1,0 +1,44 @@
+import {UNIT_TEMPLATES} from './roster.js';
+import {HERO_DATA} from './heroes.js';
+import {effectiveClass} from './class-change.js';
+import {CLASS_IDS,CLASS_NAMES} from './balance.js';
+import {SPECIALIZATIONS} from './specializations.js';
+export const PROMOTION_LEVELS = [1, 10, 15];
+export const PROMOTION_COSTS = [0, 0, 2000];
+export const PROMOTION_NAMES = Object.fromEntries(CLASS_IDS.map(id=>[id,[CLASS_NAMES[id],`강화 ${CLASS_NAMES[id]}`,`정예 ${CLASS_NAMES[id]}`]]));
+const INCREMENTS = {
+ infantry:[{hp:600,def:4},{hp:600,atk:3,def:3}], spear:[{hp:400,atk:3,def:3},{hp:400,atk:3,def:2}],
+ cavalry:[{hp:400,atk:4},{hp:400,atk:3,move:1}], archer:[{hp:300,atk:4},{hp:300,atk:3,rangeMax:1}],
+ crossbow:[{hp:300,atk:4},{hp:300,atk:4,move:1}], strategist:[{hp:300,int:5},{hp:300,int:5,tacticRangeMax:1}],
+};
+// Recruitment inference stays at legacy 15/30; earlier manual eligibility never auto-promotes saved armies.
+export function initialPromotion(level) { return level>=30?2:level>=15?1:0; }
+export function getPromotionBonuses(cls,rank=0) {
+ if(!Object.hasOwn(INCREMENTS,cls)||!Number.isInteger(rank)||rank<0||rank>2)throw new Error('승급 병과·단계가 올바르지 않습니다.');
+ const out={hp:0,atk:0,def:0,move:0,int:0,rangeMax:0,tacticRangeMax:0,cavalryDamageReceived:null,cavalryDamageDealt:null};
+ for(const values of INCREMENTS[cls].slice(0,rank))for(const [key,value] of Object.entries(values))out[key]+=value;
+ if(rank===2&&cls==='infantry')out.cavalryDamageReceived=1.3;
+ if(rank===2&&cls==='spear')out.cavalryDamageDealt=1.8;
+ return out;
+}
+export function promotionName(cls,rank=0,specialization=null) { const spec=SPECIALIZATIONS[specialization];return rank>0&&spec?.cls===cls?(rank===2?'정예 '+spec.name:spec.name):PROMOTION_NAMES[cls]?.[rank]??cls; }
+export function promotionStatus(army,id) {
+ const hero=army?.heroes?.[id],cls=effectiveClass(army,id,UNIT_TEMPLATES[id]?.cls),rank=hero?.promotion??0,nextRank=rank+1;
+ const level=hero?.growth?.level??1,cost=PROMOTION_COSTS[nextRank]??0,requiredLevel=PROMOTION_LEVELS[nextRank]??null;
+ let reason='';
+ if(!hero||!UNIT_TEMPLATES[id]?.playable)reason='승급할 장수를 선택하세요.';
+ else if(hero.departed)reason='이탈한 장수는 승급할 수 없습니다.';
+ else if(HERO_DATA[id]?.guest)reason='게스트 장수는 승급할 수 없습니다.';
+ else if(!Number.isInteger(rank)||rank<0||rank>2)reason='승급 단계가 올바르지 않습니다.';
+ else if(rank===2)reason='최종 승급을 마쳤습니다.';
+ else if(level<requiredLevel)reason=`장수 레벨 ${requiredLevel}부터 승급할 수 있습니다.`;
+ else if(army.gold<cost)reason='승급 자금이 부족합니다.';
+ return {rank,nextRank:rank<2?nextRank:null,level,requiredLevel,cost,available:!reason,reason,name:promotionName(cls,rank,hero?.specialization),nextName:rank<2?promotionName(cls,nextRank,hero?.specialization):null,bonuses:cls?getPromotionBonuses(cls,rank):null,nextBonuses:cls&&rank<2?getPromotionBonuses(cls,nextRank):null};
+}
+export function promoteHero(army,id) {
+ const status=promotionStatus(army,id);if(!status.available)throw new Error(status.reason);
+ army.gold-=status.cost;army.heroes[id].promotion=status.nextRank;
+ return {...status,promotion:status.nextRank};
+}
+export const promote=promoteHero;
+export const promotionReason=(army,id)=>promotionStatus(army,id).reason;

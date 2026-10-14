@@ -1,0 +1,23 @@
+import {rationTargets} from './engine.js';
+import {combatSkillList,combatSkillTargets} from './combat-skills.js';
+import {SPIRITS,spiritReason,spiritTargets} from './spirits.js';
+
+// Use the same recipients as the confirmed command, independently of done state.
+export function supportTargetView(state,actor,{mode,combatSkill,spirit,busy=false}={}){
+ const inactive={active:false,label:'',ids:new Set()};
+ if(busy||!actor||actor.team!=='ally'||state.result||state.phase!=='ally')return inactive;
+ let label='',targets=[];
+ if(mode==='heal'){label='군량';targets=rationTargets(state,actor);}
+ else if(mode==='combat-skill'){
+  const skill=combatSkillList(state,actor).find(value=>value.id===combatSkill);
+  if((skill?.actionKind??skill?.kind)!=='support'||skill?.area==='allies')return inactive;
+  label=skill.name;targets=combatSkillTargets(state,actor,combatSkill);
+ }else if(mode==='spirit-target'&&SPIRITS[spirit]?.target==='ally'){
+  label=SPIRITS[spirit].name;targets=spiritReason(state,actor,spirit)?[]:spiritTargets(state,actor,spirit);
+ }else return inactive;
+ return {active:true,label,ids:new Set(targets.map(unit=>unit.id))};
+}
+export function supportTargetState(view,unit){
+ if(!view.active||unit?.team!=='ally')return null;
+ return view.ids.has(unit.id)?'support-eligible':'support-unavailable';
+}

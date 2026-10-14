@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "glossary": [
+    {
+      "category": "게임",
+      "term": "병력",
+      "text": "부대의 체력. 0이 되면 그 부대는 전장에서 물러난다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "퇴각",
+      "text": "병력이 0이 되어 전장에서 물러나는 것. 전투 중 퇴각이 이야기 속 죽음을 뜻하지는 않는다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "사기",
+      "text": "부대의 기세. 높을수록 주는 피해가 커진다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "상성",
+      "text": "병과끼리 유리하고 불리한 관계. 기병은 보병에, 보병은 창병에, 창병은 기병에 강하다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "반격",
+      "text": "공격받은 부대가 바로 되받아치는 것. 반격이 닿지 않는 거리에서 치면 안전하다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "정신기",
+      "text": "장수가 SP를 써서 쓰는 특별한 힘. 이동 전에 쓰며 행동을 소모하지 않는다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "SP",
+      "text": "정신기에 쓰는 기력. 전투 중에는 회복되지 않는다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "책략",
+      "text": "책사가 쓰는 계책. 화공과 혼란·위보가 있다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "화공",
+      "text": "불을 놓아 적을 태우는 책략. 수풀에서 잘 번지고, 비가 오면 쓸 수 없다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "혼란",
+      "text": "책략에 걸려 제대로 움직이지 못하는 상태.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "위보",
+      "text": "거짓 소식에 속아 엉뚱하게 움직이는 상태.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "추가 아군",
+      "text": "해당 전투에서 함께 싸우거나 지켜야 하는 부대. 정식 합류 전 장수가 포함될 수도 있다.",
+      "needsRuleCheck": true
+    },
+    {
+      "category": "게임",
+      "term": "운명 전환",
+      "text": "역사에서 누군가 죽은 싸움. 이기면 그 사람이 살아남는 이야기로 바뀐다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "게임",
+      "term": "운명 카드",
+      "text": "운명 전환 화의 처음에 정사의 결말을 보여 주는 카드. 이기면 찢어진다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "병과",
+      "term": "보병",
+      "text": "칼과 방패를 쓰는 부대. 창병에 강하고 기병에 약하다. 보병 → 강화 보병 → 정예 보병으로 같은 병과 안에서 승급한다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "병과",
+      "term": "창병",
+      "text": "긴 창으로 기병을 막는 부대. 기병에 강하고 보병에 약하다. 창병 → 강화 창병 → 정예 창병으로 승급한다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "병과",
+      "term": "기병",
+      "text": "말을 탄 빠른 부대. 보병·석궁병에 강하고 창병에 약하다. 기병 → 강화 기병 → 정예 기병으로 승급한다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "병과",
+      "term": "활병",
+      "text": "활을 쏘는 원거리 부대. 기본 사거리 2~3칸으로 바로 붙은 적은 공격하지 못한다. 활병 → 강화 활병 → 정예 활병으로 승급하며 석궁병과는 별개 병과다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "병과",
+      "term": "석궁병",
+      "text": "석궁을 쏘는 원거리 부대. 기본 사거리 2~4칸으로 활병보다 멀리 쏘고 느리게 이동한다. 석궁병 → 강화 석궁병 → 정예 석궁병으로 승급하며 활병의 상위 단계가 아니다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "병과",
+      "term": "책사",
+      "text": "물리 공격 대신 화공·혼란·위보 책략을 쓰는 부대. 책사 → 강화 책사 → 정예 책사로 승급한다. 이야기에서 부르는 군사 호칭과 게임 병과 이름은 구분한다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "자",
+      "text": "어른이 된 뒤 쓰는 이름. 운장, 익덕, 공명처럼 가까운 사이에서 부른다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "주공",
+      "text": "신하가 섬기는 주군을 부르는 말.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "군사",
+      "text": "군의 계책을 맡은 참모. 제갈량을 부르는 말로 쓰인다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "승상",
+      "text": "신하 가운데 가장 높은 자리. 조조와 훗날의 제갈량이 이 자리에 오른다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "한중왕",
+      "text": "219년 유비가 한중을 얻고 오른 왕위.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "대도독",
+      "text": "한 방면의 군을 모두 거느리는 총사령관.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "태수",
+      "text": "군 하나를 다스리는 관리.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "호칭",
+      "term": "객장",
+      "text": "다른 세력에 손님처럼 몸을 맡긴 장수.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "세력",
+      "term": "유비군",
+      "text": "유비가 이끄는 군. 의병에서 시작해 형주와 익주를 얻는다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "세력",
+      "term": "위",
+      "text": "조조와 그 뒤를 이은 조비·사마의의 나라. 북쪽의 강대국.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "세력",
+      "term": "오",
+      "text": "손권이 다스리는 강동의 나라. 동맹이자 경쟁자.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "세력",
+      "term": "황건적",
+      "text": "누런 두건을 두르고 일어난 무리. 184년 천하를 뒤흔들었다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "세력",
+      "term": "남만",
+      "text": "남중의 여러 부족. 맹획이 이끈다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "탁현",
+      "text": "유비·장비의 고향. 도원결의의 땅.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "서주",
+      "text": "도겸이 유비에게 맡긴 땅. 처음 얻고 처음 잃은 곳.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "하비",
+      "text": "서주의 중심 성.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "형주",
+      "text": "장강 중류의 넓은 땅. 오와 다툼이 끊이지 않는다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "장강",
+      "text": "중국 남쪽을 가로지르는 큰 강. 양자강이라고도 한다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "강동",
+      "text": "장강 남쪽 하류. 오나라의 땅.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "익주",
+      "text": "험한 산에 둘러싸인 서쪽 땅. 도읍은 성도.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "한중",
+      "text": "익주의 북쪽 관문.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "남중",
+      "text": "익주 남쪽의 땅. 남만의 여러 부족이 산다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "기산",
+      "text": "북벌의 출발점이 된 산.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "오장원",
+      "text": "위수 남쪽의 고원. 제갈량과 사마의가 마주한 곳.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "지명",
+      "term": "장안",
+      "text": "한나라의 옛 도읍.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "이야기",
+      "term": "도원결의",
+      "text": "복숭아밭에서 유비·관우·장비가 형제가 되기로 맹세한 일.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "이야기",
+      "term": "삼고초려",
+      "text": "유비가 제갈량을 세 번 찾아가 모셔 온 일.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "이야기",
+      "term": "정사",
+      "text": "진수가 쓴 역사책 삼국지. 실제 역사의 기준.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "이야기",
+      "term": "연의",
+      "text": "정사를 바탕으로 쓴 소설 삼국지연의. 도원결의 같은 이야기가 여기서 나왔다.",
+      "needsRuleCheck": false
+    },
+    {
+      "category": "이야기",
+      "term": "북벌",
+      "text": "제갈량이 위를 치러 북쪽으로 나선 원정.",
+      "needsRuleCheck": false
+    }
+  ]
+}

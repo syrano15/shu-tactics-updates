@@ -1,0 +1,437 @@
+{
+  "schemaVersion": 1,
+  "version": "0.36.1",
+  "note": "New static SD ready bodies matched to approved/current portraits; no animation pose atlas is claimed. Original generated files preserved.",
+  "units": [
+    {
+      "id": "ferry",
+      "src": "art/act3/sd/ferry.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        29,
+        314,
+        1231,
+        1026
+      ],
+      "visibleBounds": [
+        0.023125996810207338,
+        0.2503987240829346,
+        0.981658692185008,
+        0.8181818181818182
+      ],
+      "transparentPixelRatio": 0.693267349902958,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "9fac4e9187b447176834fd9ef92c2d098937dbf788c1a900f7ac86c027cbebd5",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "guanping",
+      "src": "art/act3/sd/guanping.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        46,
+        107,
+        1228,
+        1168
+      ],
+      "visibleBounds": [
+        0.03668261562998405,
+        0.08532695374800638,
+        0.9792663476874003,
+        0.9314194577352473
+      ],
+      "transparentPixelRatio": 0.6033146880540484,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "eab3fcd23be343e877695ee06625ad2235eaad22e02431356e6634371b244145",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "hanxuan",
+      "src": "art/act3/sd/hanxuan.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        158,
+        21,
+        1128,
+        1229
+      ],
+      "visibleBounds": [
+        0.12599681020733652,
+        0.01674641148325359,
+        0.8995215311004785,
+        0.9800637958532695
+      ],
+      "transparentPixelRatio": 0.5481197011667925,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "65815486c6495096c293dc1a71cfd8e387f825b6d855acca88e77a02611bf37f",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "huanggai",
+      "src": "art/act3/sd/huanggai.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        50,
+        12,
+        1208,
+        1241
+      ],
+      "visibleBounds": [
+        0.03987240829346093,
+        0.009569377990430622,
+        0.9633173843700159,
+        0.9896331738437002
+      ],
+      "transparentPixelRatio": 0.4880961465574913,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "8394dbc78d78486509f7062aba32a5d50d37e2ca328e255f3cac66961bd8aa6a",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "lady_sun",
+      "src": "art/act3/sd/lady_sun.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        27,
+        186,
+        1244,
+        1172
+      ],
+      "visibleBounds": [
+        0.0215311004784689,
+        0.14832535885167464,
+        0.9920255183413078,
+        0.9346092503987241
+      ],
+      "transparentPixelRatio": 0.5490138097164036,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "116af2735d29b9397654762d51af5e878ecf61475fdcf62792d2fe7f42957d4f",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "liaohua",
+      "src": "art/act3/sd/liaohua.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        54,
+        55,
+        1191,
+        1206
+      ],
+      "visibleBounds": [
+        0.0430622009569378,
+        0.043859649122807015,
+        0.9497607655502392,
+        0.9617224880382775
+      ],
+      "transparentPixelRatio": 0.5091216877920479,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "ddfcc1d6e2bdc45016a28ea6538e242e8e60b22c54adeb8f01b30cc58e4f68f8",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "liufeng",
+      "src": "art/act3/sd/liufeng.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        77,
+        77,
+        1178,
+        1199
+      ],
+      "visibleBounds": [
+        0.06140350877192982,
+        0.06140350877192982,
+        0.9393939393939394,
+        0.956140350877193
+      ],
+      "transparentPixelRatio": 0.5373242625194274,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "c484e11e6424d13ef040ea9be8e79794eafc864ea0b7f170f2f0c74310b77e2f",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "maliang",
+      "src": "art/act3/sd/maliang.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        79,
+        32,
+        1211,
+        1222
+      ],
+      "visibleBounds": [
+        0.06299840510366826,
+        0.025518341307814992,
+        0.9657097288676236,
+        0.9744816586921851
+      ],
+      "transparentPixelRatio": 0.5272060824818317,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "18812f29eb3f90125c4c0b33ceae343bef23da21e7758d058322349e53779822",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "masu",
+      "src": "art/act3/sd/masu.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        95,
+        20,
+        1189,
+        1228
+      ],
+      "visibleBounds": [
+        0.07575757575757576,
+        0.01594896331738437,
+        0.9481658692185008,
+        0.9792663476874003
+      ],
+      "transparentPixelRatio": 0.5299214761566814,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "0f7798243526bfa2d57e8a541bede33716374618fd895665c595709ac347f501",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "pangtong",
+      "src": "art/act3/sd/pangtong.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        146,
+        25,
+        1108,
+        1217
+      ],
+      "visibleBounds": [
+        0.11642743221690591,
+        0.019936204146730464,
+        0.8835725677830941,
+        0.970494417862839
+      ],
+      "transparentPixelRatio": 0.561503984697135,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "fa9fd4060c47f650125f74b0e2b8e5583a459bcf7b3358145bfa1deef80c961f",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "wei_commander-mounted",
+      "src": "art/act3/sd/wei_commander_mounted-v0361.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        51,
+        90,
+        1232,
+        1203
+      ],
+      "visibleBounds": [
+        0.04066985645933014,
+        0.07177033492822966,
+        0.9824561403508771,
+        0.9593301435406698
+      ],
+      "transparentPixelRatio": 0.527086528849309,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "b048e8e2eb40bbd74b4565371412195ee87ddcc281302af020e637c7637b5321",
+      "originalPreserved": true,
+      "staticReady": true,
+      "preservedSource": "art/act3/sd/wei_commander-mounted.png",
+      "correction": "v0361: rider head and upper torso reduced relative to full horse; commander identity and armor preserved"
+    },
+    {
+      "id": "wei_commander",
+      "src": "art/act3/sd/wei_commander.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        77,
+        44,
+        1205,
+        1208
+      ],
+      "visibleBounds": [
+        0.06140350877192982,
+        0.03508771929824561,
+        0.9609250398724083,
+        0.9633173843700159
+      ],
+      "transparentPixelRatio": 0.47937636246626425,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "2d28b121615bb978c0a4792589c496a970d7dabe8536d8de8d9d17a3319b5202",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "weiyan",
+      "src": "art/act3/sd/weiyan-v0384.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        121,
+        174,
+        1123,
+        1172
+      ],
+      "visibleBounds": [
+        0.09649122807017543,
+        0.13875598086124402,
+        0.8955342902711324,
+        0.9346092503987241
+      ],
+      "transparentPixelRatio": 0.6570209778469662,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "c66ddb76bec2dd9050c63e4ee62f782f86796e8e35692b9b133fd61417cf87ac",
+      "originalPreserved": true,
+      "staticReady": true,
+      "preservedSource": "art/act3/sd/weiyan.png",
+      "humanHeadTopPixel": 270,
+      "generationFile": "exec-cf029b2a-67f5-41c9-a542-22ae003730e5.png",
+      "change": "Adult tactical sprite proportions matched to approved heroes; original identity, palette and equipment retained.",
+      "combatAtlas": "art/act3/sd/weiyan-atlas-v0384.png"
+    },
+    {
+      "id": "wenpin",
+      "src": "art/act3/sd/wenpin.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        31,
+        43,
+        1210,
+        1191
+      ],
+      "visibleBounds": [
+        0.024720893141945772,
+        0.0342902711323764,
+        0.9649122807017544,
+        0.9497607655502392
+      ],
+      "transparentPixelRatio": 0.49987472305528213,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "7d2ea0f19d6fac961438a9a503ca1bcefc08095165a14dd8c406bf03f594d974",
+      "originalPreserved": true,
+      "staticReady": true
+    },
+    {
+      "id": "wu_officer",
+      "src": "art/act3/sd/wu_officer-v0361.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        26,
+        17,
+        1228,
+        1224
+      ],
+      "visibleBounds": [
+        0.02073365231259968,
+        0.013556618819776715,
+        0.9792663476874003,
+        0.9760765550239234
+      ],
+      "transparentPixelRatio": 0.5023796260260627,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "b2f50c2eb523d7e0eff028dd4884f69fcf9195c4646006fd723804ae58c496be",
+      "originalPreserved": true,
+      "staticReady": true,
+      "generationFile": "exec-39787280-8dc1-47d3-9ccf-a506a67a5b46.png",
+      "change": "Only curved sword to long spear; keep Wu red palette, face, helmet, shield, armor and compact SD silhouette.",
+      "preservedSource": "art/act3/sd/wu_officer.png"
+    },
+    {
+      "id": "zhouyu",
+      "src": "art/act3/sd/zhouyu-v0384.png",
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        108,
+        38,
+        1154,
+        1199
+      ],
+      "visibleBounds": [
+        0.0861244019138756,
+        0.030303030303030304,
+        0.9202551834130781,
+        0.956140350877193
+      ],
+      "transparentPixelRatio": 0.587542511491139,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "4704d099f1e8cc89ffe20776d0d405977928c9c632696c04eedacd1d0a5b610e",
+      "originalPreserved": true,
+      "staticReady": true,
+      "preservedSource": "art/act3/sd/zhouyu.png",
+      "humanHeadTopPixel": 153,
+      "generationFile": "exec-6e6b8de0-8110-4388-aaf7-b0401a108e8d.png",
+      "change": "Adult tactical sprite proportions matched to approved heroes; original identity, palette and equipment retained."
+    }
+  ]
+}

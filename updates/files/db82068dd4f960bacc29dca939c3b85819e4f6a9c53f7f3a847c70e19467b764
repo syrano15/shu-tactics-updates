@@ -1,0 +1,214 @@
+{
+  "version": 1,
+  "release": "0.36.3",
+  "basePath": "./audio/sfx-v031/",
+  "clips": {
+    "uiCursor": {
+      "file": "ui-cursor.wav",
+      "group": "ui",
+      "duration": 0.021338,
+      "gain": 1
+    },
+    "uiConfirm": {
+      "file": "ui-confirm.wav",
+      "group": "ui",
+      "duration": 0.042721,
+      "gain": 1
+    },
+    "uiBack": {
+      "file": "ui-back.wav",
+      "group": "ui",
+      "duration": 0.028118,
+      "gain": 1
+    },
+    "dialogueAdvance": {
+      "file": "dialogue-advance.wav",
+      "group": "ui",
+      "duration": 0.72,
+      "gain": 1
+    },
+    "unitSelect": {
+      "file": "unit-select.wav",
+      "group": "ui",
+      "duration": 0.83,
+      "gain": 1
+    },
+    "arrowLaunch": {
+      "file": "arrow-launch.wav",
+      "group": "combat",
+      "duration": 0.6,
+      "gain": 1
+    },
+    "arrowWhoosh": {
+      "file": "arrow-whoosh.wav",
+      "group": "combat",
+      "duration": 0.5,
+      "gain": 1
+    },
+    "attackHit": {
+      "file": "attack-hit.wav",
+      "group": "combat",
+      "duration": 0.71,
+      "gain": 1
+    },
+    "softHit": {
+      "file": "soft-hit.wav",
+      "group": "combat",
+      "duration": 0.38,
+      "gain": 1
+    },
+    "criticalHit": {
+      "file": "critical-hit.wav",
+      "group": "combat",
+      "duration": 1.45,
+      "gain": 1
+    },
+    "fireCast": {
+      "file": "fire-cast.wav",
+      "group": "combat",
+      "duration": 1.9,
+      "gain": 1
+    },
+    "fireCastAlt": {
+      "file": "fire-cast-alt.wav",
+      "group": "combat",
+      "duration": 1.94,
+      "gain": 1
+    },
+    "heal": {
+      "file": "heal.wav",
+      "group": "notice",
+      "duration": 1.05,
+      "gain": 1
+    },
+    "levelUp": {
+      "file": "level-up.wav",
+      "group": "notice",
+      "duration": 1.6,
+      "gain": 1
+    },
+    "turnAlly": {
+      "file": "turn-ally.wav",
+      "group": "notice",
+      "duration": 0.65,
+      "gain": 1
+    },
+    "turnEnemy": {
+      "file": "turn-enemy.wav",
+      "group": "notice",
+      "duration": 1.06,
+      "gain": 1
+    },
+    "victory": {
+      "file": "victory.wav",
+      "group": "notice",
+      "duration": 2.8,
+      "gain": 1
+    },
+    "moveFoot": {
+      "file": "unit-move-foot.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.3,
+      "gain": 1
+    },
+    "swordSwing": {
+      "file": "attack-sword-swing.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.56,
+      "gain": 1
+    },
+    "arrowHit": {
+      "file": "hit-arrow.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.4,
+      "gain": 1
+    },
+    "attackMiss": {
+      "file": "attack-miss.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.5,
+      "gain": 1
+    },
+    "controlCast": {
+      "file": "skill-control.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 1.150023,
+      "gain": 1
+    },
+    "defeat": {
+      "file": "battle-defeat.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "notice",
+      "duration": 2.4,
+      "gain": 1
+    },
+    "spiritCast": {
+      "file": "spirit-cast.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "notice",
+      "duration": 0.89,
+      "gain": 1
+    },
+    "bodyHit": {
+      "file": "hit-body.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.48,
+      "gain": 1
+    },
+    "metalHit": {
+      "file": "hit-metal.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.5,
+      "gain": 1
+    },
+    "moveCart": {
+      "file": "unit-move-cart.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 1.0,
+      "gain": 1
+    },
+    "itemGet": {
+      "file": "item-get.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "notice",
+      "duration": 0.68,
+      "gain": 1
+    },
+    "skillFail": {
+      "file": "skill-fail.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.3,
+      "gain": 1
+    },
+    "uiError": {
+      "file": "ui-error.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "ui",
+      "duration": 0.3,
+      "gain": 1
+    },
+    "spearThrust": {
+      "file": "attack-spear-thrust.wav",
+      "basePath": "./audio/sfx-v0362/",
+      "group": "combat",
+      "duration": 0.250023,
+      "gain": 1
+    },
+    "moveCavalry": {
+      "file": "unit-move-cavalry.wav",
+      "basePath": "./audio/sfx-v0363/",
+      "group": "combat",
+      "duration": 1.384989,
+      "gain": 1
+    }
+  }
+}

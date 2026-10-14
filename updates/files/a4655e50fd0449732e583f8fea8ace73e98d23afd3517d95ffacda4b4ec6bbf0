@@ -1,0 +1,5052 @@
+{
+  "schemaVersion": 3,
+  "episodeTitle": "6막 삼국 쟁패",
+  "premise": "장비와 유비가 역사의 결말을 넘어서고, 오와 화해한 뒤 남쪽의 마음을 얻는다.",
+  "speakers": {
+    "narrator": "내레이션",
+    "liubei": "유비",
+    "guanyu": "관우",
+    "zhangfei": "장비",
+    "zhaoyun": "조운",
+    "zhugeliang": "제갈량",
+    "huangzhong": "황충",
+    "weiyan": "위연",
+    "machao": "마초",
+    "guanping": "관평",
+    "masu": "마속",
+    "fazheng": "법정",
+    "madai": "마대",
+    "huangquan": "황권",
+    "guanxing": "관흥",
+    "zhangbao": "장포",
+    "fengxi": "풍습",
+    "fudong": "부동",
+    "dengzhi": "등지",
+    "zhangni": "장의",
+    "mazhong": "마충",
+    "caopi": "조비",
+    "sunquan": "손권",
+    "luxun": "육손",
+    "menghuo": "맹획",
+    "wutugu": "올돌골",
+    "fanqiang": "범강",
+    "zhangda": "장달",
+    "wu_officer": "오군 장수",
+    "wei_vanguard": "위군 선봉장",
+    "militia_leader": "의병 대장",
+    "chendao": "진도",
+    "zhoucang": "주창",
+    "maliang": "마량",
+    "shu_soldier": "촉군 병사",
+    "messenger": "전령",
+    "mizhu": "미축",
+    "villager": "마을 사람",
+    "caoren": "조인",
+    "zhurong": "축융",
+    "nanman_warrior": "남만 전사"
+  },
+  "chapters": [
+    {
+      "id": "s38_langzhong",
+      "title": "낭중의 밤",
+      "location": "낭중 · 장비의 진영 · 깊은 밤",
+      "era": "221년",
+      "actMap": "map_act6",
+      "fate": {
+        "front": "정사: 장비는 이 밤 자신의 부하에게 목숨을 잃었다",
+        "back": "그러나 장팔사모는 꺾이지 않았다"
+      },
+      "bg": {
+        "pre": "bg_camp_night",
+        "post": "bg_camp_night"
+      },
+      "bgm": {
+        "pre": "bgm_fate",
+        "battle": "bgm_crisis",
+        "post": "bgm_oath"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "220년, 조조가 세상을 떠났다. 맏아들 조비가 위왕의 자리를 이었다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그해 겨울, 허도의 천자는 조비에게 자리를 내주었다. 사백 년 한의 이름이 꺾였다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "허도에서 나를 황숙이라 불러 주시던 분이네. 그 자리를 이렇게 내주셨구나.",
+          "face": "sad"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 한의 이름은 이제 이 서쪽에 남았습니다. 서두르지 마시고 무겁게 지키십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "221년 봄, 성도. 한중왕은 제갈량을 승상으로 삼고, 오를 치는 출정을 의논했다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오는 운장을 맥성에 가두었네. 형주를 지키려면 이 국경을 한 번은 바로잡아야 하네."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 나라의 원수는 위이지 오가 아닙니다. 오와 오래 싸우면 위만 웃습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "자룡의 말이 옳소. 형님, 제 원한 때문에 군을 움직이지는 마십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 자네 원한이 아니라 형주 백성의 국경일세. 다만 크게 치고 빨리 거두겠네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "승상의 자리에서 한 가지만 청하겠습니다. 출정하시되 끝낼 날을 먼저 정해 두십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그리하겠네. 익덕에게 사람을 보내세. 낭중의 군사를 이끌고 강주에서 만나자고."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "그 일은 제가 가겠습니다. 강릉에서 본 익덕의 붉은 눈이 아직 마음에 걸립니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 운장과 함께 가 주게. 강릉에서처럼 형제 셋이 다시 나란히 서야 하네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "오가 형주를 노린 값은 받아야 합니다. 다만 받을 만큼만 받고 셈을 끝내십시오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "명을 받들겠습니다. 낭중까지 쉬지 않고 달리겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "낭중으로 가는 길. 관우와 조운은 닷새 길을 사흘에 달렸다.",
+          "bg": "bg_field"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "관 장군, 말을 조금 쉬게 하시지요. 적토마도 숨이 거칩니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "자룡, 나는 맥성에서 익덕의 고함을 몇 번이나 들었소. 꿈이었지만 분명했소."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님 앞에서는 말하지 못했소. 그 밤 나는 형제들 얼굴을 하나씩 세며 버텼소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "장판에서 주공께서도 남은 사람을 하나하나 세셨습니다. 형제분들은 세는 것까지 닮으셨습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕은 화가 나면 숫자를 세지. 요즘은 몇까지 세는지 모르겠구려."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "낭중에서 온 전령 말로는 장 장군이 요즘 통 잠을 이루지 못하신다 합니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "그렇다면 더 서둘러야겠소. 그 아이는 잠을 못 자면 꼭 사람에게 화를 내니."
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 무렵, 낭중. 장비의 진영은 밤낮없이 북을 울리며 오를 치라는 명만 기다렸다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "더 빨리 움직여라! 둘째 형님을 맥성에 가둔 놈들이다. 한 놈도 그냥 두지 않는다!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 병사들이 사흘째 잠을 못 잤습니다. 반나절이라도 쉬게 해 주십시오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "쉬라고? 둘째 형님은 맥성에서 쉴 틈이나 있었겠소? 사냥꾼 대장도 그만 참견하시오!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그때 창고 쪽에서 매질 소리가 났다. 늦게 온 병사 하나가 기둥에 묶여 있었다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장군, 저 병사는 범강의 부하입니다. 어제도 그제도 맞았습니다. 이제 그만하시지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하나, 둘, 셋, 열, 스물, 서른. 서른까지 세어도 안 풀리오. 내 속이 안 풀린단 말이오!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "하비에서도 장군은 매를 들었습니다. 조표가 성문을 연 그 밤을 잊으셨습니까."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그 이름은 꺼내지 마시오. 그날 이후 술은 한 방울도 안 마셨소. 그거면 된 것 아니오!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "술은 끊으셨지요. 저희가 다 압니다. 다만 그 밤 성문을 연 건 술이 아니라 매였습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "장비는 대답하지 않았다. 다만 그날의 매질은 거기서 멈추었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해 질 녘, 장비는 수하 장수 범강과 장달을 막사로 불렀다.",
+          "bg": "bg_tent_in"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "범강, 장달! 오를 칠 갑옷과 깃발을 사흘 안에 모두 마련해라!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "깃발마다 한중왕의 이름을 크게 써라. 오 놈들이 강 건너에서도 보고 떨게!"
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "사흘은 불가능합니다. 이대로라면 우리가 먼저 매를 맞아 죽을 겁니다."
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "장군, 깃발 천도 모자랍니다. 바느질하는 손을 다 모아도 열흘은 걸립니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "열흘? 오 놈들은 열흘이면 강을 두 번 건넌다! 사흘이다. 못 하면 군령대로 한다!"
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "장군, 그럼 바느질할 손이라도 더 붙여 주십시오. 저희 둘로는 어림없습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "손은 너희가 알아서 구해라! 나가라, 사흘 뒤에 깃발을 보자!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "두 사람이 물러간 뒤, 장비는 홀로 지도를 노려보았다. 형주 땅에 붉은 먹이 번져 있었다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장군, 저녁을 가져왔습니다. 오늘도 안 드시면 장 장군 부인께 이르겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그건 반칙이오. 거기 두시오. 먹겠소, 먹겠소.",
+          "face": "smile"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "사냥꾼 대장, 둘째 형님이 맥성에 갇혔다는 소식을 들은 밤부터 나는 잠을 못 자오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "눈을 감으면 형님 얼굴이 보이오. 그래서 이제는 눈을 뜬 채로 자오. 우습지 않소?"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "우습지 않습니다. 저도 누이의 마을을 잃은 뒤 한동안 눈을 감지 못했습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "그래도 관 장군은 돌아오셨습니다. 이제 장군도 눈을 감고 주무셔야지요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그건 오 놈들을 다 친 다음에 하겠소. 오늘 밤은 진영 문이나 잘 봐 주시오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "문이라면 맡겨 주십시오. 하비에서부터 문은 저희 몫이었습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 밤, 진영 뒤편 창고. 범강과 장달이 등불도 켜지 않고 마주 앉았다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "사흘 안에 갑옷과 깃발이라니, 어차피 못 해. 못 하면 우리 목이 날아간다."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "그렇다면 오늘 밤, 장비가 잠든 사이에 끝내자."
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "장군을 해치자고? 그분은 하비 이후 술도 끊은 분이다. 취해서 곯아떨어질 일도 없어."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "그러니 더 무섭지. 술 취한 장비는 아침이면 다 잊었다. 맑은 장비는 다 기억한다."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "등을 봐라. 어제 맞은 자국이 아직 터져 있다. 다음은 우리 차례다."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "오에 가면 장비의 목값을 쳐 준다더라. 배는 이미 강가에 매어 두었다."
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "배를 매어 둔 게 언제야. 너 처음부터 이럴 생각이었구나."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "망설여도 된다. 다만 사흘 뒤 기둥에 묶이는 건 너다."
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "좋아. 매수한 병사가 열둘이다. 막사 둘레 보초는 우리 사람으로 바꿔 두었다."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "진영 문만 닫혀 있으면 아무도 못 들어온다. 문지기는 늙은 사냥꾼 하나뿐이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "삼경. 두 그림자가 장비의 막사로 숨어들었다. 손에는 단검이 들려 있었다.",
+          "bg": "bg_tent_in"
+        },
+        {
+          "speaker": "narrator",
+          "text": "장비는 코를 골며 잠들어 있었다. 그런데 그 두 눈은 부릅뜨고 있었다.",
+          "cg": "cg_open_eyes"
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "눈을 뜨고 자는 거냐? 들킨 줄 알았잖아."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "쉿, 코 고는 소리가 천둥 같다. 옆 막사 병사들이 잠을 못 잔다더니 이거였군."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "숨소리를 들어 봐, 분명히 자고 있다. 지금이다.",
+          "cg": null
+        },
+        {
+          "speaker": "narrator",
+          "text": "같은 시각, 진영 문. 의병 대장이 횃불 아래에서 귀를 기울이고 있었다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "보초 교대가 이르다. 발소리가 막사 쪽으로만 간다. 짐승이 숨을 죽일 때 나는 소리다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그때 어둠 저편에서 말발굽 소리가 났다. 문 앞에 선 것은 긴 수염의 장수와 흰 말의 장수였다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "성도에서 형님의 명을 전하러 왔다. 문을 열어라."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "관 장군! 하늘이 보내셨습니다. 진영이 이상합니다. 장 장군 막사로 가 주십시오!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "낭중 진영이 수상합니다. 익덕 장군의 막사로 서둘러 가야 합니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕이 위험하다. 막사 앞까지 길을 열어라!",
+          "face": "resolve"
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "관 장군님, 이 주창도 가겠소! 장 장군님께 주먹밥 빚이 있단 말이오!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "주창, 너는 문에 남아라. 오늘 밤 이 문으로 나가는 자는 하나도 없어야 한다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "사냥꾼들, 활을 들어라! 문밖으로는 쥐 한 마리 못 나간다!"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "문은 저희가 지키겠습니다. 장판에서 장군이 저희 문이 되어 주셨지요. 오늘은 저희 차례입니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "관 장군, 막사 안의 익덕 장군은 아직 잠들어 있습니다. 서둘러야 합니다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "zhangda",
+              "text": "막사 주변을 막아라! 아무도 들이지 마라!"
+            },
+            {
+              "speaker": "fanqiang",
+              "text": "관우다! 관우가 왜 여기 있어! 문은 닫혀 있었잖아!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "어두운 진영 곳곳에서 매수된 병사들이 하나둘 횃불을 껐다."
+            },
+            {
+              "speaker": "guanyu",
+              "text": "자룡, 막사 쪽 횃불이 꺼진다. 저기다!"
+            }
+          ],
+          "fx": {
+            "id": "fx_night"
+          }
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 2
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "뭐냐, 이 소란은! 내 막사에 칼 든 놈들이라니!",
+              "face": "resolve"
+            },
+            {
+              "speaker": "guanyu",
+              "text": "익덕, 정신 차려라! 네 막사에 자객이다!"
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "둘째 형님? 꿈이 아니구려! 꿈이든 아니든 일단 이놈들부터 치겠소!",
+              "cutin": true
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_zhangda"
+          },
+          "lines": [
+            {
+              "speaker": "zhangda",
+              "text": "이럴 수가, 장비를 해치지도 못하다니. 끝났다."
+            },
+            {
+              "speaker": "fanqiang",
+              "text": "우리가 잘못했습니다. 그래도 매는 너무 무서웠습니다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "남은 병사들이 무기를 내려놓았다. 낭중의 밤이 끝나 가고 있었다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "어둠 속에서 진영 병사들이 깨어나 모여들었다. 매수된 자는 많지 않았다."
+            },
+            {
+              "speaker": "shu_soldier",
+              "text": "장군들! 깨어 있는 자들을 모았습니다! 칼을 든 놈들은 열둘뿐입니다!"
+            },
+            {
+              "speaker": "guanyu",
+              "text": "좋다. 칼을 든 자만 막아라. 우리 병사끼리 피를 보게 하지 마라."
+            },
+            {
+              "speaker": "zhangfei",
+              "text": "들었느냐! 칼 안 든 놈은 건드리지 마라. 다 내 병사들이다!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhangfei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhangfei",
+              "text": "갑옷도 없이 자다가 이게 무슨 꼴이오! 그래도 아직 안 쓰러지오!"
+            },
+            {
+              "speaker": "guanyu",
+              "text": "익덕, 버텨라! 형님께 셋이 함께 가겠다고 했다!"
+            },
+            {
+              "speaker": "zhaoyun",
+              "text": "익덕 장군 곁으로 가겠습니다. 길을 비켜라!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_zhangda"
+          },
+          "lines": [
+            {
+              "speaker": "zhangda",
+              "text": "누구든 오지 마라! 여기서 멈춰도 어차피 내 목은 날아간다!"
+            },
+            {
+              "speaker": "zhangda",
+              "text": "등에 남은 매 자국이 나를 떠민다. 물러설 길은 처음부터 없었다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "장달의 손이 떨리고 있었다. 단검 끝도 함께 떨렸다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "동이 텄다. 장비의 막사 앞에 세 장수가 주저앉았다.",
+          "cg": "cg_three_at_dawn"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "내 막사에 자객이라니. 둘째 형님과 자룡 아니었으면 자다가 죽을 뻔했소."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 부하를 때리는 버릇을 고치라 했거늘. 이번 일을 잊지 마라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "알겠소, 알겠소. 이제 부하들에게도 좀 너그러워지겠소.",
+          "face": "sad"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "하비에서 너는 술을 끊었다. 그런데 매는 그대로 쥐고 여기까지 왔구나."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님 소식을 들은 뒤로 내 손이 내 손 같지 않았소. 변명은 아니오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "나도 맥성에서 오만의 값을 치렀다. 너는 그 값을 오늘 밤 치를 뻔했다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님은 값을 치르고 돌아왔고, 나는 치르기 전에 깼구려. 둘 다 오늘을 잊지 맙시다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "익덕 장군, 오늘 밤은 제가 막사 앞을 지키겠습니다. 편히 주무십시오.",
+          "cg": null
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 자룡이 지켜 준다니 이번엔 눈을 감고 자겠소!",
+          "face": "smile"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "자룡, 밤새 수고했소. 오늘 밤 막사 앞은 내가 서겠소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그럼 둘이 서지요. 익덕 장군 코 고는 소리를 혼자 듣기는 벅찹니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 오르자 범강과 장달이 묶인 채 장비 앞에 끌려 나왔다."
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "장 장군님, 강가에 배가 매여 있었소. 처음부터 오로 달아날 셈이었던 거요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "왜 그랬느냐. 아니, 묻지 않아도 알겠다. 등을 보여 봐라."
+        },
+        {
+          "speaker": "narrator",
+          "text": "두 사람의 등에는 아물지 않은 매 자국이 겹겹이 남아 있었다."
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "장군, 사흘 안에 못 하면 어차피 죽는다고 생각했습니다. 죽을 바에는 하고요."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "장군의 매는 칼보다 무서웠습니다. 칼은 한 번이지만 매는 매일이었으니까요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하나, 둘, 셋, 열, 스물, 서른, 마흔, 쉰. 오늘은 화가 아니라 부끄러움이 안 가시는구나."
+        },
+        {
+          "speaker": "narrator",
+          "text": "장비는 허리에 찬 채찍을 꺼내 무릎에 대고 꺾었다. 마른 나무 부러지는 소리가 났다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "이건 낭중 땅에 묻겠다. 너희 손에 칼을 쥐여 준 건 이 매다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "너희 목은 내가 정하지 않겠다. 큰형님께 맡기겠다. 나는 살려 달라고 빌 거다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 네 목을 노린 자들이다. 군령을 가볍게 여기지 마라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "알아요, 둘째 형님. 그래서 내가 정하지 않는 거요. 내가 정하면 또 화로 정할 테니."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "그 말이면 됐다. 형님께는 내가 함께 말씀드리마."
+        },
+        {
+          "speaker": "fanqiang",
+          "text": "장군, 꺾인 그 채찍은 저희가 묻게 해 주십시오. 그것만은 저희 손으로 하고 싶습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그래라. 묻고 나서 그 위를 밟아라. 나도 같이 밟겠다."
+        },
+        {
+          "speaker": "zhangda",
+          "text": "장군, 그 채찍 소리보다 방금 그 말씀이 더 아픕니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 어제는 서른까지 세셨지요. 오늘은 몇까지 세셨습니까?",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "쉰까지 셌소. 신야에서 백까지 세겠다 해 놓고 서른에서 멈췄지. 다음엔 진짜 백이오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "문이라는 게 그렇더군요. 밖에서 오는 칼만 막는 게 아니었습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 사냥꾼 대장 수염이 하얘지더니 말이 늘었소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장군 수염에도 흰 터럭이 섞이기 시작했습니다. 저만 늙는 게 아닙니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하비에서 내가 잃은 문을, 어젯밤엔 당신이 지켜 주었소. 고맙소, 진심이오."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "탁현에서 처음 활을 들던 날부터 그게 저희 일이었습니다. 앞으로도요."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 다음엔 내가 당신 문을 지키겠소. 늙은 사냥꾼이 편히 잘 수 있게."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "다들 들어라! 갑옷과 깃발은 열흘 안에 마련한다. 오늘 밤은 모두 잔다!"
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "장군, 정말이십니까? 열흘이요? 늦으면 매는 어찌 되는지요?"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "매는 없다. 그 대신 나도 바늘을 잡겠다. 이 손으로 깃발을 꿰매겠다!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날부터 장비의 막사에서는 코 고는 소리 대신 바늘에 찔린 고함이 들려왔다."
+        },
+        {
+          "speaker": "zhoucang",
+          "text": "장 장군님, 바늘은 창처럼 쥐는 게 아니오. 산채에서 배운 솜씨를 보여 드리리다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "주창, 그 말 다른 데 가서 하지 마시오. 장팔사모가 바늘에 졌다고 소문나오!"
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "장군이 꿰맨 깃발은 삐뚤어도 제일 앞에 걸겠습니다. 저희가 그러자고 했습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 저녁, 장비는 약 단지를 들고 어제 기둥에 묶였던 병사를 찾아갔다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "어이, 등 좀 보자. 내가 때린 자리에 내가 약을 바르는 거니 아파도 참아라."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "장, 장군께서 직접 말입니까? 차라리 매가 덜 무섭겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그 말 들으니 내가 얼마나 무서웠는지 알겠다. 이제 무서워할 건 오 놈들뿐이다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "예, 장군! 깃발은 제가 제일 먼저 꿰매겠습니다. 손이 빠릅니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그 대신 오늘은 자라. 잠을 못 자면 사람이 사람에게 화를 낸다. 내가 해 봐서 안다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "열흘 뒤, 강주. 오를 칠 깃발을 단 낭중의 군사가 한중왕의 진영에 닿았다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕이 무사하다니 다행이네. 출정은 셋이 함께 가세."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "큰형님, 이 장비가 꿰맨 깃발이오! 삐뚤삐뚤하지만 바람에는 잘 날리오!",
+          "face": "smile"
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 범강과 장달의 목숨을 빌러 왔다고 들었네. 자네가 남의 목숨을 빈 건 처음일세."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 그 둘을 그렇게 만든 건 나요. 내 몫의 벌까지 그 둘이 다 받으면 안 되오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "목숨은 살리겠네. 다만 군에서는 내보내 둔전에서 밭을 갈게 하겠네. 그게 군령일세."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님 뜻을 따르겠습니다. 익덕, 오늘 네 말이 내가 들은 너의 말 중 가장 무거웠다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 장 장군의 오늘 약속은 제가 증인으로 기억해 두겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 자네 막사에 자객이 들었다는 전갈을 받고 나는 붓을 떨어뜨렸네.",
+          "face": "sad"
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장을 잃을 뻔한 지 한 해도 안 되어 자네까지. 나는 땅보다 그게 더 무섭네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 이 장비가 다시는 형님 붓을 떨어뜨리게 하지 않겠소. 매도 술도 다 묻었소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "군사, 아니 이제 승상이라 불러야 한다지? 영 입에 안 붙소!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "편하신 대로 부르십시오, 익덕 장군. 다만 이래라저래라는 계속하겠습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그건 안 바뀌어서 좋소! 승상, 이래라저래라 해도 되오!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 무협의 오군이 협곡에 진을 쳤습니다. 출정은 지금이 좋습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 익덕. 도원에서 같은 날 죽자고 했지. 오늘은 같은 날 살아 있자고 다시 맹세하세."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그 맹세라면 몇 번이고 하겠소! 둘째 형님, 손 내미시오!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 이번 맹세는 셋 중 누구도 어기지 못하게 하겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "세 형제의 손이 다시 포개졌다. 그 위로 장비가 꿰맨 삐뚤어진 깃발이 펄럭였다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "깃발 아래에는 처음 보는 두 젊은이가 서 있었다. 관우와 장비의 아들들이었다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "역사대로 이 밤이 장비의 마지막 밤이 되려 한다. 다시 도전한다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "막사까지 닿지 못했다. 자룡, 다시 길을 연다. 익덕을 이대로 두지 않는다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "익덕 장군을 두고 물러설 수는 없습니다. 관 장군, 한 번 더 가시지요."
+        }
+      ]
+    },
+    {
+      "id": "s39_wuxia",
+      "title": "무협 진군",
+      "location": "무협 · 장강 협곡",
+      "era": "221년",
+      "bg": {
+        "pre": "bg_gorge",
+        "post": "bg_gorge"
+      },
+      "bgm": {
+        "pre": "bgm_march",
+        "battle": "bgm_battle",
+        "post": "bgm_march"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "221년 가을, 촉군이 강주를 떠나 장강을 따라 동쪽으로 내려갔다. 세 형제가 한 군에 있었다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 살았지만 오는 우리를 배신했네. 이 싸움으로 형주를 지켜야 하네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 오와 오래 싸우면 위만 이득을 봅니다. 크게 이기고 빨리 끝내야 합니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "주공, 다만 물길을 따라 내려가기는 쉬워도 거슬러 물러나기는 어렵습니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "앞은 제가 서겠습니다. 주공께서는 뒤에서 형세를 보아 주십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공형의 말은 기억해 두겠네. 그러나 형제들이 앞에 서는데 나만 뒤에 있을 수는 없네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "강릉은 마량과 요화가 맡았다. 관우는 형주를 떠나 형님의 군에 합류해 있었다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "행렬 맨 앞에는 삐뚤어진 깃발 하나가 걸려 있었다. 낭중의 병사들이 고집한 자리였다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공, 맨 앞의 깃발이 조금 기울었습니다. 바로 세우라 할까요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "두게, 숙지. 저 깃발은 기운 채로 걸려 있어야 뜻이 있네."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "주공, 그 깃발 아래 낭중의 사냥꾼들도 섰습니다. 제 다리도 아직 쓸 만합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "대장, 수염이 하얗게 셌구려. 그래도 활 솜씨는 여전하겠지."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "활은 늙지 않습니다, 주공. 눈이 조금 늙었을 뿐입니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 밤, 오에서 편지 한 통이 왔다. 보낸 이는 오의 신하 제갈근, 제갈량의 형이었다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "형님의 글씨입니다. 관 장군이 돌아왔으니 원한을 거두고 화해하자 합니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "승상, 그 편지를 주공께 올리기 어려우시겠지요. 형님의 편지이니 말입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "올리지 않으면 형제의 정을 숨겼다 하고, 올리면 형님 편을 든다 하겠지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "그러니 제가 올리지요. 저는 원한도 셈도 숨기지 않는 사람이라고 다들 압니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "효직, 고맙소. 이런 일에는 그대의 차가운 말이 가장 따뜻하오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "이튿날 편지를 읽은 유비는 오래 말이 없었다. 그리고 답장 대신 군을 동쪽으로 움직였다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 제 원한 때문이라면 거두셔도 됩니다. 저는 이미 돌아왔습니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님, 오 놈들 말을 어찌 믿소. 맥성에 형님을 가둔 손으로 쓴 편지요!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장도 익덕도 옳네. 그래서 지금은 답하지 않겠네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "화해는 국경을 바로 세운 뒤에 하겠네. 그때 이 편지에 답하겠다고 전해 주게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "무협 어귀. 관우와 장비의 곁에 젊은 장수 둘이 말을 나란히 했다.",
+          "cg": "cg_second_gen",
+          "bg": "bg_gorge"
+        },
+        {
+          "speaker": "guanxing",
+          "text": "관흥이옵니다. 아버님처럼 전장에 서고 싶어 왔습니다."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "장포입니다! 아버님의 장팔사모 솜씨, 저도 물려받았습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 이 녀석들! 둘째 형님, 우리 애들이 다 컸소.",
+          "face": "smile"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "흥아, 전장은 겨루는 곳이 아니라 지키는 곳이다. 잊지 마라.",
+          "cg": null
+        },
+        {
+          "speaker": "guanping",
+          "text": "흥아, 형은 형주에서 아버님 곁을 지켰다. 이제 네가 설 자리도 생겼구나."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "형님, 맥성 이야기는 성도에서 몇 번이고 들었사옵니다. 형님께 부끄럽지 않겠습니다."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "그런데 아버님, 허리에 늘 차시던 채찍은 어디 두셨습니까?"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "낭중에 묻고 왔다. 포야, 너는 그런 거 처음부터 차지 마라."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "예? 아, 예! 저는 원래 그런 거 없습니다! 장팔사모만 있습니다!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 네 입에서 그런 말이 나올 줄은 몰랐다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님, 나도 내 입에서 이런 말이 나올 줄 몰랐소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 밤, 관흥과 장포는 진영 끝 모닥불 앞에 나란히 앉았다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "흥, 맥성 소식 들었을 때 너 성도에서 밥도 안 먹었다며."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "너는 낭중 소식 듣고 말 타고 나가려다 문에서 붙잡혔다며. 다 들었다."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "그건 비밀이었는데. 아무튼 아버님들 둘 다 살아 계셔. 그거면 됐어."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "그래. 잃을 뻔한 걸 아는 사람은 우리 둘뿐이다. 그러니 우리가 곁에 서자."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "좋아. 그 대신 깃발은 내가 먼저 잡는다. 그건 따로야!"
+        },
+        {
+          "speaker": "guanxing",
+          "text": "약속이다, 포. 그리고 오늘 밤 이야기는 아버님들 앞에서 꺼내지 말자."
+        },
+        {
+          "speaker": "fengxi",
+          "text": "풍습이오. 선봉은 내게 맡기시오, 협곡 바람보다 빠르게 가겠소."
+        },
+        {
+          "speaker": "fudong",
+          "text": "부동이오. 뒤를 받치는 일이라면 누구보다 묵직하게 하겠소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "풍 장군, 바람보다 빠르다고? 그럼 이 장비보다 먼저 닿아 보시오!"
+        },
+        {
+          "speaker": "fengxi",
+          "text": "장 장군과 내기라면 기꺼이 하겠소. 다만 술 내기는 빼 주시오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그건 나도 빼야 하오! 지면 차 한 사발이오!"
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "부 장군, 오군이 항복하면 받아 주실 겁니까? 아버님은 다 받으라 하시던데요."
+        },
+        {
+          "speaker": "fudong",
+          "text": "항복은 받는 것이지 하는 것이 아니오. 받는 건 얼마든지 받겠소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "협곡 아래, 오군의 수채. 오의 장수들은 촉군의 깃발을 세며 얼굴을 굳혔다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "관우가 살아 돌아오고 장비까지 왔다. 셋이 함께 오면 어찌 되는지 다들 들었겠지."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "여몽 장군이 세상을 떠나신 뒤, 대도독은 그 젊은 서생 육손이다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독의 명은 협곡에서 오래 버티지 말라는 것이다. 무슨 셈인지는 모르겠다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "서생이 칼 쓰는 법을 아나. 하지만 군령은 군령이다. 버티는 척만 하고 물러난다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "맨 앞의 저 기운 깃발은 뭐냐. 촉군은 깃발 하나 똑바로 못 거는구나."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "웃지 마라. 저 깃발 아래가 장비의 군이다. 낭중에서 자객을 맞고도 살아 나온 자다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "협곡 안에서는 적을 한 줄로 몰아넣을 수 있습니다.",
+          "bg": "bg_gorge"
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 협곡 위 높은 자리는 이 늙은이에게 맡기시오. 내려다보며 쏘는 맛이 있지."
+        },
+        {
+          "speaker": "guanping",
+          "text": "아버님, 저는 흥이와 포의 뒤를 맡겠습니다. 둘이 너무 앞서 나가지 않게요."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "평아, 동생들의 앞길은 막지 마라. 뒤만 단단히 받쳐 주어라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "노장군, 화살 다 쓰지 마시오. 우리 애들도 한 놈씩은 잡아 봐야 하오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "좋네. 이번 싸움은 이기되 끝까지 가지는 않겠네."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "guanxing",
+              "text": "포, 누가 먼저 적장의 깃발에 닿나 겨뤄 보자."
+            },
+            {
+              "speaker": "zhangbao",
+              "text": "흥, 그 말 후회하지 마라! 내가 먼저다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "흥아, 포야. 겨루는 건 좋으나 서로의 등부터 보게."
+            },
+            {
+              "speaker": "narrator",
+              "text": "두 젊은 장수가 거의 같은 때에 말을 박찼다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "huangzhong",
+              "text": "협곡 위에서 쏘면 오군 배가 꼼짝 못 할 것이오."
+            },
+            {
+              "speaker": "narrator",
+              "text": "협곡 위 고지에서 화살이 쏟아지자 오군의 배들이 강가로 몰렸다."
+            },
+            {
+              "speaker": "huangzhong",
+              "text": "젊은이들, 고개 숙이고 달리시오! 화살은 머리 위로만 지나가게 하겠소!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "guanxing",
+              "text": "큰아버님! 관흥이 가겠사옵니다. 잠시만 버텨 주십시오!"
+            },
+            {
+              "speaker": "zhangbao",
+              "text": "흥, 같이 가! 큰아버님 곁은 우리 둘이 막는다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "고맙구나. 너희 아버지들도 꼭 이렇게 달려오곤 했지."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 5
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "오군이 협곡 밖으로 물러나기 시작했다. 버틸 수 있는데도 물러서는 모습이었다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "쫓지 말게. 협곡 밖은 오의 땅일세. 오늘은 여기까지면 되네."
+            },
+            {
+              "speaker": "liubei",
+              "text": "쫓고 싶은 자도 오늘은 참게. 참는 것도 이기는 걸세."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "zhangbao",
+          "text": "흥, 오늘은 네가 한 발 빨랐다. 다음엔 내가 이긴다."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "포, 네가 다친 병사를 업고 오느라 늦은 걸 안다. 그건 진 게 아니다."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "봤어? 아니, 그건 보지 마! 그냥 길에 쓰러져 있길래 업은 거야!"
+        },
+        {
+          "speaker": "guanping",
+          "text": "두 사람 모두 잘 싸웠다. 아버님들께 부끄럽지 않았다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "포야, 병사를 업고 왔다고? 하하, 그건 이 아비보다 낫구나.",
+          "face": "smile"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "병사를 업고 늦은 장수는 부끄러울 것 없다. 포야, 그 길을 잊지 마라."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "백부님께 칭찬을 들었다! 흥, 들었지? 이건 내가 이긴 거다!"
+        },
+        {
+          "speaker": "guanxing",
+          "text": "형님, 오늘 저는 아버님 이름에 부끄럽지 않게 싸웠사옵니까?"
+        },
+        {
+          "speaker": "guanping",
+          "text": "그 물음은 아버님께 드리는 거다. 나도 아직 그 대답을 기다리는 중이다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "장 장군, 오늘 다친 자들은 하나도 빠짐없이 실어 왔습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "잘했다. 다친 놈부터 먹이고 재워라. 공을 세는 건 그다음이다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "예, 장군! 낭중 병사들이 그 말씀을 들으면 울 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "흥아, 포야. 너희 아버지들이 처음 칼을 든 날에도 오늘처럼 내기를 했단다."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "아버님께서 내기를 하셨사옵니까? 저는 처음 듣는 이야기입니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "누가 더 많이 베나 내기였지! 그날은 이 장비가 이겼소!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "세어 보지 않았다. 세어 보지 않은 내기에 이긴 사람은 없다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 들었소? 서른 해가 지났는데 아직도 안 졌다고 우기오!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "그날 나는 둘이 다치지 않기만 빌었네. 오늘은 넷이 다치지 않기만 빌었고."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "허허, 젊은이들이 앞에서 다 베어 버리니 이 늙은이 화살이 남았구려."
+        },
+        {
+          "speaker": "fengxi",
+          "text": "노장군, 다음엔 화살을 아끼지 마시오. 선봉이 늘 먼저 닿으니 남을 겁니다."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "선봉이 빠르다고 늙은 활을 얕보지 마시오. 활은 오래 묵을수록 멀리 가오."
+        },
+        {
+          "speaker": "fudong",
+          "text": "노장군 화살이 머리 위로 지나갈 때 등이 든든했소. 다음에도 부탁하오."
+        },
+        {
+          "speaker": "huangzhong",
+          "text": "부 장군은 말이 적어 좋소. 이 늙은이 귀가 편하오."
+        },
+        {
+          "speaker": "fengxi",
+          "text": "노장군, 그 말은 제가 시끄럽다는 뜻이오?"
+        },
+        {
+          "speaker": "liubei",
+          "text": "형주의 국경은 지켰네. 여기서 더 들어가지는 않겠네.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 기세가 이렇게 올랐는데 멈추오? 오 놈들 등짝이 보이는데!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 공형이 그랬지. 내려가기는 쉬워도 거슬러 오르기는 어렵다고."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "기억해 주셔서 감사합니다. 다만 멈춘 자리라도 오래 머물면 그것도 위험합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그러니 오의 답을 받아 내세. 제갈근의 편지에 답할 때가 머지않았네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 이길 때 멈추신 것은 잘하셨습니다. 다만 멈춘 뒤에 할 일도 정하셔야 합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직의 셈은 늘 한 발 앞이로군. 여름이 오기 전에 정하겠네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 그럼 여름 동안 내 병사들은 그늘에서 쉬게 하겠소. 매 대신 낮잠이오!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "그러게. 다만 공형 말대로 진이 너무 길어지지 않게 하게."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "오군에 새 대도독이 섰습니다. 젊은 서생이라 하나, 방심해서는 안 됩니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 저는 성도로 돌아가 군량을 대겠습니다. 진을 옮기실 때는 꼭 알려 주십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그러겠네, 공명. 자네가 뒤를 받치니 나는 앞만 보겠네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "공형, 주공께서 진을 옮기시면 그 모양을 그림으로 보내 주시오."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "그림까지 말씀이십니까. 무엇이 걱정되십니까, 승상."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "멈춘 군대는 길어지기 쉽소. 길어진 진은 끝과 끝이 서로를 보지 못하지."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "알겠습니다. 다만 주공께서 제 말을 늘 들어 주시는 것은 아닙니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그래도 하시오. 듣지 않으시던 말이 나중에 가장 크게 들리는 법이오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "오의 대도독은 육손이었다. 그는 촉군이 숲으로 들어오기를 기다리고 있었다.",
+          "bg": "bg_army_plain"
+        },
+        {
+          "speaker": "luxun",
+          "text": "촉군이 무협에서 멈췄다고? 유비는 듣던 대로 사람을 아끼는 군주로구나."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독, 협곡을 내주고도 가만히 계십니까. 노장들 사이에 말이 많습니다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "말은 얼마든지 해도 좋다. 다만 칼은 내가 정한 때에만 뽑게 하라."
+        },
+        {
+          "speaker": "luxun",
+          "text": "곧 여름이다. 멈춘 군대는 그늘을 찾는다. 그리고 이 땅의 그늘은 모두 숲에 있다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "그럼 언제까지 기다리십니까? 주공께서도 답답해하십니다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "바람이 바뀌는 날까지. 그날 한 번이면 충분하다. 주공께는 내가 그렇게 아뢰겠다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "해가 바뀌어도 오의 답은 오지 않았다. 촉군은 무협에서 이릉까지 진을 길게 늘였다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "222년 여름, 더위가 장강 골짜기를 덮었다. 병사들은 하나둘 숲 그늘로 영채를 옮겼다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "숲은 시원했다. 영채는 숲을 따라 이어지고 또 이어져, 마침내 칠백 리에 이르렀다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "zhugeliang",
+          "text": "협곡에서 너무 깊이 들어갔습니다. 다시 진을 정비하시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "흥아, 포야, 다친 데는 없나. 서두르지 말고 다시 들어가세."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 협곡이 좁습니다. 아이들을 뒤로 물리고 다시 길을 열겠습니다."
+        }
+      ]
+    },
+    {
+      "id": "s40_yiling",
+      "title": "칠백리 영채",
+      "location": "이릉 · 숲속에 늘어선 영채",
+      "era": "222년",
+      "fate": {
+        "front": "정사: 칠백 리 영채는 불탔고, 유비는 백제성에서 눈을 감았다",
+        "back": "그러나 한중왕은 숲을 나왔다"
+      },
+      "bg": {
+        "pre": "bg_forest_camp",
+        "post": "bg_forest_camp"
+      },
+      "bgm": {
+        "pre": "bgm_fate",
+        "battle": "bgm_crisis",
+        "post": "bgm_fate"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "222년, 이릉. 촉군은 더위를 피해 숲속에 칠백 리에 걸쳐 영채를 늘어놓았다.",
+          "cg": "cg_700li"
+        },
+        {
+          "speaker": "narrator",
+          "text": "영채와 영채 사이에는 나무 울타리가 이어졌다. 숲은 그늘이 깊었고, 마른 잎이 발목까지 쌓였다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "촉군이 숲속에 영채를 길게 늘어놓았다. 바람이 불면 불을 놓아라."
+        },
+        {
+          "speaker": "narrator",
+          "text": "맞은편 언덕에서 젊은 대도독이 그 숲을 반년째 내려다보고 있었다.",
+          "cg": null
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "주공, 숲 그늘 덕에 더위에 쓰러지는 자가 크게 줄었습니다.",
+          "bg": "bg_forest_camp"
+        },
+        {
+          "speaker": "liubei",
+          "text": "다행이네. 그늘만큼은 오가 우리에게 준 선물이로군."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 오 놈들은 반년째 꼼짝도 안 하오. 서생 대도독이 겁먹은 게 틀림없소!"
+        },
+        {
+          "speaker": "liubei",
+          "text": "겁이 아니라 참을성일지도 모르네. 육손이라는 젊은이, 좀처럼 칼을 뽑지 않는군."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "주공, 영채의 모양을 그림으로 그려 성도의 승상께 보내겠습니다. 약속한 일입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "보내게. 칠백 리 영채라니, 공명이 보면 놀라겠지."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "놀라시기만 하면 다행입니다. 다만 저는 이 마른 잎이 마음에 걸립니다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "그리고 주공, 요즘 장 장군께서 눈을 감고 주무십니다. 코 고는 소리는 그대로지만요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그것참 반가운 소식이네. 코 고는 소리야 병사들이 참아 주게."
+        },
+        {
+          "speaker": "narrator",
+          "text": "본영 한쪽에서 관우가 해진 전포 소매를 꿰매고 있었다. 형님이 입던 헌 전포였다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "둘째 형님, 그 전포 아직도 입소? 형님이 새 걸 주셨잖소."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "새 것은 상자에 두었다. 이 전포는 맥성에서도 입고 있었다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 바느질은 나한테 맡기시오. 낭중에서 깃발을 꿰맨 손이오!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "네 깃발이 어떻게 걸렸는지 보았다. 내 소매는 내가 꿰매마."
+        },
+        {
+          "speaker": "narrator",
+          "text": "오군의 본영. 노장들이 대도독의 막사 앞에 모여 웅성거렸다.",
+          "bg": "bg_army_plain"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독, 반년이나 칼을 뽑지 않으셨소. 우리 노장들은 겁쟁이 소리를 듣고 있소."
+        },
+        {
+          "speaker": "luxun",
+          "text": "유비는 천하가 아는 영웅이오. 조조도 끝내 꺾지 못한 사람이지."
+        },
+        {
+          "speaker": "luxun",
+          "text": "처음 들어올 때는 기세가 날카로웠소. 지금은 반년을 숲에서 보내 지쳐 있소."
+        },
+        {
+          "speaker": "luxun",
+          "text": "지친 군대는 그늘을 떠나지 못하오. 그늘이 길어질수록 우리에게 좋소."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "그래도 서생의 말만 믿고 언제까지 기다릴 수는 없소!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "육손은 말없이 일어서서 허리의 검을 짚었다. 막사 앞이 조용해졌다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "나는 서생이나 주공께 이 검을 받았소. 군령을 어기는 자에게는 이 검이 묻겠소."
+        },
+        {
+          "speaker": "luxun",
+          "text": "바람이 바뀌는 날까지만 기다려 주시오. 그날 여러분의 칼이 가장 바쁠 것이오."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "바람이라. 좋소. 그날까지만 참겠소, 대도독."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 무렵, 숲속 본영에 먼지를 뒤집어쓴 일행이 닿았다. 성도의 승상 제갈량이었다.",
+          "bg": "bg_forest_camp"
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명! 성도를 비우고 어찌 여기까지 왔는가."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "공형이 보낸 진세도를 보았습니다. 보고 나서 말에 오르지 않을 수 없었습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 숲속 영채는 위험합니다. 오군 책사의 불이 숲을 따라 번질 것입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명, 병사들이 더위에 쓰러지고 있었네. 숲이 아니면 여름을 버틸 수 없었네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그 마음을 압니다. 그러나 육손이 반년 동안 칼을 뽑지 않은 까닭이 바로 이 숲입니다."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 이길 때 멈추는 것도 계책입니다. 지금 숲을 나오시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명과 효직이 같은 말을 하는구려. 내가 숲에 너무 오래 머물렀네."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "주공, 무협에서 드린 말씀을 다시 드립니다. 물러날 길부터 열어 두십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공형, 그때 자네 말을 더 귀담아들었어야 했네. 이번에는 듣겠네."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 성도에서 오와 오래 싸우지 말라 말씀드렸습니다. 오늘 그 말을 거두지 않겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "지금이라도 숲을 피하세. 영채를 평지로 옮기게.",
+          "face": "resolve"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 지금 물러나면 오 놈들은 우리가 겁먹은 줄 알 거요!"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 나는 오를 얕보다 형주를 잃을 뻔했다. 같은 실수를 두 번 볼 수는 없다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하나, 둘, 셋, 열, 스물. 둘째 형님이 그렇게 말하면 할 말이 없소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "백까지는 못 셌지만 따르겠소. 겁먹었다는 소리는 이긴 다음에 갚으면 되오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕, 스물에서 멈추고 따라 준 것만으로도 고맙네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님, 그 말 둘째 형님 앞에서는 하지 마시오. 백까지 세라고 또 잔소리하오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "효직, 주공께서 이렇게 빨리 들어 주실 줄은 몰랐소.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "승상의 말재주 덕이 아닙니다. 맥성과 낭중 덕이지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "사람은 한 번 잃을 뻔하면 셈이 달라집니다. 주공은 두 번이나 그러셨습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그대다운 말이오. 차갑게 들리는데 틀린 데가 없구려."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "틀린 셈은 하지 않습니다. 다만 오늘은 그 셈이 맞아서 다행입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "효직, 나는 성도에서 오는 내내 그대 생각을 했소. 그대가 곁에 있으니 마음이 놓였소."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "승상께서 그런 말씀을 하시면 셈이 어지러워집니다. 오늘은 그만 주무시지요."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 사냥꾼들은 불로 짐승을 몹니다. 바람 아래쪽 숲부터 불을 놓지요.",
+          "bg": "bg_forest_camp"
+        },
+        {
+          "speaker": "chendao",
+          "text": "대장, 지금 바람은 어느 쪽에서 붑니까."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "아직은 잔잔합니다. 그러나 이 골짜기는 사흘이 멀다 하고 오후 바람이 뒤집힙니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "불을 보면 짐승은 물가로 달립니다. 사람도 그래야 합니다. 강 쪽 길을 비워 두십시오."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공께 아뢰겠습니다. 대장의 말은 제가 증인으로 들었습니다."
+        },
+        {
+          "speaker": "fengxi",
+          "text": "선봉 영채가 숲 가장 깊은 곳이오. 내 병사들부터 빼야겠소."
+        },
+        {
+          "speaker": "fudong",
+          "text": "물러나라는 명이라면 따르겠소. 다만 나는 맨 마지막에 빠지겠소."
+        },
+        {
+          "speaker": "fengxi",
+          "text": "부 장군, 맨 마지막은 늘 가장 위험한 자리요."
+        },
+        {
+          "speaker": "fudong",
+          "text": "그러니 내가 하는 거요. 등을 보이며 물러나는 게 아니라 얼굴을 보이며 물러나겠소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "부 장군, 사냥꾼 몇을 붙여 드리겠습니다. 연기 속에서도 길은 저희가 압니다."
+        },
+        {
+          "speaker": "fudong",
+          "text": "고맙소. 늙은 사냥꾼의 눈이라면 내 눈보다 믿을 만하오."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "마 장군, 불이 오면 저는 남아서 오군을 막겠습니다! 장팔사모로요!"
+        },
+        {
+          "speaker": "machao",
+          "text": "불은 창으로 막을 수 없소. 동관에서 나는 용맹만 믿다가 많은 걸 잃었소."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "포, 마 장군 말씀이 옳다. 오늘은 병사들을 데리고 나가는 게 우리 일이다."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "알았어. 그 대신 다친 병사는 내가 다 업는다. 그건 내 몫이야!"
+        },
+        {
+          "speaker": "machao",
+          "text": "숲에서 나와 평지에 진을 치면 불은 무섭지 않소."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "주공, 강 쪽 후방은 제가 맡겠습니다. 퇴로는 반드시 열어 두겠습니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공의 곁은 제가 지키겠습니다. 불길이 와도 길은 있습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "육손의 불길을 견디기만 하면 됩니다. 정해진 때까지 버티십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 함께 숲을 나오세. 영채는 버려도 되네. 사람만은 한 명도 두고 가지 마세."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 오후, 의병 대장의 말대로 바람이 뒤집혔다. 동남쪽에서 마른 바람이 불어왔다.",
+          "bg": "bg_army_plain"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독, 바람이 바뀌었소! 그런데 촉군 영채가 숲을 빠져나가고 있소!"
+        },
+        {
+          "speaker": "luxun",
+          "text": "반나절만 늦었어도 숲 전체였을 텐데. 저쪽에도 판을 읽는 자가 왔구나."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독, 이대로 놓치는 것이오? 반년을 기다렸소!"
+        },
+        {
+          "speaker": "luxun",
+          "text": "놓치는 게 아니오. 다만 바라던 것을 다 얻을 수는 없게 되었소."
+        },
+        {
+          "speaker": "luxun",
+          "text": "그래도 숲에 남은 영채가 많다. 불을 준비하라. 바람은 한 번이면 충분하다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "오군의 화공선과 불화살이 숲 가장자리로 움직이기 시작했다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "luxun",
+              "text": "바람이 분다. 지금이다, 숲에 불을 놓아라!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "불길이 숲 영채를 따라 무섭게 번지기 시작했다."
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "당황하지 마십시오. 불은 바람을 따라갑니다. 바람이 오는 쪽으로 비키십시오!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "영채는 타도 좋다! 사람만 데리고 나오게!"
+            }
+          ],
+          "fx": {
+            "id": "fx_forest_fire"
+          }
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 5
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "공명이 숲을 나오라 했지. 그 말대로 나왔으니 끝까지 흩어지지 말고 가세.",
+              "face": "sad"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "주공, 그 말씀은 숲을 다 나간 뒤에 하십시오. 아직 한 고비가 남았습니다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "타는 숲 사이로 촉군의 행렬이 천천히, 그러나 흩어지지 않고 빠져나왔다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "luxun",
+              "text": "불을 피해 평지로 나왔다고? 유비 곁에 누가 있는 것이냐.",
+              "cutin": true
+            },
+            {
+              "speaker": "luxun",
+              "text": "아니, 알겠다. 저 진의 모양은 제갈량의 것이다. 성도에 있어야 할 사람이 여기 있구나."
+            },
+            {
+              "speaker": "narrator",
+              "text": "육손은 처음으로 언덕 위에서 한 걸음 물러섰다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "liubei",
+              "text": "연기가 눈을 가리네. 그래도 여기서 쓰러질 수는 없네!",
+              "face": "resolve"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "주공, 제 목소리 쪽으로 오십시오! 평지는 이쪽입니다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "연기 속에서 승상의 목소리만이 길을 가리키고 있었다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhugeliang",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhugeliang",
+              "text": "불길이 진 가운데까지 닿았습니다. 그래도 판은 아직 무너지지 않았습니다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "공명! 내가 그대를 불 속에 둘 것 같은가. 모두 승상 곁으로 모이게!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 6
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "해가 기울며 바람이 잦아들었다. 숲은 타고 있었지만 평지의 진은 무너지지 않았다."
+            },
+            {
+              "speaker": "luxun",
+              "text": "더 밀면 우리 병사가 불길에 휘말린다. 불을 거두어라."
+            },
+            {
+              "speaker": "liubei",
+              "text": "조금만 더 버티세! 날이 저물면 불도 멈춘다!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "luxun",
+          "text": "불을 놓았는데도 촉군이 버텨 냈다고? 유비 곁에 제갈량이 있었구나.",
+          "bg": "bg_army_plain"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독, 그래도 촉군 영채 마흔여 곳을 태웠소. 큰 승리요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "오의 노장들은 대도독의 얼굴을 살폈다. 그 얼굴에는 기쁨이 없었다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "불탄 것은 빈 영채요. 사람을 태우지 못했으니 이긴 것이 아니오."
+        },
+        {
+          "speaker": "luxun",
+          "text": "주공께 화해를 아뢰겠소. 지금 북쪽에서 위가 우리 등을 보고 있소."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "오늘 노장들 가운데 대도독을 서생이라 부르는 자는 없을 것이오."
+        },
+        {
+          "speaker": "luxun",
+          "text": "서생이라 불러도 좋소. 다만 오늘 같은 날은 칼보다 기다림이 이긴다는 것만 기억해 주시오."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "대도독, 그 제갈량이란 자가 없었다면 어찌 되었겠소."
+        },
+        {
+          "speaker": "luxun",
+          "text": "그런 셈은 하지 않겠소. 있었던 사람을 두고 없었다면을 세는 것은 장수의 일이 아니오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "밤이 되어서야 불길이 잦아들었다. 숲의 절반이 검게 그을려 있었다.",
+          "bg": "bg_forest_camp"
+        },
+        {
+          "speaker": "liubei",
+          "text": "하마터면 칠백 리 영채가 모두 불탈 뻔했네.",
+          "cg": "cg_out_of_forest"
+        },
+        {
+          "speaker": "fazheng",
+          "text": "불탄 것은 빈 영채뿐입니다. 사람은 모두 살았습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "효직, 그 말을 다시 한 번 해 주게. 오늘은 몇 번을 들어도 좋네."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "사람은 모두 살았습니다, 주공. 셈은 몇 번을 해도 같습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "이제 오도 더 싸울 힘이 없습니다. 지금이 화해를 청할 때입니다.",
+          "cg": null
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 오늘은 장판보다 무서웠습니다. 그때는 제 목숨만 걸면 됐으니까요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자룡, 자네 입에서 무섭다는 말은 처음 듣네."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "오늘은 처음 하는 말이 많습니다. 주공께서 무사하셔서 그렇습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "고맙네. 자네는 늘 내 등 뒤에 있었지. 오늘도 그랬네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 익덕, 자룡, 맹기, 공형, 휴원, 부동, 숙지. 모두 있는가."
+        },
+        {
+          "speaker": "chendao",
+          "text": "주공 곁을 지킨 백이병, 피해 없습니다."
+        },
+        {
+          "speaker": "fengxi",
+          "text": "선봉 영채, 모두 빠져나왔소. 불 냄새 밴 목숨이니 아껴 쓰겠소."
+        },
+        {
+          "speaker": "fudong",
+          "text": "맨 마지막에 빠졌소. 끝까지 등은 보이지 않았소."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "후방의 퇴로도 무사합니다. 한 사람도 강을 넘어 흩어지지 않았습니다."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "이번에는 돌아갈 길을 잃지 않았습니다. 주공께서 그 길을 먼저 열라 하셨으니까요."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "탁현 사냥꾼들도 다 있습니다. 불 냄새는 한동안 빠지지 않겠지만요."
+        },
+        {
+          "speaker": "machao",
+          "text": "서량 기병도 모두 있소. 말 몇 필이 그을렸을 뿐이오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 관가의 아이들도 다 있습니다. 평이 둘을 끝까지 챙겼습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 다 있소! 형님, 이번엔 무덤 팔 일이 없소!",
+          "face": "smile"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공, 다친 병사들이 강가에 모여 있습니다. 먼저 살펴 주십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그러세. 공은 나중에 따지세. 오늘 밤은 다친 이들 곁에 있겠네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "강가에는 장포가 업어 온 병사들이 줄지어 누워 있었다. 장포의 갑옷은 그을음투성이였다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "포야, 몇이나 업었느냐. 세어 봤느냐?"
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "열하나입니다, 아버님! 열둘째는 흥이가 먼저 업어 갔습니다. 그건 진 겁니다!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 그런 내기라면 날마다 져도 좋다! 잘했다, 포야!",
+          "face": "smile"
+        },
+        {
+          "speaker": "narrator",
+          "text": "이튿날 아침, 숲 가장자리 마을. 불똥이 날아와 밭 몇 뙈기가 타 있었다.",
+          "bg": "bg_village"
+        },
+        {
+          "speaker": "villager",
+          "text": "나리들, 밭이 탔지만 집은 무사합니다. 불이 숲에서 멈춰 줘서 다행입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "우리 싸움에 그대들 밭이 탔소. 미 별가, 이 마을에 곡식을 나눠 주게."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "창고의 붉은 표시를 이 마을에 쓰겠습니다. 누이가 제 마음대로 하라 했으니까요."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "아우는 강동으로 가고 누이는 장판에 묻혔습니다. 이제 이 표시를 쓸 곳은 백성뿐입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "미 별가, 강릉에서 스스로 몸을 묶었던 그대일세. 그 끈은 내가 풀었으니 다시 매지 말게."
+        },
+        {
+          "speaker": "villager",
+          "text": "오나라 땅 사람인 저희한테까지요? 나리, 이러시면 저희가 어느 편을 들어야 할지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "어느 편도 들지 마시오. 그저 내년에도 이 밭에 씨를 뿌리시오."
+        },
+        {
+          "speaker": "villager",
+          "text": "나리, 오의 관리들은 세금부터 묻던데요. 나리는 밭부터 물으시는군요."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "주공께서는 늘 그러셨습니다. 그래서 저희 창고가 늘 비어 있었지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "복수는 여기까지 하세. 백성이 더 다치는 것은 원치 않네.",
+          "face": "resolve",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 저는 미움이 아니라 셈으로 오를 품었습니다. 그 셈이 형님을 불 앞에 세웠습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "그 셈이 틀렸습니다. 제 허물입니다, 형님."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 원한은 자네만의 것이 아니었네. 나도 오를 미워했네. 그러니 함께 내려놓세."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "형님 둘이 내려놓으면 나도 내려놓겠소. 오 놈들 얼굴 보는 건 아직 싫지만."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "익덕, 오 놈들이 아니라 오의 사람들이다. 화해를 하려면 말부터 고쳐라."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "오의 사람들, 오의 사람들. 하나, 둘, 셋. 됐소, 입에 붙었소."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "세 번 만에 붙었으면 빠르구나. 나는 아직도 입 안이 쓰다."
+        },
+        {
+          "speaker": "machao",
+          "text": "주공, 이제 창끝은 북쪽이오. 조조는 갔어도 그가 세운 위가 남아 있소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명, 앞으로는 자네 말을 더 듣겠네. 한 번 잃을 뻔하고 나니 그게 보이네.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 저도 더 일찍 말씀드리겠습니다. 그림을 보고서야 달려온 것은 늦었습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "제갈근의 편지에 답할 때가 되었네. 답장은 내가 직접 쓰겠네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "끝에는 동생이 이 진에서 잘 지낸다고도 적어 두겠네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 그 줄은 빼 주십시오. 형님이 오에서 곤란해지십니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그런가. 그럼 동생이 형님 걱정을 한다고만 적겠네. 그건 괜찮겠지."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그 줄이라면 괜찮겠습니다. 형님도 같은 줄을 쓰셨을 겁니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "형제란 그런 걸세. 서로 다른 나라에 있어도 같은 줄을 쓰지."
+        },
+        {
+          "speaker": "messenger",
+          "text": "급보입니다! 위의 조비가 대군을 일으켜 강동의 유수로 향하고 있습니다!",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "오와 촉이 지친 틈을 노리는 것입니다. 위가 오를 삼키면 다음은 우리입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "어제까지 우리와 칼을 맞대던 오가, 이제 위의 칼 앞에 섰구나."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명, 오를 돕는 길이 있겠나. 어제의 적이라도 오늘은 등을 맞대야 할 때일세."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "있습니다. 다만 군을 보내기 전에 오후의 마음부터 열어야 합니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "오를 돕는다고? 어제 우리 영채에 불을 놓은 그 오를? 하나, 둘, 셋, 열."
+        },
+        {
+          "speaker": "liubei",
+          "text": "백까지 세게, 익덕. 오늘은 그럴 만한 날일세."
+        },
+        {
+          "speaker": "narrator",
+          "text": "이릉의 연기가 채 걷히기도 전에, 장강 하구에 위의 깃발이 몰려오고 있었다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "narrator",
+          "text": "역사대로 불길이 칠백 리 영채를 모두 삼키려 한다. 다시 도전한다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "아직 숲에 사람이 남았네. 공명, 다시 길을 열어 주게."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 아직 평지가 멉니다. 바람이 오는 쪽으로 다시 길을 잡으십시오."
+        }
+      ]
+    },
+    {
+      "id": "s41_ruxu",
+      "title": "유수의 삼파전",
+      "location": "유수구 · 장강 하구",
+      "era": "222년",
+      "bg": {
+        "pre": "bg_river",
+        "post": "bg_river"
+      },
+      "bgm": {
+        "pre": "bgm_wei",
+        "battle": "bgm_battle",
+        "post": "bgm_wu"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "222년 가을, 위의 조비가 대군을 이끌고 남쪽으로 내려왔다. 목표는 강동이었다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "caopi",
+          "text": "촉과 오가 싸우느라 지쳤다. 지금 강동을 치면 단번에 얻을 수 있다."
+        },
+        {
+          "speaker": "caoren",
+          "text": "오는 이릉에서 이겼다지만 지쳐 있습니다. 다만 촉이 움직이면 셈이 달라집니다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "유비가 오를 돕는다고? 이릉에서 영채가 불탄 자가? 그럴 리 없다."
+        },
+        {
+          "speaker": "caoren",
+          "text": "선왕께서는 유비를 두고 사람을 끝까지 놓지 않는 자라 하셨습니다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "아버지는 유비를 끝내 이해하지 못하셨지. 나는 이해할 필요도 없다."
+        },
+        {
+          "speaker": "caoren",
+          "text": "관우도 살아 있습니다. 번성에서 그자의 물을 맞아 본 저로서는 가볍게 보지 못합니다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "그렇다면 유수는 그대가 맡아라. 성을 지키던 장수가 성을 치는 것도 보고 싶구나."
+        },
+        {
+          "speaker": "caoren",
+          "text": "명을 받들겠습니다. 지키는 법을 아는 자가 치는 법도 압니다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "강 하나만 건너면 끝날 일이다. 아버지는 그 강을 끝내 건너지 못하셨지."
+        },
+        {
+          "speaker": "caoren",
+          "text": "적벽의 강입니다. 그 강은 건너는 날보다 돌아오는 날이 더 어렵습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 위가 오를 삼키면 다음은 우리입니다. 지금은 오를 도와야 합니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "liubei",
+          "text": "어제의 적을 돕는다라. 천하의 형세란 참으로 알 수 없구려."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 저는 미움이 아니라 셈으로 오를 품었습니다. 셈으로 보면 오를 돕는 것이 맞습니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "어제 불 놓은 사람들을 돕는다니. 백까지 셌소. 셌는데도 이상하오."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "주공, 오에 원군을 보내면 오는 빚을 집니다. 빚을 진 쪽은 오래 기억하지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "빚을 지우러 가는 게 아닐세. 위가 강동을 삼키면 강남 백성이 모두 위의 칼 아래 서네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그리고 오에는 한때 아두의 어머니였던 사람도 있네.",
+          "face": "sad"
+        },
+        {
+          "speaker": "liubei",
+          "text": "아두는 아직도 그 사람이 깎아 준 나무 활을 머리맡에 두고 잔다네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그렇다면 원군에는 칼과 함께 말도 실어 보내야겠습니다."
+        },
+        {
+          "speaker": "machao",
+          "text": "위군이라면 내가 앞장서겠소. 오를 돕는 게 아니라 위를 치는 것이니."
+        },
+        {
+          "speaker": "liubei",
+          "text": "맹기, 그렇게 생각해 주면 고맙네. 오늘은 그게 같은 길일세."
+        },
+        {
+          "speaker": "huangquan",
+          "text": "주공, 다만 강동 깊숙이 들어가지는 마십시오. 돕는 것과 머무는 것은 다릅니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공형의 다만은 이제 꼭 듣겠네. 위군을 물리면 바로 돌아오세."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "마 장군, 그럼 저도 오를 돕는 게 아니라 위를 치는 겁니다!"
+        },
+        {
+          "speaker": "sunquan",
+          "text": "촉이 원군을 보냈다고? 믿어도 되는지 모르겠으나, 지금은 고맙구려.",
+          "bg": "bg_wu_court"
+        },
+        {
+          "speaker": "sunquan",
+          "text": "유비공의 답장도 왔다. 제갈근에게 보낸 편지 끝에 동생이 형님 걱정을 한다고 적었더군."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "유비공다운 편지다. 칼을 거두자는 말보다 그 한 줄이 먼저 읽히는구나."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "주공, 어제의 원수를 우리 땅에 들이자는 말씀입니까."
+        },
+        {
+          "speaker": "luxun",
+          "text": "주공, 받으십시오. 이릉에서 그들은 불 속에서 사람을 하나도 버리지 않았습니다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "사람을 버리지 않는 군대는 약속도 버리지 않습니다. 제가 직접 보았습니다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "백언이 그렇게 말한다면 셈은 끝났다. 믿지는 않되 쓰겠다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "아버지와 형님이 세운 강동이다. 위에 넘겨줄 바에는 어제의 적과도 손을 잡겠다."
+        },
+        {
+          "speaker": "luxun",
+          "text": "그 결단이면 충분합니다, 주공. 유수에는 제가 아닌 다른 장수를 보내십시오."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "백언은 이릉을 지켜라. 촉과 손을 잡는 것과 등을 비우는 것은 다른 일이다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "유비공이 오면 나도 강가로 나가겠다. 얼굴을 봐야 그다음 셈을 할 수 있지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유수로 가는 배 위. 수염이 하얗게 센 의병 대장이 뱃전에 매달려 있었다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "진 장군, 산에서 반평생을 살았더니 물 위는 영 못 견디겠습니다."
+        },
+        {
+          "speaker": "chendao",
+          "text": "대장, 배에서는 먼 곳을 보십시오. 주공께서 그리 하라 하셨습니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "주공은 어찌 그런 걸 다 아십니까. 탁현에는 배가 없었는데요."
+        },
+        {
+          "speaker": "chendao",
+          "text": "적벽 때 배 위에서 사흘을 그러셨습니다. 저는 그 일의 증인입니다."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "먼 곳을 보니 강동의 산이 보입니다. 산이 보이니 한결 낫습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "한중은 왕평에게 잠시 맡기고 왔소. 오군 옆에서 싸우라니 영 내키지 않지만, 위군이라면 실컷 베겠소.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "위 장군, 내키지 않는 건 저도 같습니다. 그래도 주공의 명입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "자룡 장군은 주공 명이면 불 속에도 들어가겠지. 나는 공이 있어야 들어가오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그럼 오늘의 공은 위군 선봉입니다. 오군 장수의 목은 공이 아닙니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "알겠소, 알겠소. 오군 목은 안 세겠소. 세고 싶어도 참겠소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "참으시는 것도 공입니다, 위 장군. 주공께는 제가 그렇게 아뢰겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "유수구. 오의 깃발과 촉의 깃발이 강가에 나란히 섰다. 서로 한 발씩 떨어져 있었다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "촉의 원군이오? 우리 대도독께서 이릉 숲에서 놓친 그 군대로군."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "놓친 게 아니라 우리가 걸어 나온 거요! 오의 사람, 말 조심하시오."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "장비가 오의 사람이라 부르다니. 세상이 바뀌긴 바뀌었구려."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "그리고 저기 수염 긴 장수. 맥성에서 우리가 놓친 그분이로군."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "놓친 것이 아니라 내가 형님께 돌아간 것이다. 오늘은 그 일을 묻지 않겠다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "그 말이면 됐소. 오늘은 우리도 묻지 않겠소."
+        },
+        {
+          "speaker": "guanxing",
+          "text": "포, 오군 병사들이 우리를 자꾸 본다. 무서운 얼굴은 하지 마라."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "나 원래 이 얼굴이야! 아버님 닮아서 그런 걸 어쩌라고!"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "위군 선봉 장수만 쓰러뜨리면 조비는 물러날 것입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "강 하구는 넓습니다. 오군과 나란히 서서 선봉만 노리십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오의 장군, 유비요. 오늘 우리 등을 맡기겠소."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "유비공이 직접 오셨소? 그럼 우리도 등을 맡기겠소. 오늘 하루는."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오군 장수들과 다투지 말게. 오늘의 적은 위군이네."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "wei_vanguard",
+              "text": "촉군이 오를 돕는다고? 둘 다 한꺼번에 쓸어버려라!"
+            },
+            {
+              "speaker": "wu_officer",
+              "text": "촉군과 나란히 서라! 오늘만은 저들의 등이 우리의 등이다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "오군과 어깨를 맞추게! 선봉만 노리게!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "caopi",
+              "text": "선봉이 무너졌다. 오늘은 물러나지만, 천하는 결국 위의 것이 된다."
+            },
+            {
+              "speaker": "caoren",
+              "text": "물러나시지요. 오와 촉이 함께 지키는 강은 쉽게 건너지 못합니다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "위군의 깃발이 하나둘 강가에서 내려졌다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "caoren",
+              "text": "촉군과 오군이 섞여 싸운다. 어제까지 서로 불을 놓던 자들이."
+            },
+            {
+              "speaker": "caopi",
+              "text": "서로 물어뜯던 자들이 한편이 되었구나. 오래가지는 못할 것이다."
+            },
+            {
+              "speaker": "wei_vanguard",
+              "text": "어느 쪽이 오군이고 어느 쪽이 촉군인지 분간이 안 됩니다!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "wu_officer",
+              "text": "유비공이 위험하다! 촉의 주군을 지켜라, 주공의 명이다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "오의 깃발이 내 앞을 막아 주는군. 고맙소, 이 빚은 잊지 않겠소!"
+            },
+            {
+              "speaker": "wu_officer",
+              "text": "빚은 무슨! 이릉에서 사람을 안 버리던 군대라 들었소. 우리도 안 버리오!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "wei_vanguard",
+              "text": "오군이든 촉군이든 다 같다! 한꺼번에 밀어붙여라!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "위군 선봉이 흔들렸다. 오군과 촉군의 창이 같은 쪽을 겨누고 있었다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "위군이 물러간 저녁, 손권이 강가로 나왔다. 두 사람 사이에 작은 탁자와 잔 하나가 놓였다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "sunquan",
+          "text": "유비공, 형주의 일은 서로 잊읍시다. 다시 손을 잡읍시다.",
+          "cg": "cg_two_lords"
+        },
+        {
+          "speaker": "liubei",
+          "text": "좋소, 위를 막는 데 힘을 합칩시다. 곧 사절을 보내겠소."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "잔은 하나뿐이오. 누가 먼저 마시겠소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오후께서 먼저 드시오. 이 강의 주인이시니."
+        },
+        {
+          "speaker": "narrator",
+          "text": "손권이 잔을 비우고 다시 채워 건넸다. 유비도 잔을 비웠다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "어제는 칼을 맞대고 오늘은 술잔을 나누는구려. 이것도 난세의 일이오."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "누이는 강동에서 잘 있소. 가끔 서쪽 강을 오래 바라본다 하더구려.",
+          "cg": null
+        },
+        {
+          "speaker": "liubei",
+          "text": "아두는 아직 부인이 깎아 준 나무 활을 갖고 있소. 열다섯이 되었는데도."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "그 아이가 아직 그 활을. 누이에게 전하겠소. 아마 아무 말도 안 하겠지만."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그분은 그렇게 말없이 오래 기억하는 분이었소. 안부를 전해 주시오."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "관 장군이 살아 돌아왔다는 소식에 사실 나는 안도했소. 그래서 이 잔도 놓을 수 있었소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 말은 운장에게 직접 해 주시오. 그 사람은 요즘 셈으로 듣는 사람이오."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "다음에 만날 때는 잔을 둘 준비하겠소. 하나로 나누는 것은 오늘로 족하오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "아니오, 하나가 좋았소. 하나여야 서로 먼저 마시라 할 수 있지 않소."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "장 장군, 강동 술 한 잔 받으시오. 오늘은 같은 편이니 독은 안 탔소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하비 이후로는 안 마시오. 오의 술이라도 안 마시오."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "장비가 술을 끊었다는 소문이 정말이었구려. 강동에서는 아무도 안 믿었소."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 차라면 마시겠소! 한 사발 가득 주시오, 오의 사람!"
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "아버님, 저도 차로 하겠습니다! 오의 술은 독할 것 같습니다!"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "포야, 너는 술을 처음부터 배우지 마라. 차 맛만 알아도 충분하다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "유비와 손권이 강가에서 한 잔을 나눴다고. 아버지가 보셨다면 웃으셨겠지.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "caoren",
+          "text": "선왕께서는 장판에서 그 사람을 두고 그게 제일 부럽다 하셨습니다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "나는 부럽지 않다. 사람을 놓지 않는 자는 언젠가 그 사람들에게 발목이 잡힌다."
+        },
+        {
+          "speaker": "caoren",
+          "text": "그 발목이 아직 잡히지 않았으니, 이번에는 우리가 물러나는 수밖에 없습니다."
+        },
+        {
+          "speaker": "caopi",
+          "text": "돌아간다. 오늘은 물러나도 시간은 위의 편이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "위군은 강가에서 물러났다. 조인은 이듬해 봄 세상을 떠났고, 다시 강을 보지 못했다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "사절은 말솜씨와 담력이 함께 있어야 합니다. 적임자를 고르겠습니다.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "weiyan",
+          "text": "오군과 다시 손을 잡다니. 나는 아직 등을 맡길 생각이 없소."
+        },
+        {
+          "speaker": "liubei",
+          "text": "위 장군 같은 사람이 있어야 동맹이 느슨해지지 않네. 공명, 누구를 보내겠나."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "등지라는 자가 있습니다. 말이 곧고 담이 큽니다. 꾸민 말은 할 줄 모르지요."
+        },
+        {
+          "speaker": "fazheng",
+          "text": "손권 앞에서 할 말을 다 할 사람이면 됩니다. 꾸민 말은 오가 먼저 알아챕니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "곧은 말을 할 사람을 보내세. 동맹은 듣기 좋은 말로는 오래 못 가네."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "등지입니다. 오에 가서 할 말만 하고 오겠습니다. 듣기 좋은 말은 할 줄 모릅니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그거면 되네. 손권은 듣기 좋은 말을 가장 의심하는 사람일세."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "조자룡, 강 위에서 우리 공주님의 배를 막아섰던 장수가 당신이라지.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그랬습니다. 부인은 가셔도 되지만 공자님은 두고 가셔야 한다고 말씀드렸습니다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "공주님은 그 뒤로 당신 이야기를 한 번도 나쁘게 하신 적이 없소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "부인께 전해 주십시오. 공자님이 그 나무 활로 처음 과녁을 맞히셨다고."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "전하겠소. 그 말이라면 공주님이 말없이 오래 웃으실 것 같소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그리고 공자님께는 부인께서 활 쥐는 법을 가르쳐 주셨다고 제가 늘 말씀드립니다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "조자룡, 당신은 듣던 것보다 말이 많구려. 그 이야기만 나오면."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님, 손권과 잔을 나누시는 것을 보며 저도 셈을 다시 했습니다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "liubei",
+          "text": "그래, 운장의 셈은 이번에 어떻게 나왔나."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "오를 미워해 얻을 것은 없고, 오와 함께해 잃을 것은 제 자존심뿐입니다. 그건 버려도 됩니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 자네 입에서 그 말을 듣는 날이 오는구려."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "형님의 헌 전포를 입고 다니니 형님 말투가 옮은 모양입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그 전포 이제 그만 갈아입게. 소매가 다 해졌네."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "해진 소매는 제가 꿰맵니다. 익덕에게는 맡기지 않겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장, 자네 농담을 듣는 날이 다 오는구려. 자네도 많이 변했네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "이듬해 봄, 등지는 작은 배 한 척에 올라 강동으로 떠났다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "zhaoyun",
+          "text": "선봉을 놓쳤습니다. 오군과 나란히 다시 진을 짜시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오군이 우리 등을 보고 있네. 여기서 무너지면 동맹도 무너지네."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "촉의 원군이 무너지면 강동도 무너지오. 다시 나란히 섭시다!"
+        }
+      ]
+    },
+    {
+      "id": "s42_alliance",
+      "title": "다시 맺은 동맹",
+      "location": "강릉 북쪽 · 강가",
+      "era": "223년",
+      "bg": {
+        "pre": "bg_river",
+        "post": "bg_river"
+      },
+      "bgm": {
+        "pre": "bgm_march",
+        "battle": "bgm_battle",
+        "post": "bgm_march"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "223년 봄, 건업. 손권은 촉의 사절을 칼 든 병사들 사이로 걸어 들어오게 했다.",
+          "bg": "bg_wu_court"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "주공, 촉의 사절이 칼 사이를 걷는데도 걸음이 조금도 느려지지 않습니다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "그대가 등지인가. 촉은 무엇을 들고 왔나. 어제의 원한인가, 내일의 셈인가."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "둘 다입니다, 오후. 원한은 강물에 흘려보내고, 셈은 이 자리에 올려놓으러 왔습니다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "좋다. 위를 함께 막는다고 치자. 위가 무너진 뒤에는 어찌 되는가."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "그때는 다시 다투게 되겠지요. 하늘에 해가 둘일 수는 없으니까요."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "무엄하다! 주공 앞에서 다툼을 말하다니!"
+        },
+        {
+          "speaker": "sunquan",
+          "text": "두어라. 듣기 좋은 말을 들고 온 사절보다 이자가 낫다. 솔직한 사람이로구나."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "그 다툼은 먼 훗날의 일이다. 그때까지는 손을 잡자. 유비공께 그리 전하라."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "그대로 전하겠습니다. 그리고 강릉 북쪽에 오의 깃발을 보내 주십시오."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "동맹은 말보다 깃발이 먼저 보여야 합니다. 백성은 글보다 깃발을 읽습니다."
+        },
+        {
+          "speaker": "sunquan",
+          "text": "깃발이라. 좋다, 맥성에서 관우를 쫓던 장수를 보내겠다. 그쪽이 셈이 빠르겠지."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "현명하신 셈입니다, 오후. 쫓던 자가 나란히 서면 백성은 싸움이 끝났다고 믿습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "몇 달 뒤, 강릉 북쪽 강가. 위군이 다시 강을 건너려 한다는 소식이 왔다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "등지입니다. 오에 사절로 가서 동맹을 다시 맺고 왔습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "수고했네. 이제 오군과 함께 위군을 막아야 하네."
+        },
+        {
+          "speaker": "maliang",
+          "text": "주공, 위군 도하 부대가 북쪽 나루에 배를 모으고 있습니다. 내일 새벽이 고비입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "위군이 강을 건너려 합니다. 건너는 순간을 노리십시오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "이번엔 오군이 우리 편이구려. 등을 맡기기엔 아직 불안하지만."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "강가는 내가 막겠소. 오군의 도움 없이도 충분하오."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "위 장군, 유수에서처럼 오군의 깃발과 나란히 서 주십시오. 동맹을 다시 맺은 날입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "말솜씨로 동맹은 묶었겠지만 내 등까지 묶을 수는 없소."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "등은 묶지 않겠습니다. 나란히만 서 주십시오. 그것도 칼보다 무거운 일입니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "당신이 손권 앞에서 할 말 다 했다는 그 사람이오? 하하, 나랑 말이 통하겠소!"
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "장 장군만큼 크게는 못 합니다. 다만 곧게는 합니다."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "곧게 하는 게 크게 하는 것보다 어렵소. 내가 해 봐서 아오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "출진 전, 관우는 강릉 성루에 올라 북쪽 강을 내려다보았다.",
+          "bg": "bg_castle_out"
+        },
+        {
+          "speaker": "maliang",
+          "text": "장군, 이 성루에서 주공을 맞으시던 날이 엊그제 같습니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "그날 형님의 얼굴을 보고 알았다. 다시는 오를 얕보지 않겠다고."
+        },
+        {
+          "speaker": "maliang",
+          "text": "여몽은 이미 세상에 없습니다. 원한을 물을 사람도 없지요."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "물을 사람이 없으면 셈만 남는다. 오늘의 셈은 오와 나란히 서는 것이다."
+        },
+        {
+          "speaker": "guanping",
+          "text": "아버님, 오군 장수가 인사를 청합니다. 맥성에서 아버님을 쫓던 사람이라 합니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "들이거라. 쫓던 자와 쫓기던 자가 나란히 서는 것도 오늘의 셈이다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "관 장군, 유수에서 한 번 뵈었소. 오늘은 장군 옆에 서라는 명을 받고 왔소."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "쫓던 길이 험했을 것이다. 오늘은 같은 길을 가자."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "장군이 이렇게 말할 줄은 몰랐소. 강동에서는 장군을 자존심 센 분이라 했는데."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "자존심은 여전하다. 다만 형님 곁에 두는 법을 배웠을 뿐이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "강 건너 위군 진영. 도하 부대의 장수가 나루에 모인 배를 세고 있었다.",
+          "bg": "bg_cao_camp"
+        },
+        {
+          "speaker": "wei_vanguard",
+          "text": "촉과 오가 다시 손을 잡았다고? 등지라는 자가 혀로 묶었다더군."
+        },
+        {
+          "speaker": "wei_vanguard",
+          "text": "혀로 묶은 동맹은 칼로 끊으면 된다. 새벽에 강을 건넌다!"
+        },
+        {
+          "speaker": "narrator",
+          "text": "위군 병사들은 말없이 노를 손질했다. 지난해 유수에서 돌아온 자들이 많았다."
+        },
+        {
+          "speaker": "wei_vanguard",
+          "text": "유수의 일은 잊어라. 이번에는 오군과 촉군 사이로 들어가 둘을 갈라놓는다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "오군은 동쪽 나루, 우리는 서쪽 나루를 맡습니다. 건너오는 배부터 치십시오.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "liubei",
+          "text": "오군과 등을 맞대세. 서로의 등을 의심하는 순간 이 강은 위의 것이 되네."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "등은 맡기겠소. 대신 오의 사람들이 내 등에 대고 술 냄새만 안 풍기면 되오!"
+        },
+        {
+          "speaker": "guanping",
+          "text": "아버님, 흥이와 포는 서쪽 나루 끝에 세웠습니다. 둘이 서로 먼저 가겠다고 다툽니다."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "다투게 두어라. 다만 오군 쪽으로는 넘어가지 말라고 일러라."
+        },
+        {
+          "speaker": "liubei",
+          "text": "모두 나가세. 동맹의 첫날일세. 오늘은 하루가 길 것이네."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "wu_officer",
+              "text": "등지라는 사절이 주공 앞에서도 할 말을 다 했다지. 그 사람 체면을 세워 주자."
+            },
+            {
+              "speaker": "wu_officer",
+              "text": "동쪽 나루는 오군이 맡는다! 촉군의 등을 지켜라!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "서쪽 나루는 우리가 맡겠네! 등은 오군을 믿게!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "wei_vanguard",
+              "text": "배를 더 띄워라! 오군과 촉군 사이를 갈라라!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "위군의 배가 두 군대 사이의 물길로 파고들었다."
+            },
+            {
+              "speaker": "liubei",
+              "text": "사이를 내주지 말게! 오군 쪽으로 붙게!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "liubei",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "wu_officer",
+              "text": "유비공 쪽이 밀린다! 동쪽 나루에서 사람을 보내라!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "고맙소! 동맹의 첫날에 빚을 하나 더 지는구려!"
+            },
+            {
+              "speaker": "wu_officer",
+              "text": "빚이라 하지 마시오! 유수에서 진 빚을 갚는 것뿐이오!"
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 5
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "강 위의 위군 배가 하나둘 뒤집혔다. 그래도 남은 배들은 뱃머리를 돌리지 않았다."
+            },
+            {
+              "speaker": "wei_vanguard",
+              "text": "혀로 묶은 동맹이 생각보다 단단하구나. 그래도 여기서 돌아갈 수는 없다!"
+            },
+            {
+              "speaker": "liubei",
+              "text": "조금만 더 버티세! 강을 건넌 자들만 남았네!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "dengzhi",
+          "text": "오군도 이번 싸움으로 우리를 믿기 시작했습니다.",
+          "bg": "bg_river"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "등 사절, 당신 체면은 세워 줬소. 다음엔 당신이 우리 체면을 세워 주시오."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "오후께 오늘 일을 그대로 적어 보내겠습니다. 오군이 먼저 사람을 보내 주었다고요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "등지, 그대를 곁에 두고 싶네. 이제 전장에서도 함께해 주게."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "칼보다 말이 앞서는 사람이지만, 맡겨 주신다면 다하겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오의 장군, 오늘 일은 내가 오후께 직접 편지로 적어 보내겠소."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "장 장군, 강동 차 한 덩이를 두고 가오. 술 대신이오."
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "하하, 오의 사람한테 선물을 받다니! 다음엔 내가 낭중 깃발 하나 주겠소!"
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "그 삐뚤어진 깃발 말이오? 강동에 걸면 바람이 웃겠소."
+        },
+        {
+          "speaker": "zhangbao",
+          "text": "아버님, 그 차 저도 한 사발 주십시오! 오의 차는 무슨 맛인지 궁금합니다!"
+        },
+        {
+          "speaker": "guanxing",
+          "text": "포, 남의 선물에 먼저 손을 대는 건 예가 아니다. 큰아버님께 먼저 올려라."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "등 사절, 아니 이제 등 장군인가. 강가에서 한 발도 안 물러서더군."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "말로 묶은 동맹이 무너지면 제 혀를 내놓아야 하니까요. 물러설 수가 없었습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "혀를 걸었다니 칼 건 나보다 낫구려. 등은 아직 못 맡기지만 옆자리는 내주겠소."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "옆이면 충분합니다, 위 장군. 동맹도 처음엔 옆자리부터였습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "말은 여전히 잘하는군. 그 말솜씨가 오늘은 밉지 않소."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "오늘 동쪽 나루를 그대가 지켰다. 형님께 그대로 전하겠다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "관 장군에게 칭찬을 들었다고 하면 강동에서 아무도 안 믿을 것이오."
+        },
+        {
+          "speaker": "guanyu",
+          "text": "믿지 않아도 된다. 나는 셈대로 말했을 뿐이다."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "그럼 나도 셈대로 말하겠소. 오늘 장군 옆은 맥성의 길보다 편했소."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "등 사절, 강동에서 혹시 제 아우 미방을 보셨습니까.",
+          "bg": "bg_camp_shu"
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "멀리서 한 번 뵈었습니다. 형님께 전할 말은 없다 하셨습니다. 다만 고개를 오래 숙이셨습니다."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "그 아이답군요. 말 대신 고개를 숙이는 건 어려서부터 그랬습니다."
+        },
+        {
+          "speaker": "dengzhi",
+          "text": "아우님은 강동에서 창고 장부를 맡았다 합니다. 장부가 깔끔하다는 평이었습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "미 별가, 자방을 미워하지 말게. 나도 미워하지 않겠네."
+        },
+        {
+          "speaker": "mizhu",
+          "text": "주공, 그 말씀을 언젠가 아우에게 전할 날이 오기를 빌겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "북쪽은 막았습니다. 그런데 남쪽 남만이 반란을 일으켰습니다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "messenger",
+          "text": "남중의 옹개와 고정이 군을 일으켰습니다! 맹획이라는 자가 남쪽 부족들을 모으고 있습니다!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 남쪽은 제가 가겠습니다. 다만 두 해만 주십시오. 군량을 쌓고 길을 알아야 합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명, 남쪽 사람들도 백성일세. 칼로만 다스리려 하지 말게."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "명심하겠습니다. 이번 길은 성이 아니라 사람을 얻으러 가는 길입니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자네가 남쪽에 가 있는 동안 나는 성도에서 무엇을 하면 되겠나."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "백성의 밭을 보아 주십시오. 그리고 공자님께 글을 가르쳐 주십시오."
+        },
+        {
+          "speaker": "liubei",
+          "text": "아두 말인가. 그 아이는 요즘 활만 쏘네. 강동에서 온 그 나무 활로."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "장 장군, 남쪽에는 따라가지 않겠습니다. 늙은 눈으로 정글은 무리입니다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhangfei",
+          "text": "그럼 낭중으로 같이 갑시다. 이번엔 내가 당신 문을 지키겠다고 했잖소."
+        },
+        {
+          "speaker": "militia_leader",
+          "text": "그 약속을 기억하셨군요. 그럼 저는 문 안쪽에서 편히 늙겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그렇게 두 해가 흘렀다. 225년 봄, 승상 제갈량은 남쪽으로 떠날 채비를 마쳤다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "dengzhi",
+          "text": "동맹의 첫날에 물러설 수는 없습니다. 다시 강가를 지키시지요."
+        },
+        {
+          "speaker": "liubei",
+          "text": "오군이 동쪽 나루에서 버티고 있네. 우리가 먼저 무너질 수는 없네."
+        },
+        {
+          "speaker": "wu_officer",
+          "text": "서쪽 나루가 뚫리면 동쪽도 버티지 못하오. 다시 나란히 섭시다!"
+        }
+      ]
+    },
+    {
+      "id": "s43_lushui",
+      "title": "노수 도하",
+      "location": "노수 · 남만으로 가는 강",
+      "era": "225년",
+      "bg": {
+        "pre": "bg_jungle",
+        "post": "bg_jungle"
+      },
+      "bgm": {
+        "pre": "bgm_south",
+        "battle": "bgm_south",
+        "post": "bgm_south"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "225년 봄, 성도 남문. 한중왕 유비가 몸소 나와 남쪽으로 떠나는 승상을 배웅했다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명, 남쪽은 덥고 길이 험하다 들었네. 무엇보다 몸부터 챙기게."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공께서 성도를 지켜 주시니 저는 뒤를 돌아볼 일이 없습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "남쪽 사람들도 백성일세. 이긴 뒤에 그들이 우리를 미워하지 않게 해 주게."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "명심하겠습니다. 주공께서 장판에서 백성을 버리지 않으신 것처럼 하겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "배웅 행렬은 성 밖 수십 리까지 이어졌다. 마지막까지 따라온 사람은 마속이었다."
+        },
+        {
+          "speaker": "masu",
+          "text": "승상, 성을 치기보다 마음을 치는 것이 상책입니다."
+        },
+        {
+          "speaker": "masu",
+          "text": "남쪽은 멀고 험해 오늘 이겨도 내일 다시 일어섭니다. 병법에 이르기를 마음을 치는 것이 위라 했습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "좋은 말이다, 유상. 이번 싸움은 이기는 것보다 마음을 얻는 것이 먼저다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "유상, 함께 가자. 책에 적힌 그 말이 땅에서도 맞는지 네 눈으로 보아라."
+        },
+        {
+          "speaker": "masu",
+          "text": "예, 승상! 땅을 보는 법도 꼭 배우겠습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "유상, 승상 곁에서 많이 배우게. 자네 형 계상이 늘 자네 걱정을 하네."
+        },
+        {
+          "speaker": "masu",
+          "text": "형님께는 책이 아니라 땅을 보고 돌아왔다고 말씀드리겠습니다, 주공."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "승상, 길은 제가 앞서 살피겠습니다. 주공께 반드시 무사히 모셔 오라는 명을 받았습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "남중 깊은 숲. 여러 부족의 우두머리들이 맹획의 화톳불 앞에 모였다.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "menghuo",
+          "text": "북쪽 관리들이 우리 소금 우물을 가져가고, 조상의 숲에 세금을 매겼다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "우리는 그들의 땅을 원한 적이 없다. 우리 땅을 우리 손에 두려는 것뿐이다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 북쪽의 승상이 몸소 군을 이끌고 온다 합니다. 수가 엄청나다고 합니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "수가 많아도 이 숲은 그들의 길을 모른다. 우리는 빼앗으러 가는 게 아니라 지키는 것이다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 옹개는 우리를 앞세우고 자기는 뒤에 숨어 있습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "옹개의 셈은 옹개의 것이다. 나는 내 땅과 내 사람들을 위해 싸운다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그 차이를 북쪽 사람도 알아야 할 텐데. 칼끝은 그런 걸 가리지 않으니."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕, 북쪽 사람이 몸소 왔다면 그자는 숲을 알려고 온 것이오. 얕보지 마시오."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "축융, 그대의 말은 늘 옳았지. 그래서 이번엔 내가 먼저 나가 그자를 보겠다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그럼 나는 뒤의 마을들을 지키겠소. 어느 쪽이 이기든 아이들이 숨을 곳은 있어야 하니."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "지는 일은 없다. 다만 그대 말대로 아이들은 깊이 숨겨 두어라."
+        },
+        {
+          "speaker": "narrator",
+          "text": "225년, 남중이 들고일어났다. 제갈량은 몸소 군을 이끌고 독기 서린 노수에 이르렀다.",
+          "cg": "cg_lushui"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "이 강을 건너면 남만의 땅입니다. 물과 바람부터 살펴야 합니다.",
+          "cg": null
+        },
+        {
+          "speaker": "narrator",
+          "text": "오월의 노수는 안개가 짙었다. 물가마다 비릿한 기운이 낮게 깔려 있었다."
+        },
+        {
+          "speaker": "shu_soldier",
+          "text": "승상, 물을 마신 병사 몇이 쓰러졌습니다. 물에 독이 있는 것 같습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "낮에는 건너지 마십시오. 해가 뜨거우면 독기가 오릅니다. 밤의 서늘함을 기다립니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "승상, 밤에 강을 건너면 적이 숨어 기다리기 좋소. 차라리 한낮에 밀어붙입시다!"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "위 장군, 이곳의 독은 칼보다 많은 병사를 쓰러뜨립니다. 이번만은 기다려 주십시오."
+        },
+        {
+          "speaker": "masu",
+          "text": "위 장군, 때를 기다리는 것도 병법에 있습니다. 손자가 이르기를."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "또 병법이오? 오늘 밤엔 모기한테나 그 병법을 읊어 주시오."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "기다리는 건 질색이오. 그래도 독과 싸울 수는 없으니 이번만 참겠소."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "장의라 하오. 남쪽 길을 잘 아니 길잡이가 되겠소."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "마충입니다. 남만 사람들과 말이 통하니 쓸모가 있을 겁니다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "오에도 같은 이름의 장수가 있다 들었습니다. 저는 파서 낭중의 마충입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "낭중이라. 장 장군이 자객을 맞았다는 그 낭중이구려."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "예. 그 밤 이야기는 낭중 사람이라면 다 압니다. 장 장군이 채찍을 묻은 자리까지요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "독기가 낀 물은 건너지 마시오. 빛깔이 탁한 곳은 길이 아니오."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "그리고 남쪽 사람들은 숲을 집처럼 여기오. 집에 불을 지르는 자는 대대로 원수가 되지."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "그리고 이맘때는 해 질 녘마다 비가 쏟아집니다. 화살 시위는 기름 먹인 천에 싸 두십시오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "비와 독과 숲. 성벽 하나 없는 땅인데 성 셋을 넘는 것 같습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "길잡이의 말을 따르십시오. 모르는 땅에서는 아는 사람이 장수입니다."
+        },
+        {
+          "speaker": "masu",
+          "text": "장 장군, 병법서에는 남쪽의 물길이 몇 줄밖에 없습니다. 더 가르쳐 주십시오."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "책에 몇 줄이면 땅에는 천 줄이오. 발로 읽으시오. 젖은 이끼는 밟지 말고."
+        },
+        {
+          "speaker": "masu",
+          "text": "발로 읽는다. 승상께서도 땅을 먼저 보라 하셨지요. 아, 방금 이끼를 밟았습니다."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "그러니 발로 읽으라 했소. 넘어지면서 읽는 것도 읽는 거요."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "유상 공, 남만 사람과 마주치면 먼저 무기를 내리십시오. 그게 이곳의 인사입니다."
+        },
+        {
+          "speaker": "masu",
+          "text": "적 앞에서 무기를 내리라니, 책과는 정반대군요. 그래서 배우러 온 것이겠지요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "유상 공은 말이 많아 좋소. 말이 많은 사람은 길을 물을 줄도 아니까."
+        },
+        {
+          "speaker": "masu",
+          "text": "칭찬으로 듣겠습니다. 형님은 늘 말을 줄이라 하셨는데요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "밤이 되자 안개가 낮게 깔렸다. 촉군은 장의가 고른 맑은 물길로 노수를 건넜다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "건너는 동안 아무도 물을 마시지 않았다. 병사들은 젖은 천으로 입을 가렸다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "건너편 숲에 맹획이 있습니다. 무찌르되 사로잡을 수 있다면 사로잡으십시오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "승상, 적장을 죽이지 말라는 말씀이십니까?"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "예. 오늘 죽인 자의 아들은 내일 칼을 듭니다. 오늘 살린 자는 내일 길을 내줍니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "알겠습니다. 창끝을 조금 낮추겠습니다. 마음은 낮추지 않겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그거면 충분합니다, 자룡 장군. 모두 건넜으면 숲으로 들어갑시다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "menghuo",
+              "text": "이 숲은 우리 조상의 땅이다. 북쪽 사람은 여기서 길을 잃는다."
+            },
+            {
+              "speaker": "menghuo",
+              "text": "북쪽 사람들아, 이 숲에 들어온 이상 숲의 법을 따라라!"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "숲의 법을 따르겠습니다. 다만 우리도 사람의 법은 버리지 않겠습니다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "mazhong",
+              "text": "맹획의 부하들도 지쳐 있습니다. 무기를 내려놓으면 해치지 않는다고 전하겠습니다."
+            },
+            {
+              "speaker": "menghuo",
+              "text": "무기를 내려놓으라고? 이 땅에서 무기를 내려놓는 건 죽은 자뿐이다!"
+            },
+            {
+              "speaker": "mazhong",
+              "text": "죽은 자가 아니라 손님이 무기를 내려놓습니다. 대왕, 우리는 손님으로 왔습니다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 2
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "안개 속에서 독기가 피어올랐다. 숲길이 점점 좁아졌다."
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "탁한 물가로는 가지 마십시오. 길잡이가 고른 길로만 움직이십시오."
+            },
+            {
+              "speaker": "narrator",
+              "text": "탁한 물가에는 새도 앉지 않았다. 숲이 길을 가르쳐 주고 있었다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhugeliang",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhugeliang",
+              "text": "숲이 깊어 진이 흩어졌습니다. 모두 제 곁으로 모이십시오."
+            },
+            {
+              "speaker": "menghuo",
+              "text": "북쪽의 승상이 저기 있다! 숲이 그를 삼키게 하라!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "나무 사이에서 남만 전사들이 소리 없이 다가왔다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "menghuo",
+              "text": "숲이 아직 나를 다 알아보지 못했구나. 이건 끝이 아니다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "맹획은 사로잡혔다. 그러나 그 눈빛은 조금도 꺾이지 않았다."
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "맹획공을 정중히 모셔라. 오늘은 포로가 아니라 손님이다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "날이 밝았다. 맹획이 밧줄에 묶인 채 제갈량의 막사 앞에 섰다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "맹획을 사로잡되 죽이지는 않습니다. 마음을 얻어야 다시 반란하지 않습니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "승상의 뜻을 따르겠습니다. 다만 몇 번이고 싸워야 할 수도 있습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "잡을 때마다 풀어 주면 언제 끝납니까? 저는 영 모르겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "맹획공, 우리 진을 보셨습니까. 다시 싸운다면 이길 수 있겠습니까."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "어젯밤에는 너희 진을 몰라 졌을 뿐이다. 이제 보았으니 다음엔 이긴다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그렇다면 돌아가십시오. 다음에 다시 겨룹시다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "나를 놓아준다고? 북쪽 사람의 셈이 무엇이냐."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "셈은 하나입니다. 남중이 북쪽을 미워하지 않는 날까지 겨루는 것입니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "그런 날은 오지 않는다. 그러나 놓아준 일은 기억하겠다. 이 땅의 사람은 빚을 잊지 않는다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "맹획공, 소금 우물 이야기는 들었습니다. 그건 북쪽 관리들의 잘못입니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "북쪽 사람이 제 잘못을 말하다니. 그 말도 셈이냐."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "셈이라면 손해 보는 셈입니다. 그래도 사실이니 말씀드립니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "그 말이 참인지는 다음 싸움에서 보겠다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "좋습니다. 다음 싸움에서도 저는 같은 말을 하겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "제갈량은 맹획에게 밥과 술을 내주고 밧줄을 풀었다. 맹획은 한 번도 돌아보지 않았다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "잡은 왕을 놓아주다니! 다음엔 저자가 더 많은 병사를 데려올 거요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "남쪽 사람은 자존심이 강하오. 이긴 뒤에 어떻게 대하느냐가 중요하지."
+        },
+        {
+          "speaker": "masu",
+          "text": "위 장군, 오늘 놓아준 것은 맹획이 아니라 남중 사람들의 원한입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "말은 그럴듯하오. 그 말로 다음 싸움에서 날아오는 창도 막아 보시오."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "사로잡은 남만 병사들도 돌려보내겠습니다. 그들이 마을에 오늘 일을 전할 겁니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "다친 자들은 상처를 싸매서 보내십시오. 제 부대의 약을 쓰셔도 됩니다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "조 장군의 약을 받은 사람은 다음 싸움에서 장군을 먼저 찌르지 못할 겁니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "그러다 우리 장수가 먼저 찔리면 어쩌오. 약도 아깝소."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그때는 제가 먼저 막겠습니다, 위 장군. 약은 아깝지 않습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "흥, 자룡 장군은 늘 그렇게 말하는구려. 그래서 이길 수가 없소."
+        },
+        {
+          "speaker": "narrator",
+          "text": "숲 깊은 마을. 축융이 돌아온 맹획을 맞았다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "살아 돌아왔구려. 북쪽 사람이 놓아주었다는 말이 정말이오?"
+        },
+        {
+          "speaker": "menghuo",
+          "text": "정말이다. 밥까지 먹여 보냈다. 그래서 더 분하다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "분한 게 아니라 이상한 거겠지. 우리를 사람으로 대하는 북쪽 사람은 처음이니."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "사람으로 대한다면 사람으로 이겨 주겠다. 다음엔 숲 깊은 곳에서 기다린다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 돌아온 병사들이 북쪽 장수가 상처를 싸매 주었다고 합니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "그 이야기는 마을에 퍼뜨리지 마라. 아직은 싸울 때다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "막는다고 막아지겠소. 상처를 싸매 준 손 이야기는 비보다 빨리 퍼지오."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "그렇다면 더 빨리 이겨야지. 이야기가 숲을 다 덮기 전에."
+        },
+        {
+          "speaker": "narrator",
+          "text": "진영 밖 냇가. 남만 마을의 아이 하나가 조운의 흰 말을 멀리서 보고 있었다.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "villager",
+          "text": "나리, 그 말 정말 흰 말이에요? 우리 마을에는 흰 말이 없어요."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그렇다. 오래 내 등을 지켜 준 말이다. 가까이 와서 보아도 된다."
+        },
+        {
+          "speaker": "villager",
+          "text": "어른들이 북쪽 사람은 무섭다고 했는데, 나리는 별로 안 무서워요."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "어른들께 전해라. 북쪽 사람도 물을 마시고 아이를 키운다고."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "맹획은 다음 숲에서 기다릴 겁니다. 그곳이 그들의 본거지입니다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "장의, 마충. 앞으로 남쪽 길은 두 분께 맡기겠습니다."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "맡겨 주시오. 남쪽 길은 내 손바닥 안이오."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "저는 남쪽 사람들의 말을 맡겠습니다. 길보다 말이 먼저 닿아야 하니까요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "길과 말. 이 땅에서 칼보다 귀한 두 가지를 얻었습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "유상, 오늘 본 것을 적어 두어라. 책에 없는 것이 무엇이었는지."
+        },
+        {
+          "speaker": "masu",
+          "text": "예, 승상. 첫 줄은 이렇게 쓰겠습니다. 이끼는 밟지 말 것."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "둘째 줄은 내가 불러 주마. 이긴 뒤에 무엇을 하느냐가 싸움의 절반이다."
+        },
+        {
+          "speaker": "masu",
+          "text": "그 줄은 병법서에도 있습니다. 다만 오늘은 그 뜻을 처음 보았습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 밤 제갈량은 성도의 한중왕에게 짧은 글을 썼다. 노수를 건넜고, 아무도 미워하지 않았다고."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그리고 맹획이 기다리는 더 깊은 숲으로, 촉군은 다시 걸음을 옮겼다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "zhangni",
+          "text": "숲길에서 밀렸소. 독기 낀 물을 피해 길을 다시 잡아 드리리다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "숲을 서두른 제 탓입니다. 길잡이의 길로 다시 들어가겠습니다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "숲에서는 물러서는 것도 길을 익히는 일입니다. 다시 가시지요."
+        }
+      ]
+    },
+    {
+      "id": "s44_menghuo",
+      "title": "맹획 생포",
+      "location": "남만 정글 · 맹획의 본거지",
+      "era": "225년",
+      "bg": {
+        "pre": "bg_jungle",
+        "post": "bg_jungle"
+      },
+      "bgm": {
+        "pre": "bgm_south",
+        "battle": "bgm_south",
+        "post": "bgm_south"
+      },
+      "pre": [
+        {
+          "speaker": "narrator",
+          "text": "제갈량은 맹획을 잡을 때마다 풀어 주었다. 맹획은 그때마다 다시 일어섰다.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "narrator",
+          "text": "두 번째는 싸움터가 아니었다. 지친 부하 장수들이 맹획을 묶어 촉의 진영에 바쳤다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "내 부하가 나를 묶었다. 이것은 내가 너에게 진 것이 아니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "옳은 말씀입니다. 그러니 이번은 셈에 넣지 않겠습니다. 돌아가십시오."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "내 부하들은 어찌할 셈이냐. 나를 판 자들이지만 내 사람들이다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그들도 함께 돌려보내겠습니다. 다스리는 일은 맹획공께 맡기겠습니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "세 번째는 맹획의 아우가 거짓으로 항복하며 선물을 싣고 왔을 때였다. 제갈량은 속지 않았다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "아우의 계책이 서툴렀을 뿐이다. 우리 형제가 너희보다 못한 것은 아니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "서툰 계책은 정직한 사람이 짜는 법입니다. 그 또한 존중합니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "네 번째와 다섯 번째에는 독한 샘과 깊은 동굴이 있었다. 맹획은 그때마다 다른 숲으로 물러났다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "독한 샘을 피해 간 것은 너희가 운이 좋았던 것이다. 숲이 너희를 시험했을 뿐이다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그 시험에 길잡이가 답했습니다. 다음에는 맹획공께서 직접 시험해 보십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "다섯 번째 싸움이 끝난 밤, 성도에서 한중왕의 답장이 닿았다.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공께서 쓰셨습니다. 서두르지 말라고, 한 해가 걸려도 좋으니 사람을 얻어 오라고."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "주공다운 말씀입니다. 다른 소식은 없습니까, 승상."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "익덕 장군이 백까지 세고도 매를 들지 않았다 합니다. 병사들이 잔치를 열었다고요."
+        },
+        {
+          "speaker": "masu",
+          "text": "숫자 하나 세는 데 잔치라니요. 남쪽 사람들보다 북쪽이 더 이상합니다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "여섯 번째 싸움 전, 축융이 몸소 나섰다. 장의와 마충이 그녀의 군에 사로잡혔다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "촉의 길잡이들이로군. 남쪽 길을 아는 북쪽 장수라 해서 얼굴을 보고 싶었소."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "마충입니다. 축융 부인, 저희를 해치지 않으시니 고맙습니다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "해칠 이유가 없소. 그대들 승상은 대왕을 다섯 번 살려 보냈소. 나도 셈은 할 줄 아오."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "부인, 남쪽 사람의 셈은 북쪽보다 깨끗하구려. 장의가 그건 인정하오."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그대들을 돌려보내겠소. 대신 승상께 전하시오. 다음 싸움이 마지막이 되게 하자고."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "그 말씀 그대로 전하겠습니다. 부인의 말이라면 승상도 무겁게 들으실 겁니다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그리고 길잡이 양반, 우리 숲의 샛길을 너무 잘 아는구려. 누구에게 배웠소?"
+        },
+        {
+          "speaker": "zhangni",
+          "text": "남쪽 사람들에게 배웠소. 그러니 남쪽 길은 원래 부인네 것이오."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그 말이 마음에 드오. 가시오. 다음에는 싸움터가 아닌 곳에서 봅시다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 마을마다 사람들이 묻습니다. 또 졌느냐고, 또 놓아주었느냐고."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "또 졌다고 하지 마라. 이번엔 숲이 아직 나를 돕지 않았을 뿐이다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "그런데 대왕, 놓여난 자들이 북쪽 진영의 밥이 따뜻했다고 말하고 다닙니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "밥이 따뜻한 것과 땅을 넘기는 것은 다르다. 이 숲은 조상이 맡긴 숲이다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕, 승상은 이 숲을 가져가겠다고 한 적이 한 번도 없소. 그걸 아시오?"
+        },
+        {
+          "speaker": "menghuo",
+          "text": "알고 있다. 그래서 더 모르겠다. 땅을 원하지 않는 자가 왜 여섯 번이나 싸우는지."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 젊은 전사들은 아직 싸우고 싶어 합니다. 그러나 늙은이들은 지쳤습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "젊은이들의 칼과 늙은이들의 한숨, 둘 다 내 사람들의 것이다. 둘 다 들어야지."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그럼 일곱 번째에 물어보시오. 이기든 지든, 이번에는 대답을 듣고 오시오."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "좋다. 일곱 번째다. 이번에는 숲 가장 깊은 곳, 우리 본거지에서 기다린다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕, 이번에는 나도 나가겠소. 마지막이라면 함께 보아야 하니."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "벌써 몇 번째입니까, 승상. 이번에는 정말 마지막이길 바랍니다.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "장군, 조금만 더 참아 주십시오. 이번이 마지막이 될 것입니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "여섯 번 전에도 그 말을 들은 것 같소. 아니, 들었소. 분명히."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그때는 제 바람이었고, 이번에는 축융 부인의 약속입니다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "맹획은 불리해지면 숲 깊은 곳으로 사라집니다. 길목을 막아 두십시오."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "이 숲에는 샛길이 많소. 맹획이 빠질 길은 내가 짐작하겠소."
+        },
+        {
+          "speaker": "masu",
+          "text": "쫓기보다 기다리는 편이 낫습니다. 다시 나타날 곳을 노리시지요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "유상 공, 이제 병법이 아니라 숲 말로 하는구려."
+        },
+        {
+          "speaker": "masu",
+          "text": "이끼를 여섯 번 밟고 나니 숲 말이 조금 들립니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "숲 말이든 병법이든, 이번에 잡으면 일곱 번째 밧줄은 내가 묶겠소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "위 장군, 묶으시되 너무 단단히는 마십시오. 이번에는 풀 일이 없을지도 모릅니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "승상, 맹획이 나타날 자리에는 제가 먼저 가 있겠습니다. 창은 낮추겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "이번이 일곱 번째입니다. 이번에는 그의 마음이 움직일 것입니다."
+        },
+        {
+          "speaker": "villager",
+          "text": "흰 말 나리! 마을 어른들이 이걸 드리래요. 숲에서 딴 과일이에요.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "고맙다. 어른들께 전해라. 내일 싸움이 끝나면 다 같이 나눠 먹자고."
+        },
+        {
+          "speaker": "villager",
+          "text": "어른들이 그러는데, 이번엔 대왕님도 돌아오실 거래요. 진짜예요?"
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "그분은 돌아오실 거다. 이번에는 아마 오래 머무실 거다."
+        },
+        {
+          "speaker": "masu",
+          "text": "승상, 여섯 번이나 놓아주셨는데 지치지 않으십니까.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "지친다. 다만 맹획이 지친 것보다는 덜하겠지."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "유상, 칼로 이기면 한 번이면 끝난다. 그 대신 그 땅은 영영 우리를 미워한다."
+        },
+        {
+          "speaker": "masu",
+          "text": "마음을 치라는 제 말씀이 이렇게 오래 걸릴 줄은 몰랐습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "좋은 말일수록 오래 걸린다. 그걸 알았으면 너는 오늘 하나 배운 것이다."
+        },
+        {
+          "speaker": "masu",
+          "text": "승상, 그럼 승상께서는 오늘 무엇을 배우셨습니까."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "나는 맹획에게 배웠다. 질 때마다 다른 이유를 대는 것은 고집이 아니라 자존심이더구나."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "자존심 있는 상대는 이길 때보다 존중할 때 마음을 연다. 그걸 일곱 번 걸려 배우는 중이다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "e_boss",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "menghuo",
+              "text": "여기서 잡힐 줄 아느냐! 숲은 내 편이다!"
+            },
+            {
+              "speaker": "zhangni",
+              "text": "저쪽 샛길이오! 맹획이 다른 자리에 나타났소!"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "쫓지 마십시오. 길잡이가 짐작한 길목에서 기다리십시오."
+            }
+          ],
+          "fx": {
+            "id": "fx_escape",
+            "unit": "e_boss"
+          }
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "menghuo",
+              "text": "또 졌구나. 이번이 벌써 일곱 번째로구나."
+            },
+            {
+              "speaker": "narrator",
+              "text": "맹획은 창을 땅에 꽂았다. 이번에는 숲으로 달아나지 않았다."
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "맹획공을 모셔 오너라. 그 밧줄은 내가 몸소 풀어 드리겠다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "menghuo",
+              "text": "일곱 번째다! 이번에는 조상의 숲 전체가 나를 돕는다!"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "맹획공의 숲입니다. 함부로 베지 말고, 길만 열어 나아가십시오."
+            },
+            {
+              "speaker": "narrator",
+              "text": "숲 깊은 곳에서 축융의 깃발도 함께 올랐다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhugeliang",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhugeliang",
+              "text": "숲 깊이 들어와 진이 얇아졌습니다. 모두 제 곁으로 모이십시오."
+            },
+            {
+              "speaker": "menghuo",
+              "text": "승상이 저기 있다. 이번에는 내가 그대를 사로잡아 놓아주겠다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "맹획의 목소리에는 분노가 아니라 묘한 즐거움이 섞여 있었다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 4
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "숲 깊은 곳에서 북소리가 울렸다. 남쪽 부족들이 맹획의 깃발 아래 모여들었다."
+            },
+            {
+              "speaker": "menghuo",
+              "text": "보아라, 북쪽 사람들아. 이것이 남쪽 사람들이 지키는 숲이다!"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "잘 보았습니다. 그래서 더더욱 이 숲을 태우지 않겠습니다."
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "narrator",
+          "text": "일곱 번 잡고 일곱 번 놓아주었다. 이번에는 맹획이 떠나지 않았다.",
+          "cg": "cg_seven_captures"
+        },
+        {
+          "speaker": "narrator",
+          "text": "제갈량이 몸소 맹획의 밧줄을 풀었다. 맹획은 풀린 손을 내려다보다가 그 자리에 앉았다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "일곱 번이나 놓아주다니. 이제 칼이 아니라 마음으로 졌소."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "승상, 하나만 묻겠소. 땅을 원하지 않는 사람이 왜 일곱 번이나 싸웠소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "땅이 아니라 이웃을 원했기 때문입니다. 북쪽을 막으려면 남쪽이 등을 맡아 주어야 합니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "이웃이라. 북쪽 사람에게서 그 말을 들을 줄은 몰랐소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "남중은 남중 사람이 다스리십시오. 촉은 그 뜻을 존중하겠습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "승상의 은혜를 거스를 수 없소. 남쪽 사람들은 다시 칼을 들지 않겠소.",
+          "cg": null
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "소금 우물은 남쪽 사람들에게 돌려드리겠습니다. 그것이 첫 약속입니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "조상의 숲에 걸고 맹세하오. 남중은 북쪽의 등을 지키는 이웃이 되겠소."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕의 맹세는 내가 들었소. 이 땅의 여자들은 맹세를 잊지 않소."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "승상, 그래도 관리 몇과 군사 얼마는 남겨 두어야 하지 않소?"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "군사를 남기면 군량을 날라야 하고, 관리를 남기면 다시 원한이 쌓입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "이 땅에서 소금 우물을 빼앗은 것이 북쪽의 관리였습니다. 같은 일을 되풀이하지 않겠습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "일곱 번 놓아주고 이제 땅까지 맡기다니. 나는 끝까지 모르겠소. 다만 싸움은 끝났구려."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "위 장군, 남쪽 사람들은 이제 장군을 보고도 활을 들지 않을 거요. 그게 끝이오."
+        },
+        {
+          "speaker": "masu",
+          "text": "승상, 이긴 뒤에 무엇을 하느냐가 싸움의 절반이라 하신 말씀, 이제 알겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "유상, 그 절반이 남은 평생 걸리기도 한다. 그것까지 알아 두어라."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 맹획의 마을에 화톳불이 올랐다. 북쪽 장수들도 불 앞에 둘러앉았다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "북쪽 장군, 우리 술을 받으시오. 이긴 손님은 먼저 마시는 것이 남쪽의 예요."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "이긴 손님이라. 좋소, 마시겠소. 이거 무슨 술이 이렇게 독하오!"
+        },
+        {
+          "speaker": "mazhong",
+          "text": "위 장군, 남쪽 사람들이 지금 장군을 위해 노래를 부릅니다. 독한 술을 이긴 장수의 노래랍니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "술을 이긴 게 아니라 술한테 진 거요. 그 노래는 고쳐 부르라 하시오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "위 장군, 노래가 끝날 때까지 잔은 내려놓지 마십시오. 그것도 남쪽의 예라 합니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "자룡 장군, 그건 지금 지어낸 예 아니오? 표정이 너무 진지해서 더 수상하오."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕, 일곱 번째 싸움에서 승상의 대답은 듣고 오셨소?"
+        },
+        {
+          "speaker": "menghuo",
+          "text": "들었다. 이웃이 되고 싶었다 하더군. 일곱 번이나 놓아준 까닭이 그것이었다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그 대답이라면 나도 일곱 번 졌어도 억울하지 않겠소."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "축융, 우리 아이들을 숨겼던 곳에서 꺼내라. 이제 숨길 까닭이 없다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 마을마다 사람들이 북쪽 진영의 따뜻한 밥 이야기를 합니다. 이제 막지 않으셔도 됩니까."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "막지 마라. 오늘부터 그 이야기는 우리 이야기다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕, 북쪽 사람들 노래도 한 번 들어 봅시다. 저 위 장군이 부른다는데."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "저 사람은 노래보다 칼이 나을 것 같은데. 그래도 들어 보자."
+        },
+        {
+          "speaker": "narrator",
+          "text": "위연의 노래는 짧았다. 그러나 남쪽 사람들은 끝까지 박자를 맞춰 주었다."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "못 부르는 노래를 끝까지 부른 사람은 남쪽에서도 대접받소. 저 장군, 마음에 드오."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "마 장군, 남쪽에 와서 이렇게 싸움이 끝나는 걸 보긴 처음이오.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "mazhong",
+          "text": "저도 그렇습니다. 보통은 이긴 쪽이 노래하고 진 쪽은 웁니다. 오늘은 같이 노래했지요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "그런데 반사곡은 다르오. 오과국 사람들은 숲보다 등갑을 믿는 사람들이니."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "그 갑옷은 기름에 절인 덩굴로 만든다 들었습니다. 칼이 안 들면 남는 것은 하나뿐이지요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "그 하나는 말하지 맙시다. 오늘 밤만은."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "그런데 맹획의 동맹인 오과국 왕이 아직 반사곡에 버티고 있습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "올돌골은 내 오랜 친구요. 내가 졌다는 것을 그 사람은 아직 믿지 않을 것이오."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "내가 먼저 가서 말해 보겠소. 친구의 말이라면 들을지도 모르오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그렇게 해 주십시오. 칼보다 친구의 말이 먼저 닿기를 바랍니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "다만 그 친구의 등갑은 칼도 화살도 들지 않소. 그래서 그 사람은 지는 법을 모르오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "제갈량은 대답하지 않았다. 깃털 부채를 쥔 손이 잠시 멈추었다."
+        },
+        {
+          "speaker": "madai",
+          "text": "승상, 저도 반사곡으로 앞서 가겠습니다. 길과 골짜기 모양을 먼저 보아 두겠습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "마대 장군, 부탁합니다. 맹기 장군 없이 맡는 일이니 장군의 눈으로 보십시오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "맹획은 홀로 말을 몰아 반사곡으로 향했다. 촉군은 그 뒤를 천천히 따랐다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "mazhong",
+          "text": "맹획은 이 숲을 잘 압니다. 길목을 다시 막아 두시지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "일곱 번째가 아직 오지 않았을 뿐입니다. 다시 숲으로 들어갑시다."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "샛길을 하나 잘못 짚었소. 이번엔 맞히겠소, 다시 갑시다."
+        }
+      ]
+    },
+    {
+      "id": "s45_rattan",
+      "title": "등갑군",
+      "location": "반사곡 · 좁은 골짜기",
+      "era": "225년",
+      "bg": {
+        "pre": "bg_gorge",
+        "post": "bg_jungle"
+      },
+      "bgm": {
+        "pre": "bgm_south",
+        "battle": "bgm_south",
+        "post": "bgm_sorrow"
+      },
+      "pre": [
+        {
+          "speaker": "zhurong",
+          "text": "승상, 오과국은 남쪽에서도 가장 먼 나라요. 그들은 숲이 아니라 갑옷을 믿소.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "갑옷을 믿는 사람에게는 무엇이 통합니까, 부인."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "친구의 말이오. 그게 통하지 않으면 남는 것은 하나뿐이지. 승상도 알고 있겠지만."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "알고 있습니다. 그래서 맹획공이 먼저 가시는 것입니다. 그 하나를 쓰지 않기 위해."
+        },
+        {
+          "speaker": "narrator",
+          "text": "반사곡 너머 오과국. 맹획은 홀로 오랜 친구를 찾아갔다.",
+          "bg": "bg_gorge"
+        },
+        {
+          "speaker": "menghuo",
+          "text": "올돌골, 나는 졌다. 일곱 번 졌고, 이제는 마음으로 졌다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "맹획, 네가 졌다고? 남쪽에서 가장 질긴 사내가?"
+        },
+        {
+          "speaker": "menghuo",
+          "text": "북쪽 승상은 우리 땅을 원하지 않는다. 이웃을 원한다. 칼을 내려놓아라."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "너는 무릎을 꿇었으나 나는 아니다. 오과국은 누구의 이웃도 된 적이 없다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "우리 등갑은 기름에 절인 덩굴이다. 칼도 화살도 들지 않는다!"
+        },
+        {
+          "speaker": "wutugu",
+          "text": "산의 덩굴을 꺾어 기름에 반년을 담그고, 볕에 말리기를 열 번. 조상이 남긴 지혜다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "그 지혜를 나도 안다. 그래서 걱정이다. 그 갑옷이 막지 못하는 것이 하나 있다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "어릴 적 함께 덩굴을 꺾던 네가 그런 말을 하다니. 북쪽 사람에게 무엇을 배웠느냐."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "지는 법을 배웠다. 일곱 번이나. 지고 나서도 사람이 사람으로 남는 법을."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "그런 것은 없다. 친구여, 돌아가라. 다음엔 싸움터에서 보자."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "올돌골, 그럼 살아서 보자. 그것만은 약속해라."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "오과국 왕은 약속하지 않는다. 다만 지지 않을 뿐이다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "반사곡 어귀. 마대가 이끈 정찰대가 오과국 병사들과 처음 부딪쳤다."
+        },
+        {
+          "speaker": "madai",
+          "text": "정말로 창이 미끄러집니다. 이런 갑옷은 처음 봅니다."
+        },
+        {
+          "speaker": "madai",
+          "text": "화살은 튕겨 나가고, 강물에 들어가도 갑옷째 물에 뜹니다. 병사들이 겁을 먹었습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "칼이 들지 않는 갑옷은 불을 두려워합니다. 화공을 준비하십시오."
+        },
+        {
+          "speaker": "masu",
+          "text": "승상, 기름에 절인 덩굴이라면 한번 불이 붙으면 끌 수가 없습니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "알고 있다, 유상. 그래서 이것은 상책이 아니라 마지막 계책이다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "등갑은 물에 뜨니 강가에서는 싸우지 마십시오. 저들이 가장 강한 곳이 물가입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그렇다면 물가가 아니라 마른 골짜기로 이끌어야겠군요."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "골짜기 수풀로 몰아넣으면 불이 더 잘 번질 것입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "다만 비가 오면 불을 쓸 수 없습니다. 하늘을 잘 살피십시오."
+        },
+        {
+          "speaker": "madai",
+          "text": "정면으로 붙고 싶지만 오늘은 참겠습니다. 불이 번질 길은 제가 살피겠습니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "마 장군, 정찰만 하고 돌아왔소? 서량 사람은 생각보다 조심성이 많구려."
+        },
+        {
+          "speaker": "madai",
+          "text": "본 것을 말씀드렸을 뿐입니다, 위 장군. 판단은 승상께서 하십니다."
+        },
+        {
+          "speaker": "weiyan",
+          "text": "흥, 말이 짧구려. 형님하고는 영 딴판이오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 저녁, 맹획이 홀로 돌아왔다. 그의 얼굴만 보고도 모두 대답을 알았다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "설득하지 못했소. 그 사람은 지는 법을 모르오. 한 번도 져 본 적이 없으니."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "오과국 왕은 내 친구요. 싸움이 끝나면 너무 몰아붙이지는 마시오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "맹획공의 뜻을 기억하겠습니다. 불은 꼭 필요한 만큼만 쓰겠습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "그리고 항복할 길 하나는 남겨 두시오. 그 사람이 아니라 그 사람의 병사들을 위해."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "골짜기 북쪽 어귀는 열어 두겠습니다. 그 길로 나오는 사람은 쫓지 않겠습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "고맙소. 일곱 번 놓아준 사람이니 그 말은 믿겠소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "맹획공, 오과국 사람들이 북쪽 어귀를 알 수 있게 해 주실 수 있겠습니까."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "내 사람들을 보내 알리겠소. 다만 그들이 그 길로 나올지는 그들의 자존심에 달렸소."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "마 장군, 불이 번질 길을 맡으셨지요. 어찌 판단하십니까.",
+          "bg": "bg_camp_night"
+        },
+        {
+          "speaker": "madai",
+          "text": "형님이 계셨다면 정면으로 달려가자 하셨을 겁니다. 창이 미끄러져도요."
+        },
+        {
+          "speaker": "madai",
+          "text": "저는 불이 번질 길과 사람이 빠져나갈 길을 함께 보겠습니다. 둘이 겹치면 안 됩니다."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "형님이 안 가르친 걸 하겠다는 말이구려."
+        },
+        {
+          "speaker": "madai",
+          "text": "형님은 앞을 보시고 저는 옆을 봅니다. 그것도 형님께 배운 셈이지요."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "말수 적은 사람이 한 번 말하면 이렇게 길어지는구려. 좋은 판단이오."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "맹기 장군께 편지를 쓰시지요. 아우가 형님 없이 처음 판단을 내렸다고요."
+        },
+        {
+          "speaker": "madai",
+          "text": "이기고 나서 쓰겠습니다. 지고 나서 쓰면 형님이 남쪽까지 달려오실 테니까요."
+        },
+        {
+          "speaker": "narrator",
+          "text": "반사곡 깊은 골짜기. 등갑을 입은 오과국 전사들이 덩굴 숲 사이에 진을 쳤다.",
+          "bg": "bg_gorge"
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 맹획 대왕의 사람들이 북쪽 편에 섰다 합니다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "맹획은 친구다. 친구가 무릎을 꿇었다고 나까지 꿇을 수는 없다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "골짜기가 좁다고 걱정하지 마라. 좁을수록 우리 등갑이 빛난다."
+        },
+        {
+          "speaker": "nanman_warrior",
+          "text": "대왕, 맹획 대왕의 사람이 와서 북쪽 어귀가 열려 있다 전했습니다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "열린 길로 나가는 자는 막지 마라. 다만 오과국 왕은 그 길로 가지 않는다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "조상이 덩굴을 꺾던 이 골짜기에서 등을 보일 수는 없다. 나는 여기 선다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "이튿날 아침, 반사곡의 하늘에는 구름 한 점 없었다."
+        },
+        {
+          "speaker": "masu",
+          "text": "비가 오지 않습니다. 하늘이 승상의 편입니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "하늘이 누구 편인지는 모른다, 유상. 오늘은 그저 비가 오지 않을 뿐이다."
+        },
+        {
+          "speaker": "masu",
+          "text": "하늘이 아니라면, 그럼 승상께서는 무엇을 믿으십니까."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "열어 둔 북쪽 어귀를 믿는다. 그 길로 한 사람이라도 더 나오기를."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "골짜기 안쪽으로 이끄십시오. 북쪽 어귀는 막지 말고, 나오는 자는 쫓지 마십시오."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "알겠습니다. 북쪽 어귀 앞에서는 창을 거두겠습니다."
+        }
+      ],
+      "events": [
+        {
+          "trigger": {
+            "type": "battleStart"
+          },
+          "lines": [
+            {
+              "speaker": "wutugu",
+              "text": "골짜기가 좁다. 하지만 등갑을 입은 우리는 겁내지 않는다!"
+            },
+            {
+              "speaker": "wutugu",
+              "text": "오과국 전사들아, 북쪽의 칼은 우리 덩굴을 넘지 못한다!"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "정면으로 맞서지 마십시오. 골짜기 안쪽으로 이끄십시오."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitDefeated",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "wutugu",
+              "text": "덩굴 갑옷이 불길에 휩싸이다니, 이런 일이 있을 수 없다!"
+            },
+            {
+              "speaker": "wutugu",
+              "text": "조상의 덩굴이 타는구나. 오과국이 졌다."
+            },
+            {
+              "speaker": "narrator",
+              "text": "올돌골은 불길 속에서 끌려 나왔다. 북쪽 어귀로 나온 병사들은 아무도 쫓기지 않았다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "roundStart",
+            "round": 3
+          },
+          "lines": [
+            {
+              "speaker": "narrator",
+              "text": "골짜기 수풀에 불이 붙었다. 마른 바람이 불길을 골짜기 안쪽으로 밀어 넣었다."
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "북쪽 어귀를 막지 마십시오! 나오는 자는 살려 보내십시오!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "연기 속에서 등갑을 벗어 던진 전사 몇이 북쪽 어귀로 달려 나왔다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitTroopsBelow",
+            "unit": "zhugeliang",
+            "ratio": 0.5
+          },
+          "lines": [
+            {
+              "speaker": "zhugeliang",
+              "text": "등갑군이 진 안까지 들어왔습니다. 물러서지 말고 불 쪽으로 이끄십시오."
+            },
+            {
+              "speaker": "wutugu",
+              "text": "북쪽 승상이 저기 있다! 칼이 안 드는 우리를 누가 막겠느냐!"
+            },
+            {
+              "speaker": "zhugeliang",
+              "text": "흔들리지 마십시오. 칼이 들지 않는 적일수록 땅을 보고 싸워야 합니다."
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "type": "unitEngaged",
+            "unit": "e_boss"
+          },
+          "lines": [
+            {
+              "speaker": "wutugu",
+              "text": "덤벼라! 오과국 왕의 등갑은 조상이 지켜 준다!"
+            },
+            {
+              "speaker": "narrator",
+              "text": "창과 칼이 등갑에 부딪쳐 미끄러졌다. 올돌골은 한 걸음도 물러서지 않았다."
+            },
+            {
+              "speaker": "wutugu",
+              "text": "보았느냐, 이것이 조상의 지혜다! 북쪽의 쇠는 여기서 멈춘다!"
+            }
+          ]
+        }
+      ],
+      "post": [
+        {
+          "speaker": "madai",
+          "text": "불이 번질 길을 끝까지 지켜보았습니다. 제 판단이 틀리지 않았습니다."
+        },
+        {
+          "speaker": "madai",
+          "text": "다만 북쪽 어귀로 나온 사람이 생각보다 적었습니다. 그건 제 판단 밖이었습니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "올돌골, 살아 있구나. 그 불 속에서도 너는 살아 나왔구나.",
+          "bg": "bg_jungle"
+        },
+        {
+          "speaker": "wutugu",
+          "text": "살아 있다. 등갑은 탔고 전사들은 많이 잃었다. 맹획, 네 말을 들을 걸 그랬다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "늦지 않았다. 살아 있으면 늦은 것이 아니다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "오과국도 이제 누군가의 이웃이 되겠다. 다만 오늘의 연기는 잊지 않겠다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "이제 남만은 다시 반란하지 않겠소. 승상, 북쪽으로 가시오."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "올돌골 왕, 대왕은 당신을 살려 달라고 승상께 몇 번이고 청했소."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "알고 있다. 북쪽 어귀가 열려 있던 것도 알고 있다. 그래서 더 할 말이 없다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "할 말이 없으면 내 마을로 가자. 상처부터 싸매고, 말은 그다음에 하자."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "네 마을의 밥이 따뜻하다는 이야기는 들었다. 한번 먹어 보자."
+        },
+        {
+          "speaker": "narrator",
+          "text": "제갈량은 연기 오르는 골짜기를 오래 내려다보았다. 깃털 부채가 천천히 내려갔다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "이 많은 생명을 불로 거두었으니 나는 오래 살지 못하겠구나.",
+          "cg": "cg_kongming_sigh",
+          "face": "sad"
+        },
+        {
+          "speaker": "masu",
+          "text": "승상, 그런 말씀은 거두십시오. 이 싸움으로 남쪽에 평화가 왔습니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "승상, 불은 승상이 놓았지만 이 싸움을 시작한 것은 승상이 아닙니다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "고맙소, 자룡 장군. 그래도 불을 놓으라 한 입은 내 입이오."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그렇다면 그 평화를 헛되이 하지 않겠다. 이제 북쪽으로 간다.",
+          "cg": null
+        },
+        {
+          "speaker": "narrator",
+          "text": "그 뒤로 제갈량은 그 말을 다시 입에 올리지 않았다. 다만 그날 밤 늦도록 등불을 끄지 않았다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "사흘 동안 반사곡에서 장례가 치러졌다. 촉의 병사와 남쪽 사람들이 함께 땅을 팠다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "장례는 오과국 사람들의 방식대로 하겠습니다. 저희는 땅만 파겠습니다."
+        },
+        {
+          "speaker": "zhaoyun",
+          "text": "제 부대도 땅을 파겠습니다. 오늘은 창보다 삽이 더 쓸모 있습니다."
+        },
+        {
+          "speaker": "zhangni",
+          "text": "남쪽에서는 죽은 자의 등갑을 함께 묻는다 하오. 다 타 버려서 묻을 것도 없구려."
+        },
+        {
+          "speaker": "masu",
+          "text": "승상께서 이긴 뒤에 무엇을 하느냐가 절반이라 하셨지요. 오늘은 그 절반이 무겁습니다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "북쪽 사람들이 우리 전사들 무덤에 절을 하는구나. 그건 기억하겠다."
+        },
+        {
+          "speaker": "madai",
+          "text": "불이 번질 길을 본 사람으로서 저도 절하겠습니다. 그 길을 본 것도 제 몫입니다."
+        },
+        {
+          "speaker": "wutugu",
+          "text": "서량의 장수라 했지. 너도 갑옷을 믿던 사람의 얼굴을 하고 있구나."
+        },
+        {
+          "speaker": "narrator",
+          "text": "마대는 그 말에 대답하지 않고 오래 고개를 숙였다."
+        },
+        {
+          "speaker": "madai",
+          "text": "저는 형님을 믿던 사람입니다. 믿던 것을 잃을 뻔한 적이 있어 압니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "승상이 북쪽에서 싸울 때 남쪽은 등이 되겠소. 소금과 말을 보내겠소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "맹획공, 언젠가 성도에 오십시오. 주공께서 꼭 뵙고 싶어 하실 겁니다."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "한중왕이라는 분 말이오? 일곱 번 놓아준 사람을 보낸 주인이라면 나도 보고 싶소."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "대왕이 성도에 가면 나도 가겠소. 북쪽 사람들이 무엇을 먹고 사는지 보고 싶소."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "그날은 제가 상을 차리겠습니다. 이번에는 밧줄 없이 모시겠습니다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "맹획 대왕, 성도 가는 길은 제가 안내하겠습니다. 낭중을 지날 때 장 장군도 뵙지요."
+        },
+        {
+          "speaker": "menghuo",
+          "text": "숫자를 백까지 센다는 그 장군 말이오? 그 사람도 보고 싶구려."
+        },
+        {
+          "speaker": "zhurong",
+          "text": "그 장군이 백을 세는 동안 우리는 일곱을 세겠소. 그게 남쪽의 셈이오."
+        },
+        {
+          "speaker": "narrator",
+          "text": "남중은 조용해졌다. 촉군은 관리도 군사도 남기지 않고 북쪽으로 돌아갔다."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그해 가을, 승상은 성도로 돌아왔다. 남문에는 한중왕이 몸소 나와 있었다.",
+          "bg": "bg_hall"
+        },
+        {
+          "speaker": "liubei",
+          "text": "공명, 돌아왔구려. 얼굴이 많이 탔네. 남쪽의 해가 그리 뜨겁던가."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 남쪽은 이제 우리의 등이 되었습니다. 다만 그 등에 불 냄새가 조금 남았습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "자네 편지에 적힌 반사곡 이야기는 읽었네. 그 무게는 나도 함께 지겠네."
+        },
+        {
+          "speaker": "liubei",
+          "text": "익덕은 낭중에서 편지를 보냈네. 남쪽 사람들에게 백까지 세는 법을 가르쳐 주라더군."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "남쪽 사람들은 일곱까지 세는 법을 먼저 가르쳐 주었습니다. 그것으로 족합니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "운장은 강릉에서 오의 사람들과 차를 나눈다 하네. 형제들이 다 변했네."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공께서도 변하셨습니다. 이릉 이후 제 말을 더 오래 들어 주십니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "그건 변한 게 아니라 배운 걸세. 잃을 뻔한 사람에게서 배웠지."
+        },
+        {
+          "speaker": "narrator",
+          "text": "그날 밤, 승상의 방에는 늦도록 등불이 켜져 있었다. 붓 끝이 북쪽을 향해 있었다."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "주공, 이제 북쪽을 볼 때입니다. 주공과 공자님 앞에서 아뢸 글이 있습니다."
+        },
+        {
+          "speaker": "liubei",
+          "text": "북쪽이라. 그 글은 서두르지 말고 쓰게. 나는 기다리는 데 익숙하네."
+        },
+        {
+          "speaker": "narrator",
+          "text": "제6막 삼국 쟁패, 끝. 다음 막에서 승상은 한 장의 글을 올리고, 북쪽으로 길을 연다."
+        }
+      ],
+      "defeat": [
+        {
+          "speaker": "madai",
+          "text": "불이 번지기 전에 골짜기를 벗어났습니다. 다시 몰아넣으시지요."
+        },
+        {
+          "speaker": "zhugeliang",
+          "text": "서두르면 불이 우리 쪽으로 옵니다. 바람을 다시 보고 들어갑시다."
+        },
+        {
+          "speaker": "mazhong",
+          "text": "골짜기 수풀까지 다시 이끌겠습니다. 이번에는 길을 놓치지 않겠습니다."
+        }
+      ]
+    }
+  ]
+}

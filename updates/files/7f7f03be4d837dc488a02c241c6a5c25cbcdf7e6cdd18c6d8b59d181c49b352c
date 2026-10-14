@@ -1,0 +1,65 @@
+{
+  "version": "0.36.1",
+  "tool": "built-in image_gen.imagegen",
+  "note": "Non-destructive sibling edits; original approved artwork, dialogue text and gameplay values are preserved. Transparent SD bodies and one opaque story CG.",
+  "assets": [
+    {
+      "id": "wu_officer",
+      "output": "art/act3/sd/wu_officer-v0361.png",
+      "preservedOriginal": "art/act3/sd/wu_officer.png",
+      "generationFile": "exec-39787280-8dc1-47d3-9ccf-a506a67a5b46.png",
+      "references": [
+        {
+          "path": "art/act3/sd/wu_officer.png",
+          "role": "edit target"
+        }
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Korean tactical RPG transparent SD unit sprite, Wu escort captain of spear class. Input image 1 is the EDIT TARGET, not merely style reference. Replace ONLY the short curved sword held in his forward hand with an unmistakable LONG WOODEN SPEAR having a small straight steel spearhead and a shaft extending past his body. Adjust that hand/wrist only if necessary to naturally hold the spear. Keep the same mature clean-shaven face, bronze gold-trimmed helmet, bright red-orange plume, red scarf and cape, bronze armor, boots, round shield, compact SD head-to-body ratio, stance, facing right, detailed painterly outlines, palette and sharp game-art texture unchanged. Do not redraw the person or introduce a different face. Whole spear and all body parts must be fully inside the square canvas with some transparent breathing room. Genuine RGBA transparent background; no ground, shadow pad, checkerboard, backdrop, text, numbers, watermark, extra character or cinematic lighting. The result must clearly read as the same soldier now armed with a spear; no sword blade remaining.",
+      "transparentBackground": true
+    },
+    {
+      "id": "wei_commander_mounted",
+      "output": "art/act3/sd/wei_commander_mounted-v0361.png",
+      "preservedOriginal": "art/act3/sd/wei_commander-mounted.png",
+      "generationFile": "exec-98526e7c-4997-49a7-8090-a368e41f5bde.png",
+      "references": [
+        {
+          "path": "art/act3/sd/wei_commander-mounted.png",
+          "role": "edit target"
+        },
+        {
+          "path": "art/units/guanyu-v08.png",
+          "role": "supporting proportion/style reference"
+        },
+        {
+          "path": "art/units/cavalry-v020.webp",
+          "role": "supporting proportion/style reference"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Asset type: one transparent PNG SD mounted commander sprite for the existing Korean Three Kingdoms tactical RPG. Image 1 is the edit target: the blue Wei mounted commander. Images 2 and 3 are supporting proportion/style references only, Guan Yu and an ordinary cavalry soldier. Change ONLY the rider-to-horse proportions in Image 1 so he fits the established mounted sprite family: reduce the rider's head including helmet about 25 percent relative to the horse, reduce overly bulky upper torso about 15 percent, and make the horse's body and legs a little longer. The result should have the same medium-SD illustrated proportions as the mounted figures in references 2 and 3, rather than a giant-head tiny-pony chibi. Keep the same identifiable middle-aged commander face, short black beard and moustache, blue helmet plume and cloak, detailed blue-and-gold Wei armor, two curved swords, dark brown horse with gold harness and armor, dynamic riding stance and facing to the right. Preserve crisp hand-painted fantasy tactical-game rendering, strong clean silhouette and detailed metal lighting; do not turn realistic, photographic, 3D, or pixel art. Show exactly one full horse and one full rider; all hooves, plume and both weapons fully inside the image with a small clear margin. Keep the finished sprite's total visible height similar to the original so it works with the existing gameplay scale. Absolutely no backdrop, scenery, ground plane, shadow card, lettering, border, badge, watermark or other characters. True transparent alpha background.",
+      "transparentBackground": true
+    },
+    {
+      "id": "cg_lady_sun",
+      "output": "assets/cg/v036/cg_lady_sun-v0361.png",
+      "transparentBackground": false,
+      "preservedOriginal": "assets/cg/v036/cg_lady_sun.webp",
+      "generationFile": "exec-e45dff2b-fc12-42c9-b20c-3abf7da6a727.png",
+      "references": [
+        {
+          "path": "assets/cg/v036/cg_lady_sun.webp",
+          "role": "edit target"
+        },
+        {
+          "path": "assets/portrait/v031/zhaoyun/normal.png",
+          "role": "approved face/costume identity reference"
+        },
+        {
+          "path": "art/units/zhaoyun-v09.png",
+          "role": "supporting approved character palette"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Asset type: a wide cinematic story CG for the existing Korean Three Kingdoms tactical RPG. Image 1 is the EDIT TARGET. Image 2 is the APPROVED Zhao Yun face and costume identity reference; image 3 is supporting approved silver/white/soft-blue character palette reference only. In Image 1 change ONLY the armored man on the right who is holding the little boy: replace his moustached bearded middle-aged facial identity with Zhao Yun's clean-shaven youthful face from Image 2, same strong brows, eyes, jaw, clean upper lip and chin, long dark hair and recognizable features. He must look like the SAME approved Zhao Yun translated into the cinematic CG style, not another man or Liu Bei. Recolor his dark blue-gray scarf and long cloak to the approved off-white cloth with very subtle pale-blue accents; retain richly detailed silver armor. Keep his gentle expression, head angle looking toward the child, body pose, hands, silver armor silhouette and position unchanged. Preserve EVERY OTHER element of Image 1: Lady Sun's face, red robes and hair ornaments, the little child's face/clothing/pose, the two women attendants, wooden boat pavilion, lake, flags, buildings, daylight, framing and warm detailed cinematic painted-realism. Do not add a helmet, weapon or any new figure. No text, watermark, borders or blank areas. Preserve original wide 16:9 composition and opaque scenic background. Edit only this man's face and scarf/cloak identity; no restyling of the surrounding scene."
+    }
+  ]
+}

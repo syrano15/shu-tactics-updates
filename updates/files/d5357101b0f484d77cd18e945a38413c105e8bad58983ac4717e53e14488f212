@@ -1,0 +1,235 @@
+{
+  "tool": "image_gen",
+  "date": "2026-10-11",
+  "intent": "precise-object-edit",
+  "weiyan": {
+    "prompt": "Use case: precise-object-edit.\nAsset type: production transparent 2x2 combat sprite atlas for the Three Kingdoms tactical game character Wei Yan.\nInput images: Image 1 is the EDIT TARGET AND IDENTITY reference: Wei Yan. Image 2 Zhao Yun and Image 3 Huang Zhong are BODY-PROPORTION / PAINTING-STYLE references only. Image 4 Liu Bei is additional game-style reference. Preserve Wei Yan, do not copy another character's clothing.\nPrimary request: redraw Wei Yan as an adult, realistically proportioned painterly tactical game warrior, then present FOUR distinct full-body action frames in a strictly uniform 2-column by 2-row square sprite sheet. Correct his oversized head and short chibi torso/legs. The head from chin to forehead should be only about one-sixth of the standing human height, similar to Zhao Yun and Huang Zhong. Adult muscular proportions, longer torso/legs, natural hands and feet, small realistic face readable at tactical size. Keep painterly detailed metal and fabric, restrained dark outlines, not cute/SD/cartoon proportions.\nIdentity must remain recognizably the Image 1 warrior: rugged Chinese man, thick fierce eyebrows, short dark beard and moustache, short diagonal scar above his right eyebrow, tied high black ponytail with bronze hair clasp, dark olive bronze lamellar armor, warm bronze gilded shoulder/lion fittings, dark red scarf/sash and trailing red cape, curved single-edged Chinese saber. Same face, armor, weapon, palette and physical scale in ALL four cells. He is on foot, not mounted.\nExact frame layout, four equal cells, no cell borders:\ntop-left FRAME 0 READY: face and torso in a 3/4 view toward the RIGHT, balanced fighting stance with both boots planted, saber held at chest level angled upward to right, preparing to slash.\ntop-right FRAME 1 ATTACK: visible committed sword slash toward the RIGHT, torso rotation and forward lean, leading right knee bent, saber arm extended at chest level, curved sword clearly reaches right beyond the forward hand, trailing red cape. This must be a clearly different arm/body/weapon pose from ready.\nbottom-left FRAME 2 RECOVER: finishing the same slash, saber lowered diagonally to the right, torso drawing back into balanced stance, face still right. Distinct follow-through/recovery pose.\nbottom-right FRAME 3 HIT: recoils a little backward away from right, torso/shoulders rocked back, saber still in his hand, no blood and no facial identity change.\nMechanical constraints: exactly 4 isolated figures in the 2x2 quadrants, each entire figure and entire saber/cape inside its own cell with at least 4 percent margin. Same standing-human scale in every cell, same baseline of the bottom boot around 93 percent of each cell height, body pelvis center near 50 percent of cell width. Knees/arms/shoulders change pose while no figure becomes larger. Do not put two figures inside one cell. No weapons crossing cell boundaries. All faces look right or 3/4 right. FRONT/3/4 tactical sprite view with shallow overhead visibility, never profile portrait.\nBackground: genuinely transparent RGBA background, no ground, no pedestal, no baked-in oval or drop shadow, no background color.\nAvoid: chibi, big head, tiny legs, oversized hands, hyper-anime face, helmet replacing ponytail, characters/letters/numbers/frame labels/gridlines/watermark, blur trails or slash effects, sparks/glow. Produce ONLY the four isolated character frames on transparent background.",
+    "refinementPrompt": "Use case: precise-object-edit.\nAsset type: final transparent 2x2 Wei Yan combat sprite atlas.\nInput Image 1 is the edit target, the FOUR-frame Wei Yan atlas just produced. Input Image 2 is Zhao Yun, proportions/style reference only.\nKeep the four existing poses, character face identity, right-facing direction, armor, dark olive/bronze palette, red scarves/cape, curved saber, and realistic painterly rendering. Perform ONLY these production corrections:\n1) Make the head/face a further 15 percent smaller relative to the neck, torso and legs in ALL four poses, preserving his rugged features, short beard, moustache, forehead scar and black ponytail. He must look like an adult normal-proportion tactical warrior matching Zhao Yun, not big-headed SD. Do not enlarge the body overall.\n2) Enforce four EXACT equal quadrants. The atlas is square and divided at x=50 percent and y=50 percent. Within EACH cell, shrink/recenter the COMPLETE figure as needed so every cape tip, saber tip and boot is comfortably inside its own cell. Make at least 7 percent completely empty transparent margin on all four sides of EACH cell. The attack cape must not spill into the left cell; the recovery saber must not spill into the right cell. No part can touch the exact center seams. All four figures must be approximately equal physical human scale. Bottommost boot baseline at 92 percent cell height for every frame. No art clipping. Preserve all four distinct readable sword poses.\nFrame meanings remain top-left ready, top-right forward sword slash, bottom-left lowered sword follow-through/recover, bottom-right slight recoil/hit. No additional poses. Entire scene stays genuinely transparent RGBA with no shadow/background, no gridlines, no labels/text, no particle/slash effects.",
+    "finalMap": "art/act3/sd/weiyan-v0384.png",
+    "finalAtlas": "art/act3/sd/weiyan-atlas-v0384.png",
+    "weaponTips": [
+      [
+        553,
+        129
+      ],
+      [
+        606,
+        212
+      ],
+      [
+        615,
+        423
+      ],
+      [
+        590,
+        377
+      ]
+    ],
+    "notes": "Identity and armor retained; head reduced and limbs lengthened. Ready frame extracted mechanically for matching map/fallback. No paint or alpha removal applied outside image_gen.",
+    "framesMetadata": [
+      {
+        "width": 627,
+        "height": 627,
+        "visiblePixelBounds": [
+          61,
+          87,
+          561,
+          586
+        ],
+        "visibleBounds": [
+          0.09728867623604466,
+          0.13875598086124402,
+          0.8947368421052632,
+          0.9346092503987241
+        ],
+        "transparentPixelRatio": 0.6569675602664774,
+        "alphaMinMax": [
+          0,
+          255
+        ],
+        "sha256": "15d175f8ea94033a2cfdc2a9f42028dc6cd4752ba41299e014f17c4e9c1857b2",
+        "rect": [
+          0.0,
+          0.0,
+          0.5,
+          0.5
+        ],
+        "weaponTip": [
+          0.8819776714513556,
+          0.20574162679425836
+        ]
+      },
+      {
+        "width": 627,
+        "height": 627,
+        "visiblePixelBounds": [
+          6,
+          107,
+          605,
+          577
+        ],
+        "visibleBounds": [
+          0.009569377990430622,
+          0.17065390749601275,
+          0.9649122807017544,
+          0.9202551834130781
+        ],
+        "transparentPixelRatio": 0.6468538316939223,
+        "alphaMinMax": [
+          0,
+          255
+        ],
+        "sha256": "5fa78573e533357f9af1be529975f314921ce6b6dcfbbf0522da75c5ac688d10",
+        "rect": [
+          0.5,
+          0.0,
+          0.5,
+          0.5
+        ],
+        "weaponTip": [
+          0.9665071770334929,
+          0.33811802232854865
+        ]
+      },
+      {
+        "width": 627,
+        "height": 627,
+        "visiblePixelBounds": [
+          72,
+          48,
+          618,
+          542
+        ],
+        "visibleBounds": [
+          0.11483253588516747,
+          0.07655502392344497,
+          0.9856459330143541,
+          0.8644338118022329
+        ],
+        "transparentPixelRatio": 0.6493110403964093,
+        "alphaMinMax": [
+          0,
+          255
+        ],
+        "sha256": "eff2f9a6c13e01101b7b836dd095cc3bdee4fbff08e1d56ffc4dedbe9fe354ec",
+        "rect": [
+          0.0,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "weaponTip": [
+          0.9808612440191388,
+          0.6746411483253588
+        ]
+      },
+      {
+        "width": 627,
+        "height": 627,
+        "visiblePixelBounds": [
+          35,
+          60,
+          595,
+          542
+        ],
+        "visibleBounds": [
+          0.05582137161084529,
+          0.09569377990430622,
+          0.94896331738437,
+          0.8644338118022329
+        ],
+        "transparentPixelRatio": 0.6443762734369635,
+        "alphaMinMax": [
+          0,
+          255
+        ],
+        "sha256": "859831dbab1d13a243ef18dcd98831a2a17e4de45749452d0aed9b253d57d6f5",
+        "rect": [
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "weaponTip": [
+          0.9409888357256778,
+          0.6012759170653907
+        ]
+      }
+    ],
+    "mapStats": {
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        121,
+        174,
+        1123,
+        1172
+      ],
+      "visibleBounds": [
+        0.09649122807017543,
+        0.13875598086124402,
+        0.8955342902711324,
+        0.9346092503987241
+      ],
+      "transparentPixelRatio": 0.6570209778469662,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "c66ddb76bec2dd9050c63e4ee62f782f86796e8e35692b9b133fd61417cf87ac"
+    },
+    "atlasStats": {
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        61,
+        87,
+        1232,
+        1169
+      ],
+      "visibleBounds": [
+        0.04864433811802233,
+        0.06937799043062201,
+        0.9824561403508771,
+        0.9322169059011164
+      ],
+      "transparentPixelRatio": 0.6493771764484432,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "2904337ec69e85de506163a385434850a4ae4e5cadf351e7e75a869c06605613"
+    },
+    "sourceSha256": "174460f306d0590c139ff674dfcc9bb9897bc2c82e110d7e5499cdcdf76bd97f",
+    "source": "art/act3/sd/weiyan.png"
+  },
+  "zhouyu": {
+    "prompt": "Use case: precise-object-edit.\nAsset type: production transparent single full-body tactical combat/map sprite for Zhou Yu in a Three Kingdoms strategy game.\nInput images: Image 1 is the EDIT TARGET AND IDENTITY reference: Zhou Yu. Image 2 Zhao Yun and Image 3 Huang Zhong are BODY-PROPORTION / PAINTING-STYLE references only. Image 4 Liu Bei is additional game-style reference. Preserve Zhou Yu; do not copy other characters' armor/colors.\nPrimary request: redraw this one Zhou Yu character in the same detailed painterly tactical-sprite style as Zhao Yun/Huang Zhong, with normal adult body proportions instead of the oversized SD head and squat short legs. Full-body adult warrior about six to six-and-a-half heads tall, the face/head from chin to forehead no more than one-sixth of human crown-to-feet height. Longer natural torso/legs and normal hands. Keep painterly realistic metal and fabric shading and restrained dark outlines, no cute/cartoon anatomy.\nIdentity invariants: handsome slender Chinese commander with long tied black hair, ornate small bronze hair crown, loose black forelock, narrow moustache, composed confident expression, warm gold-and-bronze lamellar armor, ivory-white cloth tabard and cape with subtle gold pattern, dark red scarf/sash and trailing red ribbons. One long straight Chinese sword with gold hilt in right hand, angled horizontally/diagonally toward the right; left hand raised in a calm directing gesture. Preserve the face's identity, palette, exact outfit motifs, on-foot role and right-facing 3/4 view.\nFraming: single isolated full body including boots, hair/ribbons, whole straight sword and cape. Keep same ready stance idea but naturally longer legs and smaller head. Body center near 50 percent canvas width and bottom boot near 94 percent canvas height, at least 4 percent safety margin all sides; no clipped sword or ribbons.\nBackground: genuinely transparent RGBA, no ground, no pedestal, no baked-in oval shadow or drop shadow, no background color.\nAvoid: chibi/SD, big head, tiny legs, oversized hands, armor replacing ivory cape, young child face, other characters, portraits, letters/numbers/UI/grid/watermark, glow/attack effects. Produce ONLY this one isolated finished tactical sprite on transparent background.",
+    "finalMap": "art/act3/sd/zhouyu-v0384.png",
+    "notes": "Existing ready/attack/hit/idle/retreat single-image presentation retained at new adult proportions. Aspect-preserving fit to square transparent deployment/map canvas only.",
+    "mapStats": {
+      "width": 1254,
+      "height": 1254,
+      "visiblePixelBounds": [
+        108,
+        38,
+        1154,
+        1199
+      ],
+      "visibleBounds": [
+        0.0861244019138756,
+        0.030303030303030304,
+        0.9202551834130781,
+        0.956140350877193
+      ],
+      "transparentPixelRatio": 0.587542511491139,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "sha256": "4704d099f1e8cc89ffe20776d0d405977928c9c632696c04eedacd1d0a5b610e"
+    },
+    "sourceSha256": "734e4f39131a0329067a1f303bc6f4ceb8484ff68262f1e50994930372dc6df9",
+    "source": "art/act3/sd/zhouyu.png"
+  }
+}

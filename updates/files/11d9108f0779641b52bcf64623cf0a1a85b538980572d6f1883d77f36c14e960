@@ -1,0 +1,44 @@
+// Only save-record keys belong to this operation. Settings and unrelated apps
+// share localStorage and must remain untouched, even when their contents are broken.
+const namespaces=new Set(['shu-tactics','shu-tactics-act1','shu-tactics-trial-legacy','shu-tactics-trial-academy','shu-tactics-trial-baima','shu-tactics-trial-commander']);
+export function isGameSaveKey(key){
+ if(typeof key!=='string')return false;
+ const match=/^(shu-tactics(?:-act1(?:-compare-[AB]-\d{1,10})?|-trial-(?:legacy|academy|baima|commander))?)-(.+)$/.exec(key);
+ if(!match)return false;
+ const [,namespace,record]=match,comparison=/^shu-tactics-act1-compare-[AB]-(\d+)$/.exec(namespace);
+ if(!namespaces.has(namespace)&&!comparison)return false;
+ if(comparison){const seed=Number(comparison[1]);if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||String(seed)!==comparison[1])return false;}
+ const slot=/^(?:save|backup)-v[12]-(auto|manual(?:-(\d+))?)$/.exec(record);
+ if(slot)return slot[2]===undefined||Number.isSafeInteger(Number(slot[2]))&&Number(slot[2])>=2&&String(Number(slot[2]))===slot[2];
+ return /^checkpoint-v1-(?:complete|act-complete-[1-7]|(?:start|clear)-[-a-zA-Z0-9_]{1,100})$/.test(record);
+}
+export function listGameSaveKeys(storage){
+ const keys=[],errors=[];
+ try{
+  const length=storage.length;
+  if(!Number.isSafeInteger(length)||length<0||typeof storage.key!=='function')throw new Error('브라우저 저장 목록을 사용할 수 없습니다.');
+  for(let index=0;index<length;index++){
+   const key=storage.key(index);
+   if(key!==null&&typeof key!=='string')throw new Error('저장 키를 확인할 수 없습니다.');
+   if(isGameSaveKey(key)&&!keys.includes(key))keys.push(key);
+  }
+ }catch(error){errors.push({key:null,message:'저장 목록을 읽지 못했습니다. '+error.message});}
+ return {keys,errors};
+}
+export function deleteGameSaveRecords(storage){
+ const listed=listGameSaveKeys(storage),summary={matched:listed.keys.length,deleted:[],failed:[],errors:[...listed.errors],complete:false};
+ // A partial enumeration is never authorization to delete a partial library.
+ if(summary.errors.length)return summary;
+ if(typeof storage.removeItem!=='function'||typeof storage.getItem!=='function'){
+  summary.errors.push({key:null,message:'브라우저 저장 삭제를 사용할 수 없습니다.'});return summary;
+ }
+ for(const key of listed.keys){
+  try{
+   storage.removeItem(key);
+   if(storage.getItem(key)!==null)throw new Error('저장 기록이 남아 있습니다.');
+   summary.deleted.push(key);
+  }catch(error){summary.failed.push(key);summary.errors.push({key,message:'저장 삭제 실패: '+error.message});}
+ }
+ summary.complete=summary.errors.length===0;
+ return summary;
+}

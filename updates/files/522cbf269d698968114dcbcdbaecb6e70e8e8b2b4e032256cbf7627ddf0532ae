@@ -1,0 +1,15 @@
+const active=new WeakMap();
+export function clearGrowthFeedback(host){active.get(host)?.();active.delete(host);}
+export function showGrowthFeedback(host,message,{fast=false,setTimer=setTimeout,clearTimer=clearTimeout}={}){
+ clearGrowthFeedback(host);
+ const doc=host.ownerDocument??document,toast=doc.createElement('div'),button=doc.createElement('button');
+ toast.id='growth-toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');
+ button.type='button';button.textContent=message+' · 클릭하여 넘기기';button.setAttribute('aria-label',message+' · 알림 닫기');toast.append(button);host.append(toast);
+ let timer,closed=false;
+ const dismiss=()=>{if(closed)return;closed=true;clearTimer(timer);toast.remove();active.delete(host);};
+ button.addEventListener('pointerdown',e=>e.stopPropagation());
+ button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();dismiss();});
+ button.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();dismiss();}});
+ active.set(host,dismiss);timer=setTimer(dismiss,fast?1200:1800);
+ return dismiss;
+}

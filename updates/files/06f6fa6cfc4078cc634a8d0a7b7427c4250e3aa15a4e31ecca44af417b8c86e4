@@ -1,0 +1,58 @@
+[
+  {
+    "id": "chendao",
+    "width": 512,
+    "height": 512,
+    "visibleBounds": [
+      59,
+      32,
+      394,
+      464
+    ],
+    "source": "C:\\Users\\LeeJunhee\\.codex\\generated_images\\01a11b9f-a055-76e1-8e40-e832476b8ea8\\exec-08772999-21a5-4724-9ec0-792b1a9f5231.png",
+    "facing": "right",
+    "pose": "single-fallback"
+  },
+  {
+    "id": "zhoucang",
+    "width": 512,
+    "height": 512,
+    "visibleBounds": [
+      65,
+      32,
+      381,
+      464
+    ],
+    "source": "C:\\Users\\LeeJunhee\\.codex\\generated_images\\01a11b9f-a055-76e1-8e40-e832476b8ea8\\exec-e42632ff-c9d5-4bb7-a984-22d9f60d3bd3.png",
+    "facing": "right",
+    "pose": "single-fallback"
+  },
+  {
+    "id": "xushu",
+    "width": 512,
+    "height": 512,
+    "visibleBounds": [
+      119,
+      32,
+      273,
+      464
+    ],
+    "source": "C:\\Users\\LeeJunhee\\.codex\\generated_images\\01a11b9f-a055-76e1-8e40-e832476b8ea8\\exec-6f3eb6b0-2a96-48fd-8ef6-6e8e21a2b3f1.png",
+    "facing": "right",
+    "pose": "single-fallback"
+  },
+  {
+    "id": "x_carriage",
+    "width": 512,
+    "height": 512,
+    "visibleBounds": [
+      24,
+      152,
+      464,
+      344
+    ],
+    "source": "C:\\Users\\LeeJunhee\\.codex\\generated_images\\01a11b9f-a055-76e1-8e40-e832476b8ea8\\exec-f08c8325-888c-44c0-ac71-47a59eff688d.png",
+    "facing": "right",
+    "pose": "single-fallback"
+  }
+]

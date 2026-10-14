@@ -1,0 +1,47 @@
+// Weather reads the battle state and draws a separate, non-interactive layer.
+// No game clock, weather roll, HP, SP or battle random generator is touched.
+const value=(n,k)=>{let x=Math.imul(n+19,374761393)^Math.imul(k+73,668265263);x=Math.imul(x^(x>>>13),1274126177);return ((x^(x>>>16))>>>0)/4294967296;};
+export function weatherVisualModel(state,active=true){
+ return {rain:active&&state?.weather?.kind==='rain',columns:state?.terrain?.[0]?.length??0,rows:state?.terrain?.length??0};
+}
+export function installWeatherPresentation(viewport,board=viewport?.querySelector('#board')){
+ if(!viewport?.ownerDocument||!board)return {update(){},clear(){},destroy(){}};
+ const doc=viewport.ownerDocument,win=doc.defaultView,media=win.matchMedia('(prefers-reduced-motion: reduce)');
+ if(!doc.querySelector('#weather-presentation-style')){const style=doc.createElement('link');style.id='weather-presentation-style';style.rel='stylesheet';style.href=new URL('./weather-presentation.css',import.meta.url).href;doc.head.append(style);}
+ let canvas=null,ctx=null,state=null,frame=0,lastDraw=0,raining=false,disposed=false;
+ function clear(){raining=false;if(frame)win.cancelAnimationFrame(frame);frame=0;canvas?.remove();canvas=ctx=null;viewport.classList.remove('weather-rain');}
+ function geometry(){
+  if(!canvas)return;const width=Math.max(1,viewport.clientWidth),height=Math.max(1,viewport.clientHeight),ratio=Math.min(2,win.devicePixelRatio||1);
+  if(canvas.width!==Math.round(width*ratio)||canvas.height!==Math.round(height*ratio)){canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);}
+  canvas.style.width=width+'px';canvas.style.height=height+'px';canvas.style.transform=`translate(${viewport.scrollLeft}px,${viewport.scrollTop}px)`;
+  ctx.setTransform(ratio,0,0,ratio,0,0);draw(media.matches?0:win.performance.now());
+ }
+ function draw(now){
+  if(!canvas||!state)return;const w=viewport.clientWidth,h=viewport.clientHeight,b=board.getBoundingClientRect(),v=viewport.getBoundingClientRect(),left=b.left-v.left,top=b.top-v.top;
+  ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.rect(left,top,b.width,b.height);ctx.clip();
+  ctx.fillStyle='#18304720';ctx.fillRect(left,top,b.width,b.height);
+  const t=media.matches?0:now*.001,count=Math.max(70,Math.min(180,Math.round(w*h/6500)));
+  for(let i=0;i<count;i++){
+   const speed=190+value(i,2)*170,y=((value(i,1)*(h+70)+t*speed)%(h+70))-35,x=((value(i,3)*(w+100)-t*speed*.22)%(w+100)+(w+100))%(w+100)-35,length=11+value(i,4)*23;
+   ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-length*.24,y+length);ctx.strokeStyle=i%4?'#dce5e670':'#e6f3ef9c';ctx.lineWidth=i%4 ? .75 : 1.35;ctx.stroke();
+  }
+  const cellW=b.width/state.terrain[0].length,cellH=b.height/state.terrain.length;
+  for(let i=0;i<24;i++){
+   const x=Math.floor(value(i,7)*state.terrain[0].length),y=Math.floor(value(i,8)*state.terrain.length);if(state.terrain[y][x]!=='\u002e')continue;
+   const px=left+(x+.2+value(i,9)*.6)*cellW,py=top+(y+.25+value(i,10)*.5)*cellH;
+   ctx.beginPath();ctx.ellipse(px,py,cellW*.19,cellH*.07,0,0,Math.PI*2);ctx.fillStyle='#a3bcc020';ctx.fill();
+   const progress=media.matches ? .6 : (t*.8+value(i,11))%1;ctx.beginPath();ctx.ellipse(px,py,(3+progress*8)*(cellW/60),(1+progress*2.5)*(cellH/60),0,0,Math.PI*2);ctx.strokeStyle=`rgba(215,230,225,${.4*(1-progress)})`;ctx.lineWidth=.8;ctx.stroke();
+  }
+  ctx.restore();
+ }
+ function tick(now){frame=0;if(!raining||disposed||doc.hidden||media.matches)return;if(now-lastDraw>=32){draw(now);lastDraw=now;}frame=win.requestAnimationFrame(tick);}
+ function resume(){if(!raining||disposed)return;geometry();if(frame)win.cancelAnimationFrame(frame);frame=0;if(!media.matches&&!doc.hidden)frame=win.requestAnimationFrame(tick);}
+ const resized=()=>{if(raining)geometry();},scrolled=()=>{if(raining)geometry();};
+ const observer=win.ResizeObserver?new win.ResizeObserver(resized):null;observer?.observe(viewport);observer?.observe(board);
+ viewport.addEventListener('scroll',scrolled,{passive:true});win.addEventListener('resize',resized);media.addEventListener('change',resume);doc.addEventListener('visibilitychange',resume);
+ return {update({state:next,active=true}){
+  if(disposed)return;state=next;const model=weatherVisualModel(next,active);if(!model.rain){clear();return;}
+  if(!canvas){canvas=doc.createElement('canvas');canvas.className='weather-rain-layer';canvas.setAttribute('aria-hidden','true');canvas.dataset.weather='rain';viewport.append(canvas);ctx=canvas.getContext('2d');}
+  raining=true;viewport.classList.add('weather-rain');resume();
+ },clear,destroy(){clear();disposed=true;state=null;observer?.disconnect();viewport.removeEventListener('scroll',scrolled);win.removeEventListener('resize',resized);media.removeEventListener('change',resume);doc.removeEventListener('visibilitychange',resume);}};
+}

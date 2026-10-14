@@ -1,0 +1,58 @@
+export const BOARD_CELL_PIXELS=64;
+export const MIN_BOARD_CELL_PIXELS=48;
+export function boardGeometry({columns,rows,viewportWidth,viewportHeight,mode='normal',pixels=BOARD_CELL_PIXELS,gap=0}){
+ if(![columns,rows].every(n=>Number.isInteger(n)&&n>0)||!['fit','normal'].includes(mode))throw new Error('전장 보기 설정 오류');
+ const size=mode==='fit'?Math.max(1,Math.min((viewportWidth-gap*(columns-1))/columns,(viewportHeight-gap*(rows-1))/rows)):Math.max(MIN_BOARD_CELL_PIXELS,Math.min(96,pixels));
+ return {cell:size,width:columns*size+gap*(columns-1),height:rows*size+gap*(rows-1),mode};
+}
+// Panning changes the camera only. A click without a drag still reaches the
+// original board handler and opens the existing unit command menu.
+export function installBoardNavigation(stage,board,{reposition=()=>{}}={}){
+ const doc=stage.ownerDocument,viewport=doc.createElement('div'),toolbar=doc.createElement('div');
+ viewport.className='board-viewport';viewport.tabIndex=0;viewport.setAttribute('aria-label','전장 보기 · 지도를 끌거나 방향 버튼으로 이동');
+ board.before(viewport);viewport.append(board);toolbar.className='board-navigation';toolbar.hidden=true;
+ toolbar.innerHTML='<div class="board-zoom"><button type="button" data-board-view="fit">전체 보기</button><button type="button" data-board-view="normal">100%</button><button type="button" data-board-zoom="less" aria-label="지도 축소">−</button><output class="board-zoom-value">100%</output><button type="button" data-board-zoom="more" aria-label="지도 확대">+</button></div><div class="board-pan"><button type="button" data-board-pan="left" aria-label="전장 왼쪽으로">←</button><button type="button" data-board-pan="up" aria-label="전장 위로">↑</button><button type="button" data-board-pan="down" aria-label="전장 아래로">↓</button><button type="button" data-board-pan="right" aria-label="전장 오른쪽으로">→</button><button type="button" data-board-focus>선택 장수</button></div><small>지도 끌기 · 장수 클릭 시 명령</small>';
+ stage.before(toolbar);
+ let view=null,mode='fit',pixels=BOARD_CELL_PIXELS,chapter=null,selected=null,drag=null,suppress=false;
+ const pan=(dx,dy)=>{viewport.scrollLeft+=dx;viewport.scrollTop+=dy;reposition();};
+ function resize(){
+  if(!view)return;const expanded=view.campaignLayoutVersion===1;
+  toolbar.hidden=!expanded;stage.classList.toggle('expanded-board-stage',expanded);
+  viewport.classList.toggle('board-fit',expanded&&mode==='fit');
+  viewport.dataset.boardView=mode;
+  if(!expanded){board.style.removeProperty('width');board.style.removeProperty('height');viewport.classList.remove('expanded-viewport');return;}
+  viewport.classList.add('expanded-viewport');
+  const dims=boardGeometry({columns:view.terrain[0].length,rows:view.terrain.length,viewportWidth:Math.max(100,viewport.clientWidth),viewportHeight:Math.max(100,viewport.clientHeight),mode,pixels});
+  board.style.width=dims.width+'px';board.style.height=dims.height+'px';
+  board.style.setProperty('--board-cell-size',dims.cell+'px');
+  viewport.classList.toggle('board-overview',expanded&&dims.cell<MIN_BOARD_CELL_PIXELS);
+  toolbar.querySelector('output').textContent=mode==='fit'?'전체':Math.round(dims.cell/BOARD_CELL_PIXELS*100)+'%';
+  for(const b of toolbar.querySelectorAll('[data-board-view]'))b.setAttribute('aria-pressed',String(b.dataset.boardView===mode));
+  reposition();
+ }
+ function focusSelected(){
+  const unit=view?.units.find(u=>u.id===selected&&u.hp>0);if(!unit)return;
+  const tile=board.querySelector(`[data-x="${unit.x}"][data-y="${unit.y}"]`);if(!tile)return;
+  viewport.scrollLeft=Math.max(0,tile.offsetLeft-viewport.clientWidth/2+tile.clientWidth/2);viewport.scrollTop=Math.max(0,tile.offsetTop-viewport.clientHeight/2+tile.clientHeight/2);reposition();
+ }
+ toolbar.addEventListener('click',event=>{
+  const b=event.target.closest('button');if(!b)return;
+  if(b.dataset.boardView){mode=b.dataset.boardView;if(mode==='normal')pixels=BOARD_CELL_PIXELS;resize();}
+  if(b.dataset.boardZoom){mode='normal';pixels=Math.max(MIN_BOARD_CELL_PIXELS,Math.min(96,pixels+(b.dataset.boardZoom==='more'?8:-8)));resize();}
+  if(b.hasAttribute('data-board-focus'))focusSelected();
+  const d={left:[-192,0],right:[192,0],up:[0,-192],down:[0,192]}[b.dataset.boardPan];if(d)pan(...d);
+ });
+ viewport.addEventListener('scroll',()=>reposition(),{passive:true});
+ viewport.addEventListener('keydown',event=>{if(event.target!==viewport)return;const d={ArrowLeft:[-64,0],ArrowRight:[64,0],ArrowUp:[0,-64],ArrowDown:[0,64]}[event.key];if(d){event.preventDefault();pan(...d);}});
+ viewport.addEventListener('pointerdown',event=>{if(view?.campaignLayoutVersion!==1||![0,1].includes(event.button)||event.target.closest('#unit-ui'))return;drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:viewport.scrollLeft,top:viewport.scrollTop,active:false};});
+ viewport.addEventListener('pointermove',event=>{
+  if(!drag||drag.id!==event.pointerId)return;const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+  if(!drag.active&&Math.hypot(dx,dy)>7){drag.active=true;viewport.classList.add('is-panning');viewport.setPointerCapture?.(event.pointerId);}
+  if(drag.active){event.preventDefault();viewport.scrollLeft=drag.left-dx;viewport.scrollTop=drag.top-dy;reposition();}
+ });
+ const finish=()=>{if(drag?.active){suppress=true;setTimeout(()=>suppress=false,0);}drag=null;viewport.classList.remove('is-panning');};
+ viewport.addEventListener('pointerup',finish);viewport.addEventListener('pointercancel',finish);
+ viewport.addEventListener('click',event=>{if(suppress){event.preventDefault();event.stopImmediatePropagation();}},true);
+ if(globalThis.ResizeObserver)new ResizeObserver(()=>resize()).observe(viewport);else globalThis.addEventListener?.('resize',resize);
+ return {update(state,unitId){const changed=chapter!==state.chapter;view=state;selected=unitId;chapter=state.chapter;if(changed)mode='fit';resize();if(changed){viewport.scrollLeft=0;viewport.scrollTop=0;focusSelected();}},focusSelected,viewport,toolbar};
+}

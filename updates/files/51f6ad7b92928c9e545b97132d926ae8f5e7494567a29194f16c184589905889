@@ -1,0 +1,13 @@
+import {cloneBalance} from './balance.js';
+// Campaign defaults are applied by the app; raw save restoration is unchanged.
+export function freshCriticalBalance(balance,{story=true,preference=null}={}){
+ const next=cloneBalance(balance);
+ if(story)next.critical.enabled=preference!=='off';
+ return next;
+}
+
+// The application explicitly adopts the current campaign default after a raw restore.
+// Neither raw parsing nor this policy consumes a random draw or changes saved unit fields.
+export function restoredCriticalBalance(balance,{story=true,preference=null}={}){
+ return freshCriticalBalance(balance,{story,preference});
+}

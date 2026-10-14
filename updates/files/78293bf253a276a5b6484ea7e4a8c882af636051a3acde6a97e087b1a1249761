@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "version": "0.36.0",
+  "portraits": [
+    {
+      "id": "guanping",
+      "src": "assets/portrait/v036/guanping.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3731427728658575,
+      "sha256": "e97b9c8f075b648ccec71173964bd0e5e661f8ccf77cc888097a91ba005fc598"
+    },
+    {
+      "id": "hanxuan",
+      "src": "assets/portrait/v036/hanxuan.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3455809246276646,
+      "sha256": "bcef986d1f44754fcbd4f191c546a1d6a3cb7d01ab441707acb712e13dfdbb1e"
+    },
+    {
+      "id": "huanggai",
+      "src": "assets/portrait/v036/huanggai.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.37383378977320403,
+      "sha256": "9230b7ebc1235e757b714135e4811c3fb812c532512abce0a6ba75cc80cff34d"
+    },
+    {
+      "id": "huangzhong",
+      "src": "assets/portrait/v036/huangzhong.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.2908373828068382,
+      "sha256": "d6424999b66c5983fefba6e02ece67cb2a7713c48e4c3196108296f6da4697ea"
+    },
+    {
+      "id": "lady_sun",
+      "src": "assets/portrait/v036/lady_sun.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3104840042618007,
+      "sha256": "460bf51865a5ebecb5b040366bd1e3fce4de076a909eb92cb7a5e4ef60e60a36"
+    },
+    {
+      "id": "liaohua",
+      "src": "assets/portrait/v036/liaohua.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3433737390689644,
+      "sha256": "367fc5d164f6fceb5aa6f985dab2641e9906977bdab4faee993b75075303499c"
+    },
+    {
+      "id": "liufeng",
+      "src": "assets/portrait/v036/liufeng.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3658130351089989,
+      "sha256": "c65e2ff5e13173c344a9ace302038408b06f23b7b72cb265528a637c00ea5771"
+    },
+    {
+      "id": "maliang",
+      "src": "assets/portrait/v036/maliang.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3807827371643768,
+      "sha256": "9a4ce01451ea2862545e8900a40963ddb8b37d29b7e8f467807e8151f5744933"
+    },
+    {
+      "id": "masu",
+      "src": "assets/portrait/v036/masu.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.38392950228982786,
+      "sha256": "0468c1b9fcd475a819d04755a44d863b7bf653afa86e05bfbb0387c45d6581af"
+    },
+    {
+      "id": "pangtong",
+      "src": "assets/portrait/v036/pangtong.png",
+      "width": 1086,
+      "height": 1448,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3035335459845548,
+      "sha256": "c8881fd314403ed7edde0d32c0b6e15fe2a6c3691bf96ff57ec5f77c6c57e936"
+    },
+    {
+      "id": "sunquan",
+      "src": "assets/portrait/v036/sunquan.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3759316331901714,
+      "sha256": "4dbfe422d97131a6dc07650bbb580739080ef3ff4df5911c0a3cf2c0a0ae1b5c"
+    },
+    {
+      "id": "wei_commander",
+      "src": "assets/portrait/v036/wei_commander.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3091356630838044,
+      "sha256": "9df4e54581b5e369df79daf0c0bb10b08be5153712e735b6b452288a164d752c"
+    },
+    {
+      "id": "weiyan",
+      "src": "assets/portrait/v036/weiyan.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3243621920302293,
+      "sha256": "d38458bd39f1794701e98f9212ee8f0d1f1eefe94268b2f28e94f534505576b6"
+    },
+    {
+      "id": "wenpin",
+      "src": "assets/portrait/v036/wenpin.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.30705816239088035,
+      "sha256": "c09b28487a9c542cb68c3fcf33a84239f3eee522e925c11f6153e83c33832d68"
+    },
+    {
+      "id": "wu_officer",
+      "src": "assets/portrait/v036/wu_officer.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.33695688105354965,
+      "sha256": "08e7c11867be9f7a6446b9cd6c147fe0ca044c20a5acad6afe34acf0a6db6847"
+    },
+    {
+      "id": "zhangzhao",
+      "src": "assets/portrait/v036/zhangzhao.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3666127584479519,
+      "sha256": "caf428ab47bd52cb58d5a25df7c253b2ff22d28b2f7351cf52d7d6713494643d"
+    },
+    {
+      "id": "zhaofan",
+      "src": "assets/portrait/v036/zhaofan.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.41185942669117964,
+      "sha256": "738db6e3d36e3b080428be0647eb6ec436ff51169886552298cee3cb2add4e39"
+    },
+    {
+      "id": "zhouyu",
+      "src": "assets/portrait/v036/zhouyu.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.3184767876804463,
+      "sha256": "676eefbc847893071008bc7ad5932ca42954b6f9fe2f127126281959edd30805"
+    },
+    {
+      "id": "zhugejin",
+      "src": "assets/portrait/v036/zhugejin.png",
+      "width": 1122,
+      "height": 1402,
+      "alphaMinMax": [
+        0,
+        255
+      ],
+      "transparentPixelRatio": 0.36871886609656185,
+      "sha256": "83f03b6485462022446ded72819740e7ef10f204264a068ca408fcb7e1000c84"
+    }
+  ]
+}

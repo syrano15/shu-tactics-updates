@@ -1,0 +1,86 @@
+{
+  "version": "0.36.3",
+  "created": "2026-10-10",
+  "sourcePack": "horse-trots-on-soft-ground-2026-05-18-18-50-36-utc.zip",
+  "sourcePackSHA256": "f8fbced5903167e086f21cdb1a1b5b55179c69b4c129c6a19d4bb63e851345a5",
+  "sourcePackBytes": 1597285,
+  "originalsPreserved": true,
+  "listeningVerified": false,
+  "totalFiles": 1,
+  "totalBytes": 244356,
+  "method": "Source PCM slice, per-channel DC removal, bounded attenuation, short cosine boundary fades. Original 44.1kHz stereo PCM16 retained. No compression, pitch changes or time stretching. Waveform and real runtime playback checks are separate from auditory verification.",
+  "files": [
+    {
+      "id": "moveCavalry",
+      "role": "unit-move-cavalry",
+      "file": "unit-move-cavalry.wav",
+      "status": "active",
+      "sourcePack": "horse-trots-on-soft-ground-2026-05-18-18-50-36-utc.zip",
+      "sourceFile": "ByTrottingHorseOnS EE093201.wav",
+      "sourceSha256": "f6b6a3dcfff3733ea7ce1b4663fa316ea9ec847957c15957a3793ccf600c77ea",
+      "sourceDuration": 16.091428571428573,
+      "sourceStart": 2.08,
+      "sourceEnd": 3.4649886621315193,
+      "fadeInMs": 3.99092970521542,
+      "fadeOutMs": 11.995464852607709,
+      "attenuationDb": -7.091982768270136,
+      "outputDuration": 1.384989,
+      "outputChannels": 2,
+      "outputSampleRate": 44100,
+      "outputBits": 16,
+      "peakDbfs": -10.0,
+      "rmsDbfs": -32.404,
+      "bytes": 244356,
+      "sha256": "05bee8717b0979dce0f46eaa5d687f063260885a272870a095695fde6d7d371b",
+      "selectionNote": "Six stable soft-ground hoof beats. First strong waveform approx30ms/peak40ms. No pitch/time-stretch/compression; default cavalry movement gain .8 instead of foot/cart .55.",
+      "listeningVerified": false
+    }
+  ],
+  "waveformRhythm": {
+    "hoofPeakTimesRelativeSec": [
+      0.040000000000000036,
+      0.25,
+      0.46499999999999986,
+      0.69,
+      0.9249999999999998,
+      1.1799999999999997
+    ],
+    "firstMajorTransientApproxMs": 29.931972789115644,
+    "firstHoofPeakApproxMs": 40.000000000000036,
+    "cycleIntervalsSec": [
+      0.20999999999999996,
+      0.21499999999999986,
+      0.2250000000000001,
+      0.23499999999999988,
+      0.2549999999999999,
+      0.2449886621315196
+    ],
+    "cycleIntervalMeanSec": 0.23083144368858655,
+    "cycleIntervalStdSec": 0.015919130005798608,
+    "cycleIntervalCV": 0.06896430465199109
+  },
+  "loopValidation": {
+    "repeatedCopies": 3,
+    "cycleDurationSec": 1.3849886621315193,
+    "seamSampleJump": 0.0,
+    "firstSamplesPeak": 0.0,
+    "lastSamplesPeak": 0.0,
+    "seam40msRmsDBFS": -52.106,
+    "end20msRmsDBFS": -52.32,
+    "noDigitalClippingOnRepeatedBuffer": true,
+    "note": "Zero-valued faded endpoints remove a sample discontinuity. Cycle spacing remains within the original hoof-beat range. This is waveform validation, not a listening claim."
+  },
+  "comparisonWithFoot": {
+    "referencePath": "dist/audio/sfx-v0362/unit-move-foot.wav",
+    "referencePeakDBFS": -10,
+    "referenceRmsDBFS": -26.35,
+    "derivedRmsDifferenceDB": -6.054,
+    "recommendation": "The sparse sharp hoof transients yield a lower RMS despite the same peak. Keep original dynamics; adjust runtime movement gain if play comparison warrants it."
+  },
+  "defaultMovementGain": {
+    "cavalry": 0.8,
+    "foot": 0.55,
+    "cart": 0.55
+  },
+  "supersedesMissingSource": "v0.36.2 moveCavalry pending source is now registered using the newly supplied dedicated horse recording."
+}

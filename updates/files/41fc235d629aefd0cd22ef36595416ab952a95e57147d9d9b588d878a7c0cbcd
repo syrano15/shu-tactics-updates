@@ -1,0 +1,26 @@
+import {terrainProfile,modernTerrain} from './terrain-effects.js';
+import {physicalSpiritPower,spiritDamageGuard} from './spirits-system.js';
+import {HERO_DATA} from './heroes.js';
+import {classDisplayName} from './balance.js';
+export const traitOf = u => u.team==='ally'?HERO_DATA[u.id]?.trait:null;
+export const terrainCode = id => ({forest:'F',plain:'.',river:'#'}[id]);
+export function traitLabel(id){
+ const t=HERO_DATA[id]?.trait;if(!t)return '';
+ return ({class_bonus:`상성 강화 · ${classDisplayName(t.param)} 대상 물리 피해 +20%`,terrain_guard:'지형 숙련 · 수풀에서 방어 +3',counter_up:'반격 강화 · 반격 피해 +20%',morale_start:'사기 시작 · 전투 시작 사기 +10',stratagem_up:'책략 숙련 · 성공률 +10%p',plain_dash:'평지 질주 · 평지에서 이동 시작 시 +1',ration_up:'군량 숙련 · 자신이 쓰는 군량 회복량 +50%',first_guard:'첫 일격 견딤 · 첫 물리 피해 −30%'}[t.type])??'';
+}
+export function terrainDefense(u,s){const t=traitOf(u);return t?.type==='terrain_guard'&&(modernTerrain(s)?terrainProfile(s,u.x,u.y).kind===t.param:s?.terrain[u.y]?.[u.x]===terrainCode(t.param))?3:0;}
+export function plainMove(u,s){const p=u.moveOrigin??u;return traitOf(u)?.type==='plain_dash'&&(modernTerrain(s)?terrainProfile(s,p.x,p.y).kind==='plain':s?.terrain[p.y]?.[p.x]==='.')?1:0;}
+export function physicalModifiers(value,a,b,counter=false,critical=false){
+ const at=traitOf(a),bt=traitOf(b);
+ if(at?.type==='class_bonus'&&at.param===b.cls)value*=1.2;
+ if(counter&&at?.type==='counter_up')value*=1.2;
+ const spiritPower=physicalSpiritPower(a,counter);
+ if(critical)value=Math.max(1,Math.round(value*1.5*spiritPower));
+ else{value=Math.max(1,Math.round(value));if(spiritPower>1)value=Math.round(value*spiritPower);}
+ const guard=spiritDamageGuard(b);if(guard<1)value=Math.max(1,Math.round(value*guard));
+ if(bt?.type==='first_guard'&&!b.firstGuardUsed)value=Math.max(1,Math.round(value*.7));
+ return Math.max(1,value);
+}
+export function consumeGuard(u,amount){if(amount>0&&traitOf(u)?.type==='first_guard')u.firstGuardUsed=true;}
+export const healingAmount = (s,u) => Math.round(s.balance.healing*(traitOf(u)?.type==='ration_up'?1.5:1));
+export const tacticBonus = u => (traitOf(u)?.type==='stratagem_up'?10:0)+(u.spirits?.wisdom?20:0);

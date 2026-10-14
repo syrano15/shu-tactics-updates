@@ -1,0 +1,1393 @@
+{
+  "schemaVersion": 1,
+  "version": "0.36.0",
+  "act": 3,
+  "generatedAt": "2026-10-10",
+  "description": "3막 전용 장면 11개와 실제 12×10 지형에 맞춘 전장 8개. 기존 1·2막 및 생성 원본은 보존한다.",
+  "nativeTerrainSources": [
+    "art/terrain/water-v0282.webp",
+    "art/terrain/forest-v020.webp",
+    "art/act2/pass-rock-v028.webp"
+  ],
+  "validation": {
+    "assets": 19,
+    "originalsPreserved": true,
+    "allOutputsDecoded": true,
+    "stageTerrainSignaturesMatched": 8,
+    "blockedAndCoverMasksMatchAllCells": true,
+    "visualContactSheetsReviewed": true,
+    "jingnanWallsAndCorridorsReviewed": true,
+    "otherAssetsPreservedOnJingnanCorrection": 18
+  },
+  "assets": [
+    {
+      "id": "bg_ship",
+      "kind": "background",
+      "src": "assets/bg/v036/bg_ship.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "0c64b2bd7f472c76a3872168b092b8b650e293aa77ec7919e4c70170748d9c7b",
+      "bytes": 500364,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-8b6b33ee-1a47-4bfe-8740-8296f38f27e2.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "a02968318f043e30f3032ba3df0a0ad61b1dd3628f5539219f2e5cd7bd96005f",
+        "originalPreserved": true,
+        "promptSummary": "Empty Han dynasty river warship deck, ochre wood planks, masts and sails at the edges, teal Yangtze and distant riverbanks, wide 16:9 painterly realism, no people or UI."
+      }
+    },
+    {
+      "id": "bg_mud_road",
+      "kind": "background",
+      "src": "assets/bg/v036/bg_mud_road.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "8f1a7b28a6d16df14124a97ec19500883de4673956b5fadc12b0a6db849d86e7",
+      "bytes": 567206,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-b611f7cb-3503-4abf-a957-a0a8a8824878.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "e420db034ff851ae62243b287195f7095e8aefa3fa8e39293e2ce837bc0d1a30",
+        "originalPreserved": true,
+        "promptSummary": "Empty winter Huarong mud road, wheel ruts, hoof prints, bamboo and rocky slopes, overcast gray hills, wide 16:9 painterly realism, no people or UI."
+      }
+    },
+    {
+      "id": "bg_wu_court",
+      "kind": "background",
+      "src": "assets/bg/v036/bg_wu_court.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "7df52dde00845db1d4b77d547db926db024cdc42fb1e80e50cccddd93bbb5edf",
+      "bytes": 452022,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-e1fd14ff-6df3-4ff5-9a6b-fa2c9155f1a6.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "45ead684b30e9ae6edcb6b2d01d896b83cbfb75403fc990fab5ab3135ad2de20",
+        "originalPreserved": true,
+        "promptSummary": "Empty Jiangdong council hall, red wood pillars, raised desk, bamboo blinds, bronze lamps, abstract screen, gold cloth, wide 16:9 painterly realism, no people or UI."
+      }
+    },
+    {
+      "id": "cg_wu_debate",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_wu_debate.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "10f6434d39357c9dae2bf19f372074424d258af06c396a72e522e7ea0e98e5d5",
+      "bytes": 342928,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-8510d19d-39ef-4085-b620-addc1b83056b.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "bc0578ec09b93a18bf96266e5a2f8b0a39f50e78005b4b4ca967d228af168489",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: cinematic 16:9 story CG for a late Han Chinese tactical RPG, realistic painterly oil concept art, finely detailed faces and textiles, no text/UI. Scene: the famous debate at Sun Quan's Jiangdong court in 208 CE, an East Asian male strategist Zhuge Liang in his early thirties standing calmly at the center with a white robe, sage green-and-gold brocade sash, tall dark rectangular scholar cap with gold trim, slim moustache and small pointed beard, holding a white feather fan. He addresses seated older robed court scholars on both sides; on a raised desk farther back Sun Quan aged28 with short brown beard, gold-ochre brocade outerrobe over teal clothing and a bronze crown listens intently. Warm light across red wooden pillars and bamboo blinds. Widescreen medium-long group tableau rather than face closeups. Dignified historical political tension, consistent East Asian character designs, no written symbols on banners/scrolls, no modern objects or logos."
+      }
+    },
+    {
+      "id": "cg_chibi_fire",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_chibi_fire.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "384837761c207921b0d46ed6765ef5d80ca0dd8527fcb9ee87ea3bb27fec2547",
+      "bytes": 487046,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-8cb96f1f-01fc-43ec-89a0-4145b1e0b0a6.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "7ce4f21b27288ed36cb48d2ed128659c5e7617b5e3b17a5eadd13911ecc5fc18",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: cinematic landscape 16:9 story CG for a late Han Chinese tactical RPG. Scene: Battle of Red Cliffs, winter208, a vast night view across the Yangtze of wooden warships chained together burning fiercely, orange flames climb cloth sails and masts, glowing sparks and smoke sweep toward the northern riverbank, tiny fleeing wooden boats and silhouetted soldiers far away, dark river reflecting many ribbons of fire. View from a rocky southern riverbank, epic but grounded. Realistic painterly historical RPG oil illustration, rich chiaroscuro, precise wooden Han river vessels, cinematic distant fleet scale. No named face closeups, no fantasy creatures, no modern ships, no written characters, no text, no border, no UI, no watermark."
+      }
+    },
+    {
+      "id": "cg_east_wind",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_east_wind.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "775187a7908e6d6f31720a2e37d7ca6704386c64893c7be1a80de6d6f1c9310c",
+      "bytes": 392490,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-645234cd-72b2-4bf7-a8d9-89fe278633e4.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "6c18df7a75284293b619d7954db2813d44ea790e46c95c9464afc08d211b316d",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: wide16:9 story CG for a late Han Chinese tactical RPG. Scene: Zhuge Liang waiting on a simple wooden riverside ritual platform before dawn at Red Cliffs208. East Asian man early30s, calm intelligent face, slim moustache and pointed beard, long dark hair, tall dark rectangular scholar hat with gold piping, white robe with sagegreen goldbrocade borders, white featherfan in one hand; seen in medium-long threequarter profile looking toward a broad river. Cloth streamers on upright poles suddenly stream northward as the southeastwind rises, wide low clouds tearing open over distant warships. Grounded historical human scene, no magical tornado, no supernatural beams. Painterly realistic oil conceptart, muted winter dawn indigo with warm eastern light, dramatic flowing fabric. No Chinese text, symbols, UI, border, modern objects or watermark."
+      }
+    },
+    {
+      "id": "cg_two_veterans",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_two_veterans.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "f024c03c7466f315fa0eafd4724b04046a7d6dda60fae014896cf1d8817e8bb1",
+      "bytes": 387064,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-187eed8f-e69b-4f4e-8104-f3896af3312f.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "95c29abcec1a2045e63185cf5a8a38f520cabeea32b88f875d7b6e6a74b12ebb",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: wide16:9 story CG for a late Han Chinese tactical RPG. Scene: outside Changsha city in209, respectful encounter of Guan Yu and elderly Huang Zhong. Guan Yu is a tall imposing EastAsian warrior aged40s with ruddy stern face, very long flowing blackbeard, green headcloth with bronze ornament, green robe over goldbronze lamellar armor, mounted on a redbrown horse. Across the dusty road Huang Zhong aged60s has white hair tied in a topknot with red ribbon, long white beard, tan/ochre robe under goldenbronze lamellar armor and a deep burgundy cloak. Huang Zhong lowers a drawn wooden bow after his precisely aimed arrow cut only Guan Yu's helmet cord. Their eyes meet with respect, no injury. Widescreen medium-long tableau, warm morning light, city gate behind. Realistic polished painterly RPG oil illustration, natural anatomy, no readable writing, no blood or gore, no modern objects, no UI."
+      }
+    },
+    {
+      "id": "cg_huarong",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_huarong.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "69192b60c95dda98c71ecb2c3bfba91bb37d08910473d203df2eda0717ce02ec",
+      "bytes": 482502,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-45a6c6bc-1d28-4a2b-9104-9b55402fab86.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "c478a4dabbdece61dde64f19a1ad657d6f95358480ef35fca8cd4624781eccb4",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: cinematic 16:9 story CG for a late Han Chinese tactical RPG. Scene: Huarong Trail winter208, after the rear guard is defeated. Guan Yu, imposing EastAsian man in his40s with red-tinged face and very long blackbeard, green headcloth with bronze ornament, green-and-gold robe and bronze lamellar armor, sits motionless on a large red-brown horse, his heavy crescent guandao held upright. Facing him on a muddy mountain road is weary Cao Cao aged50s, tied blackhair, short neat pointed beard and moustache, dark navy-blue robe and bronze lamellar armor, his cloak spattered with mud. Cao Cao asks to be allowed passage, a few exhausted soldiers behind him, no active fighting. Longshot-mediumshot composition shows both whole mounted figures and the narrow wet road with misty hills. Realistic finely painterly historical RPG illustration, dramatic overcast gray light and muted greens, no text or UI, no modern objects, no gore."
+      }
+    },
+    {
+      "id": "cg_lady_sun",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_lady_sun-v0361.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "5ba0b0b0fa7918c51e62ddb5e61c0e45b5a2ac6d960c34e23e9f241b21784606",
+      "bytes": 2555902,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-e45dff2b-fc12-42c9-b20c-3abf7da6a727.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "5ba0b0b0fa7918c51e62ddb5e61c0e45b5a2ac6d960c34e23e9f241b21784606",
+        "originalPreserved": true,
+        "prompt": "Use case: identity-preserve. Asset type: a wide cinematic story CG for the existing Korean Three Kingdoms tactical RPG. Image 1 is the EDIT TARGET. Image 2 is the APPROVED Zhao Yun face and costume identity reference; image 3 is supporting approved silver/white/soft-blue character palette reference only. In Image 1 change ONLY the armored man on the right who is holding the little boy: replace his moustached bearded middle-aged facial identity with Zhao Yun's clean-shaven youthful face from Image 2, same strong brows, eyes, jaw, clean upper lip and chin, long dark hair and recognizable features. He must look like the SAME approved Zhao Yun translated into the cinematic CG style, not another man or Liu Bei. Recolor his dark blue-gray scarf and long cloak to the approved off-white cloth with very subtle pale-blue accents; retain richly detailed silver armor. Keep his gentle expression, head angle looking toward the child, body pose, hands, silver armor silhouette and position unchanged. Preserve EVERY OTHER element of Image 1: Lady Sun's face, red robes and hair ornaments, the little child's face/clothing/pose, the two women attendants, wooden boat pavilion, lake, flags, buildings, daylight, framing and warm detailed cinematic painted-realism. Do not add a helmet, weapon or any new figure. No text, watermark, borders or blank areas. Preserve original wide 16:9 composition and opaque scenic background. Edit only this man's face and scarf/cloak identity; no restyling of the surrounding scene."
+      },
+      "preservedOriginal": {
+        "src": "assets/cg/v036/cg_lady_sun.webp",
+        "sha256": "988a6be66d9b742f17ade7e1019a7d4d30237e66c192310c4965ca7557397b61",
+        "bytes": 392958,
+        "source": {
+          "tool": "image_gen.imagegen (built-in)",
+          "generatedFilename": "exec-776cd9cb-42b7-4ba9-8ff4-f4d969dfb558.png",
+          "width": 1672,
+          "height": 941,
+          "sha256": "10c6dc785b9b74039c92990d4d2fbfd3dea9f848283f4f6a5ff8fc7d9fba14f4",
+          "originalPreserved": true,
+          "prompt": "Use case: historical-scene. Asset type: cinematic wide16:9 story CG for a late Han Chinese tactical RPG. Scene: a dignified young EastAsian noblewoman Lady Sun in her20s, long blackhair in elegant pinned updo with restrained gold ornaments, deep crimson silk robe with golden embroidery, hands a small Chinese boy aged3 in pale clothes to Zhao Yun on a wooden river ship. Zhao Yun is a handsome serious EastAsian warrior in his30s, tied darkhair, small moustache and chinbeard, silver lamellar armor over blue-gray cloth, weapon absent from his hands. He respectfully receives the boy with both arms; the boy reluctantly holds the woman's sleeve. Two armed court maids remain distant with swords lowered, tranquil Yangtze water behind. Widescreen medium-long threefigure tableau, natural anatomically coherent hands, moving farewell atmosphere in soft daylight. Realistic detailed painterly oil illustration, no blood, no violence against child, no modern objects, no written symbols or logos, no UI."
+        }
+      },
+      "identityReference": "assets/portrait/v031/zhaoyun/normal.png",
+      "revision": "v0.36.1 Zhao Yun identity preserved"
+    },
+    {
+      "id": "cg_lusu_letter",
+      "kind": "cg",
+      "src": "assets/cg/v036/cg_lusu_letter.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "570878657f48adbd8eddce24d8935a5e4943bb11863353220fcce3946e73173e",
+      "bytes": 310830,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-6b0151a8-1929-48c5-80cc-b5a58ef69ee8.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "65e5bd917c64cd241923951f315da3e609417f5486a41201c3a96ab0e9ea8976",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: cinematic wide16:9 story CG for a late Han Chinese tactical RPG. Scene: a quiet council hall in Jingzhou210. Lu Su, EastAsian scholar-official aged40s with gentle serious face, thin moustache and small pointed beard, tall dark rectangular goldtrim scholarcap, white/ivoryrobe with mossgreen and goldbrocade edging and a white mourning cord at the sleeve, respectfully hands a sealed rolled letter to Liu Bei. Liu Bei is an EastAsian man aged49 with long darkhair tied in topknot, strong thoughtfulbrow, short moustache/pointedbeard, olivegreen robe over goldbronze lamellar armor. Zhuge Liang early30s, whiteandgreen embroideredrobe, tallblackcap and whitefeatherfan stands quietly besideLiu Bei in grief for Zhou Yu. Threeperson mediumlong tableau, warmlylit woodenHan hall and inklandscape folding screen, serious human emotion, realisticpolishedpainterly historicalgameart. Showletterwithoutreadablewriting, no Chinesecharacters, no modernobjects, no UIborder or watermark."
+      }
+    },
+    {
+      "id": "map_act3",
+      "kind": "campaignMap",
+      "src": "assets/map/v036/map_act3.webp",
+      "width": 1672,
+      "height": 941,
+      "sha256": "014b74ccd68a686185a41d293b0ce1ff0354d47cc205551d6668c031d75a1889",
+      "bytes": 662528,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-12e03f40-b183-4f92-a33a-49d5dc9bf9e7.png",
+        "width": 1672,
+        "height": 941,
+        "sha256": "b66109dfdfa804e08ab02e2046fb731b62a2979f1ba217ca665ffb6e5a757cb6",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: wide16:9 act map illustration forlateHanChina208-210. Createahandsome painterly topdown parchmentandink geographiclandscape ofJingzhouandmiddleYangtze riverregion: riverflowsfromlefttowardright, HanRiverbranchcomesfromthenorth joiningitsmiddle, redrivercliffonthenorthbank, several smallwalledsettlementsnorthandsouth ofthegreatriver, rollinggreenhillsandfarmlands, mistymountains tothefarwest. Warmantiquedparchmentedge, mineralgreenlandandmutedbluewater, scholarlyChineseinklandscapefusedwithrealisticpainterlyhistoricalgameart. No textorChinesecharacters, no UI, no grid, no arrows or markers, no modernbuildings, nofantasycreatures. Citiesaredecorative geographicalvignettes only, neverplayeruniticons."
+      }
+    },
+    {
+      "id": "s14_jiangxia",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s14_jiangxia-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "4969fb9b36f8ba0b2645d189ef023aae58017af9a6013f2d948be9960d9b0fc9",
+      "bytes": 589032,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-e01d3866-394f-49f4-a977-727a28788079.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "bc5535f1a9ae091aecf2e009b5bb0ff06d3ab4517a0ac6d23269fd0e5cfd6244",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: A Yangtze riverbank evacuation road circa208: tan alluvial dirt with scattered small pale pebbles, faint cart ruts and patches of short dry grass. Clear light-brown natural shoreline ground, no water in this component."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": ".........###\n.........###\n...F......##\n..F.......##\n..........##\n......F...##\n......F..###\n.......F.###\n.........###\n.........###",
+      "blockedKind": "water",
+      "coverKind": "forest",
+      "blockedCells": [
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          1
+        ],
+        [
+          10,
+          2
+        ],
+        [
+          11,
+          2
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          9,
+          6
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          7,
+          7
+        ]
+      ],
+      "bridgeCells": [],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    },
+    {
+      "id": "s15_chibi",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s15_chibi-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "f1e0517efe1183dce10f51c1ebda036d63ef340ef0af2ecc8cf6c9fb628c7f59",
+      "bytes": 482478,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-88ce3488-a392-4397-9c92-a59c20cefec9.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "001f17ebfb758d295cf04dd4b0e66800ddee7bd8afdf42c6a393f0f5c23c2314",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: A broad riverwarship deck circa208: aged goldenbrown woodenplanks laid fromtop tobottom, thick grain, ironfastenings and a few pale water stains. Large flat connected deck surface, no masts, no sails, no ropes, no water in this component."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": ".....#######\n.....#......\n...F.#F.....\n.....#......\n............\n............\n.....#......\n...F.#F.....\n.....#......\n.....#######",
+      "blockedKind": "water",
+      "coverKind": "woodenCargo",
+      "blockedCells": [
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          3,
+          2
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "bridgeCells": [
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    },
+    {
+      "id": "s16_huarong",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s16_huarong-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "9d67f3b85de72355d6686e59731277d439423502bd5cc4fe527cb8753766ac85",
+      "bytes": 586926,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-e9c4ffc9-628c-42be-913a-592a158f628b.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "7f93b2d3a588f42c680d41b96fb95d69f4b9e5262d525435874b2e2e7889bfb6",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: Rain-soaked Huarong mud road circa208: desaturated graybrown muddy ground with rutted hoofprints, damp compactsoil, tiny pebbles and modest reflective shallow puddles that remain walkable, gray overcast illumination. No large bodiesofwater."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": "....##..##..\n....##..##..\n....##..##F.\n...F..F.....\n............\n............\n...F...F....\n....##..##F.\n....##..##..\n....##..##..",
+      "blockedKind": "rock",
+      "coverKind": "forest",
+      "blockedCells": [
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          10,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          10,
+          7
+        ]
+      ],
+      "bridgeCells": [],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    },
+    {
+      "id": "s17_jingnan",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s17_jingnan-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "71790158c1b5d354071c9cc1bada5a24716fb1a58b755df751ec3408482e89c1",
+      "bytes": 635918,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-5addaebb-90a5-49dc-beb8-69ec7a1f24ea.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "240d0d7f532f2837ae03b6ba32f159102c1002091df6797e470491d86b7db4ea",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: A southernChina ruralapproach road outside Han cities209: golden tanpackedearth with subtle branching carttracks, fine smallgrasspatches and scattered pebbles. Broad open clear ground."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": "......#...F.\n......#.....\n....F..F....\n............\n......#.....\n......#.....\n............\n....F..F....\n......#.....\n......#...F.",
+      "blockedKind": "wall",
+      "coverKind": "forest",
+      "blockedCells": [
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          10,
+          0
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          10,
+          9
+        ]
+      ],
+      "bridgeCells": [],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes.",
+      "blockedLabel": "성벽",
+      "corridorCells": [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "s18_changsha",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s18_changsha-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "9eefd366e7e48522984b404b89d0d294bb29eb9c9930baa6549edd63857533f5",
+      "bytes": 626446,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-6cdaa339-1eb4-446b-91d5-f7da1e49050a.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "0f16e6dfc62060bd4abbe6ddf0a3d469319ec5007f0241f88a37d272c64181a9",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: The approach toChangsha city gate209: broad paleocre packedearth with occasional irregular embedded gray flagstones and small weathered stones, faint wheeltracks. Gentle warmmorning light, unobstructed ground."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": ".......#....\n.......#.F..\n....F..#....\n.......#....\n............\n............\n.......#....\n....F..#....\n.......#.F..\n.......#....",
+      "blockedKind": "wall",
+      "coverKind": "forest",
+      "blockedCells": [
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          9,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          9,
+          8
+        ]
+      ],
+      "bridgeCells": [],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    },
+    {
+      "id": "s19_jiangling",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s19_jiangling-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "2a245853835bb89b2f18244ae7df153eb096f91a0cb6be1918bfb13f9225d379",
+      "bytes": 603212,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-9a46329c-10b7-4753-bf77-6aab49c999ef.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "fc636cd03fa2c6dd5e4865f19db58c6050d90f33ee3e68e504f7ff2258058a3e",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: A military approach outsideJiangling fortress209: muted ochretanearth transitioning subtly toweathered graystonepavers neartherightedge, faintscuffedwheeltracks, groundonly withnospecificobjects. Calm diffuse daylight."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": "...#...#....\n...#...#.F..\n.....F.#....\n............\n............\n............\n............\n.....F.#....\n...#...#.F..\n...#...#....",
+      "blockedKind": "wall",
+      "coverKind": "forest",
+      "blockedCells": [
+        [
+          3,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          7,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          9,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          9,
+          8
+        ]
+      ],
+      "bridgeCells": [],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    },
+    {
+      "id": "s20_adou_river",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s20_adou_river-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "b6155f09b937847e5fb45854d265770ebfaa0fadaeeea577692b8ce688a5c202",
+      "bytes": 337710,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-ea8e36bd-b24f-43af-8c9d-4bb0aef050e6.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "e8354e64ed8b312a397343fe0c55b66ad47db810de6b45ac36401868b77b5899",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: Linked boarding-decks ofriver ships209: flat weathered goldenbrown deckplanks laid horizontally, detailedwoodgrain, a fewironnailsandwetspots, thiscomponentcontainsnothingexceptwalkablewoodsurface."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": "############\n############\n############\n...F.##.....\n............\n............\n...F.##.....\n############\n############\n############",
+      "blockedKind": "water",
+      "coverKind": "woodenCargo",
+      "blockedCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          10,
+          2
+        ],
+        [
+          11,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "bridgeCells": [
+        [
+          5,
+          4
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          6,
+          5
+        ]
+      ],
+      "fordCells": [],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    },
+    {
+      "id": "s21_jingzhou_hold",
+      "kind": "battleMap",
+      "src": "art/act3/maps/s21_jingzhou_hold-v036.webp",
+      "width": 1200,
+      "height": 1000,
+      "sha256": "01d4e046f3c7d0912990b7b4fdaa5ece9bafe03a2c821504a07370ad741db1da",
+      "bytes": 641060,
+      "source": {
+        "tool": "image_gen.imagegen (built-in)",
+        "generatedFilename": "exec-b12984a4-4524-4398-b8e1-6ae3f8f5980e.png",
+        "width": 1402,
+        "height": 1122,
+        "sha256": "da240f64360942fdb2ca4ccb5cefc84f0afe495ce517bde449e4f9f3c04869ba",
+        "originalPreserved": true,
+        "prompt": "Use case: historical-scene. Asset type: tactical RPG battlefield ground material, one top-down overhead ortho view occupying the entire image, rectangular5:4, continuous wide terrain texture at approximately1200x1000pixels. Painterly realistic historical game concept art, naturally variable fine material detail, soft warm oblique sunlight, readable unobstructed floor surface. This is a floor/background component to be combined with exact game-defined water/forest/walls afterward, so do not add buildings, trees, rivers, cliffs, units or major obstacles anywhere in the floor. No horizon, no perspectivevanishingpoint, no visible grid, no text, no symbols, no UI, no border, no people. Scene material: Jingzhou riverdefense fields210: mutedearthbrown and mossgreen alluvialground, thin shortgrasspatches, damp faint hooftracks, scatteredpebbles; broad uncluttered dirtandgrass, no river inthiscomponent."
+      },
+      "columns": 12,
+      "rows": 10,
+      "terrainKey": "......#.....\n......#...F.\n....F..F....\n............\n......#.....\n......#.....\n............\n....F..F....\n......#...F.\n......#.....",
+      "blockedKind": "water",
+      "coverKind": "forest",
+      "blockedCells": [
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ]
+      ],
+      "coverCells": [
+        [
+          10,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          10,
+          8
+        ]
+      ],
+      "bridgeCells": [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          3
+        ]
+      ],
+      "fordCells": [
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "nativeComposition": "Generated floor + exact 100px terrain cells in SVG. Existing water/forest/rock textures and native stone wall/deck cover props; no gameplay changes."
+    }
+  ]
+}

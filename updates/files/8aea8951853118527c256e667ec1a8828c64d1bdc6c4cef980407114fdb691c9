@@ -1,0 +1,43 @@
+import {HERO_DATA} from './heroes.js';
+
+export const GUEST_LEGEND='G 게스트 · 성장 조건은 선택해 확인';
+const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+
+// Presentation only: extra allies and roster guests have different growth rules.
+export function guestPresentation(unit,{army=null}={}){
+ if(!unit||unit.team!=='ally')return null;
+ if(unit.nonCombat===true)return {
+  kind:'escort',badge:null,label:'호위 대상',
+  description:'공격할 수 없는 호위 대상입니다. 경험치·레벨은 성장하지 않습니다. 승리·패배 조건은 전장 목표를 확인하세요.',
+  aria:'호위 대상 · 공격 불가 · 경험치 성장 없음',
+ };
+ if(unit.extra===true)return {
+  kind:'temporary',badge:'G',label:'전투 한정 합류',
+  description:'이번 전투만 합류합니다. 경험치·레벨은 성장하지 않으며, 주력 장수가 직접 격파해야 그 장수가 격파 경험치를 얻습니다.',
+  aria:'게스트 · 이번 전투만 합류 · 경험치 성장 없음',
+ };
+ const hero=HERO_DATA[unit.id];
+ if(hero?.guest!==true)return null;
+ const departed=unit.departed===true||army?.heroes?.[unit.id]?.departed===true;
+ return {
+  kind:'rosterGuest',badge:'G',label:departed?'이탈한 게스트':'군단 게스트',
+  description:departed?'군단에서 이탈한 게스트 장수입니다. 이탈한 장수는 출전·정비할 수 없습니다.':'경험치·레벨은 성장합니다. 개조·증편·승급·장비 장착은 제한됩니다. 이야기 진행에 따라 이탈합니다.',
+  aria:departed?'이탈한 게스트 · 출전·정비 불가':'게스트 · 경험치 성장 가능 · 개조·증편·승급·장비 제한',
+  leaveAfterChapter:hero.leaveAfterChapter??null,
+ };
+}
+export function isGuestUnit(unit){return guestPresentation(unit)?.badge==='G';}
+export function guestAriaDescription(unit,options={}){return guestPresentation(unit,options)?.aria??'';}
+export function guestBadgeHTML(unit,{placement='inline',army=null}={}){
+ const guest=guestPresentation(unit,{army});if(guest?.badge!=='G')return '';
+ const location=['board','roster','inline'].includes(placement)?placement:'inline';
+ // The parent cell/roster button gets guestAriaDescription; avoid duplicate speech.
+ return `<span class="guest-badge guest-badge-${location}" aria-hidden="true" title="${escapeHTML(guest.label)}">G</span>`;
+}
+export function guestDetailHTML(unit,options={}){
+ const guest=guestPresentation(unit,options);if(!guest)return '';
+ return `<p class="guest-unit-detail guest-kind-${guest.kind}"><b>${guest.badge?'G · ':''}${escapeHTML(guest.label)}</b><span>${escapeHTML(guest.description)}</span></p>`;
+}
+export function guestLegendHTML(){
+ return '<span class="guest-legend"><span class="guest-badge guest-badge-inline" aria-hidden="true">G</span><span class="guest-legend-copy">게스트 · 성장 조건은 선택해 확인</span></span>';
+}

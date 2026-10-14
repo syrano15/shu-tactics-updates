@@ -1,0 +1,33 @@
+/* v0.31: larger portraits occupy the scene, with a separate readable dialogue row. */
+.dialogue-scene{--dialogue-scene-height:clamp(660px,88dvh,880px);height:var(--dialogue-scene-height);grid-template-rows:52px minmax(0,1fr) 212px 20px}
+.dialogue-scene .portrait-stage,.dialogue-scene.paired-dialogue .portrait-stage{justify-content:space-between;align-items:flex-end;padding:12px clamp(22px,4vw,68px) 6px;gap:24px}
+.dialogue-scene .character-portrait,.dialogue-scene.paired-dialogue .character-portrait{width:min(380px,42%,calc(var(--dialogue-scene-height) - 342px));max-width:none;margin:0;opacity:.72;filter:saturate(.82);transform:none;border:0;background:transparent;box-shadow:none}
+.dialogue-scene .character-portrait.speaking,.dialogue-scene.paired-dialogue .character-portrait.speaking{opacity:1;filter:none;transform:none;border:0;box-shadow:none}
+.dialogue-scene .portrait-viewport,.dialogue-scene .portrait-viewport.framed-portrait,.dialogue-scene .portrait-viewport.sheet-portrait{background:transparent;border-radius:0;box-shadow:none}
+.dialogue-scene.paired-dialogue #portrait-right{margin-left:auto}
+/* Mirror only the artwork. Names, shoulder crops and dialogue controls retain their direction. */
+.dialogue-scene.paired-dialogue #portrait-right .portrait-viewport{transform:scaleX(-1)}
+.dialogue-scene .character-portrait figcaption,.dialogue-scene.paired-dialogue .character-portrait figcaption{justify-content:center;height:34px;min-height:34px;padding:4px 12px;font-size:16px;line-height:26px;color:#c9ceb9;background:linear-gradient(90deg,transparent,#13241cbb 18%,#13241cbb 82%,transparent);border-bottom:1px solid #6f786744}
+.dialogue-scene .character-portrait.speaking figcaption,.dialogue-scene.paired-dialogue .character-portrait.speaking figcaption{color:#f7dd91;background:linear-gradient(90deg,transparent,#26351cdd 18%,#26351cdd 82%,transparent);border-color:#cdb570}
+.dialogue-scene .dialogue-box{height:212px}
+.dialogue-scene.paired-dialogue .dialogue-box::before{content:'';position:absolute;top:-6px;width:10px;height:10px;transform:rotate(45deg);background:#091611;border-top:1px solid #9f946c;border-left:1px solid #9f946c;left:15%}
+.dialogue-scene.paired-dialogue[data-speaking-side="right"] .dialogue-box::before{left:auto;right:15%}
+.dialogue-scene.paired-dialogue.narration .dialogue-box::before,.dialogue-scene.paired-dialogue.has-story-cg .dialogue-box::before{display:none}
+.dialogue-scene.paired-dialogue[data-speaking-side="right"] .speaker-row h3::before{content:'◀ ';font-size:13px}
+.dialogue-scene.paired-dialogue[data-speaking-side="left"] .speaker-row h3::before{content:'▶ ';font-size:13px}
+.dialogue-scene .story-cutin .portrait-viewport{width:min(380px,calc(var(--dialogue-scene-height) - 342px));height:auto;aspect-ratio:1}
+/* Facial alignment is independent of hair ornaments; only the lower chest is clipped. */
+.dialogue-scene .character-portrait img[src*="/portrait/v031/zhoucang/"]{transform:translateY(8%)}
+.dialogue-scene .character-portrait img[src*="/portrait/v031/bianxi/"],.dialogue-scene .character-portrait img[src*="/portrait/v031/liubiao/"],.dialogue-scene .character-portrait img[src*="/portrait/v031/simahui/"]{transform:translateY(4%)}
+@media(max-width:620px){
+ .dialogue-scene{--dialogue-scene-height:620px;grid-template-rows:68px minmax(0,1fr) 230px 20px}
+ .dialogue-scene .portrait-stage,.dialogue-scene.paired-dialogue .portrait-stage{padding:10px 10px 6px;gap:12px}
+ .dialogue-scene .character-portrait,.dialogue-scene.paired-dialogue .character-portrait{width:calc(50% - 6px);max-width:200px}
+ .dialogue-scene .portrait-stage:has(#portrait-right[hidden]) .character-portrait,.dialogue-scene.paired-dialogue .portrait-stage:has(#portrait-right[hidden]) .character-portrait{width:min(240px,68%);max-width:none}
+ .dialogue-scene .character-portrait figcaption,.dialogue-scene.paired-dialogue .character-portrait figcaption{height:30px;min-height:30px;font-size:14px;line-height:22px;padding:4px 6px}
+ .dialogue-scene .dialogue-box{height:230px}
+ .dialogue-scene .speaker-row{gap:6px}
+ .dialogue-scene #speaker-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+ .dialogue-scene #line-number{flex:0 0 auto}
+ .dialogue-scene .story-cutin .portrait-viewport{width:220px;max-width:68%;height:auto;aspect-ratio:1}
+}

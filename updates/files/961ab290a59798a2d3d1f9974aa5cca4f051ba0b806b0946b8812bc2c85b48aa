@@ -1,0 +1,45 @@
+import {CHAPTERS} from './campaign.js';
+
+// Keep version 1 records readable without replaying their retired automation.
+// Only player-issued movement and wait orders can consume the carriage action.
+export const ESCORT_FOLLOW_VERSION=1;
+const chapterFor=state=>state?.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state?.chapter];
+const outcomes=['ready','followed','waited','blocked','manual'];
+const reasons=['','leaders','danger','noRoute','manualMove','off'];
+export const escortFollowApplies=(state,chapter=chapterFor(state))=>chapter?.id==='s10_thousand_li'&&state?.objective?.type==='reachTile'&&state.objective.unit==='x_carriage';
+export function initializeEscortFollow(state,chapter,version=1){
+ if(![0,1].includes(version))throw new Error('수레 동행 기록 버전이 올바르지 않습니다.');
+ if(version===1&&escortFollowApplies(state,chapter)){
+  state.escortFollowVersion=1;state.escortFollow={enabled:false,lastActionRound:0,lastOutcome:'ready',lastReason:'off'};
+ }
+}
+export function escortFollowStatus(state){
+ if(!escortFollowApplies(state))return null;
+ const ids=state.objective.requiredDefeated??[],clearedGates=ids.filter(id=>state.units.some(u=>u.id===id&&u.hp<=0)).length;
+ return {available:true,enabled:false,cartId:'x_carriage',clearedGates,totalGates:ids.length,
+  goalText:'관문장 '+clearedGates+'/'+ids.length+' 격파 + 수레 탈출 · 적 전멸 불필요',
+  canToggle:false,statusText:'수레를 선택해 직접 이동·대기하세요. 수레 행동이 남아 있으면 아군 턴이 자동으로 끝나지 않습니다.'};
+}
+export function setEscortFollowEnabled(state,enabled){
+ if(enabled!==false||!escortFollowApplies(state)||state.result||state.phase!=='ally'||!state.units.some(u=>u.id==='x_carriage'&&u.hp>0&&!u.withdrawn&&!u.escaped))throw new Error('수레는 직접 이동·대기하세요. 자동 동행은 사용하지 않습니다.');
+ state.escortFollowVersion=1;
+ state.escortFollow??={enabled:false,lastActionRound:0,lastOutcome:'ready',lastReason:'off'};
+ state.escortFollow.enabled=false;state.escortFollow.lastReason='off';
+ return escortFollowStatus(state);
+}
+export function recordEscortManualMovement(state,unit){
+ if(unit.id==='x_carriage'&&escortFollowApplies(state)&&state.escortFollowVersion===1){
+  state.escortFollow.lastOutcome='manual';state.escortFollow.lastReason='manualMove';
+ }
+}
+export function validateEscortFollow(state,chapter=chapterFor(state)){
+ const fail=()=>{throw new Error('수레 동행 기록이 올바르지 않습니다.');};
+ if(state.escortFollowVersion===undefined){if(state.escortFollow!==undefined)fail();return;}
+ const r=state.escortFollow;
+ if(state.escortFollowVersion!==1||!escortFollowApplies(state,chapter)||!r||typeof r!=='object'||Array.isArray(r)||Object.keys(r).sort().join(',')!=='enabled,lastActionRound,lastOutcome,lastReason'||typeof r.enabled!=='boolean'||!Number.isInteger(r.lastActionRound)||r.lastActionRound<0||r.lastActionRound>state.round||!outcomes.includes(r.lastOutcome)||!reasons.includes(r.lastReason))fail();
+ if(r.lastActionRound===state.round&&!state.units.find(u=>u.id==='x_carriage')?.done)fail();
+}
+// Compatibility for older callers; no position, done flag, RNG or record writes.
+export function planEscortFollow(){
+ return {action:'none',unitId:'x_carriage',reason:'',log:''};
+}

@@ -1,0 +1,69 @@
+// Versioned overlay: original formations/waves remain references for old saves.
+// Active continuations keep arrived enemies and cancel only future enemy waves.
+export const ACT2_ENEMY_WAVE_LIMIT_VERSION=1;
+const fail=message=>{throw new Error('2막 적 증원 횟수 기록 오류: '+message);};
+const ensure=(ok,message)=>{if(!ok)fail(message);};
+const unique=ids=>Array.isArray(ids)&&new Set(ids).size===ids.length;
+const enemyWave=wave=>wave.team!=='ally';
+const waveEnabled=(state,wave)=>wave.campaignEventsVersion!==1||state.campaignEventsVersion===1;
+export const act2EnemyWaveLimitApplies=chapter=>chapter?.rosterMode==='story'&&chapter.act===2&&chapter.campaignLayoutVersion===1&&chapter.battleEventsVersion===1&&chapter.id!=='s10_thousand_li';
+export const act2EnemyWaveReserveIds=chapter=>act2EnemyWaveLimitApplies(chapter)?(chapter.reinforcements??[]).filter(enemyWave).flatMap(wave=>wave.unitIds):[];
+const previousRemoved=state=>[...(state.act2ReliefRemovedIds??[]),...(state.baimaReinforcementRemovedIds??[]),...(state.thousandLiReinforcementRemovedIds??[])];
+const rawEnemyWaves=(state,chapter)=>(chapter.reinforcements??[]).filter(wave=>enemyWave(wave)&&waveEnabled(state,wave));
+export function retainedAct2EnemyWave(state,chapter){
+ if(!act2EnemyWaveLimitApplies(chapter))return null;
+ const waves=rawEnemyWaves(state,chapter),canonical={s09_baima:'baima_yanjin',s12_xinye:'xinye_flanks'}[chapter.id];
+ return waves.find(wave=>wave.id===canonical)??waves[0]??null;
+}
+export function act2EnemyWaveDefaultRemovedIds(chapter,state={campaignEventsVersion:1}){
+ if(!act2EnemyWaveLimitApplies(chapter))return [];
+ const retained=retainedAct2EnemyWave(state,chapter),prior=new Set(previousRemoved(state));
+ return rawEnemyWaves(state,chapter).filter(wave=>wave.id!==retained?.id).flatMap(wave=>wave.unitIds).filter(id=>!prior.has(id));
+}
+export function installAct2EnemyWaveLimitPolicy(chapter){
+ if(!act2EnemyWaveLimitApplies(chapter))return;
+ const retained=retainedAct2EnemyWave({campaignEventsVersion:1},chapter),cancelled=act2EnemyWaveDefaultRemovedIds(chapter),goal=chapter.objective??{};
+ ensure(!cancelled.includes(goal.unit??goal.targetId)&&!(goal.requiredDefeated??[]).some(id=>cancelled.includes(id)),'취소 대상에 승리 필수 적');
+ chapter.act2EnemyWaveLimitPolicy={version:1,maximumNewEnemyWaves:1,retainedWave:retained?.id??null,preserveAlreadyArrived:true};
+}
+export function act2EnemyWaveObjective(state,chapter,goal){
+ if(state?.act2EnemyWaveLimitVersion!==1||chapter?.id!=='s09_baima'||!state.act2EnemyWaveLimitRemovedIds?.includes('e06'))return goal;
+ const next=structuredClone(goal);if(next.requiredDefeated){next.requiredDefeated=next.requiredDefeated.filter(id=>id!=='e06');if(!next.requiredDefeated.length)delete next.requiredDefeated;}return next;
+}
+export function act2EnemyWaveLimitBrief(state,chapter){
+ if(state?.act2EnemyWaveLimitVersion!==1||!act2EnemyWaveLimitApplies(chapter))return null;
+ if(state.act2EnemyWaveVictoryPending===true)return '대기 적 증원이 취소되어 승리 조건을 달성했습니다. 다음 아군 행동을 확정하거나 턴을 종료하면 승리 결과를 정산합니다. 기존 경험치와 보상은 보존합니다.';
+ if(chapter.id==='s09_baima'&&state.act2EnemyWaveLimitRemovedIds?.includes('e06'))return '이전 적 증원이 이미 도착하여 대기 중인 문추 증원을 취소했습니다. 이미 등장한 적은 보존합니다. 안량을 격파하면 승리하며, 문추 격파는 요구하지 않습니다.';
+ return null;
+}
+export function initializeAct2EnemyWaveLimit(state,chapter,{act2EnemyWaveLimitVersion=1,act2EnemyWaveLimitRemovedIds=null}={}){
+ ensure([0,1].includes(act2EnemyWaveLimitVersion),'지원하지 않는 버전');if(!act2EnemyWaveLimitApplies(chapter)||act2EnemyWaveLimitVersion===0)return;
+ const present=new Set(state.units.map(unit=>unit.id)),allowed=act2EnemyWaveReserveIds(chapter),prior=previousRemoved(state);
+ ensure(act2EnemyWaveLimitRemovedIds===null||unique(act2EnemyWaveLimitRemovedIds),'제외 명단 형식·중복');
+ const removed=act2EnemyWaveLimitRemovedIds===null?act2EnemyWaveDefaultRemovedIds(chapter,state).filter(id=>present.has(id)):[...act2EnemyWaveLimitRemovedIds];
+ ensure(removed.every(id=>allowed.includes(id)&&!prior.includes(id)),'예비대 원본·중복 제외');state.act2EnemyWaveLimitVersion=1;state.act2EnemyWaveLimitRemovedIds=removed;state.units=state.units.filter(unit=>!removed.includes(unit.id));
+ state.objective=act2EnemyWaveObjective(state,chapter,state.objective);
+}
+export function act2EnemyLimitedWaves(state,chapter,waves){
+ if(state?.act2EnemyWaveLimitVersion!==1||!act2EnemyWaveLimitApplies(chapter))return waves;const removed=new Set(state.act2EnemyWaveLimitRemovedIds??[]);
+ return waves.map(wave=>enemyWave(wave)?{...wave,unitIds:wave.unitIds.filter(id=>!removed.has(id))}:wave).filter(wave=>wave.unitIds.length>0);
+}
+export function act2EnemyLimitedOrders(state,chapter,orders){
+ if(state?.act2EnemyWaveLimitVersion!==1||!act2EnemyWaveLimitApplies(chapter))return orders;const removed=new Set(state.act2EnemyWaveLimitRemovedIds??[]);return orders.filter(order=>!removed.has(order.id));
+}
+export function validateAct2EnemyWaveLimit(state,chapter){
+ const marker=state.act2EnemyWaveLimitVersion,removed=state.act2EnemyWaveLimitRemovedIds;if(marker===undefined){ensure(removed===undefined,'이전 전투의 제외 명단');return;}
+ ensure(marker===1&&act2EnemyWaveLimitApplies(chapter)&&state.battleEventsVersion===1,'버전/전장');const allowed=act2EnemyWaveReserveIds(chapter),prior=previousRemoved(state),record=state.reinforcements;
+ ensure(unique(removed)&&removed.every(id=>allowed.includes(id)&&!prior.includes(id)),'제외 명단 원본·중복');const all=[...state.units,...(record?.pending??[]).flatMap(wave=>wave.units)];ensure(removed.every(id=>!all.some(unit=>unit.id===id)),'제외한 적 재등장');
+ const enemyWaves=rawEnemyWaves(state,chapter),spawned=(record?.spawned??[]).filter(id=>enemyWaves.some(wave=>wave.id===id)),pending=(record?.pending??[]).filter(wave=>wave.units.some(unit=>unit.team==='enemy')),retained=retainedAct2EnemyWave(state,chapter);
+ ensure(pending.length<=(spawned.length?0:1),'추가 적 증원 횟수');ensure(pending.every(wave=>wave.id===retained?.id&&wave.units.every(unit=>unit.team==='enemy')),'첫 원고/북측 파동');
+ for(const wave of enemyWaves){const ids=wave.unitIds.filter(id=>!prior.includes(id)),cancelled=ids.filter(id=>removed.includes(id));ensure(!cancelled.length||cancelled.length===ids.length,'파동 일부 취소');if(wave.id===retained?.id&&cancelled.length)ensure(spawned.length>0,'첫 파동 취소 근거');}
+}
+export function upgradeValidatedAct2EnemyWaveLimit(value,chapter){
+ const state=value.state;if(!act2EnemyWaveLimitApplies(chapter)||state.act2EnemyWaveLimitVersion!==undefined||state.battleEventsVersion!==1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const allowed=new Set(act2EnemyWaveReserveIds(chapter)),enemyWaves=rawEnemyWaves(state,chapter),retained=retainedAct2EnemyWave(state,chapter),spawned=(state.reinforcements?.spawned??[]).filter(id=>enemyWaves.some(wave=>wave.id===id)),removedIds=[],cancelledWaveIds=[];
+ for(const wave of state.reinforcements?.pending??[]){if(!wave.units.some(unit=>unit.team==='enemy')||!spawned.length&&wave.id===retained?.id)continue;ensure(wave.units.every(unit=>unit.team==='enemy'&&allowed.has(unit.id)),'이행 대상 대기 부대');removedIds.push(...wave.units.map(unit=>unit.id));cancelledWaveIds.push(wave.id);}
+ if(state.reinforcements){state.reinforcements.pending=state.reinforcements.pending.filter(wave=>!cancelledWaveIds.includes(wave.id));if(!state.reinforcements.pending.length&&!state.reinforcements.spawned.length)delete state.reinforcements;}
+ state.act2EnemyWaveLimitVersion=1;state.act2EnemyWaveLimitRemovedIds=removedIds;state.objective=act2EnemyWaveObjective(state,chapter,state.objective);validateAct2EnemyWaveLimit(state,chapter);
+ return {removedIds,cancelledWaveIds,preservedSpawned:[...(state.reinforcements?.spawned??[])],wenChouCancelled:chapter.id==='s09_baima'&&removedIds.includes('e06')};
+}

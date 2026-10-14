@@ -1,0 +1,55 @@
+import {battleBarkPhase} from './battle-barks.js';
+// Presentation contract only. Never call the engine, roll dice, or infer a counterattack here.
+const finite = (value,fallback=0) => Number.isFinite(value) ? value : fallback;
+const copy = value => value && typeof value === 'object'
+ ? Array.isArray(value) ? value.map(copy) : Object.fromEntries(Object.entries(value).map(([key,item])=>[key,copy(item)]))
+ : value;
+const hp = (value,fallback) => Math.max(0,finite(value,fallback));
+const namedEnemy = unit => unit?.team==='enemy' && (!unit.generic || unit.id==='e_boss' || unit.id==='e_lvbu');
+
+/** actorBefore and targetBefore must be snapshots captured before engine.attack. */
+export function createCombatPlan(actorBefore,targetBefore,result={}) {
+ const actor=copy(actorBefore??{}),target=copy(targetBefore??{});
+ const actorHp=hp(actor.hp,0),targetHp=hp(target.hp,0);
+ const targetAfter=hp(result.targetHp,targetHp),actorAfter=hp(result.actorHp,actorHp);
+ const kind=typeof result.kind==='string'&&result.kind ? result.kind : actor.cls??'infantry';
+ const tactic=!!result.kind;
+ const first={type:'strike',actor:'actor',target:'target',kind,targetClass:target.cls,
+  landed:tactic?result.success===true:result.landed===true,
+  critical:!tactic&&result.critical===true,damage:Math.max(0,finite(result.hit)),
+  hpBefore:targetHp,hpAfter:targetAfter,counter:false,retreat:targetHp>0&&targetAfter===0};
+ const steps=[first];
+ // A miss can legally provoke a counter. A defeated target or a tactic cannot.
+ if(!tactic&&result.counter===true&&targetAfter>0)steps.push({
+  type:'strike',actor:'target',target:'actor',kind:target.cls??'infantry',targetClass:actor.cls,
+  landed:result.counterLanded===true,critical:result.counterCritical===true,
+  damage:Math.max(0,finite(result.returnHit)),hpBefore:actorHp,hpAfter:actorAfter,
+  counter:true,retreat:actorHp>0&&actorAfter===0,
+ });
+ return {actor,target,steps,important:tactic||namedEnemy(actor)||namedEnemy(target)||steps.some(step=>step.critical||step.retreat)};
+}
+
+
+/** Attach selected presentation lines to the strike that produced them, without selecting again. */
+export function combatBarkTimeline(plan,lines){
+ const steps=plan.steps??[];
+ return (Array.isArray(lines)?lines:[]).filter(line=>line&&typeof line.text==='string').slice(0,2).map(line=>{
+  const phase=typeof line.situation==='string'?battleBarkPhase(line.situation):'prepare';
+  let index=Number.isInteger(line.combatStep)&&line.combatStep>=0&&line.combatStep<steps.length?line.combatStep:null;
+  if(index===null){
+   const id=line.unitId??line.speakerId,role=['actor','target'].find(key=>plan[key]?.id===id);
+   const defender=['dodge','crit_taken','damaged','damaged_big','low','retreat','defeated'].includes(line.situation);
+   index=steps.findIndex(step=>{
+    if(line.situation==='counter')return step.counter;
+    if(line.situation==='ally_down')return step.retreat;
+    if(role&&step[defender?'target':'actor']!==role)return false;
+    if(['miss','dodge'].includes(line.situation))return !step.landed;
+    if(['crit','crit_taken'].includes(line.situation))return step.critical;
+    if(phase==='retreat')return step.retreat;
+    return true;
+   });
+   if(index<0)index=0;
+  }
+  return {line,step:phase==='finish'?Math.max(0,steps.length-1):index,phase};
+ });
+}

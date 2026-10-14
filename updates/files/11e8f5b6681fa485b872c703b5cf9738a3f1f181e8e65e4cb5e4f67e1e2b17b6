@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>촉한전기 아트 감상실</title>
+  <link rel="stylesheet" href="art-gallery.css">
+</head>
+<body>
+  <header class="gallery-header">
+    <a class="gallery-brand" href="art-gallery.html"><span aria-hidden="true">의</span><strong>촉한전기 아트 감상실</strong></a>
+    <a class="return-link" href="index.html">게임으로 돌아가기 <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <section class="gallery-intro" aria-labelledby="gallery-title">
+      <p class="eyebrow">1막 · 의용 / 오늘 채택한 인물 그림</p>
+      <h1 id="gallery-title">형제의 얼굴, 이야기와 전장의 풍경</h1>
+      <p>오늘 채택한 인물 그림과 기존 장면·전장 그림을 함께 살펴보세요. 시트의 표정은 부분 보기로 표시하며, 원본 보기에서 네 표정을 한꺼번에 볼 수 있습니다.</p>
+      <p id="gallery-summary" class="gallery-summary" role="status" aria-live="polite">그림을 준비하고 있습니다.</p>
+    </section>
+    <nav class="gallery-filters" aria-label="그림 종류 선택">
+      <button type="button" data-filter="all" aria-pressed="true">전체</button>
+      <button type="button" data-filter="adopted" aria-pressed="false">오늘 채택 · 표정별</button>
+        <button type="button" data-filter="originals" aria-pressed="false">오늘 원본 30개</button>
+      <button type="button" data-filter="major" aria-pressed="false">주요 인물 · 표정</button>
+      <button type="button" data-filter="support" aria-pressed="false">보조 인물</button>
+      <button type="button" data-filter="silhouette" aria-pressed="false">공용 실루엣</button>
+      <button type="button" data-filter="bg" aria-pressed="false">대화 배경</button>
+      <button type="button" data-filter="cg" aria-pressed="false">이벤트 장면</button>
+      <button type="button" data-filter="ui" aria-pressed="false">화면 장식</button>
+      <button type="button" data-filter="units" aria-pressed="false">전장 인물</button>
+      <button type="button" data-filter="terrain" aria-pressed="false">전장 지형</button>
+      <button type="button" data-filter="maps" aria-pressed="false">전장 풍경</button>
+    </nav>
+    <div id="gallery-sections" aria-busy="true"></div>
+    <p id="gallery-empty" class="gallery-empty" hidden>이 종류의 그림은 아직 준비되지 않았습니다.</p>
+    <noscript><p class="gallery-empty">그림 목록을 보려면 브라우저의 JavaScript를 켜주세요.</p></noscript>
+  </main>
+  <footer class="gallery-footer">1막 연출·전장 아트 · 확정 회화체 <a href="index.html">게임으로 돌아가기</a></footer>
+  <dialog id="art-detail" class="art-detail" aria-labelledby="detail-title">
+    <div class="detail-panel">
+      <div class="detail-top"><p id="detail-position"></p><button id="detail-close" type="button" aria-label="큰 그림 닫기">닫기 <span aria-hidden="true">×</span></button></div>
+      <div id="detail-canvas" class="detail-canvas"><span id="detail-viewport" class="detail-viewport"><img id="detail-image" alt=""></span></div>
+      <div class="detail-description"><div><h2 id="detail-title"></h2><p id="detail-meta"></p></div><a id="detail-original" target="_blank" rel="noopener">원본 보기 ↗</a></div>
+      <div class="detail-navigation"><button id="detail-prev" type="button">← 이전 그림</button><span>방향키로 넘기기 · Esc로 닫기</span><button id="detail-next" type="button">다음 그림 →</button></div>
+    </div>
+  </dialog>
+  <script type="module" src="art-gallery.js"></script>
+</body>
+</html>

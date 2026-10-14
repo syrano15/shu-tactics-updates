@@ -1,0 +1,193 @@
+{
+  "version": "0.33.0",
+  "baseline": "f7412c5",
+  "units": [
+    {
+      "id": "xushu",
+      "name": "서서",
+      "source": "art/act2/xushu-v028.png",
+      "target": "art/v033/sd/xushu.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "bcae210a45d93c3b888435d57bcf4baa426c927e8b725a1fdccca6ff2a8314b1",
+      "sourceSha256": "d1492657045c2a07d6cb528fb2656bd59d5966b5f2d68e8bc1684dc90c02ff2c",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.06299840510366826,
+      "bodyBottom": 0.9728867623604466,
+      "transparentPixelRatio": 0.6112948930249358
+    },
+    {
+      "id": "zhoucang",
+      "name": "주창",
+      "source": "art/act2/zhoucang-v028.png",
+      "target": "art/v033/sd/zhoucang.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "2bdd976c494b7129d6aaec03b5e09c998179fcda171a0c315c3f4483e90b8de9",
+      "sourceSha256": "158d18aa57524c3af50c11be9f1213135b86fe741a0032d940c14931060714c9",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.09409888357256778,
+      "bodyBottom": 0.981658692185008,
+      "transparentPixelRatio": 0.5905447066993277
+    },
+    {
+      "id": "chendao",
+      "name": "진도",
+      "source": "art/act2/chendao-v028.png",
+      "target": "art/v033/sd/chendao.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "455323d2fccb82da7d50e5c117a80c1cddaa3edd0300e24ea047f3c1aff47e0f",
+      "sourceSha256": "1919b04000569705bbcf8f6c1dd46a6eb4d131483e9fd4059a9c553703be6b1f",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.12041467304625199,
+      "bodyBottom": 0.9784688995215312,
+      "transparentPixelRatio": 0.5579434485881225
+    },
+    {
+      "id": "caoren",
+      "name": "조인",
+      "source": "art/act2-characters/caoren-v0281.png",
+      "target": "art/v033/sd/caoren.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "20745d546752076c65b52c0800fbbbd5eae7751db75009de3f1bf1b07aa506a8",
+      "sourceSha256": "b453876216c3c390325274b06b507e86016b9a09721884dd40fcd2658dc10b7a",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.04864433811802233,
+      "bodyBottom": 0.9864433811802232,
+      "transparentPixelRatio": 0.48826975369408004
+    },
+    {
+      "id": "kongxiu",
+      "name": "공수",
+      "source": "art/act2-characters/kongxiu-v0281.png",
+      "target": "art/v033/sd/kongxiu.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "d4aeba3bb2ad7c37bcf57655399560d92302ddd2531058933c042115fa9da597",
+      "sourceSha256": "f520e55a7cefc8addee01a562d45aab90a23961367b19ec5568cc09df9199f29",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.12041467304625199,
+      "bodyBottom": 0.9720893141945773,
+      "transparentPixelRatio": 0.5557984783620643
+    },
+    {
+      "id": "hanfu",
+      "name": "한복",
+      "source": "art/act2-characters/hanfu-v0281.png",
+      "target": "art/v033/sd/hanfu.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "934f20878998c9a716847c95353d287ce02c89584836bb0ca956b4cb8afd7141",
+      "sourceSha256": "14b15eb98bd2b7d7ae7a07b6bea341400bd5f84cd53aad8cabe8a9ef3f95bc46",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.14354066985645933,
+      "bodyBottom": 0.9776714513556619,
+      "transparentPixelRatio": 0.5983379501385041
+    },
+    {
+      "id": "bianxi",
+      "name": "변희",
+      "source": "art/act2-characters/bianxi-v0281.png",
+      "target": "art/v033/sd/bianxi.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "3a7b95446f5e91d673c9444ba547a0067c00d67078fd0c56bcd8d4fc99e9b0c7",
+      "sourceSha256": "97787f85bfbc2006cdece548590181549afb996599022d7a617cd8ae49479f28",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.0645933014354067,
+      "bodyBottom": 0.970494417862839,
+      "transparentPixelRatio": 0.5809359014471077
+    },
+    {
+      "id": "xiahouen",
+      "name": "하후은",
+      "source": "art/act2-characters/xiahouen-v0281.png",
+      "target": "art/v033/sd/xiahouen.png",
+      "kind": "foot",
+      "facing": "right",
+      "sha256": "906ee6dcd876ab89454c16161c3b45223163e4a090fec9e66da259c87bdf1187",
+      "sourceSha256": "18c41d52e7d054f78fbd0ca42018652c6f842a2674e4ea71d00974ae40f33d42",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.13875598086124402,
+      "bodyBottom": 0.9625199362041468,
+      "transparentPixelRatio": 0.5845091560276652
+    },
+    {
+      "id": "pursuit_captain",
+      "name": "조조군 추격대장",
+      "source": "art/act2-characters/pursuit_captain-v0281.png",
+      "target": "art/v033/sd/pursuit_captain.png",
+      "kind": "mounted",
+      "facing": "right",
+      "sha256": "b709ae6d69b82547f55d6d9a526706cc8b3659f95c4ec82f4bc227656d73bc2a",
+      "sourceSha256": "7580581683b8b2fff08fc46a57e9f2320f1d69eefec099fbb7d4b688e5266b35",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.12200956937799043,
+      "bodyBottom": 0.9696969696969697,
+      "transparentPixelRatio": 0.5379372928478947
+    },
+    {
+      "id": "xiahoudun",
+      "name": "하후돈",
+      "source": "art/act2-characters/xiahoudun-v0281.png",
+      "target": "art/v033/sd/xiahoudun.png",
+      "kind": "mounted",
+      "facing": "right",
+      "sha256": "99b36c65ac936d68de1f164a10949edf88c7455bb8a828365df04416634ceb11",
+      "sourceSha256": "0a823ba47d5b3d408e9762ff12ff178d8b928fca084bec45ee00bf4f9397929e",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.09649122807017543,
+      "bodyBottom": 0.9848484848484849,
+      "transparentPixelRatio": 0.45886273971139246
+    },
+    {
+      "id": "caocao",
+      "name": "조조",
+      "source": "art/act2-characters/caocao-v0281.png",
+      "target": "art/v033/sd/caocao.png",
+      "kind": "mounted",
+      "facing": "right",
+      "sha256": "0b3fc4173768728c42ba3117eacbf1fed3b9bc65d201e543251ca2ffb14910b9",
+      "sourceSha256": "09158e0357c318165eb667a657fa9fef5f8949d62d1d971a9302989732a369bd",
+      "size": [
+        1254,
+        1254
+      ],
+      "bodyTop": 0.05422647527910686,
+      "bodyBottom": 0.9744816586921851,
+      "transparentPixelRatio": 0.479808790498793
+    }
+  ]
+}

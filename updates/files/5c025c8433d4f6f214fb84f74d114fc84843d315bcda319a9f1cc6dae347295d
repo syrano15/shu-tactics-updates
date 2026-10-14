@@ -1,0 +1,18 @@
+// Only the fragile escort armor changed. Restore old ongoing battles in place,
+// keeping wounds, coordinates, actions, the RNG and completed battle outcomes.
+export function normalizeEscortSave(value,chapter,refs){
+ const version=value.escortBalanceVersion;
+ if(version!==undefined&&(version!==1||chapter.id!=='s10_thousand_li'))throw new Error('호위 수레 저장 버전이 올바르지 않습니다.');
+ if(chapter.id!=='s10_thousand_li')return value;
+ if(!Array.isArray(refs))return value;
+ const unit=value.state.units.find(u=>u.id==='x_carriage');
+ const ref=refs.find(u=>u.id==='x_carriage');
+ if(version===undefined&&unit?.nonCombat===true&&unit.extra===true&&unit.team==='ally'&&ref?.nonCombat===true){
+  if(unit.def===18){
+   unit.def=ref.def;
+   value.migrationNotice='수레 방어력을 4로 보정했습니다. 현재 병력·위치·턴과 진행 기록은 유지했습니다.';
+  }
+ }
+ value.escortBalanceVersion=1;
+ return value;
+}

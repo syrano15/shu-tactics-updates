@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>촉한전기 · 1막 전투 연출 미리보기</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="combat-scene.css">
+<link rel="stylesheet" href="battle-results.css">
+<link rel="stylesheet" href="attack-range.css">
+  <style>
+    .combat-preview{max-width:900px;margin:48px auto;padding:24px;color:#e5dfc8}
+    .combat-preview h1{font-size:28px;color:#d2b97a}
+    .preview-controls{display:flex;flex-wrap:wrap;align-items:end;gap:16px;margin:28px 0}
+    .preview-controls label{display:grid;gap:8px;min-width:145px}
+    .preview-controls select{font:inherit;background:#15261d;color:#e5dfc8;border:1px solid #71806a;padding:10px}
+    .preview-controls .preview-check{display:flex;align-items:center;gap:8px;min-width:0;padding:10px}
+    .preview-controls input{width:18px;height:18px}
+    .preview-note{color:#a8b89f;line-height:1.8}
+    .preview-outcome{min-height:72px;border-top:1px solid #71806a;padding-top:18px;line-height:1.8}
+    @media(max-width:620px){.combat-preview{margin:12px auto;padding:18px}.preview-controls label{flex:1 1 40%;min-width:0}.preview-controls select{width:100%}}
+  </style>
+  <link rel="stylesheet" href="act2-ui.css">
+</head>
+<body>
+  <main class="combat-preview">
+    <p class="eyebrow">촉한전기 · VERSION 0.28</p>
+    <h1>1막 전투 연출 미리보기</h1>
+    <p class="preview-note">인물을 골라 공격과 반격, 책략을 살펴보세요. 이곳의 시험 교전은 본편 진행과 저장에 영향을 주지 않습니다.</p>
+    <div class="preview-controls">
+      <label>공격 인물<select id="preview-unit" disabled aria-label="공격 인물"></select></label>
+      <label>교전 상황<select id="preview-outcome" aria-label="교전 상황"><option value="hit">명중</option><option value="miss">회피·책략 실패</option><option value="critical">치명타</option><option value="retreat">적 퇴각</option><option value="confusion">혼란 책략</option><option value="deception">위보 책략</option></select></label>
+      <label>연출 표시<select id="preview-mode" aria-label="연출 표시"><option value="all">전체</option><option value="important">중요한 교전만</option><option value="map">간략</option></select></label>
+      <label class="preview-check"><input id="preview-fast" type="checkbox">빠르게</label>
+      <button type="button" id="preview-play" class="primary" disabled>교전 재생</button>
+    </div>
+    <p class="preview-note" id="preview-context"></p>
+    <p class="preview-outcome" id="preview-report" role="status">1막 자료를 준비하고 있습니다.</p>
+    <a href="index.html">본편 타이틀로 돌아가기 →</a>
+  </main>
+  <dialog id="combat" class="combat" hidden aria-label="부대 교전"></dialog>
+  <script type="module" src="combat-preview.js"></script>
+</body>
+</html>

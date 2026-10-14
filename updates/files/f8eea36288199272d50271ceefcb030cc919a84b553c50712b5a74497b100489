@@ -1,0 +1,18 @@
+const SIDES=['left','right'];
+const portraitEntry=value=>typeof value==='string'?{hero:value,face:'normal'}:value&&typeof value==='object'&&typeof (value.speaker??value.hero)==='string'?{hero:value.speaker??value.hero,face:value.face??'normal'}:null;
+// Recompute through the current line: backward navigation and saves use the same slots.
+export function dialogueSlotsAt(lines,index,{sides={},bg=null}={}){
+ const slots={left:null,right:null},lastSeen={left:-1,right:-1};let background=bg,speaking=null;
+ if(!Array.isArray(lines)||!Number.isInteger(index)||index<0||index>=lines.length)return {...slots,speaking,narrator:true};
+ for(let i=0;i<=index;i++){
+  const line=lines[i];if(Object.hasOwn(line,'bg')&&line.bg!==background){background=line.bg;slots.left=null;slots.right=null;lastSeen.left=-1;lastSeen.right=-1;}
+  for(const side of SIDES)if(Object.hasOwn(line,side)){const entry=portraitEntry(line[side]);slots[side]=entry;lastSeen[side]=entry?i:-1;const other=side==='left'?'right':'left';if(entry&&slots[other]?.hero===entry.hero){slots[other]=null;lastSeen[other]=-1;}}
+  speaking=null;if(!line.speaker||line.speaker==='narrator')continue;
+  const explicit=SIDES.includes(line.side)?line.side:SIDES.includes(sides[line.speaker])?sides[line.speaker]:null;
+  let side=explicit??SIDES.find(side=>slots[side]?.hero===line.speaker)??SIDES.find(side=>!slots[side]);
+  if(!side)side=lastSeen.left<=lastSeen.right?'left':'right';
+  const other=side==='left'?'right':'left';if(slots[other]?.hero===line.speaker){slots[other]=null;lastSeen[other]=-1;}
+  slots[side]={hero:line.speaker,face:line.face??'normal'};lastSeen[side]=i;speaking=side;
+ }
+ return {...slots,speaking,narrator:lines[index].speaker==='narrator'};
+}

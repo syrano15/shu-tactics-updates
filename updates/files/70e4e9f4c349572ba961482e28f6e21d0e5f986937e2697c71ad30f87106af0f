@@ -1,0 +1,16 @@
+/** Build a stable action view; saved unit arrays and AI inputs remain untouched. */
+export function enemyActionOrder(state,chapter=null){
+ const goal=state.objective??chapter?.objective;
+ const targets=new Set([...(goal?.type==='defeatUnit'?[goal.targetId]:[]),...(goal?.requiredDefeated??[])]);
+ const orders=new Map((chapter?.enemies??[]).map(entry=>[entry.id,entry]));
+ const priority=unit=>{
+  const order=orders.get(unit.id),tier=unit.combatTier??order?.combatTier;
+  if(targets.has(unit.id))return 3;
+  if(tier==='boss')return 2;
+  if(tier==='officer')return 1;
+  if(unit.generic===true||tier==='troop'||tier==='elite')return 0;
+  // Act 1 and restored historical officers may not carry a combat tier.
+  return 1;
+ };
+ return (state.units??[]).filter(unit=>unit.team==='enemy'&&unit.hp>0).map((unit,index)=>({unit,index,priority:priority(unit)})).sort((a,b)=>a.priority-b.priority||a.index-b.index).map(entry=>entry.unit);
+}

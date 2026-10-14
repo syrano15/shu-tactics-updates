@@ -1,0 +1,20 @@
+{
+  "version": "0.38.0",
+  "mode": "built-in image_gen",
+  "path": "art/v038/strategist.png",
+  "size": [
+    1254,
+    1254
+  ],
+  "visiblePixelBounds": [
+    88,
+    38,
+    1157,
+    1218
+  ],
+  "bodyTop": 230,
+  "sha256": "53497495db9637ca98964aff304ad724794411df6bbb2e85512cac2e5ca2b5cc",
+  "transparentPixelRatio": 0.6005814885190357,
+  "reference": "art/units/archer-v09.png",
+  "prompt": "Distinct anonymous gray-bearded enemy tactician in plain navy robe and cap, tactical scroll and command baton, full-body painterly compact SD, facing left, transparent alpha; archer reference only sets style/proportion. Not Jian Yong, Zhuge Liang or any named hero."
+}

@@ -1,0 +1,1247 @@
+{
+  "schemaVersion": 1,
+  "act": "1막 의용",
+  "note": "Claude 설계 제안. 좌표 (x,y), 좌상단 원점. 일반 적은 generic_<병과> 템플릿(현재 일반병 약화 규칙) + faction 표시.",
+  "extraAllyTemplates": {
+    "militia_inf": {
+      "name": "의병 보병",
+      "class": "infantry",
+      "troops": 2000,
+      "attack": 24,
+      "defense": 10,
+      "intellect": 40,
+      "move": 3
+    },
+    "militia_arc": {
+      "name": "의병 활병",
+      "class": "archer",
+      "troops": 1800,
+      "attack": 22,
+      "defense": 6,
+      "intellect": 40,
+      "move": 3
+    },
+    "coal_cav": {
+      "name": "연합군 기병",
+      "class": "cavalry",
+      "troops": 2400,
+      "attack": 30,
+      "defense": 8,
+      "intellect": 50,
+      "move": 5
+    },
+    "coal_arc": {
+      "name": "연합군 활병",
+      "class": "archer",
+      "troops": 2000,
+      "attack": 24,
+      "defense": 6,
+      "intellect": 50,
+      "move": 3
+    },
+    "kongrong": {
+      "name": "공융",
+      "class": "infantry",
+      "troops": 3900,
+      "attack": 20,
+      "defense": 6,
+      "intellect": 75,
+      "move": 3
+    }
+  },
+  "namedEnemyTemplates": {
+    "yellow_boss": {
+      "name": "황건 두목",
+      "class": "infantry",
+      "troops": 3000,
+      "attack": 30,
+      "defense": 10,
+      "intellect": 40,
+      "move": 3
+    },
+    "huaxiong": {
+      "name": "화웅",
+      "class": "cavalry",
+      "troops": 3600,
+      "attack": 40,
+      "defense": 12,
+      "intellect": 45,
+      "move": 5
+    },
+    "guanhai": {
+      "name": "관해",
+      "class": "infantry",
+      "troops": 3200,
+      "attack": 34,
+      "defense": 12,
+      "intellect": 40,
+      "move": 3
+    },
+    "cao_vanguard": {
+      "name": "조조군 선봉장",
+      "class": "cavalry",
+      "troops": 3600,
+      "attack": 42,
+      "defense": 12,
+      "intellect": 55,
+      "move": 5
+    },
+    "lvbu": {
+      "name": "여포",
+      "class": "cavalry",
+      "troops": 4500,
+      "attack": 55,
+      "defense": 14,
+      "intellect": 40,
+      "move": 5
+    }
+  },
+  "stages": [
+    {
+      "id": "s01_zhuoxian",
+      "no": 1,
+      "size": [
+        12,
+        10
+      ],
+      "terrain": [
+        "............",
+        "..FF......F.",
+        "........FF..",
+        "...F........",
+        "............",
+        "......F.....",
+        "..F.....F...",
+        "........FF..",
+        ".FF.........",
+        "............"
+      ],
+      "sortie": {
+        "fixed": true,
+        "required": [
+          "liubei",
+          "guanyu",
+          "zhangfei"
+        ],
+        "maxSortie": 3,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "extraAllies": [
+        {
+          "id": "x_militia1",
+          "template": "militia_inf",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "x_militia2",
+          "template": "militia_arc",
+          "x": 1,
+          "y": 6
+        }
+      ],
+      "enemies": [
+        {
+          "id": "e01",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 3,
+          "level": 1,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e02",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 8,
+          "y": 4,
+          "level": 1,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e03",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 5,
+          "level": 1,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e04",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 8,
+          "y": 6,
+          "level": 2,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e05",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 9,
+          "y": 2,
+          "level": 2,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e06",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 9,
+          "y": 8,
+          "level": 2,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e07",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 10,
+          "y": 4,
+          "level": 2,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e08",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 10,
+          "y": 6,
+          "level": 2,
+          "aiMode": "charge"
+        }
+      ],
+      "victory": {
+        "type": "defeatAll"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        }
+      ],
+      "phase": 1
+    },
+    {
+      "id": "s02_yellow_camp",
+      "no": 2,
+      "size": [
+        12,
+        10
+      ],
+      "terrain": [
+        "............",
+        ".....F...FF.",
+        "..F.....F...",
+        "......##....",
+        "............",
+        "............",
+        "......##....",
+        "..F.....F...",
+        ".....F...FF.",
+        "............"
+      ],
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei"
+        ],
+        "maxSortie": 4,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "extraAllies": [
+        {
+          "id": "x_militia1",
+          "template": "militia_inf",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "x_militia2",
+          "template": "militia_arc",
+          "x": 2,
+          "y": 6
+        }
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "yellow_boss",
+          "named": true,
+          "faction": "yellow",
+          "x": 10,
+          "y": 5,
+          "level": 3,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e01",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 9,
+          "y": 4,
+          "level": 2,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e02",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 9,
+          "y": 6,
+          "level": 2,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e03",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 9,
+          "y": 1,
+          "level": 2,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e04",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 9,
+          "y": 8,
+          "level": 2,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e05",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 11,
+          "y": 4,
+          "level": 2,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e06",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 11,
+          "y": 6,
+          "level": 2,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e07",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 6,
+          "y": 1,
+          "level": 1,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e08",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 6,
+          "y": 8,
+          "level": 1,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e09",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 4,
+          "level": 2,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e10",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 5,
+          "level": 2,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e11",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 8,
+          "y": 2,
+          "level": 2,
+          "aiMode": "charge"
+        }
+      ],
+      "victory": {
+        "type": "defeatUnit",
+        "unit": "e_boss"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        }
+      ],
+      "phase": 1
+    },
+    {
+      "id": "s03_hulao",
+      "no": 3,
+      "size": [
+        12,
+        10
+      ],
+      "terrain": [
+        "........####",
+        "..F.....####",
+        ".........###",
+        "....F.......",
+        "............",
+        "............",
+        "....F.......",
+        ".........###",
+        "..F.....####",
+        "........####"
+      ],
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei",
+          "guanyu"
+        ],
+        "maxSortie": 4,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "extraAllies": [
+        {
+          "id": "x_coalition1",
+          "template": "coal_cav",
+          "x": 2,
+          "y": 2
+        },
+        {
+          "id": "x_coalition2",
+          "template": "coal_arc",
+          "x": 2,
+          "y": 7
+        }
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "huaxiong",
+          "named": true,
+          "faction": "dong",
+          "x": 9,
+          "y": 4,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e01",
+          "template": "generic_cavalry",
+          "named": false,
+          "faction": "dong",
+          "x": 9,
+          "y": 5,
+          "level": 4,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e02",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "dong",
+          "x": 7,
+          "y": 3,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e03",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "dong",
+          "x": 7,
+          "y": 6,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e04",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "dong",
+          "x": 10,
+          "y": 3,
+          "level": 4,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e05",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "dong",
+          "x": 10,
+          "y": 6,
+          "level": 4,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e06",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "dong",
+          "x": 11,
+          "y": 4,
+          "level": 4,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e07",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "dong",
+          "x": 11,
+          "y": 5,
+          "level": 4,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e08",
+          "template": "generic_crossbow",
+          "named": false,
+          "faction": "dong",
+          "x": 11,
+          "y": 3,
+          "level": 4,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e09",
+          "template": "generic_crossbow",
+          "named": false,
+          "faction": "dong",
+          "x": 11,
+          "y": 6,
+          "level": 4,
+          "aiMode": "hold"
+        }
+      ],
+      "victory": {
+        "type": "defeatUnit",
+        "unit": "e_boss"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        }
+      ],
+      "phase": 1,
+      "equipmentDrops": [
+        {
+          "targetId": "e_boss",
+          "actorId": "guanyu",
+          "itemId": "warlordArmor",
+          "condition": "관우로 화웅 격파 · 화웅의 철갑"
+        }
+      ]
+    },
+    {
+      "id": "s04_beihai",
+      "no": 4,
+      "size": [
+        12,
+        10
+      ],
+      "terrain": [
+        "............",
+        "...F....F...",
+        "..F.........",
+        "........###.",
+        "...F....#...",
+        "............",
+        "...F....#...",
+        "........###.",
+        "..F.........",
+        "...F....F..."
+      ],
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei"
+        ],
+        "maxSortie": 4,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "extraAllies": [
+        {
+          "id": "x_kongrong",
+          "template": "kongrong",
+          "x": 10,
+          "y": 5
+        },
+        {
+          "id": "x_militia1",
+          "template": "militia_inf",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "x_militia2",
+          "template": "militia_arc",
+          "x": 2,
+          "y": 6
+        }
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "guanhai",
+          "named": true,
+          "faction": "yellow",
+          "x": 6,
+          "y": 5,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e01",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 5,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e02",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 4,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e03",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 7,
+          "y": 6,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e04",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 6,
+          "y": 3,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e05",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "yellow",
+          "x": 6,
+          "y": 7,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e06",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 11,
+          "y": 2,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e07",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 11,
+          "y": 8,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e08",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "yellow",
+          "x": 10,
+          "y": 2,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e09",
+          "template": "generic_cavalry",
+          "named": false,
+          "faction": "yellow",
+          "x": 10,
+          "y": 8,
+          "level": 4,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e10",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 4,
+          "y": 2,
+          "level": 3,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e11",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "yellow",
+          "x": 4,
+          "y": 7,
+          "level": 3,
+          "aiMode": "charge"
+        }
+      ],
+      "victory": {
+        "type": "defeatAll"
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        },
+        {
+          "type": "unitLost",
+          "unit": "x_kongrong"
+        }
+      ],
+      "phase": 1
+    },
+    {
+      "id": "s05_xuzhou_relief",
+      "no": 5,
+      "size": [
+        12,
+        10
+      ],
+      "terrain": [
+        "............",
+        ".FF.....F...",
+        ".F..........",
+        "...##.......",
+        "..F.........",
+        "..F.........",
+        "...##.......",
+        ".F..........",
+        ".FF.....F...",
+        "............"
+      ],
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei"
+        ],
+        "maxSortie": 4,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "extraAllies": [
+        {
+          "id": "x_militia1",
+          "template": "militia_inf",
+          "x": 1,
+          "y": 3
+        },
+        {
+          "id": "x_militia2",
+          "template": "militia_arc",
+          "x": 1,
+          "y": 6
+        }
+      ],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "cao_vanguard",
+          "named": true,
+          "faction": "cao",
+          "x": 10,
+          "y": 4,
+          "level": 6,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e01",
+          "template": "generic_cavalry",
+          "named": false,
+          "faction": "cao",
+          "x": 9,
+          "y": 2,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e02",
+          "template": "generic_cavalry",
+          "named": false,
+          "faction": "cao",
+          "x": 9,
+          "y": 7,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e03",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "cao",
+          "x": 8,
+          "y": 4,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e04",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "cao",
+          "x": 8,
+          "y": 5,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e05",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "cao",
+          "x": 8,
+          "y": 3,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e06",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "cao",
+          "x": 8,
+          "y": 6,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e07",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "cao",
+          "x": 10,
+          "y": 2,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e08",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "cao",
+          "x": 10,
+          "y": 7,
+          "level": 5,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e09",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "cao",
+          "x": 10,
+          "y": 5,
+          "level": 5,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e10",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "cao",
+          "x": 11,
+          "y": 3,
+          "level": 5,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e11",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "cao",
+          "x": 11,
+          "y": 6,
+          "level": 5,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e12",
+          "template": "generic_crossbow",
+          "named": false,
+          "faction": "cao",
+          "x": 11,
+          "y": 4,
+          "level": 5,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e13",
+          "template": "generic_crossbow",
+          "named": false,
+          "faction": "cao",
+          "x": 11,
+          "y": 5,
+          "level": 5,
+          "aiMode": "hold"
+        }
+      ],
+      "victory": {
+        "type": "surviveRounds",
+        "rounds": 6,
+        "alsoWinOnDefeatAll": true
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        }
+      ],
+      "phase": 2
+    },
+    {
+      "id": "s06_xuzhou_fall",
+      "no": 6,
+      "size": [
+        12,
+        10
+      ],
+      "terrain": [
+        "............",
+        ".##.##.##.#.",
+        ".##.##.##.#.",
+        "............",
+        "............",
+        ".##.##.##...",
+        ".##.##.##.##",
+        "............",
+        ".##.##.##.##",
+        "............"
+      ],
+      "sortie": {
+        "fixed": false,
+        "required": [
+          "liubei"
+        ],
+        "maxSortie": 6,
+        "unavailable": []
+      },
+      "allySlots": [
+        [
+          10,
+          4
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          11,
+          5
+        ]
+      ],
+      "extraAllies": [],
+      "enemies": [
+        {
+          "id": "e_boss",
+          "template": "lvbu",
+          "named": true,
+          "faction": "lu",
+          "x": 11,
+          "y": 9,
+          "level": 8,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e01",
+          "template": "generic_cavalry",
+          "named": false,
+          "faction": "lu",
+          "x": 10,
+          "y": 9,
+          "level": 6,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e02",
+          "template": "generic_cavalry",
+          "named": false,
+          "faction": "lu",
+          "x": 6,
+          "y": 9,
+          "level": 6,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e03",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "lu",
+          "x": 9,
+          "y": 0,
+          "level": 6,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e04",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "lu",
+          "x": 6,
+          "y": 0,
+          "level": 6,
+          "aiMode": "charge"
+        },
+        {
+          "id": "e05",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "lu",
+          "x": 6,
+          "y": 3,
+          "level": 6,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e06",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "lu",
+          "x": 3,
+          "y": 4,
+          "level": 6,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e07",
+          "template": "generic_spear",
+          "named": false,
+          "faction": "lu",
+          "x": 3,
+          "y": 7,
+          "level": 6,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e08",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "lu",
+          "x": 3,
+          "y": 0,
+          "level": 6,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e09",
+          "template": "generic_archer",
+          "named": false,
+          "faction": "lu",
+          "x": 3,
+          "y": 9,
+          "level": 6,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e10",
+          "template": "generic_crossbow",
+          "named": false,
+          "faction": "lu",
+          "x": 0,
+          "y": 0,
+          "level": 6,
+          "aiMode": "hold"
+        },
+        {
+          "id": "e11",
+          "template": "generic_infantry",
+          "named": false,
+          "faction": "lu",
+          "x": 0,
+          "y": 7,
+          "level": 6,
+          "aiMode": "hold"
+        }
+      ],
+      "victory": {
+        "type": "reachTile",
+        "unit": "liubei",
+        "tiles": [
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ]
+        ]
+      },
+      "defeat": [
+        {
+          "type": "unitLost",
+          "unit": "liubei"
+        }
+      ],
+      "phase": 2,
+      "equipmentDrops": [
+        {
+          "targetId": "e_boss",
+          "itemId": "redHare",
+          "condition": "탈출 전 여포 선택 격파 · 적토마"
+        }
+      ]
+    }
+  ]
+}
