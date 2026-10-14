@@ -1,0 +1,170 @@
+import {isGameSaveKey} from './save-record-deletion.js';
+
+export const SAVE_DATABASE_NAME='shu-tactics-save-storage-v1';
+export const SAVE_DATABASE_VERSION=1;
+export const SAVE_RECORD_STORE='records';
+export const SAVE_METADATA_STORE='metadata';
+const META_KEY='state';
+const failure=(code,message,cause=null)=>{const error=new Error(message);error.code=code;if(cause)error.cause=cause;return error;};
+const storageFailure=error=>['SAVE_STORAGE','SAVE_STALE','SAVE_READONLY'].includes(error?.code)?error:failure('SAVE_STORAGE','저장 공간에 기록하지 못했습니다. 기존 저장은 유지됩니다. 파일로 내보내어 보관하세요.',error);
+const initialMeta=()=>({revision:0,migrationComplete:false,tombstones:[]});
+function checkedSnapshot(records,meta=initialMeta()){
+ if(!(records instanceof Map)||[...records].some(([key,raw])=>!isGameSaveKey(key)||typeof raw!=='string')||!Number.isSafeInteger(meta?.revision)||meta.revision<0||typeof meta.migrationComplete!=='boolean'||!Array.isArray(meta.tombstones)||new Set(meta.tombstones).size!==meta.tombstones.length||meta.tombstones.some(key=>!isGameSaveKey(key)))throw failure('SAVE_STORAGE','저장 목록을 확인하지 못했습니다. 빈 저장 목록으로 초기화하지 않았습니다.');
+ return {records:new Map(records),revision:meta.revision,migrationComplete:meta.migrationComplete,tombstones:[...meta.tombstones]};
+}
+function legacySnapshot(storage){
+ const records=new Map(),errors=[];
+ try{
+  if(!storage||typeof storage.key!=='function'||typeof storage.getItem!=='function')throw new Error('기존 저장 공간을 읽을 수 없습니다.');
+  const length=storage.length;if(!Number.isSafeInteger(length)||length<0)throw new Error('기존 저장 목록을 확인할 수 없습니다.');
+  for(let index=0;index<length;index++){
+   const key=storage.key(index);if(key===null)continue;if(typeof key!=='string')throw new Error('기존 저장 키를 확인할 수 없습니다.');
+   if(!isGameSaveKey(key)||records.has(key))continue;
+   const raw=storage.getItem(key);if(raw!==null&&typeof raw!=='string')throw new Error('기존 저장 원문을 읽을 수 없습니다.');if(raw!==null)records.set(key,raw);
+  }
+ }catch(error){errors.push({key:null,message:error.message});}
+ return {records,errors,complete:errors.length===0};
+}
+
+// Adapter boundary also permits deterministic fault tests without a browser.
+// Production writes resolve only on transaction completion, never put success.
+export async function createIndexedDBSaveAdapter(indexedDB,databaseName=SAVE_DATABASE_NAME,{openTimeoutMs=8000,readTimeoutMs=15000,writeTimeoutMs=15000}={}){
+ if(!indexedDB||typeof indexedDB.open!=='function')throw failure('SAVE_STORAGE','확장 저장 공간을 사용할 수 없습니다.');
+ const db=await new Promise((resolve,reject)=>{
+  let settled=false,request,timer;
+  const fail=error=>{if(settled)return;settled=true;clearTimeout(timer);reject(storageFailure(error));};
+  timer=setTimeout(()=>fail(failure('SAVE_STORAGE','저장 공간을 여는 시간이 초과되었습니다. 기존 저장은 유지됩니다.')),openTimeoutMs);
+  try{request=indexedDB.open(databaseName,SAVE_DATABASE_VERSION);}catch(error){fail(error);return;}
+  request.onupgradeneeded=()=>{try{const database=request.result;if(!database.objectStoreNames.contains(SAVE_RECORD_STORE))database.createObjectStore(SAVE_RECORD_STORE);if(!database.objectStoreNames.contains(SAVE_METADATA_STORE))database.createObjectStore(SAVE_METADATA_STORE);}catch(error){fail(error);try{request.transaction.abort();}catch{}}};
+  request.onerror=()=>fail(request.error);
+  request.onblocked=()=>fail(failure('SAVE_STORAGE','다른 게임 창이 저장 공간을 사용 중입니다. 기존 창을 닫고 다시 실행하세요.'));
+  request.onsuccess=()=>{if(settled){request.result.close();return;}settled=true;clearTimeout(timer);resolve(request.result);};
+ });
+ let closed=false;db.onversionchange=()=>{closed=true;db.close();};
+ const requireOpen=()=>{if(closed)throw failure('SAVE_STORAGE','저장 공간이 닫혔습니다. 게임을 다시 실행하세요.');};
+ return {
+  async read(){
+   requireOpen();return new Promise((resolve,reject)=>{
+    let transaction,meta=initialMeta(),caught=null,timer;const records=new Map();
+    const stop=error=>{caught=storageFailure(error);clearTimeout(timer);try{transaction?.abort();}catch{}reject(caught);};
+    timer=setTimeout(()=>stop(failure('SAVE_STORAGE','저장 목록을 읽는 시간이 초과되었습니다. 빈 목록으로 초기화하지 않았습니다.')),readTimeoutMs);
+    try{
+     transaction=db.transaction([SAVE_RECORD_STORE,SAVE_METADATA_STORE],'readonly');
+     const cursor=transaction.objectStore(SAVE_RECORD_STORE).openCursor();cursor.onsuccess=()=>{try{const row=cursor.result;if(row){records.set(row.key,row.value);row.continue();}}catch(error){stop(error);}};
+     const metadata=transaction.objectStore(SAVE_METADATA_STORE).get(META_KEY);metadata.onsuccess=()=>{meta=metadata.result??initialMeta();};
+     transaction.oncomplete=()=>{clearTimeout(timer);try{resolve(checkedSnapshot(records,meta));}catch(error){reject(error);}};
+     transaction.onabort=()=>{clearTimeout(timer);reject(caught??storageFailure(transaction.error));};transaction.onerror=()=>{caught??=storageFailure(transaction.error);};
+    }catch(error){stop(error);}
+   });
+  },
+  async commit({expectedRevision,puts=new Map(),deletes=[],tombstones=[],migrationComplete}){
+   requireOpen();return new Promise((resolve,reject)=>{
+    let transaction,caught=null,nextRevision=null,timer;
+    const stop=error=>{caught=storageFailure(error);clearTimeout(timer);try{transaction?.abort();}catch{}reject(caught);};
+    timer=setTimeout(()=>stop(failure('SAVE_STORAGE','저장 시간이 초과되었습니다. 완료되지 않은 기록은 적용하지 않았습니다.')),writeTimeoutMs);
+    try{
+     transaction=db.transaction([SAVE_RECORD_STORE,SAVE_METADATA_STORE],'readwrite');
+     const metadata=transaction.objectStore(SAVE_METADATA_STORE),request=metadata.get(META_KEY);
+     request.onsuccess=()=>{
+      try{
+       const current=checkedSnapshot(new Map(),request.result??initialMeta());
+       if(current.revision!==expectedRevision)throw failure('SAVE_STALE','다른 게임 창에서 저장 기록이 변경되었습니다. 최신 저장을 다시 불러온 뒤 저장하세요.');
+       if(current.revision>=Number.MAX_SAFE_INTEGER)throw failure('SAVE_STORAGE','저장 기록 번호를 갱신하지 못했습니다.');
+       const records=transaction.objectStore(SAVE_RECORD_STORE);
+       for(const key of deletes){if(!isGameSaveKey(key))throw failure('SAVE_STORAGE','게임 저장 이외의 기록은 삭제할 수 없습니다.');records.delete(key);}
+       for(const [key,raw] of puts){if(!isGameSaveKey(key)||typeof raw!=='string')throw failure('SAVE_STORAGE','게임 저장 원문을 확인하세요.');records.put(raw,key);}
+       const removed=[...new Set([...current.tombstones,...tombstones])];if(removed.some(key=>!isGameSaveKey(key)))throw failure('SAVE_STORAGE','삭제 기록을 확인하세요.');
+       nextRevision=current.revision+1;metadata.put({revision:nextRevision,migrationComplete:migrationComplete??current.migrationComplete,tombstones:removed},META_KEY);
+      }catch(error){stop(error);}
+     };
+     transaction.oncomplete=()=>{clearTimeout(timer);resolve(nextRevision);};
+     transaction.onabort=()=>{clearTimeout(timer);reject(caught??storageFailure(transaction.error));};transaction.onerror=()=>{caught??=storageFailure(transaction.error);};
+    }catch(error){stop(error);}
+   });
+  },
+  close(){closed=true;db.close();}
+ };
+}
+
+function draftStorage(base){
+ const records=new Map(base);let active=true,touched=false;
+ const check=()=>{if(!active)throw failure('SAVE_STORAGE','저장 작업이 끝난 임시 기록은 변경할 수 없습니다.');};
+ const valid=key=>{check();if(!isGameSaveKey(key))throw failure('SAVE_STORAGE','게임 저장 이외의 설정은 변경할 수 없습니다.');};
+ return {records,get touched(){return touched;},finish(){active=false;},view:{
+  get length(){check();return records.size;},key(index){check();return [...records.keys()][index]??null;},getItem(key){check();return records.get(key)??null;},
+  setItem(key,value){valid(key);if(typeof value!=='string')throw failure('SAVE_STORAGE','저장 원문은 문자열이어야 합니다.');touched=true;records.set(key,value);},removeItem(key){valid(key);touched=true;records.delete(key);},clear(){throw failure('SAVE_STORAGE','저장 공간 전체를 직접 초기화할 수 없습니다.');}
+ }};
+}
+function backendView({snapshot,adapter,legacyStorage,storageManager,mode='indexeddb',readOnly=false,notice=''}){
+ let cache=new Map(snapshot.records),revision=snapshot.revision,tombstones=[...snapshot.tombstones],migrationComplete=snapshot.migrationComplete,queue=Promise.resolve(),closed=false,pending=0;
+ const readonlyError=()=>failure('SAVE_READONLY',notice||'저장 공간은 읽기 전용입니다. 현재 진행을 파일로 내보내어 보관하세요.');
+ const requireWritable=()=>{if(readOnly||closed||!adapter)throw readonlyError();};
+ const enqueue=operation=>{pending++;const result=queue.then(operation);queue=result.then(()=>{pending--;},()=>{pending--;});return result;};
+ const commit=async change=>{let next;try{next=await adapter.commit({expectedRevision:revision,...change});}catch(error){throw storageFailure(error);}if(!Number.isSafeInteger(next)||next!==revision+1)throw failure('SAVE_STORAGE','저장 완료 기록을 확인하지 못했습니다.');revision=next;tombstones=[...new Set([...tombstones,...(change.tombstones??[])])];if(change.migrationComplete!==undefined)migrationComplete=change.migrationComplete;return next;};
+ return Object.freeze({
+  get length(){return cache.size;},key(index){return [...cache.keys()][index]??null;},getItem(key){return cache.get(key)??null;},
+  setItem(){throw failure('SAVE_STORAGE','저장은 확정 가능한 저장 작업 안에서만 할 수 있습니다.');},removeItem(){throw failure('SAVE_STORAGE','삭제는 확정 가능한 저장 작업 안에서만 할 수 있습니다.');},clear(){throw failure('SAVE_STORAGE','게임 설정을 포함한 전체 저장 공간은 지우지 않습니다.');},
+  get mode(){return mode;},get readOnly(){return readOnly||closed;},get notice(){return notice;},get pendingWrites(){return pending;},whenIdle(){return queue;},
+  transaction(callback){
+   return enqueue(async()=>{
+    requireWritable();if(typeof callback!=='function')throw failure('SAVE_STORAGE','저장 작업을 확인하세요.');
+    const draft=draftStorage(cache);let result;
+    try{result=callback(draft.view);if(result&&typeof result.then==='function'){Promise.resolve(result).catch(()=>{});throw failure('SAVE_STORAGE','저장 초안은 동기 작업으로 작성해야 합니다.');}}finally{draft.finish();}
+    const puts=new Map([...draft.records].filter(([key,raw])=>cache.get(key)!==raw)),deletes=[...cache.keys()].filter(key=>!draft.records.has(key));
+    if(!puts.size&&!deletes.length){if(draft.touched){const current=await adapter.read();if(current.revision!==revision)throw failure('SAVE_STALE','다른 게임 창에서 저장 기록이 변경되었습니다. 최신 저장을 다시 불러온 뒤 저장하세요.');}return result;}
+    await commit({puts,deletes,tombstones:deletes});cache=new Map(draft.records);return result;
+   });
+  },
+  reload(){return enqueue(async()=>{if(closed||!adapter)throw readonlyError();const raw=await adapter.read(),latest=checkedSnapshot(raw.records,raw);cache=new Map(latest.records);revision=latest.revision;tombstones=[...latest.tombstones];migrationComplete=latest.migrationComplete;return {records:cache.size,revision};});},
+  deleteGameRecords(){
+   return enqueue(async()=>{
+    const summary={matched:0,deleted:[],failed:[],errors:[],complete:false};
+    if(readOnly||closed||!adapter){summary.errors.push({key:null,message:readonlyError().message});return summary;}
+    const legacy=legacySnapshot(legacyStorage),keys=[...new Set([...cache.keys(),...legacy.records.keys()])];summary.matched=keys.length;
+    if(!legacy.complete){summary.errors.push(...legacy.errors);return summary;}
+    // First make resurrection impossible, retaining every payload for export.
+    try{await commit({tombstones:keys,migrationComplete:true});}catch(error){summary.failed=[...keys];summary.errors.push({key:null,message:storageFailure(error).message});return summary;}
+    const removed=[];
+    for(const key of keys){
+     try{if(legacy.records.has(key)){if(typeof legacyStorage.removeItem!=='function')throw new Error('기존 저장 삭제를 사용할 수 없습니다.');legacyStorage.removeItem(key);if(legacyStorage.getItem(key)!==null)throw new Error('기존 저장 기록이 남아 있습니다.');}removed.push(key);}
+     catch(error){summary.failed.push(key);summary.errors.push({key,message:'저장 삭제 실패: '+error.message});}
+    }
+    try{await commit({deletes:removed,tombstones:keys,migrationComplete:true});for(const key of removed)cache.delete(key);summary.deleted=removed;}
+    catch(error){summary.failed=[...new Set([...summary.failed,...removed])];summary.errors.push({key:null,message:storageFailure(error).message});}
+    summary.complete=summary.errors.length===0;return summary;
+   });
+  },
+  async stats(){
+   const encode=new TextEncoder();let bytes=0;for(const raw of cache.values())bytes+=encode.encode(raw).byteLength;
+   const result={mode,readOnly:readOnly||closed,records:cache.size,bytes,revision,usage:null,quota:null,persisted:null};
+   try{const estimate=await storageManager?.estimate?.();if(Number.isFinite(estimate?.usage))result.usage=estimate.usage;if(Number.isFinite(estimate?.quota))result.quota=estimate.quota;}catch{}
+   try{const persisted=await storageManager?.persisted?.();if(typeof persisted==='boolean')result.persisted=persisted;}catch{}
+   return result;
+  },
+  async requestPersistence(){try{return (await storageManager?.persist?.())===true;}catch{return false;}},
+  close(){closed=true;adapter?.close?.();}
+ });
+}
+
+export async function openSaveStorage(options={}){
+ let legacyStorage=options.legacyStorage,indexedDB=options.indexedDB,storageManager=options.storageManager;
+ try{if(!Object.hasOwn(options,'legacyStorage'))legacyStorage=globalThis.localStorage;}catch{}
+ try{if(!Object.hasOwn(options,'indexedDB'))indexedDB=globalThis.indexedDB;}catch{}
+ try{if(!Object.hasOwn(options,'storageManager'))storageManager=globalThis.navigator?.storage;}catch{}
+ const legacy=legacySnapshot(legacyStorage);let adapter=options.adapter,snapshot;
+ try{adapter??=await createIndexedDBSaveAdapter(indexedDB,options.databaseName??SAVE_DATABASE_NAME,options);snapshot=await adapter.read();snapshot=checkedSnapshot(snapshot.records,snapshot);}
+ catch(error){
+  adapter?.close?.();if(!legacy.complete&&!legacy.records.size)throw failure('SAVE_STORAGE','저장 목록을 읽지 못했습니다. 빈 목록으로 초기화하지 않았습니다.',error);
+  return backendView({snapshot:checkedSnapshot(legacy.records),adapter:null,legacyStorage,storageManager,mode:'legacy-readonly',readOnly:true,notice:legacy.complete?'확장 저장 공간을 열지 못했습니다. 기존 저장만 읽을 수 있습니다. 현재 진행은 파일로 내보내어 보관하세요.':'저장 목록을 완전히 확인하지 못했습니다. 확인된 원문만 읽을 수 있습니다. 파일로 내보내어 보관하세요.'});
+ }
+ if(!legacy.complete){
+  const known=new Map([...legacy.records,...snapshot.records]);if(!known.size){adapter.close?.();throw failure('SAVE_STORAGE','기존 저장 목록을 읽지 못했습니다. 빈 목록으로 초기화하지 않았습니다.');}
+  return backendView({snapshot:{...snapshot,records:known},adapter,legacyStorage,storageManager,mode:'indexeddb-readonly',readOnly:true,notice:'기존 저장 목록을 완전히 확인하지 못해 저장을 변경하지 않았습니다. 확인된 기록은 파일로 내보낼 수 있습니다.'});
+ }
+ if(!snapshot.migrationComplete){
+  const removed=new Set(snapshot.tombstones),puts=new Map([...legacy.records].filter(([key])=>!snapshot.records.has(key)&&!removed.has(key)));
+  try{const revision=await adapter.commit({expectedRevision:snapshot.revision,puts,migrationComplete:true});snapshot={...snapshot,records:new Map([...snapshot.records,...puts]),revision,migrationComplete:true};}
+  catch(error){return backendView({snapshot:{...snapshot,records:new Map([...legacy.records,...snapshot.records])},adapter,legacyStorage,storageManager,mode:'indexeddb-readonly',readOnly:true,notice:'기존 저장의 복사를 완료하지 못해 원본을 그대로 보존했습니다. 확인된 기록은 파일로 내보낼 수 있습니다.'});}
+ }
+ return backendView({snapshot,adapter,legacyStorage,storageManager});
+}
