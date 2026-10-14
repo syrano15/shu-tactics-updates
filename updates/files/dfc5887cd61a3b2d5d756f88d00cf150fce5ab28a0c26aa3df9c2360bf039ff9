@@ -1,0 +1,53 @@
+// Review-only snippets. Do not import this preparation file into v0.60.3.
+// Candidate strings are captured from the transaction draft, not reconstructed
+// from makeSave after the commit or read from a possibly newer queued cache.
+const ordinary=(slot,kind)=>kind==='auto'&&slot==='auto'||kind==='manual'&&/^manual(?:-([2-9]|[1-4][0-9]|5[0-6]))?$/.test(slot);
+export function captureCloudCandidate(draft,slotId,kind,libraryKey){
+ if(!ordinary(slotId,kind))throw new Error('완료된 보통 자동·수동 기록만 연동합니다.');
+ const rawSave=draft.getItem(libraryKey(slotId));if(typeof rawSave!=='string')throw new Error('현재 진행 원문을 확인하지 못했습니다.');
+ return {rawSave,slotId,kind};
+}
+export function createCloudCommitObserver({persistCandidate,coordinator,onNotice=()=>{},refreshUI=()=>{}}){
+ let tail=Promise.resolve();
+ return result=>{
+  if(result?.ok!==true)return Promise.resolve({localCommitted:false,recorded:false});
+  const candidate=result.value;
+  if(!ordinary(candidate?.slotId,candidate?.kind)||typeof candidate.rawSave!=='string')return Promise.resolve({localCommitted:true,recorded:false});
+  const operation=tail.then(async()=>{
+   const entry={...candidate,durable:true};
+   try{
+    // persistCandidate uses separate sync metadata IndexedDB, not game JSON.
+    await persistCandidate(entry);
+    const status=coordinator?.status?.();
+    if(status?.enabled===true&&status.authenticated===true)await coordinator.recordDurableSave(entry);
+    await refreshUI();return {localCommitted:true,recorded:true};
+   }catch{
+    onNotice('로컬 저장은 완료했습니다. 클라우드 연동 대기 기록을 보관하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.');
+    return {localCommitted:true,recorded:false};
+   }
+  });
+  tail=operation.catch(()=>{});return operation;
+ };
+}
+// Root app.js autosave() proposal:
+// const value=makeSave(snapshot(),'auto');
+// const result=await saveOperation(draft=>{
+//   writeSlot(draft,'auto',value);
+//   return captureCloudCandidate(draft,'auto','auto',libraryKey);
+// },'자동 저장 완료');
+// void observeCloudCommit(result);  // does not make local success depend on a network request
+// return result;
+//
+// Root app.js saveManual() proposal:
+// const slot=manualSlot,value=makeSave(snapshot());
+// const result=await saveOperation(draft=>{
+//   writeLibrarySlot(draft,slot,value);
+//   return captureCloudCandidate(draft,slot,'manual',libraryKey);
+// },librarySlotLabel(slot)+' 완료');
+// void observeCloudCommit(result);
+//
+// Do not auto-upload from shared saveOperation(), import, loadStoredValue,
+// preserveClearRecord, archiveExistingCompletion or initial/act-complete records.
+// User-selected ordinary load/import must explicitly update the metadata current
+// pointer to that committed slot, even when its savedAt is older than another auto.
+// beforeOpen then commits a valid current runtime snapshot before comparing cloud.

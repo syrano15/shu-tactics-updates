@@ -1,0 +1,41 @@
+.cloud-save-dialog{box-sizing:border-box;width:min(660px,calc(100vw - 28px));max-height:calc(100dvh - 32px);overflow:auto;padding:25px;border:1px solid #8c9570;border-radius:12px;background:#14251d;color:#e9eedf;box-shadow:0 20px 80px #0009;font-family:system-ui,"Malgun Gothic",sans-serif;font-size:15px;line-height:1.6}
+.cloud-save-dialog::backdrop{background:#05100ccc}
+.cloud-save-dialog [hidden]{display:none!important}
+.cloud-save-dialog h2,.cloud-save-dialog h3,.cloud-save-dialog p{margin:0}
+.cloud-save-dialog p+p{margin-top:10px}
+.cloud-save-dialog button{box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid #697c64;border-radius:7px;background:#233b2c;color:#eef1e4;font:inherit;line-height:1.35;cursor:pointer}
+.cloud-save-dialog button:hover:not(:disabled){background:#314e38;border-color:#b7bd8d}
+.cloud-save-dialog button:disabled{opacity:.45;cursor:default}
+.cloud-save-dialog button:focus-visible,.cloud-save-dialog input:focus-visible{outline:3px solid #e3c58d;outline-offset:3px}
+.cloud-save-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+.cloud-save-kicker{color:#c4d2ac;font-size:13px;letter-spacing:.02em}
+.cloud-save-dialog h2{font-size:25px;color:#f5e9c6;line-height:1.4}
+.cloud-save-close{flex:none}
+.cloud-save-status{display:block;width:fit-content;padding:4px 10px;border-radius:20px;background:#35503a;color:#e0e9cf;font-size:13px;font-weight:700;margin-bottom:10px!important}
+.cloud-save-dialog [data-cloud-notice]{color:#d4dec9;margin-bottom:18px}
+.cloud-save-error{padding:12px;border:1px solid #bf8e65;background:#3a3022;color:#f9dfc1;margin-bottom:16px!important}
+.cloud-save-dialog fieldset{display:grid;gap:8px;min-width:0;margin:18px 0;padding:18px;border:1px solid #5d715a;border-radius:8px}
+.cloud-save-dialog legend{padding:0 7px;font-weight:700;color:#eddfb7}
+.cloud-save-dialog input[type=email],.cloud-save-dialog input[type=password]{box-sizing:border-box;width:100%;min-height:44px;padding:9px 11px;border:1px solid #738466;border-radius:5px;background:#0e1b13;color:#f2f2e5;font:inherit}
+.cloud-save-dialog input[type=checkbox]{width:19px;height:19px;accent-color:#b9b875;margin:0}
+.cloud-save-remember{display:flex;gap:10px;align-items:center;min-height:40px;margin-top:4px}
+.cloud-save-small{font-size:13px;color:#c0cdb7}
+.cloud-save-dialog .cloud-save-primary{background:#aeb377;color:#132319;border-color:#d4d69e;font-weight:700}
+.cloud-save-dialog .cloud-save-primary:hover:not(:disabled){background:#c4c88a}
+.cloud-save-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}
+.cloud-save-progress article{min-width:0;padding:15px;border:1px solid #4e6550;border-radius:8px;background:#192e22;overflow-wrap:anywhere}
+.cloud-save-progress h3{font-size:13px;font-weight:500;color:#bccdb0;margin-bottom:9px}
+.cloud-save-progress b{display:block;font-size:17px;color:#eee6c4}
+.cloud-save-progress p{font-size:14px;margin-top:7px;color:#ced8c4}
+.cloud-save-progress time{display:block;font-size:12px;color:#aebb9d;margin-top:9px}
+.cloud-save-actions{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0}
+.cloud-save-actions button{flex:1 1 170px}
+.cloud-save-conflict{padding:18px;margin:20px 0 12px;border:1px solid #c2ab78;border-radius:8px;background:#2c3323}
+.cloud-save-conflict h3{font-size:19px;color:#f1dfb4;margin-bottom:9px}
+.cloud-save-conflict>[data-cloud-action=prepare]{margin-top:12px}
+.cloud-save-export{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid #646744;padding-top:12px}
+.cloud-save-export button{flex:1 1 170px;font-size:13px;background:transparent}
+.cloud-save-logout{margin-top:10px;font-size:13px!important;background:transparent!important}
+.cloud-save-local-note{border-top:1px solid #4c6047;margin-top:21px!important;padding-top:15px;font-size:13px;color:#bfcbb2}
+.cloud-save-backups{border-top:1px solid #4c6047;margin-top:20px;padding-top:17px}.cloud-save-backups h3{font-size:18px;color:#ecdcb3;margin-bottom:9px}.cloud-save-backups h3 span{font-size:13px;font-weight:500;color:#c4cfb7}.cloud-save-backups article{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:12px 0;border-top:1px solid #40553d;margin-top:12px}.cloud-save-backups article b{overflow-wrap:anywhere}.cloud-save-backups article p,.cloud-save-backups article time{grid-column:1;font-size:12px;color:#b9c8ae;overflow-wrap:anywhere}.cloud-save-backups article button{grid-column:2;grid-row:1/4;font-size:12px;align-self:center;background:transparent}
+@media(max-width:520px){.cloud-save-dialog{padding:18px}.cloud-save-progress{grid-template-columns:1fr}.cloud-save-actions,.cloud-save-export{flex-direction:column}.cloud-save-actions button,.cloud-save-export button{flex-basis:auto}.cloud-save-dialog h2{font-size:23px}.cloud-save-dialog fieldset{padding:14px}}

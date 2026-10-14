@@ -1,0 +1,151 @@
+// Preparation only. This component never serializes or writes a game save itself.
+// The coordinator owns authentication, durable backups, CAS and exact raw applies.
+const ERROR_TEXT={
+ CLOUD_DISABLED:'클라우드 연결을 준비하고 있습니다. 이 기기의 저장은 계속 사용할 수 있습니다.',
+ CLOUD_CONFIG:'클라우드 연결을 준비하고 있습니다. 잠시 뒤 다시 확인해 주세요.',
+ CLOUD_LOGIN:'이메일 또는 비밀번호를 확인해 주세요.',CLOUD_AUTH:'이메일 또는 비밀번호를 확인하고 다시 로그인해 주세요.',
+ CLOUD_LOGIN_REQUIRED:'클라우드에 로그인해 주세요.',CLOUD_FORBIDDEN:'이 계정으로 클라우드 저장을 사용할 수 없습니다.',
+ CLOUD_NETWORK:'연결하지 못했습니다. 이 기기의 저장은 유지됩니다. 연결되면 다시 시도해 주세요.',
+ CLOUD_TIMEOUT:'연결을 기다리다 중단했습니다. 이 기기의 저장은 유지됩니다.',
+ CLOUD_STALE:'다른 기기의 진행이 바뀌었습니다. 다시 비교하고 사용할 진행을 선택해 주세요.',
+ CLOUD_CONFLICT:'양쪽 진행이 다릅니다. 원본을 보관한 뒤 사용할 진행을 선택해 주세요.',
+ CLOUD_BACKUP_REQUIRED:'양쪽 원본을 먼저 안전하게 보관해야 사용할 진행을 선택할 수 있습니다.',
+ CLOUD_LOCAL:'이 기기에 원본을 안전하게 보관하지 못했습니다. 진행을 바꾸지 않고 중단했습니다.',
+ CLOUD_LOCAL_CHANGED:'이 기기의 진행이 바뀌었습니다. 다시 비교해 주세요.',
+ CLOUD_INVALID_SAVE:'진행을 안전하게 확인하지 못했습니다. 이 기기의 기록은 유지됩니다.',
+ CLOUD_NOT_CURRENT:'자동 또는 수동 저장을 먼저 완료한 뒤 현재 진행을 연동해 주세요.',
+ CLOUD_NO_REMOTE:'클라우드에 불러올 진행이 없습니다.',
+ CLOUD_SESSION_STORE:'로그인 유지 정보를 안전하게 보관하지 못했습니다. 다시 로그인해 주세요.',
+ CLOUD_VAULT:'로그인 유지 정보를 안전하게 보관하지 못했습니다. 다시 로그인해 주세요.',
+ CLOUD_ACCOUNT_CHANGED:'로그인 상태가 바뀌었습니다. 다시 로그인하고 양쪽 진행을 확인해 주세요.',
+ CLOUD_SESSION_CHANGED:'로그인 상태가 바뀌었습니다. 다시 로그인해 주세요.',
+ CLOUD_RATE_LIMIT:'잠시 쉬었다가 다시 연결해 주세요. 이 기기의 저장은 유지됩니다.',
+ CLOUD_BUSY:'클라우드 연결을 처리하고 있습니다.',
+ CLOUD_CURRENT_UNSAVED:'현재 진행을 안전하게 보관하지 못했습니다. 행동을 확정하거나 취소하고 이 기기에 저장한 뒤 다시 열어 주세요.',
+ CLOUD_RESPONSE:'진행을 안전하게 확인하지 못했습니다. 이 기기의 기록은 유지됩니다.'
+};
+const PHASE_TEXT={idle:'연결 대기',connected:'로그인 완료 · 진행 비교 필요',checking:'현재 진행 비교 중',uploading:'클라우드에 보관 중',synced:'동기화 완료',empty:'보관된 현재 진행 없음',queued:'이 기기에 저장 완료 · 연동 대기',conflict:'사용할 진행 선택 필요',waiting:'연결 대기 · 로컬 저장 유지','signed-out':'로그아웃'};
+const text=value=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,' ').slice(0,140):'';
+const finiteDate=value=>{const time=typeof value==='number'?value:Date.parse(value);return Number.isFinite(time)&&time>0?new Date(time).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'';};
+const cleanSummary=summary=>({title:text(summary?.title)||'보관된 현재 진행',detail:text(summary?.detail),savedAt:finiteDate(summary?.savedAt)});
+export const cloudUIError=error=>ERROR_TEXT[typeof error?.code==='string'?error.code:'CLOUD_RESPONSE']??ERROR_TEXT.CLOUD_RESPONSE;
+export function describeCloudRaw(raw){
+ try{const value=JSON.parse(raw);return {title:'보관된 현재 진행',detail:'',savedAt:value.savedAt};}catch{return {title:'기록 확인 필요',detail:'원본 파일로 보관할 수 있습니다.',savedAt:''};}
+}
+export function cloudPanelModel({status={},platform='web',supported=true,online=true,working=false,checked=false,localSummary=null,conflict=null,describeRaw=describeCloudRaw,error=null,localWritable=true,canApply=true,currentPrepared=true,backups=[],backupReadError=false}={}){
+ const busy=working||status.busy===true,enabled=status.enabled===true&&supported,authenticated=enabled&&status.authenticated===true,hasConflict=authenticated&&status.conflict===true&&!!conflict;
+ const backupReady=hasConflict&&status.conflictBackupsReady===true&&conflict.backupsReady===true;
+ const localExists=hasConflict?typeof conflict.local?.rawSave==='string':!!localSummary,remoteExists=hasConflict&&conflict.remote?.exists===true&&typeof conflict.remote.rawSave==='string';
+ const describe=raw=>{try{return cleanSummary(describeRaw(raw));}catch{return {title:'기록 확인 필요',detail:'원본 파일로 보관할 수 있습니다.',savedAt:''};}};
+ const local=hasConflict&&localExists?describe(conflict.local.rawSave):localSummary?cleanSummary(localSummary):{title:'저장된 현재 진행 없음',detail:'자동 또는 수동 저장을 먼저 완료해 주세요.',savedAt:''};
+ const remote=remoteExists?describe(conflict.remote.rawSave):{title:checked&&status.revision===0?'클라우드 기록 없음':'현재 진행 비교로 확인',detail:'로그인만으로 이 기기의 진행을 바꾸지 않습니다.',savedAt:''};
+ return {
+  enabled,authenticated,busy,showLogin:enabled&&!authenticated,showActions:authenticated,showConflict:hasConflict,backupReady,
+  statusLabel:!supported&&platform==='pc'?'새 PC 설치본 필요':!enabled?'연결 준비 중':!online?'오프라인 · 로컬 저장 가능':!authenticated?'로그인 필요':busy?'클라우드 연결 중':PHASE_TEXT[status.phase]??'연결 상태 확인 필요',
+  notice:!supported&&platform==='pc'?'클라우드 저장을 사용하려면 새 PC 설치본이 필요합니다. 로컬 저장은 계속 사용할 수 있습니다.':!enabled?ERROR_TEXT.CLOUD_DISABLED:!online?'오프라인에서도 이 기기에 저장하고 플레이할 수 있습니다. 연결되면 현재 진행을 다시 비교하세요.':hasConflict?'양쪽 진행이 다릅니다. 어느 진행을 사용할지 직접 선택해 주세요.':authenticated&&!checked?'현재 진행을 먼저 비교해 주세요. 로그인만으로 저장을 덮어쓰지 않습니다.':status.phase==='synced'?'현재 진행을 클라우드와 확인했습니다. 이 기기의 다른 저장과 장 기록은 그대로 남습니다.':'최근 저장을 클라우드에 보관하고 다른 기기에서 이어 할 수 있습니다.',
+  error:error?cloudUIError(error):'',syncedAt:finiteDate(status.syncedAt),sessionText:authenticated?(status.rememberLogin===true?'이 기기에서 로그인 유지 중':'이번 실행에서만 로그인'):'',local,remote,
+  backupText:backupReady?'양쪽 원본 보관 완료 · 선택 후에도 사본이 남습니다.':'양쪽 원본을 안전하게 보관한 뒤 선택할 수 있습니다.',
+  canLogin:enabled&&!authenticated&&!busy&&online,canLogout:authenticated&&!busy,
+  canCompare:authenticated&&!busy&&online,canUpload:authenticated&&!busy&&online&&checked&&!hasConflict&&localExists&&localWritable&&currentPrepared,
+  canPull:authenticated&&!busy&&online&&canApply&&currentPrepared,canPrepare:hasConflict&&!backupReady&&!busy&&localWritable&&currentPrepared,
+  canChooseLocal:hasConflict&&backupReady&&localExists&&!busy&&online&&localWritable&&currentPrepared,
+  canChooseRemote:hasConflict&&backupReady&&remoteExists&&!busy&&online&&localWritable&&canApply&&currentPrepared,
+  canExportLocal:hasConflict&&localExists,canExportRemote:hasConflict&&remoteExists,
+  localReadOnly:!localWritable,backupCount:backups.length,backups,backupReadError
+ };
+}
+const binding=status=>status.authenticated===true?String(status.projectURL??'')+'|'+String(status.userId??''):null;
+const noopCloudGuard=async()=>{};
+export function cloudExportDescriptor(side,details,now=Date.now()){
+ const raw=side==='local'?details?.local?.rawSave:side==='remote'&&details?.remote?.exists===true?details.remote.rawSave:null;
+ if(typeof raw!=='string')throw Object.assign(new Error(ERROR_TEXT.CLOUD_INVALID_SAVE),{code:'CLOUD_INVALID_SAVE'});
+ return {raw,type:'application/json',filename:'촉한전기_'+(side==='local'?'이기기':'클라우드')+'_충돌원본_'+new Date(now).toISOString().slice(0,10)+'.json'};
+}
+export function downloadCloudRaw(descriptor,{document=globalThis.document,URL=globalThis.URL,Blob=globalThis.Blob,setTimeout=globalThis.setTimeout}={}){
+ const url=URL.createObjectURL(new Blob([descriptor.raw],{type:descriptor.type})),link=document.createElement('a');link.href=url;link.download=descriptor.filename;link.hidden=true;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+export function createCloudSaveController({coordinator,platform='web',supported=true,online=()=>globalThis.navigator?.onLine!==false,readLocalSummary=async()=>null,readBackups=async()=>[],describeRaw=describeCloudRaw,exportRaw=downloadCloudRaw,getAvailability=()=>({localWritable:true,canApply:true}),beforeOpen=noopCloudGuard,beforeAction=noopCloudGuard,onChange=()=>{}}={}){
+ let working=false,checkedBinding=null,error=null,localSummary=null,destroyed=false,currentPrepared=true,backupReadError=false,backupCounter=0;
+ const storedBackups=new Map(),backupUIKeys=new Map();
+ const fallback={enabled:false,authenticated:false,busy:false,phase:'idle'};
+ const status=()=>{try{return coordinator?.status?.()??fallback;}catch{return fallback;}};
+ const details=()=>{try{return coordinator?.conflictDetails?.()??null;}catch{return null;}};
+ const backupModels=()=>[...storedBackups].map(([uiId,entry])=>{let summary;try{summary=cleanSummary(describeRaw(entry.rawSave));}catch{summary=cleanSummary({title:'보관한 원본'});}return {uiId,...summary,reason:text(entry.reason),source:entry.source==='remote'?'클라우드 원본':entry.source==='local'?'이 기기 원본':'보관한 원본',storedAt:finiteDate(entry.savedAt)};});
+ const model=()=>cloudPanelModel({status:status(),platform,supported,online:online()!==false,working,checked:checkedBinding!==null&&checkedBinding===binding(status()),localSummary,conflict:details(),describeRaw,error,...getAvailability(),currentPrepared,backups:backupModels(),backupReadError});
+ const emit=()=>{if(!destroyed)onChange(model());};
+ const setError=next=>{error={code:Object.hasOwn(ERROR_TEXT,next?.code)?next.code:'CLOUD_RESPONSE'};};
+ async function refresh(){
+  const [localResult,backupResult]=await Promise.allSettled([Promise.resolve().then(readLocalSummary),Promise.resolve().then(readBackups)]);
+  if(localResult.status==='fulfilled')localSummary=localResult.value;else{localSummary=null;setError({code:'CLOUD_LOCAL'});}
+  if(backupResult.status==='fulfilled'&&Array.isArray(backupResult.value)){
+   const next=new Map();for(const entry of backupResult.value){if(!entry||typeof entry.id!=='string'||typeof entry.rawSave!=='string')continue;if(!backupUIKeys.has(entry.id))backupUIKeys.set(entry.id,'archive-'+(++backupCounter));next.set(backupUIKeys.get(entry.id),{...entry});}
+   storedBackups.clear();for(const [id,entry]of next)storedBackups.set(id,entry);backupReadError=false;
+  }else backupReadError=true;
+  emit();return model();
+ }
+ const method=async(name,...args)=>{if(typeof coordinator?.[name]!=='function')throw Object.assign(new Error(ERROR_TEXT.CLOUD_DISABLED),{code:'CLOUD_DISABLED'});return coordinator[name](...args);};
+ const unsubscribe=coordinator?.subscribe?.(()=>emit());
+ async function execute(action,credentials){
+  const before=model(),exporting=action==='export-local'||action==='export-remote'||action==='export-backup';let releaseGuard=null;
+  const permitted={login:before.canLogin,logout:before.canLogout,compare:before.canCompare,upload:before.canUpload,pull:before.canPull,prepare:before.canPrepare,'choose-local':before.canChooseLocal,'choose-remote':before.canChooseRemote,'export-local':before.canExportLocal,'export-remote':before.canExportRemote,'export-backup':storedBackups.has(credentials?.uiId)};
+  if(permitted[action]!==true){setError({code:before.busy?'CLOUD_BUSY':before.showConflict&&!before.backupReady?'CLOUD_BACKUP_REQUIRED':!before.enabled?'CLOUD_DISABLED':'CLOUD_NOT_CURRENT'});emit();return {ok:false};}
+  if(exporting){try{if(action==='export-backup'){const entry=storedBackups.get(credentials.uiId);await exportRaw({raw:entry.rawSave,type:'application/json',filename:'촉한전기_보관원본_'+new Date().toISOString().slice(0,10)+'_'+credentials.uiId+'.json'});}else await exportRaw(cloudExportDescriptor(action==='export-local'?'local':'remote',details()));return {ok:true};}catch(next){setError(next);emit();return {ok:false};}}
+  working=true;error=null;emit();
+  const acquireGuard=async guardedAction=>{try{releaseGuard=await beforeAction(guardedAction);if(releaseGuard===false||releaseGuard?.ok===false||releaseGuard?.committed===false)throw {code:'CLOUD_CURRENT_UNSAVED'};if(beforeAction!==noopCloudGuard)currentPrepared=true;}catch(next){currentPrepared=false;throw Object.assign(new Error(ERROR_TEXT.CLOUD_CURRENT_UNSAVED),{code:Object.hasOwn(ERROR_TEXT,next?.code)?next.code:'CLOUD_CURRENT_UNSAVED'});}};
+  try{
+   if(['compare','upload','pull','prepare','choose-local','choose-remote'].includes(action))await acquireGuard(action);
+   if(action==='login'){
+    const email=typeof credentials?.email==='string'?credentials.email.trim():'',password=credentials?.password;
+    if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||typeof password!=='string'||!password||password.length>1024||password.includes('\0'))throw Object.assign(new Error(ERROR_TEXT.CLOUD_LOGIN),{code:'CLOUD_LOGIN'});
+    await method('login',email,password,{remember:credentials?.remember===true});checkedBinding=null;
+    // Read-only comparison after login; it never selects or overwrites a branch.
+    await acquireGuard('compare');
+    await method('pull');checkedBinding=binding(status());
+   }else if(action==='logout'){await method('logout');checkedBinding=null;}
+   else if(action==='compare'||action==='pull'){await method('pull');checkedBinding=binding(status());}
+   else if(action==='upload')await method('sync');
+   else if(action==='prepare')await method('prepareConflict');
+   else if(action==='choose-local')await method('chooseLocal');
+   else if(action==='choose-remote')await method('chooseRemote');
+   await refresh();return {ok:true};
+  }catch(next){setError(next);return {ok:false};}
+  finally{if(typeof releaseGuard==='function'){try{await releaseGuard();}catch{currentPrepared=false;setError({code:'CLOUD_CURRENT_UNSAVED'});}}working=false;emit();}
+ }
+ return {model,refresh,execute,async ready(){try{await coordinator?.ready?.();}catch(next){setError(next);}return refresh();},async prepareOpen(){working=true;error=null;emit();try{await coordinator?.ready?.();if(status().enabled===true&&supported){const proof=await beforeOpen();if(proof===false||proof?.ok===false||proof?.committed===false)throw {code:'CLOUD_CURRENT_UNSAVED'};}currentPrepared=true;}catch(next){currentPrepared=false;setError({code:Object.hasOwn(ERROR_TEXT,next?.code)?next.code:'CLOUD_CURRENT_UNSAVED'});}finally{await refresh();working=false;emit();}return model();},destroy(){destroyed=true;if(typeof unsubscribe==='function')unsubscribe();}};
+}
+let dialogNumber=0;
+export function installCloudSaveUI({document=globalThis.document,window=globalThis.window,coordinator,platform='web',supported=platform!=='pc'||!!window?.shuCloud,entryHosts=[],...options}={}){
+ if(!document?.body)throw new Error('클라우드 저장 화면을 열 수 없습니다.');
+ const id='cloud-save-dialog-'+(++dialogNumber),dialog=document.createElement('dialog');dialog.id=id;dialog.className='cloud-save-dialog';dialog.setAttribute('aria-labelledby',id+'-title');
+ dialog.innerHTML=`<div class="cloud-save-heading"><div><p class="cloud-save-kicker">다른 기기에서 이어 하기</p><h2 id="${id}-title">클라우드 저장</h2></div><button type="button" class="cloud-save-close" data-cloud-close aria-label="클라우드 저장 닫기">닫기</button></div>
+ <p class="cloud-save-status" role="status" aria-live="polite" data-cloud-status></p><p data-cloud-notice></p><p class="cloud-save-error" role="alert" data-cloud-error hidden></p>
+ <form data-cloud-login><fieldset><legend>이메일로 로그인</legend><label for="${id}-email">이메일</label><input id="${id}-email" name="email" type="email" inputmode="email" maxlength="254" autocomplete="username" required><label for="${id}-password">비밀번호</label><input id="${id}-password" name="password" type="password" maxlength="1024" autocomplete="current-password" required><label class="cloud-save-remember"><input name="remember" type="checkbox"> 이 기기에서 로그인 유지</label><p class="cloud-save-small">선택하지 않으면 게임을 종료할 때 로그아웃됩니다. 공용 기기에서는 선택하지 마세요.</p><button type="submit" class="cloud-save-primary">로그인</button></fieldset></form>
+ <section class="cloud-save-connected" data-cloud-connected hidden><p class="cloud-save-small" data-cloud-session></p><div class="cloud-save-progress"><article><h3>이 기기의 진행</h3><b data-cloud-local-title></b><p data-cloud-local-detail></p><time data-cloud-local-time></time></article><article><h3>클라우드 진행</h3><b data-cloud-remote-title></b><p data-cloud-remote-detail></p><time data-cloud-remote-time></time></article></div><p class="cloud-save-small" data-cloud-synced></p><div class="cloud-save-actions"><button type="button" data-cloud-action="compare">현재 진행 비교</button><button type="button" data-cloud-action="upload">현재 진행 업로드</button><button type="button" data-cloud-action="pull">클라우드 진행 불러오기</button></div><p class="cloud-save-small">진행이 다르면 원본을 보관하고 어느 진행을 사용할지 확인합니다. 양쪽 진행을 하나로 합치지 않습니다.</p>
+ <section class="cloud-save-conflict" aria-labelledby="${id}-conflict" data-cloud-conflict hidden><h3 id="${id}-conflict">사용할 진행을 선택하세요</h3><p data-cloud-backup-state role="status" aria-live="polite"></p><button type="button" data-cloud-action="prepare">양쪽 원본 보관</button><div class="cloud-save-actions"><button type="button" class="cloud-save-primary" data-cloud-action="choose-local">이 기기의 진행 사용</button><button type="button" data-cloud-action="choose-remote">클라우드 진행 사용</button></div><div class="cloud-save-export"><button type="button" data-cloud-action="export-local">이 기기 원본 JSON 내보내기</button><button type="button" data-cloud-action="export-remote">클라우드 원본 JSON 내보내기</button></div></section><p class="cloud-save-small" data-cloud-readonly hidden>이 기기의 저장 공간을 읽기 전용으로 사용하고 있어 진행을 바꾸지 않습니다. 양쪽 원본은 파일로 보관할 수 있습니다.</p><button type="button" class="cloud-save-logout" data-cloud-action="logout">로그아웃</button></section>
+ <section class="cloud-save-backups" data-cloud-backups hidden aria-labelledby="${id}-backups"><h3 id="${id}-backups">보관한 원본 <span data-cloud-backup-count></span></h3><p class="cloud-save-small">사용할 진행을 고른 뒤에도 사본은 이 기기에 남습니다. 인터넷 연결이나 로그인 없이 원본 파일을 다시 내보낼 수 있습니다.</p><p data-cloud-backup-read-error role="status" hidden>보관 목록을 갱신하지 못했습니다. 마지막으로 확인한 사본은 파일로 내보낼 수 있습니다.</p><div data-cloud-backup-list></div></section>
+ <p class="cloud-save-local-note">인터넷 연결 없이도 로컬 저장과 플레이를 계속할 수 있습니다. 수동 저장 56칸과 장 시작·클리어 기록은 이 기기에 그대로 보관됩니다.</p>`;
+ document.body.append(dialog);const $=selector=>dialog.querySelector(selector),buttons=new Map([...dialog.querySelectorAll('[data-cloud-action]')].map(button=>[button.dataset.cloudAction,button]));
+ const login=$('[data-cloud-login]'),email=login.querySelector('[name="email"]'),password=login.querySelector('[name="password"]'),remember=login.querySelector('[name="remember"]');let previousFocus=null,lastBackupView='';
+ const render=value=>{
+  $('[data-cloud-status]').textContent=value.statusLabel;$('[data-cloud-notice]').textContent=value.notice;$('[data-cloud-error]').textContent=value.error;$('[data-cloud-error]').hidden=!value.error;
+  dialog.setAttribute('aria-busy',String(value.busy));login.hidden=!value.showLogin;login.querySelector('fieldset').disabled=!value.canLogin;$('[data-cloud-connected]').hidden=!value.showActions;
+  for(const side of ['local','remote']){for(const key of ['title','detail'])$(`[data-cloud-${side}-${key}]`).textContent=value[side][key];$(`[data-cloud-${side}-time]`).textContent=value[side].savedAt;}
+  $('[data-cloud-synced]').textContent=value.syncedAt?'최근 확인 · '+value.syncedAt:'';
+  $('[data-cloud-session]').textContent=value.sessionText;
+  $('[data-cloud-conflict]').hidden=!value.showConflict;$('[data-cloud-backup-state]').textContent=value.backupText;$('[data-cloud-readonly]').hidden=!value.localReadOnly;
+  const flags={compare:'canCompare',upload:'canUpload',pull:'canPull',prepare:'canPrepare','choose-local':'canChooseLocal','choose-remote':'canChooseRemote','export-local':'canExportLocal','export-remote':'canExportRemote',logout:'canLogout'};
+  for(const [name,flag]of Object.entries(flags))buttons.get(name).disabled=!value[flag];buttons.get('prepare').hidden=value.backupReady;
+  $('[data-cloud-backups]').hidden=!value.backupCount&&!value.backupReadError;$('[data-cloud-backup-count]').textContent='· '+value.backupCount+'개';$('[data-cloud-backup-read-error]').hidden=!value.backupReadError;
+  const backupView=JSON.stringify(value.backups);if(backupView!==lastBackupView){lastBackupView=backupView;const list=$('[data-cloud-backup-list]');list.replaceChildren();for(const entry of value.backups){const article=document.createElement('article'),title=document.createElement('b'),note=document.createElement('p'),date=document.createElement('time'),button=document.createElement('button');title.textContent=entry.title;note.textContent=[entry.source,entry.reason].filter(Boolean).join(' · ');date.textContent=entry.storedAt||entry.savedAt;button.type='button';button.dataset.cloudBackup=entry.uiId;button.textContent='원본 JSON 내보내기';button.setAttribute('aria-label',entry.title+' 원본 JSON 내보내기');article.append(title,note,date,button);list.append(article);}}
+ };
+ const controller=createCloudSaveController({coordinator,platform,supported,online:()=>window.navigator?.onLine!==false,...options,onChange:render});
+ const purgeInputs=()=>{email.value='';password.value='';remember.checked=false;};
+ login.addEventListener('submit',event=>{event.preventDefault();if(!login.reportValidity())return;const credentials={email:email.value,password:password.value,remember:remember.checked===true};password.value='';void controller.execute('login',credentials);});
+ dialog.addEventListener('click',event=>{const action=event.target.closest('[data-cloud-action]')?.dataset.cloudAction,backup=event.target.closest('[data-cloud-backup]')?.dataset.cloudBackup;if(action){if(action==='logout')purgeInputs();void controller.execute(action);}if(backup)void controller.execute('export-backup',{uiId:backup});if(event.target.closest('[data-cloud-close]'))dialog.close();});
+ dialog.addEventListener('close',()=>{purgeInputs();previousFocus?.focus?.();});
+ const entries=entryHosts.filter(Boolean).map(host=>{const button=document.createElement('button');button.type='button';button.className='quiet cloud-save-open';button.textContent='클라우드 저장';button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls',id);host.append(button);button.addEventListener('click',()=>{host.closest('dialog')?.close();void open();});return button;});
+ const networkChanged=()=>render(controller.model());window.addEventListener('online',networkChanged);window.addEventListener('offline',networkChanged);
+ async function open(){previousFocus=document.activeElement;if(!dialog.open)dialog.showModal();await controller.prepareOpen();(controller.model().showLogin?email:$('[data-cloud-close]')).focus();}
+ render(controller.model());
+ return {dialog,entries,open,close:()=>dialog.close(),refresh:()=>controller.refresh(),destroy(){controller.destroy();purgeInputs();window.removeEventListener('online',networkChanged);window.removeEventListener('offline',networkChanged);entries.forEach(button=>button.remove());dialog.remove();}};
+}

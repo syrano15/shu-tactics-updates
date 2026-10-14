@@ -1,0 +1,160 @@
+// 클라우드 연동 기록 전용 IndexedDB. 게임 DB·localStorage·서버에는 접근하지 않는다.
+export const CLOUD_STATE_DATABASE='shu-tactics-cloud-state-v1',CLOUD_STATE_VERSION=1;
+export const CLOUD_DATA_STORE='data',CLOUD_BACKUP_STORE='backups',CLOUD_META_STORE='metadata';
+const META_KEY='state',STATE_KEY='sync-state',POINTER_KEY='progress-pointer',SESSION_KEY='session',DATA_KEYS=new Set([STATE_KEY,POINTER_KEY,SESSION_KEY]);
+const MAX_RAW_BYTES=1048576,MAX_REVISION=Number.MAX_SAFE_INTEGER;
+const messages={CLOUD_STATE_STORAGE:'이 기기의 클라우드 연동 기록을 저장하거나 읽지 못했습니다. 원래 게임 저장은 유지됩니다.',CLOUD_STATE_STALE:'다른 창에서 연동 기록이 바뀌었습니다. 최신 상태를 확인한 뒤 다시 선택해 주세요.',CLOUD_STATE_INVALID:'클라우드 연동 기록의 형식이나 원문을 확인하지 못했습니다.',CLOUD_STATE_CLOSED:'클라우드 연동 저장 공간이 닫혔습니다. 다시 열어 주세요.',CLOUD_STATE_CLEARED:'이 기기의 연동 사본을 지웠습니다. 이전 대기 기록을 다시 쓰지 않도록 연결을 새로 열어 주세요.'};
+const failure=code=>{const error=new Error(messages[code]??messages.CLOUD_STATE_STORAGE);error.code=Object.hasOwn(messages,code)?code:'CLOUD_STATE_STORAGE';return error;};
+const fail=code=>{throw failure(code);};
+const safeError=error=>Object.hasOwn(messages,error?.code)?failure(error.code):failure('CLOUD_STATE_STORAGE');
+const clone=value=>value===null?null:JSON.parse(JSON.stringify(value));
+const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const safeRevision=value=>Number.isSafeInteger(value)&&value>=0&&value<MAX_REVISION;
+const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
+const sha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
+const project=value=>typeof value==='string'&&/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(value);
+function plain(value,depth=0){
+ if(depth>12)fail('CLOUD_STATE_INVALID');
+ if(value===null||typeof value==='string'||typeof value==='boolean')return;
+ if(typeof value==='number'){if(!Number.isFinite(value))fail('CLOUD_STATE_INVALID');return;}
+ if(typeof value!=='object'||Array.isArray(value)||![Object.prototype,null].includes(Object.getPrototypeOf(value)))fail('CLOUD_STATE_INVALID');
+ for(const key of Reflect.ownKeys(value)){if(typeof key!=='string'||['__proto__','prototype','constructor'].includes(key))fail('CLOUD_STATE_INVALID');const descriptor=Object.getOwnPropertyDescriptor(value,key);if(!descriptor?.enumerable||descriptor.get||descriptor.set)fail('CLOUD_STATE_INVALID');plain(descriptor.value,depth+1);}
+}
+function fields(value,allowed,required=[]){plain(value);if(!value||typeof value!=='object')fail('CLOUD_STATE_INVALID');for(const key of Object.keys(value))if(!allowed.includes(key))fail('CLOUD_STATE_INVALID');for(const key of required)if(!Object.hasOwn(value,key))fail('CLOUD_STATE_INVALID');}
+function binding(value){if(!project(value.projectURL)||!uuid(value.userId))fail('CLOUD_STATE_INVALID');}
+function ordinary(value){
+ const manual=typeof value.slotId==='string'&&/^manual(?:-([2-9]|[1-4][0-9]|5[0-6]))?$/.test(value.slotId);
+ if(!((value.kind==='auto'&&value.slotId==='auto')||(value.kind==='manual'&&manual)))fail('CLOUD_STATE_INVALID');
+}
+function checkedMeta(value={revision:0,clearEpoch:0}){fields(value,['revision','clearEpoch'],['revision','clearEpoch']);if(!safeRevision(value.revision)||!safeRevision(value.clearEpoch)||value.clearEpoch>value.revision)fail('CLOUD_STATE_INVALID');return clone(value);}
+async function checkedRaw(raw,hash,cryptoAPI){
+ if(typeof raw!=='string'||!sha(hash)||new TextEncoder().encode(raw).byteLength>MAX_RAW_BYTES)fail('CLOUD_STATE_INVALID');
+ let parsed;try{parsed=JSON.parse(raw);}catch{fail('CLOUD_STATE_INVALID');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed)||parsed.version!==2)fail('CLOUD_STATE_INVALID');
+ if(!cryptoAPI?.subtle)fail('CLOUD_STATE_STORAGE');let digest;try{digest=new Uint8Array(await cryptoAPI.subtle.digest('SHA-256',new TextEncoder().encode(raw)));}catch{fail('CLOUD_STATE_STORAGE');}
+ if(Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('')!==hash)fail('CLOUD_STATE_INVALID');
+}
+async function checkedCandidate(value,cryptoAPI){
+ fields(value,['rawSave','sha256','kind','slotId','baseRevision'],['rawSave','sha256','kind','slotId']);ordinary(value);
+ if(Object.hasOwn(value,'baseRevision')&&value.baseRevision!==null&&!safeRevision(value.baseRevision))fail('CLOUD_STATE_INVALID');await checkedRaw(value.rawSave,value.sha256,cryptoAPI);return clone(value);
+}
+async function checkedRemote(value,cryptoAPI){
+ fields(value,['saveKey','revision','rawSave','sha256','exists','updatedAt','changed'],['saveKey','revision','rawSave','sha256','exists']);
+ if(value.saveKey!=='progress'||!safeRevision(value.revision)||typeof value.exists!=='boolean'||Object.hasOwn(value,'changed')&&typeof value.changed!=='boolean')fail('CLOUD_STATE_INVALID');
+ if(value.updatedAt!==undefined&&value.updatedAt!==null&&(typeof value.updatedAt!=='string'||value.updatedAt.length>80))fail('CLOUD_STATE_INVALID');
+ if(value.exists){if(value.revision<1)fail('CLOUD_STATE_INVALID');await checkedRaw(value.rawSave,value.sha256,cryptoAPI);}else if(value.revision!==0||value.rawSave!==null||value.sha256!==null)fail('CLOUD_STATE_INVALID');return clone(value);
+}
+function checkedProof(value){
+ fields(value,['committed','local','remote'],['committed','local','remote']);if(value.committed!==true)fail('CLOUD_STATE_INVALID');
+ for(const item of [value.local,value.remote]){fields(item,['committed','sha256','notRequired','id'],['committed']);if(item.committed!==true||item.sha256!==undefined&&!sha(item.sha256)||item.notRequired!==undefined&&item.notRequired!==true||item.id!==undefined&&!uuid(item.id))fail('CLOUD_STATE_INVALID');}
+ return clone(value);
+}
+async function checkedState(value,cryptoAPI){
+ if(value===null)return null;
+ fields(value,['version','projectURL','userId','revision','acknowledgedSHA','pending','conflict','syncedAt'],['version','projectURL','userId','revision','acknowledgedSHA','pending','conflict','syncedAt']);binding(value);
+ if(value.version!==1||value.revision!==null&&!safeRevision(value.revision)||value.acknowledgedSHA!==null&&!sha(value.acknowledgedSHA)||value.syncedAt!==null&&(!Number.isSafeInteger(value.syncedAt)||value.syncedAt<0))fail('CLOUD_STATE_INVALID');
+ if(value.pending!==null)await checkedCandidate(value.pending,cryptoAPI);
+ if(value.conflict!==null){const c=value.conflict;fields(c,['local','remote','reason','backupsReady','backupProof'],['local','remote','reason','backupsReady','backupProof']);if(typeof c.reason!=='string'||c.reason.length>300||typeof c.backupsReady!=='boolean')fail('CLOUD_STATE_INVALID');if(c.local!==null)await checkedCandidate(c.local,cryptoAPI);await checkedRemote(c.remote,cryptoAPI);if(c.backupsReady)checkedProof(c.backupProof);else if(c.backupProof!==null)fail('CLOUD_STATE_INVALID');}
+ return clone(value);
+}
+function checkedPointer(value){
+ if(value===null)return null;fields(value,['key','kind','slotId'],['key','kind','slotId']);ordinary(value);
+ if(typeof value.key!=='string'||!new RegExp('^shu-tactics-act1-save-v[12]-'+value.slotId+'$').test(value.key))fail('CLOUD_STATE_INVALID');return clone(value);
+}
+function checkedSession(value){
+ if(value===null)return null;fields(value,['projectURL','userId','accessToken','refreshToken','expiresAt','remember'],['projectURL','userId','accessToken','refreshToken','expiresAt','remember']);binding(value);
+ if(value.remember!==true||typeof value.accessToken!=='string'||!value.accessToken||value.accessToken.length>16384||typeof value.refreshToken!=='string'||!value.refreshToken||value.refreshToken.length>16384||!Number.isSafeInteger(value.expiresAt)||value.expiresAt<0)fail('CLOUD_STATE_INVALID');return clone(value);
+}
+async function checkedBackup(value,cryptoAPI){
+ fields(value,['id','projectURL','userId','source','reason','rawSave','sha256','createdAt'],['id','projectURL','userId','source','reason','rawSave','sha256','createdAt']);binding(value);
+ if(!uuid(value.id)||!['local','remote'].includes(value.source)||typeof value.reason!=='string'||!value.reason||value.reason.length>300||!Number.isSafeInteger(value.createdAt)||value.createdAt<0)fail('CLOUD_STATE_INVALID');await checkedRaw(value.rawSave,value.sha256,cryptoAPI);return clone(value);
+}
+async function checkedData(key,value,cryptoAPI){if(key===STATE_KEY)return checkedState(value,cryptoAPI);if(key===POINTER_KEY)return checkedPointer(value);if(key===SESSION_KEY)return checkedSession(value);fail('CLOUD_STATE_INVALID');}
+async function checkedSnapshot(snapshot,cryptoAPI){
+ if(!(snapshot?.data instanceof Map)||!(snapshot?.backups instanceof Map))fail('CLOUD_STATE_INVALID');const meta=checkedMeta({revision:snapshot.revision,clearEpoch:snapshot.clearEpoch}),data=new Map(),backups=new Map();if(meta.revision===0&&(snapshot.data.size||snapshot.backups.size))fail('CLOUD_STATE_INVALID');
+ for(const [key,value] of snapshot.data){if(!DATA_KEYS.has(key)||value===null)fail('CLOUD_STATE_INVALID');data.set(key,await checkedData(key,value,cryptoAPI));}
+ for(const [id,value] of snapshot.backups){const record=await checkedBackup(value,cryptoAPI);if(id!==record.id)fail('CLOUD_STATE_INVALID');backups.set(id,record);}
+ return {data,backups,...meta};
+}
+function timeoutValue(value){if(!Number.isFinite(value)||value<1||value>60000)fail('CLOUD_STATE_INVALID');return value;}
+function bounded(promise,ms){let timer;const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(failure('CLOUD_STATE_STORAGE')),ms);});return Promise.race([promise,timeout]).finally(()=>clearTimeout(timer));}
+
+export async function createIndexedDBCloudStateAdapter(indexedDB,databaseName=CLOUD_STATE_DATABASE,{openTimeoutMs=8000,readTimeoutMs=15000,writeTimeoutMs=15000}={}){
+ for(const ms of [openTimeoutMs,readTimeoutMs,writeTimeoutMs])timeoutValue(ms);
+ if(!indexedDB||typeof indexedDB.open!=='function'||typeof databaseName!=='string'||!databaseName)fail('CLOUD_STATE_STORAGE');
+ const db=await new Promise((resolve,reject)=>{
+  let settled=false,request,timer;const stop=error=>{if(settled)return;settled=true;clearTimeout(timer);reject(safeError(error));};
+  timer=setTimeout(()=>stop(failure('CLOUD_STATE_STORAGE')),openTimeoutMs);
+  try{request=indexedDB.open(databaseName,CLOUD_STATE_VERSION);}catch(error){stop(error);return;}
+  request.onupgradeneeded=()=>{if(settled){try{request.transaction.abort();}catch{}return;}try{for(const name of [CLOUD_DATA_STORE,CLOUD_BACKUP_STORE,CLOUD_META_STORE])if(!request.result.objectStoreNames.contains(name))request.result.createObjectStore(name);}catch(error){stop(error);try{request.transaction.abort();}catch{}}};
+  request.onerror=()=>stop(request.error);request.onblocked=()=>stop(failure('CLOUD_STATE_STORAGE'));
+  request.onsuccess=()=>{if(settled){request.result.close();return;}settled=true;clearTimeout(timer);resolve(request.result);};
+ });
+ let closed=false;db.onversionchange=()=>{closed=true;db.close();};const requireOpen=()=>{if(closed)fail('CLOUD_STATE_CLOSED');};
+ function transaction(mode,build,timeout){
+  requireOpen();return new Promise((resolve,reject)=>{
+   let tx,settled=false,result,caught=null,timer;
+   const stop=error=>{if(settled)return;settled=true;caught=safeError(error);clearTimeout(timer);try{tx?.abort();}catch{}reject(caught);};
+   timer=setTimeout(()=>stop(failure('CLOUD_STATE_STORAGE')),timeout);
+   try{tx=db.transaction([CLOUD_DATA_STORE,CLOUD_BACKUP_STORE,CLOUD_META_STORE],mode);build(tx,value=>{result=value;},stop);tx.oncomplete=()=>{if(settled)return;settled=true;clearTimeout(timer);resolve(result);};tx.onabort=()=>{if(settled)return;settled=true;clearTimeout(timer);reject(caught??safeError(tx.error));};tx.onerror=()=>{caught??=safeError(tx.error);};}catch(error){stop(error);}
+  });
+ }
+ return {
+  read(){return transaction('readonly',(tx,setResult,stop)=>{
+   const snapshot={data:new Map(),backups:new Map(),revision:0,clearEpoch:0};setResult(snapshot);
+   for(const [name,target] of [[CLOUD_DATA_STORE,snapshot.data],[CLOUD_BACKUP_STORE,snapshot.backups]]){const cursor=tx.objectStore(name).openCursor();cursor.onsuccess=()=>{try{const row=cursor.result;if(row){target.set(row.key,row.value);row.continue();}}catch(error){stop(error);}};}
+   const meta=tx.objectStore(CLOUD_META_STORE).get(META_KEY);meta.onsuccess=()=>{try{Object.assign(snapshot,checkedMeta(meta.result===undefined?{revision:0,clearEpoch:0}:meta.result));}catch(error){stop(error);}};
+  },readTimeoutMs);},
+  commit({expectedRevision,puts=new Map(),deletes=[],backupPuts=new Map(),clearAll=false}){
+   if(!safeRevision(expectedRevision))return Promise.reject(failure('CLOUD_STATE_INVALID'));
+   return transaction('readwrite',(tx,setResult,stop)=>{
+    const metadata=tx.objectStore(CLOUD_META_STORE),read=metadata.get(META_KEY);
+    read.onsuccess=()=>{try{
+     const current=checkedMeta(read.result===undefined?{revision:0,clearEpoch:0}:read.result);if(current.revision!==expectedRevision)fail('CLOUD_STATE_STALE');
+     const changed=clearAll||puts.size>0||deletes.length>0||backupPuts.size>0;
+     if(!changed){setResult(current);return;}if(current.revision>=MAX_REVISION-1||clearAll&&current.clearEpoch>=MAX_REVISION-1)fail('CLOUD_STATE_STORAGE');
+     const data=tx.objectStore(CLOUD_DATA_STORE),backups=tx.objectStore(CLOUD_BACKUP_STORE);
+     if(clearAll){data.clear();backups.clear();}
+     else {for(const key of deletes){if(!DATA_KEYS.has(key))fail('CLOUD_STATE_INVALID');data.delete(key);}for(const [key,value] of puts){if(!DATA_KEYS.has(key))fail('CLOUD_STATE_INVALID');data.put(value,key);}for(const [id,value] of backupPuts){if(!uuid(id)||id!==value.id)fail('CLOUD_STATE_INVALID');backups.add(value,id);}}
+     const next={revision:current.revision+1,clearEpoch:current.clearEpoch+(clearAll?1:0)};metadata.put(next,META_KEY);setResult(next);
+    }catch(error){stop(error);}};
+   },writeTimeoutMs);
+  },
+  close(){closed=true;db.close();}
+ };
+}
+
+export async function openCloudStateStorage(options={}){
+ const cryptoAPI=options.cryptoAPI??globalThis.crypto,validationTimeoutMs=timeoutValue(options.validationTimeoutMs??15000);
+ let adapter=options.adapter,cache;
+ try{adapter??=await createIndexedDBCloudStateAdapter(Object.hasOwn(options,'indexedDB')?options.indexedDB:globalThis.indexedDB,options.databaseName??CLOUD_STATE_DATABASE,options);cache=await bounded(Promise.resolve().then(()=>adapter.read()).then(snapshot=>checkedSnapshot(snapshot,cryptoAPI)),validationTimeoutMs);}catch(error){adapter?.close?.();throw safeError(error);}
+ let closed=false,invalidatedByClear=false,tail=Promise.resolve(),pendingWrites=0;const clock=options.clock??Date.now,idFactory=options.idFactory??(()=>cryptoAPI.randomUUID());
+ const requireOpen=()=>{if(closed)fail('CLOUD_STATE_CLOSED');};
+ const requireWritable=()=>{requireOpen();if(invalidatedByClear)fail('CLOUD_STATE_CLEARED');};
+ const enqueue=(fn,write=false)=>{pendingWrites++;const result=tail.then(async()=>{if(write)requireWritable();else requireOpen();return fn();});tail=result.then(()=>{pendingWrites--;},()=>{pendingWrites--;});return result;};
+ const readView=key=>{requireOpen();return clone(cache.data.get(key)??null);};
+ async function commit(change){let next;try{next=await adapter.commit({expectedRevision:cache.revision,...change});}catch(error){throw safeError(error);}const expected=change.clearAll||change.puts?.size||change.deletes?.length||change.backupPuts?.size?cache.revision+1:cache.revision;if(next?.revision!==expected||next?.clearEpoch!==cache.clearEpoch+(change.clearAll?1:0))fail('CLOUD_STATE_STORAGE');return next;}
+ function save(key,value){let input;try{plain(value);input=clone(value);}catch{return Promise.reject(failure('CLOUD_STATE_INVALID'));}return enqueue(async()=>{
+  const checked=await bounded(Promise.resolve().then(()=>checkedData(key,input,cryptoAPI)),validationTimeoutMs);requireWritable();
+  const old=cache.data.get(key)??null,puts=new Map(),deletes=[];if(!equal(old,checked)){if(checked===null)deletes.push(key);else puts.set(key,checked);}
+  const next=await commit({puts,deletes});if(checked===null)cache.data.delete(key);else cache.data.set(key,checked);Object.assign(cache,next);return {committed:true,revision:cache.revision,clearEpoch:cache.clearEpoch};
+ },true);}
+ const sessionStore=Object.freeze({read:async()=>readView(SESSION_KEY),write:value=>save(SESSION_KEY,value),clear:()=>save(SESSION_KEY,null)});
+ return Object.freeze({
+  // Verify this connection's revision without rewriting a previously captured
+  // state. A read-then-save no-op could revert a newer write in the same queue.
+  checkCurrent(){return enqueue(async()=>{const next=await commit({puts:new Map(),deletes:[]});Object.assign(cache,next);return {committed:true,revision:cache.revision,clearEpoch:cache.clearEpoch};},true);},
+  loadState:async()=>readView(STATE_KEY),saveState:value=>save(STATE_KEY,value),
+  loadProgressPointer:async()=>readView(POINTER_KEY),saveProgressPointer:value=>save(POINTER_KEY,value),sessionStore,
+  saveBackup(entry){let input;try{fields(entry,['projectURL','userId','source','reason','rawSave','sha256'],['projectURL','userId','source','reason','rawSave','sha256']);input=clone(entry);}catch{return Promise.reject(failure('CLOUD_STATE_INVALID'));}return enqueue(async()=>{
+   let id;try{id=idFactory();}catch{fail('CLOUD_STATE_STORAGE');}
+   const record=await bounded(checkedBackup({...input,id,createdAt:clock()},cryptoAPI),validationTimeoutMs);requireWritable();if(cache.backups.has(id))fail('CLOUD_STATE_INVALID');
+   const next=await commit({backupPuts:new Map([[id,record]])});cache.backups.set(id,record);Object.assign(cache,next);return {committed:true,id,sha256:record.sha256,revision:cache.revision,clearEpoch:cache.clearEpoch};
+  },true);},
+  async loadBackups(filter=null){requireOpen();if(filter!==null){fields(filter,['projectURL','userId'],['projectURL','userId']);binding(filter);}return [...cache.backups.values()].filter(record=>filter===null||record.projectURL===filter.projectURL&&record.userId===filter.userId).map(clone);},
+  clearLocalCloudCopies(){return enqueue(async()=>{const cleared={state:cache.data.has(STATE_KEY),pointer:cache.data.has(POINTER_KEY),session:cache.data.has(SESSION_KEY),backups:cache.backups.size};const next=await commit({clearAll:true});cache={data:new Map(),backups:new Map(),...next};invalidatedByClear=true;return {complete:true,committed:true,...next,cleared,scope:'이 기기의 연동 대기·사본·로그인 정보만 지웠습니다. 원래 게임 저장과 서버의 현재 진행은 유지됩니다.'};},true);},
+  reload(){return enqueue(async()=>{let latest;try{latest=await bounded(Promise.resolve().then(()=>adapter.read()).then(snapshot=>checkedSnapshot(snapshot,cryptoAPI)),validationTimeoutMs);}catch(error){throw safeError(error);}requireOpen();const clearedSinceSnapshot=latest.clearEpoch!==cache.clearEpoch;if(clearedSinceSnapshot)invalidatedByClear=true;cache=latest;return {revision:cache.revision,clearEpoch:cache.clearEpoch,clearedSinceSnapshot,requiresReopen:invalidatedByClear};});},
+  stats(){return {mode:'indexeddb',closed,invalidatedByClear,revision:cache.revision,clearEpoch:cache.clearEpoch,stateStored:cache.data.has(STATE_KEY),progressPointerStored:cache.data.has(POINTER_KEY),sessionStored:cache.data.has(SESSION_KEY),backups:cache.backups.size,pendingWrites};},
+  get pendingWrites(){return pendingWrites;},whenIdle(){return tail;},
+  close(){closed=true;adapter.close?.();}
+ });
+}
