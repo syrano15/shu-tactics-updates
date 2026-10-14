@@ -1,0 +1,180 @@
+// Display-only Act 2 maps. These assets never alter saved tactical terrain.
+export const ACT2_REFINED_MAPS=Object.freeze({
+  "s07_xiapi": {
+    "terrainKey": "...........#......\n...........#......\n...FFF.....#......\n..................\n...........#......\n...FF......#......\n..................\n..................\n...........#......\n...FF......#......\n..................\n...........#......\n...FFF.....#......\n...........#......",
+    "bridgeCells": [
+      [
+        11,
+        3
+      ],
+      [
+        11,
+        6
+      ],
+      [
+        11,
+        7
+      ],
+      [
+        11,
+        10
+      ]
+    ],
+    "blockedKind": "water"
+  },
+  "s09_baima": {
+    "terrainKey": ".........##.......\n.........##.......\n.....FFF.##.......\n.........##...FFF.\n.........##...FFF.\n.........##.......\n..................\n..................\n..................\n.........##.......\n..FFF....##...FFF.\n..FFF....##...FFF.\n.........##.......\n.........##.......",
+    "bridgeCells": [
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ]
+    ],
+    "blockedKind": "water"
+  },
+  "s10_thousand_li": {
+    "terrainKey": "#####...##########\n#####...##########\n#####...#......###\n#####...#......###\n#####...#......###\n###............###\n###......#####.###\n###......#####.###\n###......#####.###\n###............###\n###...##.......###\n###...##.......###\n###...##...F...###\n###...##.......###",
+    "bridgeCells": [],
+    "blockedKind": "rock"
+  },
+  "s12_xinye": {
+    "terrainKey": ".........##.......\n.........##.......\n...FFF...##...FFF.\n.........##.......\n.........##.......\n.........##.......\n..................\n..................\n..................\n.........##.......\n...FFF...##...FFF.\n...FFF...##...FFF.\n.........##.......\n.........##.......",
+    "bridgeCells": [
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ]
+    ],
+    "blockedKind": "water"
+  },
+  "s13_changban": {
+    "terrainKey": "...........#......\n...........#......\n..FFF......#......\n......FF...#......\n......FF...#......\n...........#......\n..................\n..................\n..................\n.....FFF...#......\n...........#......\n...........#......\n..FFF......#...FFF\n...........#......",
+    "bridgeCells": [
+      [
+        11,
+        6
+      ],
+      [
+        11,
+        7
+      ]
+    ],
+    "blockedKind": "water"
+  }
+});
+
+const CELL=100,pointsKey=points=>JSON.stringify([...points].sort((a,b)=>a[1]-b[1]||a[0]-b[0]));
+export const BAIMA_EARTH_CAUSEWAY_SRC='art/playfix-v0601/s09_baima-earth-causeway-v0601.svg';
+const hash=(i,s)=>{let n=Math.imul(i+19,374761393)^Math.imul(s+31,668265263);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;};
+export function refinedAct2MapSpec(chapter){
+ const art=ACT2_REFINED_MAPS[chapter?.id];if(!art||chapter.campaignLayoutVersion!==1||chapter.terrain?.join('\n')!==art.terrainKey||pointsKey(chapter.bridgeCells??[])!==pointsKey(art.bridgeCells))return null;
+ const columns=chapter.terrain[0].length,rows=chapter.terrain.length;
+ return {id:chapter.id,columns,rows,width:columns*CELL,height:rows*CELL,terrainKey:art.terrainKey,blockedKind:art.blockedKind,src:'art/act2-v0401/maps/'+chapter.id+'-v0401.webp',...(chapter.id==='s09_baima'?{bridgeDisplayLabel:'흙둑길'}:{}),...(art.bridgeCells.length?{overlaySrc:chapter.id==='s09_baima'?BAIMA_EARTH_CAUSEWAY_SRC:'art/act2-v0401/maps/'+chapter.id+'-traversal-v0401.svg'}:{})};
+}
+export function act2BridgeDisplayLabel(chapter){return refinedAct2MapSpec(chapter)?.bridgeDisplayLabel??'다리';}
+export function installAct2MapRefinement(chapters,register){
+ if(typeof register!=='function')throw new Error('Act 2 map registration function required');
+ const installed=[];for(const ch of chapters){const spec=refinedAct2MapSpec(ch);if(spec){register(spec);installed.push(spec);}}return installed;
+}
+// Native reference geometry used only to audit the separately archived ImageGen input.
+// The shipped landscape remains a painted bitmap, so its foliage is not pixel-exact.
+export function renderAct2LogicalReferenceSVG(chapter){
+ const spec=refinedAct2MapSpec(chapter);if(!spec)throw new Error('Act 2 reference terrain signature mismatch');
+ let shapes='';for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++){
+  const c=chapter.terrain[y][x];if(c!=='.')shapes+='<rect x="'+x*CELL+'" y="'+y*CELL+'" width="100" height="100" fill="'+(c==='F'?'#486345':spec.blockedKind==='rock'?'#646c62':'#367079')+'"/>';
+ }
+ for(const [x,y] of chapter.bridgeCells??[])shapes+='<rect x="'+x*CELL+'" y="'+y*CELL+'" width="100" height="100" fill="#b28b54"/>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+spec.width+'" height="'+spec.height+'"><rect width="'+spec.width+'" height="'+spec.height+'" fill="#b0a17c"/>'+shapes+'</svg>';
+}
+export function act2TraversalGeometry(chapter){
+ const spec=refinedAct2MapSpec(chapter);if(!spec)throw new Error('Act 2 overlay terrain signature mismatch');
+ const bridgeCells=chapter.bridgeCells??[],wood=new Set(bridgeCells.map(p=>p.join(','))),riverColumns=[];
+ if(spec.blockedKind==='water')for(let x=0;x<spec.columns;x++){let count=0;for(const row of chapter.terrain)count+=row[x]==='#';if(count>=spec.rows/2)riverColumns.push(x);}
+ const causewayCells=[];for(const x of riverColumns)for(let y=0;y<spec.rows;y++)if(chapter.terrain[y][x]==='.'&&!wood.has(x+','+y))causewayCells.push([x,y]);
+ return {bridgeCells:bridgeCells.map(p=>[...p]),causewayCells,riverColumns};
+}
+export function continuousCellPaths(cells){
+ const all=new Set(cells.map(p=>p.join(','))),seen=new Set(),regions=[];
+ for(const start of cells){const k=start.join(',');if(seen.has(k))continue;const region=[start];seen.add(k);for(let i=0;i<region.length;i++)for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const [x,y]=region[i],next=[x+dx,y+dy],key=next.join(',');if(all.has(key)&&!seen.has(key)){region.push(next);seen.add(key);}}regions.push(region);}
+ return regions.map(region=>{
+  const keys=new Set(region.map(p=>p.join(','))),edges=new Map(),has=(x,y)=>keys.has(x+','+y),add=(a,b,c,d)=>edges.set(a+','+b,[c,d]);
+  for(const [x,y] of region){if(!has(x,y-1))add(x,y,x+1,y);if(!has(x+1,y))add(x+1,y,x+1,y+1);if(!has(x,y+1))add(x+1,y+1,x,y+1);if(!has(x-1,y))add(x,y+1,x,y);}
+  const first=edges.keys().next().value;let cursor=first,path='M'+first.split(',').map(n=>Number(n)*CELL).join(' '),count=0;
+  do{const next=edges.get(cursor);if(!next||count++>edges.size)throw new Error('Invalid Act 2 cell contour');path+='L'+next.map(n=>n*CELL).join(' ');cursor=next.join(',');}while(cursor!==first);return path+'z';
+ });
+}
+// Detail is sampled inside the continuous earth footprint, rather than scattered
+// across the whole map where almost every mark would be discarded by the clip.
+export function act2CausewaySurfaceDetail(chapter,{includeBridgeCells=false}={}){
+ const geometry=act2TraversalGeometry(chapter),bridgeCells=geometry.bridgeCells,causewayCells=includeBridgeCells?[...bridgeCells,...geometry.causewayCells]:geometry.causewayCells;if(!causewayCells.length)return {marks:[],patches:[],rim:[]};
+ const cells=new Set(causewayCells.map(p=>p.join(','))),inside=(x,y)=>cells.has(Math.floor(x/CELL)+','+Math.floor(y/CELL));
+ const left=Math.min(...causewayCells.map(p=>p[0]))*CELL,top=Math.min(...causewayCells.map(p=>p[1]))*CELL,right=(Math.max(...causewayCells.map(p=>p[0]))+1)*CELL,bottom=(Math.max(...causewayCells.map(p=>p[1]))+1)*CELL;
+ const seed=[...chapter.id].reduce((sum,c)=>sum+c.charCodeAt(0),0),marks=[],patches=[],rim=[];
+ let i=0;for(let y=top+5;y<bottom;y+=10)for(let x=left+5;x<right;x+=10){
+  const px=+(x+(hash(i,seed)-.5)*8).toFixed(2),py=+(y+(hash(i,seed+1)-.5)*8).toFixed(2);
+  if(inside(px,py))marks.push({x:px,y:py,size:+(1.4+hash(i,seed+2)*2.8).toFixed(2),angle:Math.round(hash(i,seed+3)*100-50),tone:i%5});i++;
+ }
+ for(let j=0;j<causewayCells.length*36;j++){
+  const x=+(left+hash(j,seed+4)*(right-left)).toFixed(2),y=+(top+hash(j,seed+5)*(bottom-top)).toFixed(2);
+  if(inside(x,y))patches.push({x,y,rx:+(9+hash(j,seed+6)*24).toFixed(2),ry:+(4+hash(j,seed+7)*12).toFixed(2),angle:Math.round(hash(j,seed+8)*150),tone:j%4});
+ }
+ const wood=new Set(bridgeCells.map(p=>p.join(',')));let edge=0;
+ for(const [x,y] of causewayCells)for(const [dx,dy] of [[0,-1],[1,0],[0,1],[-1,0]]){
+  if(cells.has((x+dx)+','+(y+dy))||wood.has((x+dx)+','+(y+dy)))continue;
+  for(let distance=6;distance<100;distance+=8){
+   const jitter=(hash(edge,seed+9)-.5)*4,normal=(hash(edge,seed+10)-.5)*4,px=dx?((x+(dx>0?1:0))*CELL+dx*normal):(x*CELL+distance+jitter),py=dy?((y+(dy>0?1:0))*CELL+dy*normal):(y*CELL+distance+jitter);
+   rim.push({x:+px.toFixed(2),y:+py.toFixed(2),size:+(2+hash(edge,seed+11)*4).toFixed(2),angle:(dx?90:0)+Math.round(hash(edge,seed+12)*40-20),tone:edge%5});edge++;
+  }
+ }
+ return {marks,patches,rim};
+}
+export function renderAct2TraversalOverlaySVG(chapter){
+ const spec=refinedAct2MapSpec(chapter);if(!spec)throw new Error('Unknown or changed Act 2 terrain');
+ const {bridgeCells,causewayCells}=act2TraversalGeometry(chapter),woodPaths=continuousCellPaths(bridgeCells),landPaths=continuousCellPaths(causewayCells),wood=woodPaths.map(d=>'<path d="'+d+'"/>').join(''),land=landPaths.map(d=>'<path d="'+d+'"/>').join('');
+ let boards='';for(let x=0;x<spec.width;x+=14)boards+='<path d="M'+x+' 0v'+spec.height+'" stroke="#705039" stroke-width="1.8" opacity=".45"/><path d="M'+(x+2)+' 0v'+spec.height+'" stroke="#e2c393" stroke-width="1" opacity=".35"/>';
+ const detail=act2CausewaySurfaceDetail(chapter),earthColors=['#746244','#d3bc87','#938052','#a58e5f','#d0bd91'],patchColors=['#857849','#cbb385','#a08f5f','#b19a68'];
+ const patches=detail.patches.map(p=>'<ellipse cx="'+p.x+'" cy="'+p.y+'" rx="'+p.rx+'" ry="'+p.ry+'" transform="rotate('+p.angle+' '+p.x+' '+p.y+')" fill="'+patchColors[p.tone]+'" opacity=".24"/>').join('');
+ const grains=detail.marks.map(p=>{
+  const body=p.tone===1||p.tone===4?'<path d="M-'+p.size+' 0l'+(p.size*2.4).toFixed(2)+' -1.1" fill="none" stroke="'+earthColors[p.tone]+'" stroke-width=".9" opacity=".37"/>':p.tone===2?'<path d="M-'+p.size+' 0l1.5 -1.7 '+(p.size*1.5).toFixed(2)+' .3 .8 1.3 -1.7 1z" fill="'+earthColors[p.tone]+'" opacity=".53"/><path d="M-1 -1l'+p.size+' .3" stroke="#d0c09b" stroke-width=".7" opacity=".36"/>':'<ellipse rx="'+(p.size*.75).toFixed(2)+'" ry="'+(p.size*.43).toFixed(2)+'" fill="'+earthColors[p.tone]+'" opacity=".48"/>';
+  return '<g transform="translate('+p.x+' '+p.y+') rotate('+p.angle+')">'+body+'</g>';
+ }).join('');
+ const soil=landPaths.map(d=>'<path d="'+d+'" fill="url(#soil)"/>').join('')+'<g data-causeway-detail="local-soil-v2" clip-path="url(#land)"><g filter="url(#earth-mottle)">'+patches+'</g><g>'+grains+'</g>'+landPaths.map(d=>'<path d="'+d+'" fill="none" stroke="#817049" stroke-width="18" opacity=".4" filter="url(#bank-soften)"/>').join('')+'</g>';
+ // Small irregular shore decorations soften the painted edge. They extend no
+ // more than eight pixels and never change a tile center or any movement rule.
+ const rim='<g data-causeway-rim="native-earth-bank-v2">'+detail.rim.map(p=>'<g transform="translate('+p.x+' '+p.y+') rotate('+p.angle+')"><ellipse rx="'+p.size+'" ry="'+(p.size*.48).toFixed(2)+'" fill="'+['#938152','#b6a26e','#8b814e','#c2af7d','#797647'][p.tone]+'" opacity=".78"/>'+(p.tone===2?'<path d="M-2 1l1 -4 1 3 2 -5 0 4 3 -2" fill="none" stroke="#787a48" stroke-width="1.4" opacity=".76"/>':'')+'</g>').join('')+'</g>';
+ const outline=woodPaths.map(d=>'<path d="'+d+'" fill="none" stroke="#5d4731" stroke-width="7" opacity=".75"/><path d="'+d+'" fill="none" stroke="#d6bb8d" stroke-width="2"/>').join('');
+ const landBlend='<mask id="land-blend" maskUnits="userSpaceOnUse" x="0" y="0" width="'+spec.width+'" height="'+spec.height+'"><g fill="#fff">'+land+'</g>'+landPaths.map(d=>'<path d="'+d+'" fill="none" stroke="#000" stroke-width="10" filter="url(#bank-feather)"/>').join('')+'</mask>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+spec.width+'" height="'+spec.height+'" viewBox="0 0 '+spec.width+' '+spec.height+'"><defs><clipPath id="wood">'+wood+'</clipPath><clipPath id="land">'+land+'</clipPath><linearGradient id="oak" x2=".2" y2="1"><stop stop-color="#b6976a"/><stop offset="1" stop-color="#9c794d"/></linearGradient><linearGradient id="soil" x1="0" y1="0" x2=".35" y2="1"><stop stop-color="#a38b5d"/><stop offset=".45" stop-color="#baa173"/><stop offset="1" stop-color="#a58e61"/></linearGradient><filter id="earth-mottle" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="bank-soften" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter><filter id="bank-feather" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>'+landBlend+'</defs><g clip-path="url(#land)" mask="url(#land-blend)">'+soil+'</g>'+rim+'<g clip-path="url(#wood)"><rect width="100%" height="100%" fill="url(#oak)"/>'+boards+outline+'</g></svg>';
+}
+
+// Baima uses an earth surface across its existing crossing. The archived v0401
+// renderer above remains reproducible; neither saved bridge cells nor water move.
+export function renderBaimaEarthCausewaySVG(chapter){
+ const spec=refinedAct2MapSpec(chapter);if(chapter?.id!=='s09_baima'||!spec)throw new Error('Baima earth causeway terrain signature mismatch');
+ const geometry=act2TraversalGeometry(chapter),surfaceCells=[...geometry.bridgeCells,...geometry.causewayCells],paths=continuousCellPaths(surfaceCells);
+ const clip=paths.map(d=>'<path d="'+d+'"/>').join(''),opaque=continuousCellPaths(geometry.bridgeCells).map(d=>'<path d="'+d+'" fill="#fff"/>').join('');
+ const detail=act2CausewaySurfaceDetail(chapter,{includeBridgeCells:true}),road='M875 748Q984 714 1125 688',seed=6019,roadAt=x=>735-(x-900)*.24;
+ const roadColors=['#817049','#c5ad7e','#9c865b','#b29a6a'],bankColors=['#857a48','#b0a16b','#969050','#a2955e'];
+ const patches=detail.patches.map(p=>'<ellipse cx="'+p.x+'" cy="'+p.y+'" rx="'+p.rx+'" ry="'+p.ry+'" transform="rotate('+p.angle+' '+p.x+' '+p.y+')" fill="'+(Math.abs(p.y-roadAt(p.x))<55?roadColors:bankColors)[p.tone]+'" opacity=".32"/>').join('');
+ const grains=detail.marks.map(p=>{const onRoad=Math.abs(p.y-roadAt(p.x))<51,tones=onRoad?['#75633f','#cbb88b','#8c774e','#a89061','#d0bb87']:['#6f7545','#baad78','#7f8248','#a19a5d','#b0a36c'];return '<g transform="translate('+p.x+' '+p.y+') rotate('+p.angle+')">'+(p.tone===1||p.tone===4?'<path d="M-'+p.size+' 0l'+(p.size*2.4).toFixed(2)+' -1.1" fill="none" stroke="'+tones[p.tone]+'" stroke-width="1.1" opacity=".53"/>':'<ellipse rx="'+(p.size*.8).toFixed(2)+'" ry="'+(p.size*.5).toFixed(2)+'" fill="'+tones[p.tone]+'" opacity=".57"/>')+'</g>';}).join('');
+ let bankDetails='';
+ for(let i=0;i<2600;i++){
+  const x=900+hash(i,seed)*200,y=600+hash(i,seed+1)*300,r=.55+hash(i,seed+2)*2.2,tone=['#8e7952','#c2aa73','#a5915e','#dbc18a','#927c4f','#b29b68','#9a875a','#bdac77'][i%8];
+  bankDetails+='<g transform="translate('+x.toFixed(2)+' '+y.toFixed(2)+') rotate('+Math.round(hash(i,seed+3)*150)+')"><ellipse rx="'+r.toFixed(2)+'" ry="'+(r*.52).toFixed(2)+'" fill="'+tone+'" opacity="'+(.3+hash(i,seed+4)*.35).toFixed(2)+'"/>'+(i%6===0?'<path d="M-'+r.toFixed(2)+' -.5l'+(r*1.5).toFixed(2)+' -1" stroke="#d1b87e" stroke-width=".7" opacity=".5"/>':'')+'</g>';
+ }
+ for(let i=0;i<100;i++){
+  const x=900+hash(i,seed+10)*200,y=i%2?601+hash(i,seed+11)*25:775+hash(i,seed+12)*96,size=.9+hash(i,seed+13)*3.2;
+  bankDetails+='<g transform="translate('+x.toFixed(2)+' '+y.toFixed(2)+') rotate('+Math.round(hash(i,seed+14)*80-40)+')"><ellipse rx="'+size.toFixed(2)+'" ry="'+(size*.48).toFixed(2)+'" fill="'+['#7e8056','#b6a579','#929368','#bcb083'][i%4]+'" opacity=".58"/><path d="M-1 1q-1 -2 -2 -3m3 3q2 -3 3 -4" fill="none" stroke="'+(i%2?'#81834b':'#aca96b')+'" stroke-width=".7" opacity=".62"/></g>';
+ }
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+spec.width+'" height="'+spec.height+'" viewBox="0 0 '+spec.width+' '+spec.height+'"><title>백마 · 흙둑길</title><desc>Earth road and stony grassy banks. Original two timber cells are fully obscured; the other four crossing cells blend with preserved scenery. All painting stays inside the original six-cell footprint.</desc><defs><clipPath id="earth">'+clip+'</clipPath><linearGradient id="banks" gradientUnits="userSpaceOnUse" x1="910" y1="605" x2="1060" y2="865"><stop stop-color="#ac9566"/><stop offset=".38" stop-color="#b49b69"/><stop offset=".7" stop-color="#aa9060"/><stop offset="1" stop-color="#ad9666"/></linearGradient><linearGradient id="soil" gradientUnits="userSpaceOnUse" x1="900" y1="760" x2="1100" y2="690"><stop stop-color="#ac9261"/><stop offset=".5" stop-color="#b29968"/><stop offset="1" stop-color="#aa9260"/></linearGradient><linearGradient id="land-fade" gradientUnits="userSpaceOnUse" x1="0" y1="600" x2="0" y2="900"><stop stop-color="#000"/><stop offset=".2" stop-color="#666"/><stop offset=".4" stop-color="#fff"/><stop offset=".62" stop-color="#777"/><stop offset="1" stop-color="#000"/></linearGradient><filter id="mottle" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="blend" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="10"/></filter><mask id="coverage" maskUnits="userSpaceOnUse" x="900" y="600" width="200" height="300"><rect x="900" y="600" width="200" height="300" fill="url(#land-fade)" opacity=".65"/><path d="'+road+'" fill="none" stroke="#fff" stroke-width="105" filter="url(#blend)"/><g data-opaque-original-crossing="true">'+opaque+'</g></mask></defs><g data-crossing-surface="earth-causeway-v0601" data-edge-style="natural-road-and-banks" clip-path="url(#earth)" mask="url(#coverage)"><g><rect width="100%" height="100%" fill="url(#banks)"/><path d="'+road+'" fill="none" stroke="#8e8158" stroke-width="126" filter="url(#blend)"/><path d="'+road+'" fill="none" stroke="url(#soil)" stroke-width="96"/><g filter="url(#mottle)">'+patches+'</g>'+grains+bankDetails+'<path d="M875 747Q984 716 1125 689M875 759Q984 728 1125 701" fill="none" stroke="#937f53" stroke-width="2.5" opacity=".2"/></g></g></svg>';
+}
+
+

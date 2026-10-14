@@ -1,0 +1,49 @@
+import {UNIT_TEMPLATES} from './roster.js';
+import {baimaReinforcementApplies,baimaExpandedReserveIds} from './baima-reinforcement-limit.js';
+export const ENEMY_STRATEGIST_HEALTH_VERSION=1;
+export const ENEMY_STRATEGIST_HEALTH_RATIO=.8;
+const eligible=u=>u.team==='enemy'&&u.cls==='strategist';
+const allUnits=state=>[...state.units,...(state.reinforcements?.pending??[]).flatMap(w=>w.units)];
+const fail=message=>{throw new Error('적 책사 병력 기록 오류: '+message);};
+const unique=ids=>Array.isArray(ids)&&ids.every(id=>typeof id==='string')&&new Set(ids).size===ids.length;
+// An excluded, never-arrived Baima reserve retains its historical adjustment ID.
+// This does not authorize a missing live caster or an arbitrary deleted unit.
+const removedHistoricalCasters=(state,chapter)=>state.baimaReinforcementVersion===1&&baimaReinforcementApplies(chapter)?(chapter.enemies??[]).filter(e=>UNIT_TEMPLATES[e.templateId]?.cls==='strategist'&&baimaExpandedReserveIds(chapter).includes(e.id)&&state.baimaReinforcementRemovedIds?.includes(e.id)).map(e=>e.id):[];
+export function applyEnemyStrategistHealth(unit,version=1,adjustedIds=null){
+ if(![0,1].includes(version)||adjustedIds!==null&&!unique(adjustedIds))fail('지원하지 않는 버전 또는 적용 목록');
+ if(version!==1||!eligible(unit)||adjustedIds!==null&&!adjustedIds.includes(unit.id))return unit;
+ const before=unit.maxHp;unit.maxHp=Math.max(1,Math.floor(before*ENEMY_STRATEGIST_HEALTH_RATIO));
+ unit.hp=unit.hp===0?0:Math.max(1,Math.min(unit.maxHp,Math.round(unit.hp/before*unit.maxHp)));return unit;
+}
+export function initializeEnemyStrategistHealth(state,version=1,adjustedIds=null,chapter=null){
+ if(![0,1].includes(version)||adjustedIds!==null&&!unique(adjustedIds))fail('지원하지 않는 버전 또는 적용 목록');
+ if(version===0)return;
+ const available=allUnits(state).filter(eligible).map(u=>u.id);
+ const historical=removedHistoricalCasters(state,chapter);
+ if(adjustedIds!==null&&adjustedIds.some(id=>!available.includes(id)&&!historical.includes(id)))fail('전장에 없는 적용 부대');
+ state.enemyStrategistHealthVersion=1;state.enemyStrategistHealthAdjustedIds=adjustedIds===null?available:[...adjustedIds];
+}
+export function validateEnemyStrategistHealth(state,chapter){
+ if(state.enemyStrategistHealthVersion===undefined){if(state.enemyStrategistHealthAdjustedIds!==undefined)fail('구 전투의 적용 목록');return;}
+ const ids=state.enemyStrategistHealthAdjustedIds,units=allUnits(state),allowed=(chapter.enemies??[]).filter(e=>UNIT_TEMPLATES[e.templateId]?.cls==='strategist').map(e=>e.id);
+ const historical=removedHistoricalCasters(state,chapter);
+ if(state.enemyStrategistHealthVersion!==1||!unique(ids)||ids.some(id=>!allowed.includes(id)||!units.some(u=>u.id===id&&eligible(u))&&!historical.includes(id)))fail('버전·적 책사 적용 부대');
+ // Fallen historical casters may retain their original capacity. Every live
+ // or pending caster must carry the new capacity; arbitrary omissions fail.
+ if(units.some(u=>eligible(u)&&u.hp>0&&!ids.includes(u.id)))fail('살아 있는 적 책사의 적용 누락');
+}
+export function historicalEnemyStrategistCapacity(state,unit,maxHp,expectedMaxHp=null){
+ return state.enemyStrategistHealthVersion===1&&state.enemyStrategistHealthAdjustedIds?.includes(unit.id)&&eligible(unit)&&Number.isInteger(maxHp)&&(expectedMaxHp===null||maxHp===expectedMaxHp)&&maxHp>unit.maxHp&&Math.floor(maxHp*ENEMY_STRATEGIST_HEALTH_RATIO)===unit.maxHp;
+}
+// Full original validation must precede this migration. Do not change fallen
+// casters: their capacity remains the basis of recorded kills, loot and scenes.
+export function upgradeValidatedEnemyStrategistHealth(value,chapter){
+ const state=value.state;
+ if(chapter.act!==2||state.enemyStrategistHealthVersion===1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return false;
+ if(state.enemyStrategistHealthVersion!==undefined)fail('지원하지 않는 버전');
+ const adjusted=[];
+ for(const unit of allUnits(state).filter(u=>eligible(u)&&u.hp>0)){
+  applyEnemyStrategistHealth(unit);adjusted.push(unit.id);
+ }
+ state.enemyStrategistHealthVersion=1;state.enemyStrategistHealthAdjustedIds=adjusted;validateEnemyStrategistHealth(state,chapter);return true;
+}

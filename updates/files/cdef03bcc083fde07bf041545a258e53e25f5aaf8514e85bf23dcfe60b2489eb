@@ -1,0 +1,50 @@
+import {act2ReliefWaves,act2BattleEvents} from './act2-relief-save.js';
+import {baimaLimitedWaves} from './baima-reinforcement-limit.js';
+// Story roster and objective changes are captured only on a new sortie.
+const fail=message=>{throw new Error('전장 사건 저장 오류: '+message);};
+const affected=new Set(['s08_xiaopei','s09_baima','s10_thousand_li','s12_xinye']);
+export function objectiveForCampaignVersion(chapter,version=0){
+ const goal=structuredClone(chapter.objective??{type:'defeatAll'});
+ if(chapter.id==='s09_baima'&&version===1&&chapter.battleEventsVersion===1)goal.requiredDefeated=['e06'];
+ if(chapter.id==='s12_xinye'&&(version!==1||chapter.battleEventsVersion!==1))goal.alsoWinOnDefeatAll=false;
+ return goal;
+}
+export function campaignWaves(state,chapter){return baimaLimitedWaves(state,chapter,act2ReliefWaves(state,chapter,(chapter?.reinforcements??[]).filter(wave=>wave.campaignEventsVersion!==1||state.campaignEventsVersion===1)));}
+export function initCampaignEvents(state,chapter,version=1){
+ if(![0,1].includes(version))fail('지원하지 않는 버전');
+ const recruits=(chapter.reinforcements??[]).filter(w=>w.campaignEventsVersion===1&&w.team==='ally').flatMap(w=>w.unitIds);
+ if(version!==1||chapter.rosterMode!=='story'||chapter.battleEventsVersion!==1||!affected.has(chapter.id)){state.units=state.units.filter(u=>!recruits.includes(u.id));return;}
+ state.campaignEventsVersion=1;state.storyWithdrawals=[];
+}
+export function applyStoryWithdrawal(state,event,index){
+ if(state.campaignEventsVersion!==1||!event.withdrawal)return false;
+ const unit=state.units.find(u=>u.id===event.withdrawal.unit&&u.team==='ally');
+ if(!unit||unit.hp<=0||state.storyWithdrawals.some(r=>r.unit===unit.id))return false;
+ state.storyWithdrawals.push({unit:unit.id,event:index,round:state.round,hp:unit.hp});
+ unit.withdrawn=true;unit.hp=0;unit.done=true;unit.moved=false;unit.moveOrigin=null;unit.status=null;unit.spirits={};unit.confusionLost=false;
+ return true;
+}
+export function storyUnitSurvived(state,unit){return !!unit&&(unit.hp>0||unit.withdrawn===true&&state.storyWithdrawals?.some(r=>r.unit===unit.id&&r.hp>0));}
+export function validateCampaignEvents(state,chapter){
+ const marker=state.campaignEventsVersion,records=state.storyWithdrawals;
+ if(marker===undefined){if(records!==undefined||state.units.some(u=>u.withdrawn))fail('구 전투에 새 이탈 기록');return;}
+ if(marker!==1||chapter.rosterMode!=='story'||!affected.has(chapter.id)||!Array.isArray(records)||records.length>1)fail('버전/이탈 목록');
+ const seen=new Set();
+ for(const r of records){
+  const event=act2BattleEvents(state,chapter)[r?.event],unit=state.units.find(u=>u.id===r?.unit);
+  if(!r||Object.keys(r).some(k=>!['unit','event','round','hp'].includes(k))||seen.has(r.unit)||event?.withdrawal?.unit!==r.unit||event.trigger.type!=='roundStart'||r.round!==event.trigger.round||r.round>state.round||!state.storyEvents?.fired.includes(r.event)||unit?.team!=='ally'||unit.withdrawn!==true||unit.hp!==0||!Number.isInteger(r.hp)||r.hp<1||r.hp>unit.maxHp)fail('이탈 부대/시점');
+  seen.add(r.unit);
+ }
+ if(state.units.some(u=>u.withdrawn!==undefined&&(u.withdrawn!==true||!seen.has(u.id))))fail('이탈 표식');
+ return state;
+}
+
+export function campaignEnemyOrder(chapter,entry,version=0){
+ return chapter.id==='s09_baima'&&chapter.battleEventsVersion===1&&version===1&&entry?.campaignTemplateId?{...entry,templateId:entry.campaignTemplateId,combatTier:entry.campaignCombatTier,position:[...entry.campaignPosition]}:entry;
+}
+const battleStates=new WeakMap();
+export function bindCampaignBattle(campaign,state){if(campaign&&state)battleStates.set(campaign,state);}
+export function campaignDialogueLines(campaign,lines){
+ const state=battleStates.get(campaign);if(campaign.stage!=='postDialogue'||campaign.scenario.id!=='s09_baima'||state?.campaignEventsVersion!==1)return lines;
+ return lines.map((line,i)=>i===0?{...line,text:'백마의 포위를 풀고 연진의 추격까지 물리쳤다. 안량과 문추를 잃은 원소군은 물러났고, 관우의 이름은 하북 전역에 퍼졌다.'}:line.speaker==='narrator'&&line.text.includes('며칠 뒤 연진')?{...line,text:'연진에서 문추까지 격파했다는 소식은 원소의 진영에 닿았다. 이번에도 붉은 얼굴의 장수였다는 소문이었다.'}:line);
+}

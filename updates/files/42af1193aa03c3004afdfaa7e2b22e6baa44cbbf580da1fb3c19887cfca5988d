@@ -1,0 +1,58 @@
+// Baima retains its manuscript's Yanliang -> Wen Chou reinforcement. Expanded
+// north/south reserves are historical data for validating old saves, not future
+// waves in a new or continued v0.60.1 battle. Already arrived units stay intact.
+export const BAIMA_REINFORCEMENT_VERSION=1;
+export const BAIMA_CANONICAL_WAVE='baima_yanjin';
+const fail=message=>{throw new Error('백마 증원 제한 기록 오류: '+message);};
+const ensure=(ok,message)=>{if(!ok)fail(message);};
+const unique=ids=>Array.isArray(ids)&&new Set(ids).size===ids.length;
+const expandedWave=wave=>wave.team!=='ally'&&['layout_north_relief','layout_south_relief'].includes(wave.id);
+export const baimaReinforcementApplies=chapter=>chapter?.id==='s09_baima'&&chapter.rosterMode==='story'&&chapter.act===2&&chapter.campaignLayoutVersion===1&&chapter.battleEventsVersion===1;
+export const baimaExpandedReserveIds=chapter=>baimaReinforcementApplies(chapter)?(chapter.reinforcements??[]).filter(expandedWave).flatMap(wave=>wave.unitIds):[];
+export function installBaimaReinforcementPolicy(chapter){
+ if(baimaReinforcementApplies(chapter))chapter.baimaReinforcementPolicy={version:1,maximumNewEnemyWaves:1,retainedWave:BAIMA_CANONICAL_WAVE,preserveAlreadyArrived:true};
+}
+export function initializeBaimaReinforcementLimit(state,chapter,{baimaReinforcementVersion=1,baimaReinforcementRemovedIds=null}={}){
+ ensure([0,1].includes(baimaReinforcementVersion),'지원하지 않는 버전');
+ if(!baimaReinforcementApplies(chapter)||baimaReinforcementVersion===0)return;
+ const allowed=baimaExpandedReserveIds(chapter),present=new Set(state.units.map(unit=>unit.id));
+ const removed=baimaReinforcementRemovedIds===null?allowed.filter(id=>present.has(id)):[...baimaReinforcementRemovedIds];
+ ensure(unique(removed)&&removed.every(id=>allowed.includes(id)),'미등장 확대 예비대 원본');
+ state.baimaReinforcementVersion=1;state.baimaReinforcementRemovedIds=removed;
+ state.units=state.units.filter(unit=>!removed.includes(unit.id));
+}
+export function baimaLimitedWaves(state,chapter,waves){
+ if(state?.baimaReinforcementVersion!==1||!baimaReinforcementApplies(chapter))return waves;
+ const removed=new Set(state.baimaReinforcementRemovedIds??[]);
+ return waves.map(wave=>expandedWave(wave)?{...wave,unitIds:wave.unitIds.filter(id=>!removed.has(id))}:wave).filter(wave=>wave.unitIds.length>0);
+}
+export function baimaLimitedEnemyOrders(state,chapter,orders){
+ if(state?.baimaReinforcementVersion!==1||!baimaReinforcementApplies(chapter))return orders;
+ const removed=new Set(state.baimaReinforcementRemovedIds??[]);return orders.filter(order=>!removed.has(order.id));
+}
+export function validateBaimaReinforcementLimit(state,chapter){
+ const marker=state.baimaReinforcementVersion,removed=state.baimaReinforcementRemovedIds;
+ if(marker===undefined){ensure(removed===undefined,'이전 전투에 제외 명단');return;}
+ ensure(marker===1&&baimaReinforcementApplies(chapter)&&state.battleEventsVersion===1,'버전/전장');
+ const allowed=baimaExpandedReserveIds(chapter),record=state.reinforcements;
+ ensure(unique(removed)&&removed.every(id=>allowed.includes(id)),'제외 명단 원본·중복');
+ const all=[...state.units,...(record?.pending??[]).flatMap(wave=>wave.units)];
+ ensure(removed.every(id=>!all.some(unit=>unit.id===id)),'제외한 적의 재등장');
+ for(const wave of record?.pending??[])ensure(!expandedWave(wave),'확대 증원은 새로 도착할 수 없습니다.');
+}
+// Run only after the original state, historical waves and rewards validate.
+// No combat participant or settled receipt is removed, edited or reconstructed.
+export function upgradeValidatedBaimaReinforcement(value,chapter){
+ const state=value.state;
+ if(!baimaReinforcementApplies(chapter)||state.baimaReinforcementVersion!==undefined||state.battleEventsVersion!==1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const allowed=new Set(baimaExpandedReserveIds(chapter)),removedIds=[],cancelledWaveIds=[];
+ for(const wave of state.reinforcements?.pending??[]){
+  if(!expandedWave(wave))continue;
+  ensure(wave.units.every(unit=>unit.team==='enemy'&&allowed.has(unit.id)),'이행 대상 대기 부대');
+  removedIds.push(...wave.units.map(unit=>unit.id));cancelledWaveIds.push(wave.id);
+ }
+ if(state.reinforcements){state.reinforcements.pending=state.reinforcements.pending.filter(wave=>!cancelledWaveIds.includes(wave.id));if(!state.reinforcements.pending.length&&!state.reinforcements.spawned.length)delete state.reinforcements;}
+ state.baimaReinforcementVersion=1;state.baimaReinforcementRemovedIds=removedIds;
+ validateBaimaReinforcementLimit(state,chapter);
+ return {removedIds,cancelledWaveIds,preservedSpawned:[...(state.reinforcements?.spawned??[])],futureCanonicalWavePending:!!state.reinforcements?.pending.some(wave=>wave.id===BAIMA_CANONICAL_WAVE)};
+}

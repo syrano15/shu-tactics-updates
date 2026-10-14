@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "version": "0.60.1",
+  "stageId": "s09_baima",
+  "displayOnly": true,
+  "sourceKind": "native-svg-earth-overlay",
+  "newRasterArtwork": false,
+  "baseMapSrc": "art/act2-v0401/maps/s09_baima-v0401.webp",
+  "baseMapSHA256": "be8422e696d90d0f251f1821a6d9a3a0e44738a7758b98b5b986d6c0e0d70a79",
+  "previousOverlaySrc": "art/act2-v0401/maps/s09_baima-traversal-v0401.svg",
+  "previousOverlaySHA256": "af96cb6390cf95501373bae16e24383f357bee436410adb797562908483485b0",
+  "overlaySrc": "art/playfix-v0601/s09_baima-earth-causeway-v0601.svg",
+  "overlaySHA256": "5f72c5bd0c7252346af9e6140cec82af09130e20766582424395ad07ee6a7f71",
+  "overlayBytes": 462162,
+  "width": 1800,
+  "height": 1400,
+  "columns": 18,
+  "rows": 14,
+  "terrainKey": ".........##.......\n.........##.......\n.....FFF.##.......\n.........##...FFF.\n.........##...FFF.\n.........##.......\n..................\n..................\n..................\n.........##.......\n..FFF....##...FFF.\n..FFF....##...FFF.\n.........##.......\n.........##.......",
+  "terrainSHA256": "86a60e52496bf36bbdadf4053a4802049494ccf28323c642db5753b1c0a49ddd",
+  "bridgeCells": [
+    [
+      9,
+      6
+    ],
+    [
+      9,
+      7
+    ]
+  ],
+  "causewayCells": [
+    [
+      9,
+      8
+    ],
+    [
+      10,
+      6
+    ],
+    [
+      10,
+      7
+    ],
+    [
+      10,
+      8
+    ]
+  ],
+  "surfaceCells": [
+    [
+      9,
+      6
+    ],
+    [
+      9,
+      7
+    ],
+    [
+      9,
+      8
+    ],
+    [
+      10,
+      6
+    ],
+    [
+      10,
+      7
+    ],
+    [
+      10,
+      8
+    ]
+  ],
+  "bridgeDisplayLabel": "흙둑길",
+  "edgeStyle": "natural-road-and-banks",
+  "material": "earth-causeway",
+  "geometryUnchanged": true,
+  "baseMapUnchanged": true,
+  "previousOverlayPreserved": true,
+  "validation": {
+    "sampledCellCenters": 252,
+    "opaqueSurfaceCenters": 2,
+    "opaqueOriginalBridgeCenters": 2,
+    "transparentOtherCenters": 246,
+    "opaqueOriginalBridgePixels": 20000,
+    "surfacePixelsWithAlpha": 60000,
+    "fadedCausewayPixels": 35307,
+    "transparentOtherPixels": 2460000,
+    "outsideSurfacePixelsWithAlpha": 0
+  }
+}

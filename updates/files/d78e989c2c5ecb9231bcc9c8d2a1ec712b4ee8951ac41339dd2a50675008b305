@@ -1,0 +1,21 @@
+const controlKind=kind=>kind==='confusion'||kind==='deception';
+// A target needs one allied turn between enemy strategist control effects.
+// The optional record is written only by actual combat or normal status expiry.
+export const enemyControlGuardActive=(state,target)=>target?.team==='ally'&&Number.isInteger(target.enemyControlGuardUntilRound)&&Number.isInteger(state?.round)&&state.round<=target.enemyControlGuardUntilRound;
+export const enemyControlBlocked=(state,actor,target,kind)=>actor?.team==='enemy'&&actor.cls==='strategist'&&controlKind(kind)&&enemyControlGuardActive(state,target);
+export function recordEnemyControlGuard(state,actor,target,kind){
+ if(actor?.team!=='enemy'||actor.cls!=='strategist'||target?.team!=='ally'||!controlKind(kind))return false;
+ target.enemyControlGuardUntilRound=Math.max(target.enemyControlGuardUntilRound??0,state.round+1);return true;
+}
+export function recoverEnemyControlGuard(state,target){
+ if(target?.team!=='ally'||target.hp<=0||target.escaped||target.withdrawn||!target.status?.consumed||!controlKind(target.status.type))return false;
+ // Old saves have no caster provenance. Native allied control statuses can only
+ // come from enemy strategist tactics; preserve the old status until it expires.
+ target.enemyControlGuardUntilRound=Math.max(target.enemyControlGuardUntilRound??0,state.round);return true;
+}
+export function validateEnemyControlGuards(state){
+ for(const unit of state.units??[]){
+  if(unit.enemyControlGuardUntilRound===undefined)continue;
+  if(unit.team!=='ally'||!Number.isInteger(unit.enemyControlGuardUntilRound)||unit.enemyControlGuardUntilRound<1||unit.enemyControlGuardUntilRound>state.round+1)throw new Error('적 책사 제어 저항 기록이 올바르지 않습니다.');
+ }
+}
