@@ -1,0 +1,105 @@
+import {artFor} from './unit-art.js';
+
+const sessions=new WeakMap();
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+const validRoute=route=>Array.isArray(route)&&route.length>1&&route.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y));
+const noMotion=()=>({stop(){}});
+const styleKeys=['transform','scale','transform-origin','will-change'];
+const ghostKeys=['--movement-shadow-x','--movement-shadow-y','--movement-shadow-opacity','--movement-dust-opacity','--movement-dust-x','--movement-dust-scale'];
+const readStyles=(style,keys)=>keys.map(key=>[key,style.getPropertyValue(key),style.getPropertyPriority?.(key)??'']);
+const restoreStyles=(style,values)=>{for(const [key,value,priority]of values){if(value)style.setProperty(key,value,priority);else style.removeProperty(key);}};
+
+export function movementKind(unit){
+ if(unit?.nonCombat||unit?.id==='x_carriage')return 'cart';
+ return artFor(unit??{})?.kind==='mounted'?'mounted':'foot';
+}
+
+/** Position and visual rhythm share the original legal route, never the battle state. */
+export function movementMotionPlan(unit,route,positions,{fast=false}={}){
+ const kind=movementKind(unit),segmentDuration=fast?65:kind==='foot'?165:155;
+ if(!validRoute(route)||!Array.isArray(positions)||positions.length!==route.length||positions.some(p=>!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)))return {kind,segmentDuration,duration:0,frames:[]};
+ // Constant travel prevents a whole squad braking and springing forward on every tile.
+ // The independent, much smaller gait below supplies the footfall rhythm.
+ const phases=[0,.25,.5,.75,1],advances=phases;
+ const steps=route.length-1,frames=[];
+ for(let index=0;index<steps;index++)for(let point=0;point<phases.length;point++){
+  if(index>0&&point===0)continue;
+  const from=positions[index],to=positions[index+1],progress=advances[point];
+  frames.push({transform:'translate('+(from.x+(to.x-from.x)*progress)+'px,'+(from.y+(to.y-from.y)*progress)+'px)',offset:(index+phases[point])/steps});
+ }
+ return {kind,segmentDuration,duration:segmentDuration*steps,frames};
+}
+
+export function movementHeading(route,index,facing='right'){
+ let horizontal=facing==='left'?-1:1;
+ const last=clamp(Math.floor(index),0,route.length-2);
+ for(let i=0;i<=last;i++){const dx=route[i+1].x-route[i].x;if(dx)horizontal=Math.sign(dx);}
+ const dx=Math.sign(route[last+1].x-route[last].x),dy=Math.sign(route[last+1].y-route[last].y);
+ return {dx,dy,horizontal,direction:dx<0?'left':dx>0?'right':dy<0?'up':dy>0?'down':'still',mirror:horizontal!==(facing==='left'?-1:1)};
+}
+
+/** One existing image gets gait cues. This does not invent separate leg frames. */
+export function movementMotionFrame(kind,phase,segment,height=48,heading={dx:1,dy:0}){
+ const p=clamp(phase,0,1),inside=p>0&&p<1,lift=inside?Math.pow(Math.max(0,Math.sin(Math.PI*p)),kind==='mounted'?1.25:2):0;
+ const landing=p>.7?Math.pow(Math.sin(Math.PI*(p-.7)/.3),2):0;
+ const sway=inside?Math.sin(2*Math.PI*p)*(segment%2?-1:1):0;
+ const amplitude=kind==='cart'?clamp(height*.006,.2,.45):kind==='mounted'?clamp(height*.043,1.7,3.1):clamp(height*.025,1,1.8);
+ const tilt=kind==='cart'?sway*.18:kind==='mounted'?sway*.65+heading.dx*lift*.35:sway*.42+heading.dx*lift*.18;
+ return {
+  bob:lift?-lift*amplitude:0,
+  tilt:tilt+heading.dy*lift*.15,
+  // The approved single-frame artwork stays rigid; no rubber torso or landing squash.
+  stretchX:1,stretchY:1,
+  shadowX:1-lift*(kind==='cart'?.008:.045),
+  shadowY:1-lift*(kind==='cart'?.006:.025),
+  shadowOpacity:1-lift*(kind==='cart'?.015:.06),
+  dustOpacity:landing*(kind==='cart'?.14:kind==='mounted'?.25:.17),
+  dustX:-heading.dx*(kind==='mounted'?height*.2:height*.1),
+  dustScale:.72+landing*.35,
+ };
+}
+
+/** Call after the outer traveller animation starts; stop in its finally block. */
+export function startMovementMotion(ghost,unit,route,options={}){
+ sessions.get(ghost)?.stop();
+ if(!ghost||options.reducedMotion||!validRoute(route))return noMotion();
+ const img=ghost.querySelector?.('.battle-sprite');
+ const requestFrame=options.requestFrame??globalThis.requestAnimationFrame,cancelFrame=options.cancelFrame??globalThis.cancelAnimationFrame;
+ if(!img||typeof requestFrame!=='function')return noMotion();
+ const kind=movementKind(unit),steps=route.length-1,duration=Number.isFinite(options.duration)&&options.duration>0?options.duration:(options.fast?65:kind==='foot'?165:155)*steps;
+ const segmentDuration=duration/steps,facing=artFor(unit??{})?.facing??'right';
+ const now=options.now??(()=>globalThis.performance?.now?.()??Date.now()),start=now();
+ const height=ghost.getBoundingClientRect?.().height||48;
+ const imgStyle=readStyles(img.style,styleKeys),ghostStyle=readStyles(ghost.style,ghostKeys);
+ const beforeClass=ghost.classList.contains('has-movement-motion');
+ const dataKeys=['movementKind','movementDirection','movementSegment'],beforeData=dataKeys.map(key=>[key,ghost.dataset[key]]);
+ const dust=ghost.ownerDocument?.createElement('span');if(dust){dust.className='movement-dust';dust.setAttribute('aria-hidden','true');ghost.append(dust);}
+ let closed=false,frameId=null;
+ const stop=()=>{
+  if(closed)return;closed=true;if(frameId!==null&&typeof cancelFrame==='function')cancelFrame(frameId);frameId=null;
+  restoreStyles(img.style,imgStyle);restoreStyles(ghost.style,ghostStyle);
+  if(!beforeClass)ghost.classList.remove('has-movement-motion');
+  for(const [key,value]of beforeData){if(value===undefined)delete ghost.dataset[key];else ghost.dataset[key]=value;}
+  dust?.remove();if(sessions.get(ghost)?.stop===stop)sessions.delete(ghost);
+ };
+ const current=()=>{try{return options.isCurrent?.()!==false&&ghost.isConnected!==false;}catch{return false;}};
+ const paint=elapsed=>{
+  const position=Math.min(steps,Math.max(0,elapsed/segmentDuration)),segment=Math.min(steps-1,Math.floor(position)),phase=position-segment;
+  const heading=movementHeading(route,segment,facing),value=movementMotionFrame(kind,phase,segment,height,heading);
+  ghost.dataset.movementKind=kind;ghost.dataset.movementDirection=heading.direction;ghost.dataset.movementSegment=String(segment);
+  img.style.setProperty('scale',heading.mirror?'-1 1':'1 1');
+  img.style.setProperty('transform','translateY('+value.bob.toFixed(3)+'px) rotate('+value.tilt.toFixed(3)+'deg)');
+  img.style.setProperty('transform-origin','center 88%');img.style.setProperty('will-change','transform');
+  for(const [key,styleValue]of [['shadow-x',value.shadowX],['shadow-y',value.shadowY],['shadow-opacity',value.shadowOpacity],['dust-opacity',value.dustOpacity],['dust-x',value.dustX+'px'],['dust-scale',value.dustScale]])ghost.style.setProperty('--movement-'+key,String(styleValue));
+ };
+ const linkedAnimation=options.animation;
+ const tick=time=>{
+  frameId=null;if(closed)return;if(!current()){stop();return;}
+  const elapsed=linkedAnimation?(Number.isFinite(linkedAnimation.currentTime)?Math.max(0,linkedAnimation.currentTime):0):Math.max(0,time-start);
+  if(elapsed>=duration){if(linkedAnimation)paint(duration);else stop();return;}
+  paint(elapsed);frameId=requestFrame(tick);
+ };
+ const controller={stop};sessions.set(ghost,controller);
+ if(!current()){stop();return controller;}
+ ghost.classList.add('has-movement-motion');paint(0);frameId=requestFrame(tick);return controller;
+}

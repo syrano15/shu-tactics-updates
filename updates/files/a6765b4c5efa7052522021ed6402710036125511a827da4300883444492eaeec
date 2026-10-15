@@ -1,0 +1,25 @@
+/* Movement uses the existing complete image; name and HP stay steady above the route. */
+.unit-traveller.has-movement-motion.sprite-token>.battle-sprite{
+ animation:none;translate:none;transform-origin:center 88%;will-change:transform;
+}
+.unit-traveller.has-movement-motion.sprite-token:before{
+ transform:scale(var(--movement-shadow-x,1),var(--movement-shadow-y,1));
+ opacity:var(--movement-shadow-opacity,1);transform-origin:center center;
+}
+.unit-traveller.has-movement-motion .movement-dust{
+ position:absolute;left:50%;bottom:19%;width:30%;height:6%;z-index:0;pointer-events:none;
+ opacity:var(--movement-dust-opacity,0);
+ transform:translateX(calc(-50% + var(--movement-dust-x,0px))) scale(var(--movement-dust-scale,1));
+ transform-origin:center bottom;
+}
+.movement-dust:before,.movement-dust:after{
+ content:"";position:absolute;bottom:0;width:52%;height:55%;border-radius:50%;
+ background:radial-gradient(ellipse,#c7b3898a,#ae916532 60%,transparent 74%);
+}
+.movement-dust:before{left:0}.movement-dust:after{right:0;bottom:18%;width:40%;height:72%}
+.weather-rain .unit-traveller .movement-dust{display:none}
+@media(prefers-reduced-motion:reduce){
+ .unit-traveller.has-movement-motion.sprite-token>.battle-sprite{animation:none;transform:none!important;scale:1!important}
+ .unit-traveller.has-movement-motion .movement-dust{display:none}
+ .unit-traveller.has-movement-motion.sprite-token:before{transform:none;opacity:1}
+}
