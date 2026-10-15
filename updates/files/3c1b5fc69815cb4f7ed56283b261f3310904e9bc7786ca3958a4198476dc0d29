@@ -1,0 +1,26 @@
+import {CHAPTERS} from './campaign.js';
+import {terrainMovementCost} from './terrain-effects.js';
+
+const chapter=state=>state?.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state?.chapter];
+export const act7FireProhibited=state=>chapter(state)?.act===7&&chapter(state)?.act7Tactics?.fireProhibited===true;
+export const act7MovementLocked=(state,unit)=>{const ch=chapter(state);return ch?.act===7&&(ch.act7Tactics?.stationary?.unit===unit?.id||ch.id==='s53_wuzhangyuan'&&unit?.id==='e_boss');};
+export function act7CommanderLocked(state,unit){const rule=chapter(state)?.act7Tactics?.commanderGate;return rule?.unit===unit?.id&&rule.requiredDefeated.some(id=>state.units.some(u=>u.id===id&&u.hp>0));}
+
+// The lamp raid is a finite set of real units. It uses the normal movement
+// budget and occupied cells, then commits through the same enemy action API.
+export function decideAct7Raid(state,unit,reachable,canAttack){
+ const ch=chapter(state);if(ch?.id!=='s54_seven_lamps'||unit.team!=='enemy'||unit.moved)return null;
+ const tiles=ch.objective.tiles,keys=new Set(tiles.map(t=>t.join(','))),choices=[...reachable(state,unit)].map(([k,cost])=>{const [x,y]=k.split(',').map(Number);return {x,y,cost};});
+ const direct=choices.find(p=>keys.has(p.x+','+p.y));if(direct)return {x:direct.x,y:direct.y,targetId:null};
+ if(choices.some(p=>state.units.some(t=>t.team==='ally'&&t.hp>0&&canAttack({...unit,...p,moved:p.x!==unit.x||p.y!==unit.y},t))))return null;
+ const costs=new Map(),queue=[],at=(x,y)=>state.units.find(u=>u.hp>0&&u.id!==unit.id&&u.x===x&&u.y===y),pass=(x,y)=>state.terrain[y]?.[x]!==undefined&&state.terrain[y][x]!=='#'&&at(x,y)?.team!=='ally';
+ for(const[x,y]of tiles)if(pass(x,y)){costs.set(x+','+y,0);queue.push({x,y,cost:0});}
+ while(queue.length){queue.sort((a,b)=>a.cost-b.cost||a.y-b.y||a.x-b.x);const p=queue.shift();if(costs.get(p.x+','+p.y)!==p.cost)continue;const enter=terrainMovementCost(state,unit,p.x,p.y);for(const[dx,dy]of[[0,-1],[-1,0],[1,0],[0,1]]){const x=p.x+dx,y=p.y+dy,k=x+','+y,cost=p.cost+enter;if(!pass(x,y)||cost>=(costs.get(k)??Infinity))continue;costs.set(k,cost);queue.push({x,y,cost});}}
+ choices.sort((a,b)=>(costs.get(a.x+','+a.y)??Infinity)-(costs.get(b.x+','+b.y)??Infinity)||a.cost-b.cost||a.y-b.y||a.x-b.x);
+ const best=choices[0];return best&&Number.isFinite(costs.get(best.x+','+best.y))?{x:best.x,y:best.y,targetId:null}:null;
+}
+export function validateAct7Story(state,ch){
+ if(ch?.act!==7)return;
+ const rule=ch.act7Tactics?.stationary;
+ if(rule){const u=state.units.find(u=>u.id===rule.unit&&u.team==='ally');if(!u||u.x!==rule.tile[0]||u.y!==rule.tile[1])throw new Error('칠성등 기도 자리 기록이 올바르지 않습니다.');}
+}

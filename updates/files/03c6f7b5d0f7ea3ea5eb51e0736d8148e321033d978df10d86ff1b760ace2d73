@@ -1,0 +1,67 @@
+// Manuscript display cues only. These layers do not change terrain, weather or saves.
+export const ACT7_NATIVE_FX=Object.freeze({
+ fx_flags:'가정 · 산을 에워싼 위군 깃발',
+ fx_snow:'진창 · 성벽에 내리는 눈',
+ fx_star_fall:'오장원 · 흔들리는 별빛',
+ fx_lamps:'칠성등 · 꺼지지 않은 일곱 등불',
+});
+const specifications=Object.freeze({
+ fx_flags:Object.freeze({count:8,duration:1150}),
+ fx_snow:Object.freeze({count:24,duration:1500}),
+ fx_star_fall:Object.freeze({count:7,duration:1400}),
+ fx_lamps:Object.freeze({count:7,duration:1500}),
+});
+export function act7EffectSpec(id){return specifications[id]??null;}
+
+// No asset fetch, random draw or engine write is involved in these short native cues.
+export function createAct7EffectLayer(effect,state,{document=globalThis.document,reducedMotion}={}){
+ const spec=act7EffectSpec(effect?.id),board=document?.getElementById('board-stage');
+ if(!spec||!board)return null;
+ const reduce=reducedMotion??(document.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false);
+ const layer=document.createElement('div'),animations=[];
+ layer.className='map-fx native-map-fx act7-map-fx '+effect.id;
+ layer.setAttribute('role','img');layer.setAttribute('aria-label',ACT7_NATIVE_FX[effect.id]);
+ layer.style.cssText='position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:6';
+ if(effect.id==='fx_snow')layer.style.background='linear-gradient(#c6e4f219,#eaf3f00c)';
+ if(effect.id==='fx_star_fall')layer.style.background='linear-gradient(#111d4540,transparent 65%)';
+ if(effect.id==='fx_lamps'){
+  const unit=effect.unit&&state?.units?.find(unit=>unit.id===effect.unit),tile=effect.tile??(unit?[unit.x,unit.y]:null);
+  const cell=tile&&document.querySelector(`#board [data-x="${tile[0]}"][data-y="${tile[1]}"]`);
+  if(cell){const r=cell.getBoundingClientRect(),b=board.getBoundingClientRect();layer.style.cssText+=`;inset:auto;left:${r.left-b.left-r.width}px;top:${r.top-b.top-r.height}px;width:${r.width*3}px;height:${r.height*3}px`;}
+  layer.style.background='radial-gradient(ellipse at center,#f7b84b3b,transparent 72%)';
+ }
+ const animate=(node,frames,options)=>{
+  if(!reduce&&typeof node.animate==='function')animations.push(node.animate(frames,{...options,duration:spec.duration,fill:'both'}));
+ };
+ for(let i=0;i<spec.count;i++){
+  const particle=document.createElement('span');particle.setAttribute('aria-hidden','true');
+  particle.className='act7-effect-particle';particle.style.position='absolute';particle.style.display='block';
+  if(effect.id==='fx_flags'){
+   const right=i>=4,j=i%4;
+   particle.className+=' act7-flag';
+   particle.style.cssText+=`;left:${right?87-j%2*5:5+j%2*5}%;top:${12+j*21}%;width:clamp(16px,4%,35px);height:clamp(26px,8%,60px);border-left:3px solid #dbc692;background:linear-gradient(155deg,#36425a 0 58%,transparent 59%);filter:drop-shadow(0 1px 2px #0009);transform-origin:left center`;
+   animate(particle,[{transform:'skewY(-7deg)',opacity:.45},{transform:'skewY(5deg)',opacity:.92,offset:.45},{transform:'skewY(-2deg)',opacity:0}],{easing:'ease-in-out'});
+  }else if(effect.id==='fx_snow'){
+   const size=2+i%3;
+   particle.className+=' act7-snowflake';
+   particle.style.cssText+=`;left:${(i*37+9)%100}%;top:${(i*23+3)%86}%;width:${size}px;height:${size}px;border-radius:50%;background:#f0f7ff;opacity:.8;box-shadow:0 0 3px #d6ebff99`;
+   animate(particle,[{transform:'translate(0,-16px)',opacity:0},{opacity:.9,offset:.15},{transform:`translate(${12+i%5*3}px,55px)`,opacity:0}],{easing:'linear'});
+  }else if(effect.id==='fx_star_fall'){
+   // The manuscript names the cue star_fall, but only foreshadows a wavering star.
+   // It must not show the death/actual falling star that the next chapter averts.
+   const main=i===0,size=main?9:3;
+   particle.className+=main?' act7-wavering-star':' act7-star';
+   particle.style.cssText+=`;left:${main?51:17+(i*13)%69}%;top:${main?21:8+(i*11)%29}%;width:${size}px;height:${size}px;border-radius:50%;background:#fff4c8;box-shadow:0 0 ${main?16:5}px #f7db96;opacity:${main?1:.55}`;
+   if(main)animate(particle,[{transform:'translateX(0) scale(.9)',opacity:.8},{transform:'translateX(-3px) scale(1.2)',opacity:.3,offset:.3},{transform:'translateX(3px) scale(.85)',opacity:.9,offset:.65},{transform:'translateX(0) scale(1)',opacity:.6}],{easing:'ease-in-out'});
+  }else{
+   const angle=(i*360/7-90)*Math.PI/180;
+   particle.className+=' act7-lamp';
+   particle.style.cssText+=`;left:${50+Math.cos(angle)*31}%;top:${47+Math.sin(angle)*28}%;width:clamp(5px,6%,12px);height:clamp(9px,11%,21px);border-radius:65% 65% 40% 40%;background:radial-gradient(ellipse at 50% 65%,#fff5c7 0 20%,#ffc35b 35%,#e8753270 70%,transparent 75%);box-shadow:0 4px 7px #f5ad56aa;transform:translate(-50%,-50%);opacity:.95`;
+   animate(particle,[{filter:'brightness(.9)'},{filter:'brightness(1.15)',offset:.4},{filter:'brightness(.95)'}],{easing:'ease-in-out'});
+  }
+  layer.append(particle);
+ }
+ board.append(layer);
+ let removed=false;
+ return {layer,duration:reduce?650:spec.duration,remove(){if(removed)return;removed=true;for(const animation of animations)animation?.cancel?.();layer.remove();}};
+}

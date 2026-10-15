@@ -1,0 +1,27 @@
+import {portraitAsset} from './story-assets.js';
+import {unitPortraitIdentity as previousIdentity} from './act6-portraits.js';
+
+export const ACT7_NEW_PORTRAITS=Object.freeze([
+ ['simayi','사마의'],['guohuai','곽회'],['caozhen','조진'],['haozhao','학소'],
+ ['liushan','유선'],['mazun','마준'],['jinxiang','근상'],
+].map(([id,name])=>Object.freeze({id,name,src:'art/act7/portraits/'+id+'-v070.webp'})));
+const names=Object.freeze({
+ '사마의':{id:'simayi',faction:'wei'},'곽회':{id:'guohuai',faction:'wei'},
+ '조진':{id:'caozhen',faction:'wei'},'학소':{id:'haozhao',faction:'wei'},
+ '마준':{id:'mazun',faction:'wei'},'근상':{id:'jinxiang',faction:'wei'},
+ '유선':{id:'liushan',faction:'shu'},'장합':{id:'zhanghe',faction:'wei'},
+ '강유':{id:'jiangwei',faction:'shu'},
+});
+const speakers=Object.freeze(Object.fromEntries(Object.values(names).map(row=>[row.id,row])));
+export function unitPortraitIdentity(unit){
+ if(!unit||unit.nonCombat)return null;
+ const prior=previousIdentity(unit);if(prior)return prior;
+ const person=!unit.generic&&names[unit.name]||speakers[unit.storySpeaker];if(!person)return null;
+ const faction=unit.faction==='cao'?'wei':unit.faction;
+ // Tian Shui Jiang Wei is still Wei's officer; his earlier individual portrait is retained.
+ if(faction&&faction!==person.faction&&!(person.id==='jiangwei'&&faction==='wei'))return null;
+ return {id:person.id,faction:faction??person.faction};
+}
+export function portraitForUnit(unit,chapterId='s46_tianshui',face='normal'){
+ const identity=unitPortraitIdentity(unit);return identity?portraitAsset(identity.id,face,chapterId,{faction:identity.faction}):null;
+}
