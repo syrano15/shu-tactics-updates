@@ -1,0 +1,27 @@
+const ACTIVE_STAGES=new Set(['preDialogue','deployment','battle']);
+const FIELDS=['name','han','generic','combatTier','rank','promotion','maxHp','baseAtk','atk','def','int','move','min','max','attackAfterMove','cavalryDamageReceived','cavalryDamageDealt','evasionBonus','criticalBonus','moraleBonus','tacticBonus'];
+const applies=chapter=>Number.isInteger(chapter?.act)&&chapter.act>=3&&chapter.act<=7;
+const active=value=>value.state.result===null&&!value.state.rewardsSettled&&ACTIVE_STAGES.has(value.campaign.stage);
+const fail=()=>{throw new Error('후반 적 밸런스 저장 기록이 올바르지 않습니다.');};
+export function validateCampaignEnemyBalanceSave(state,chapter){
+ if(![undefined,0,1].includes(state.campaignEnemyBalanceVersion)||state.campaignEnemyBalanceVersion===1&&!applies(chapter))fail();
+ if(state.campaignEnemyBalanceSourceVersion!==undefined&&(state.campaignEnemyBalanceSourceVersion!==0||state.campaignEnemyBalanceVersion!==1||!applies(chapter)))fail();
+ if(![undefined,0,1].includes(state.tacticFirePowerVersion)||state.tacticFirePowerVersion===1&&(!Number.isInteger(chapter?.act)||chapter.act<2||chapter.act>7))fail();
+}
+export function upgradeValidatedCampaignEnemyBalance(value,chapter,nextRefs){
+ const state=value.state;
+ if(!applies(chapter)||(state.campaignEnemyBalanceVersion??0)!==0||!active(value))return false;
+ const refs=new Map(nextRefs.map(unit=>[unit.id,unit])),units=[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)].filter(unit=>unit.team==='enemy');
+ for(const unit of units){const ref=refs.get(unit.id);if(!ref||ref.team!=='enemy'||ref.cls!==unit.cls||!Number.isInteger(ref.maxHp)||ref.maxHp<1||!Number.isInteger(unit.maxHp)||unit.maxHp<1)fail();}
+ for(const unit of units){
+  const ref=refs.get(unit.id),hp=unit.hp===0?0:Math.max(1,Math.min(ref.maxHp,Math.round(unit.hp/unit.maxHp*ref.maxHp)));
+  for(const field of FIELDS){if(Object.hasOwn(ref,field))unit[field]=ref[field];else delete unit[field];}
+  unit.hp=hp;
+ }
+ state.campaignEnemyBalanceVersion=1;state.campaignEnemyBalanceSourceVersion=0;
+ return true;
+}
+export function upgradeValidatedTacticFirePower(value,chapter){
+ if(!Number.isInteger(chapter?.act)||chapter.act<2||chapter.act>7||(value.state.tacticFirePowerVersion??0)!==0||!active(value))return false;
+ value.state.tacticFirePowerVersion=1;return true;
+}

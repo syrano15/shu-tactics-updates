@@ -1,0 +1,71 @@
+import {terrainMovementCost} from './terrain-effects.js';
+import {huarongReachable} from './huarong-chase.js';
+import {campaignEnemyOriginalCapacity,historicalCampaignEnemyCapacity} from './campaign-enemy-balance.js';
+
+const exact=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const integer=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+const fail=()=>{throw new Error('6막 서사 전투 기록이 올바르지 않습니다.');};
+const ensure=value=>{if(!value)fail();};
+const key=(x,y)=>x+','+y;
+const cell=(s,tile)=>Array.isArray(tile)&&tile.length===2&&tile.every(Number.isInteger)&&tile[0]>=0&&tile[1]>=0&&s.terrain[tile[1]]?.[tile[0]]!==undefined&&s.terrain[tile[1]][tile[0]]!=='#';
+const passable=(s,u,x,y)=>cell(s,[x,y])&&!s.units.some(v=>v.hp>0&&v.id!==u.id&&v.x===x&&v.y===y);
+export const act6Sleeping=unit=>unit?.act6Sleeping===true;
+// One skill command may resolve several hits and cooperation before relocation.
+// Private transaction state never becomes a field in a battle or a save.
+const deferredCommands=new WeakMap();
+export const act6StoryDeferred=state=>(deferredCommands.get(state)??0)>0;
+export function deferAct6Story(state,chapter){
+ if(state?.act6StoryVersion!==1||chapter?.act!==6)return null;
+ deferredCommands.set(state,(deferredCommands.get(state)??0)+1);let finished=false;
+ return ()=>{if(finished)return [];finished=true;const remaining=deferredCommands.get(state)-1;if(remaining){deferredCommands.set(state,remaining);return [];}deferredCommands.delete(state);return applyAct6Story(state,chapter);};
+}
+
+export function initializeAct6Story(state,chapter){
+ if(chapter?.act!==6)return;
+ state.act6StoryVersion=1;state.act6Story={retreats:[],escapes:[],captured:[]};
+ const sleep=chapter.act6Tactics?.sleep;if(sleep){const unit=state.units.find(u=>u.id===sleep.unit&&u.team==='ally');ensure(unit&&integer(sleep.untilRound,2,99));state.act6Story.sleep={unitId:unit.id,untilRound:sleep.untilRound,awakenedRound:null};unit.act6Sleeping=true;unit.done=true;}
+}
+export function act6Escaper(state,unit,chapter){return state?.act6StoryVersion===1&&chapter?.act===6&&unit?.team==='enemy'&&unit.hp>0&&!unit.escaped&&state.round>=(chapter.act6Tactics?.escapes?.fromRound??Infinity)&&chapter.act6Tactics?.escapes?.unitIds.includes(unit.id);}
+export function escapeAct6Unit(state,unit,chapter){
+ if(!act6Escaper(state,unit,chapter)||!chapter.act6Tactics.escapes.tiles.some(([x,y])=>unit.x===x&&unit.y===y))return null;
+ const record={unitId:unit.id,round:state.round,exit:[unit.x,unit.y],hp:unit.hp};state.act6Story.escapes.push(record);unit.escaped=true;unit.hp=0;unit.done=true;unit.moveOrigin=null;unit.status=null;unit.spirits={};unit.confusionLost=false;
+ if(state.battleRecords?.minHpRatios)state.battleRecords.minHpRatios[unit.id]=0;
+ return record;
+}
+// Reverse path costs preserve legal movement around allies and fellow fugitives.
+export function decideAct6Escape(state,unit,chapter){
+ const idle={x:unit.x,y:unit.y,targetId:null};if(!act6Escaper(state,unit,chapter)||unit.done||unit.moved)return idle;
+ const costs=new Map(),queue=[];
+ for(const [x,y] of chapter.act6Tactics.escapes.tiles)if(passable(state,unit,x,y)){costs.set(key(x,y),0);queue.push({x,y,cost:0});}
+ while(queue.length){queue.sort((a,b)=>a.cost-b.cost||a.y-b.y||a.x-b.x);const p=queue.shift();if(p.cost!==costs.get(key(p.x,p.y)))continue;const enter=terrainMovementCost(state,unit,p.x,p.y);
+  for(const [dx,dy] of [[0,-1],[-1,0],[1,0],[0,1]]){const x=p.x+dx,y=p.y+dy;if(!passable(state,unit,x,y))continue;const cost=p.cost+enter;if(cost>=(costs.get(key(x,y))??Infinity))continue;costs.set(key(x,y),cost);queue.push({x,y,cost});}
+ }
+ const before=costs.get(key(unit.x,unit.y))??Infinity,choices=[...huarongReachable(state,unit)].map(([tile,cost])=>{const [x,y]=tile.split(',').map(Number);return {x,y,cost,remaining:costs.get(tile)??Infinity};}).filter(p=>Number.isFinite(p.remaining)&&p.remaining<before).sort((a,b)=>a.remaining-b.remaining||a.cost-b.cost||a.y-b.y||a.x-b.x);
+ return choices.length?{x:choices[0].x,y:choices[0].y,targetId:null}:idle;
+}
+export function applyAct6Story(state,chapter){
+ if(state?.act6StoryVersion!==1||chapter?.act!==6||act6StoryDeferred(state))return [];
+ const record=state.act6Story,events=[],sleep=record.sleep;
+ if(sleep&&sleep.awakenedRound===null&&state.round>=sleep.untilRound){const unit=state.units.find(u=>u.id===sleep.unitId);delete unit.act6Sleeping;sleep.awakenedRound=sleep.untilRound;if(unit.hp>0&&state.phase==='ally')unit.done=false;events.push({kind:'awake',unitId:unit.id,round:state.round});}
+ const retreat=chapter.act6Tactics?.retreat,unit=retreat&&state.units.find(u=>u.id===retreat.unit&&u.team==='enemy');
+ if(!state.result&&unit?.hp>0&&unit.hp<=unit.maxHp*retreat.hpRatio&&!record.retreats.some(r=>r.unitId===unit.id)){
+  const choices=[];for(let y=0;y<state.terrain.length;y++)for(let x=0;x<state.terrain[0].length;x++)if(passable(state,unit,x,y)&&Math.abs(x-retreat.tile[0])+Math.abs(y-retreat.tile[1])<=2)choices.push([x,y]);
+  choices.sort((a,b)=>(Math.abs(a[0]-retreat.tile[0])+Math.abs(a[1]-retreat.tile[1]))-(Math.abs(b[0]-retreat.tile[0])+Math.abs(b[1]-retreat.tile[1]))||a[1]-b[1]||a[0]-b[0]);
+  if(choices.length){const entry={unitId:unit.id,round:state.round,from:[unit.x,unit.y],to:choices[0],hp:unit.hp,maxHp:unit.maxHp};[unit.x,unit.y]=entry.to;unit.moveOrigin=null;record.retreats.push(entry);events.push({kind:'retreat',...entry});}
+ }
+ if(!state.result)for(const unit of state.units){const escaped=escapeAct6Unit(state,unit,chapter);if(escaped)events.push({kind:'escape',...escaped});}
+ if(chapter.id==='s45_rattan')for(const defeat of state.battleRecords?.defeats??[]){if(defeat.targetId==='e_boss'&&!record.captured.some(r=>r.unitId==='e_boss'))record.captured.push({unitId:'e_boss',round:defeat.round});}
+ return events;
+}
+export function validateAct6Story(state,chapter){
+ if(chapter?.act!==6){ensure(state.act6StoryVersion===undefined&&state.act6Story===undefined&&state.units.every(u=>u.act6Sleeping===undefined));return;}
+ const r=state.act6Story,sleepRule=chapter.act6Tactics?.sleep;ensure(state.act6StoryVersion===1&&r&&exact(r,sleepRule?['sleep','retreats','escapes','captured']:['retreats','escapes','captured'])&&Array.isArray(r.retreats)&&r.retreats.length<=1&&Array.isArray(r.escapes)&&Array.isArray(r.captured)&&r.captured.length<=1);
+ if(sleepRule){const sleep=r.sleep,unit=state.units.find(u=>u.id===sleepRule.unit);ensure(exact(sleep,['unitId','untilRound','awakenedRound'])&&unit&&sleep.unitId===sleepRule.unit&&sleep.untilRound===sleepRule.untilRound&&(state.round<sleep.untilRound?sleep.awakenedRound===null&&unit.act6Sleeping===true:sleep.awakenedRound===sleep.untilRound&&unit.act6Sleeping===undefined));}
+ ensure(state.units.every(u=>u.act6Sleeping===undefined||sleepRule&&u.id===sleepRule.unit&&u.act6Sleeping===true&&state.round<sleepRule.untilRound));
+ for(const entry of r.retreats){const rule=chapter.act6Tactics?.retreat,unit=state.units.find(u=>u.id===entry?.unitId);ensure(rule&&exact(entry,['unitId','round','from','to','hp','maxHp'])&&unit?.team==='enemy'&&entry.unitId===rule.unit&&integer(entry.round,1,state.round)&&cell(state,entry.from)&&cell(state,entry.to)&&Math.abs(entry.to[0]-rule.tile[0])+Math.abs(entry.to[1]-rule.tile[1])<=2&&(entry.maxHp===unit.maxHp||historicalCampaignEnemyCapacity(state,chapter,unit,entry.maxHp))&&integer(entry.hp,1,Math.floor(entry.maxHp*rule.hpRatio)));}
+ const escaped=new Set();for(const entry of r.escapes){const rule=chapter.act6Tactics?.escapes,unit=state.units.find(u=>u.id===entry?.unitId),originalMaxHp=state.campaignEnemyBalanceVersion===1&&state.campaignEnemyBalanceSourceVersion===0?campaignEnemyOriginalCapacity(chapter,unit,state):null;ensure(rule&&exact(entry,['unitId','round','exit','hp'])&&unit?.team==='enemy'&&rule.unitIds.includes(entry.unitId)&&!escaped.has(entry.unitId)&&integer(entry.round,rule.fromRound,state.round)&&rule.tiles.some(tile=>same(tile,entry.exit))&&unit.escaped===true&&unit.hp===0&&unit.done&&unit.x===entry.exit[0]&&unit.y===entry.exit[1]&&integer(entry.hp,1,Math.max(unit.maxHp,originalMaxHp??0))&&!state.battleRecords.defeats.some(d=>d.targetId===unit.id)&&!state.pendingLoot.sourceUnitIds.includes(unit.id));escaped.add(unit.id);}
+ ensure(state.units.every(u=>u.escaped===undefined||u.escaped===true&&escaped.has(u.id)));
+ for(const entry of r.captured)ensure(chapter.id==='s45_rattan'&&exact(entry,['unitId','round'])&&entry.unitId==='e_boss'&&integer(entry.round,1,state.round)&&state.units.some(u=>u.id==='e_boss'&&u.hp===0&&!u.escaped)&&state.battleRecords.defeats.some(d=>d.targetId==='e_boss'&&d.round===entry.round));
+ if(chapter.id==='s45_rattan'&&state.battleRecords.defeats.some(d=>d.targetId==='e_boss'))ensure(r.captured.length===1);
+}
