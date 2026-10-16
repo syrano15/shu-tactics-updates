@@ -1,0 +1,15 @@
+// Personal presentation-independent combat tuning. Global strategist rules,
+// growth, spirits, gear, selected class and every other hero remain unchanged.
+export const ZHUGELIANG_BALANCE_VERSION=1;
+export const ZHUGELIANG_BONUSES=Object.freeze({hp:1200,def:8,int:10});
+const NONE=Object.freeze({hp:0,def:0,int:0});
+export const modernZhugeliangBalance=chapter=>Number.isInteger(chapter?.act)&&chapter.act>=2||chapter?.combatProfile==='act2';
+export function zhugeliangBonuses(id,team='ally',extra=false,version=ZHUGELIANG_BALANCE_VERSION){
+ if(version!==0&&version!==ZHUGELIANG_BALANCE_VERSION)throw new Error('제갈량 능력 보정 버전이 올바르지 않습니다.');
+ return version===ZHUGELIANG_BALANCE_VERSION&&id==='zhugeliang'&&team==='ally'&&!extra?ZHUGELIANG_BONUSES:NONE;
+}
+export const zhugeliangIdentity=unit=>unit?.team==='ally'&&(unit.id==='zhugeliang'&&!unit.extra||unit.extra&&unit.guestHeroId==='zhugeliang'&&unit.guestInherited===true);
+export const zhugeliangBalanceActive=unit=>zhugeliangIdentity(unit)&&unit.zhugeliangBalanceVersion===ZHUGELIANG_BALANCE_VERSION;
+export function zhugeliangTacticProfile(actor,profile){
+ return actor?.cls==='strategist'&&zhugeliangBalanceActive(actor)?{...profile,firePower:1.20,areaPower:1.20,description:'천재 군략 · 책략 성공 +8%p · 화공 위력 +20% · 범위 화공 추가 위력 +20%·SP16. 와룡의 진법 · 최대 병력 +1,200 · 방어 +8 · 지력 +10.'}:profile;
+}

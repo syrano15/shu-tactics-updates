@@ -1,0 +1,134 @@
+import {CHAPTERS} from './campaign.js';
+import {historicalGuestCapacity} from './guest-allies.js';
+import {recordAct4MissionProgress} from './act4-mission.js';
+import {recordAct5MissionProgress} from './act5-mission.js';
+import {recordAct6MissionProgress} from './act6-mission.js';
+import {recordAct7MissionProgress} from './act7-mission.js';
+import {applyAct6Story} from './act6-story-mechanics.js';
+import {historicalAct2EnemyCapacity,historicalAct2PendingHp} from './act2-enemy-history.js';
+import {historicalCampaignEnemyCapacity} from './campaign-enemy-balance.js';
+// Pending targets are real captured units and remain part of a declared objective.
+export const objectiveUnits=state=>[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+// One immutable objective per sortie; targetId identifies a battlefield instance.
+export function validateObjective(value,units,terrain=null){
+ const goal=value??{type:'defeatAll'};
+ if(!goal||typeof goal!=='object'||Array.isArray(goal)||!['defeatAll','defeatUnit','surviveRounds','reachTile','occupyTiles','escortUnits','defendTiles'].includes(goal.type))throw new Error('승리 목표 설정 오류');
+ if(Object.keys(goal).some(k=>!({escortUnits:['type','unitIds','tiles','label'],defendTiles:['type','rounds','tiles','label'],occupyTiles:['type','tiles','label','requiredDefeated'],defeatAll:['type'],defeatUnit:['type','targetId','requiredDefeated'],surviveRounds:['type','rounds','alsoWinOnDefeatAll'],reachTile:['type','unit','tiles','label','notBeforeRound','requiredDefeated']}[goal.type]).includes(k)))throw new Error('알 수 없는 목표 항목');
+ if(goal.type==='escortUnits'||goal.type==='defendTiles'){
+  if(!Array.isArray(goal.tiles)||!goal.tiles.length||goal.tiles.length>7||goal.tiles.some(p=>!Array.isArray(p)||p.length!==2||p.some(n=>!Number.isInteger(n)||n<0)||terrain&&(!terrain[p[1]]||p[0]>=terrain[0].length||terrain[p[1]][p[0]]==='#'))||new Set(goal.tiles.map(p=>p.join(','))).size!==goal.tiles.length)throw new Error('호위/방어 목표 좌표 오류');
+  if(typeof goal.label!=='string'||!goal.label.length||goal.label.length>40||/[<>\n\r]/.test(goal.label))throw new Error('호위/방어 목표 이름 오류');
+  if(goal.type==='escortUnits'&&(!Array.isArray(goal.unitIds)||goal.unitIds.length<2||goal.unitIds.length>goal.tiles.length||new Set(goal.unitIds).size!==goal.unitIds.length||goal.unitIds.some(id=>units.filter(u=>u.id===id&&u.team==='ally').length!==1)))throw new Error('호위 부대 설정 오류');
+  if(goal.type==='defendTiles'&&(!Number.isInteger(goal.rounds)||goal.rounds<1||goal.rounds>99))throw new Error('막사 방어 시간 오류');
+ }else if(goal.type==='defeatAll'){
+  if(goal.targetId!==undefined)throw new Error('전멸 목표에는 지정 대상이 없습니다.');
+ }else if(goal.type==='surviveRounds'){
+  if(!Number.isInteger(goal.rounds)||goal.rounds<1||goal.rounds>100000||typeof goal.alsoWinOnDefeatAll!=='boolean')throw new Error('생존 라운드 설정 오류');
+ }else if(goal.type==='occupyTiles'){
+  if(!Array.isArray(goal.tiles)||goal.tiles.length<2||goal.tiles.length>6||goal.tiles.some(p=>!Array.isArray(p)||p.length!==2||p.some(n=>!Number.isInteger(n)||n<0)||terrain&&(!terrain[p[1]]||p[0]>=terrain[0].length||terrain[p[1]][p[0]]==='#'))||new Set(goal.tiles.map(p=>p.join(','))).size!==goal.tiles.length)throw new Error('점령 목표 설정 오류');
+  if(goal.label!==undefined&&(typeof goal.label!=='string'||!goal.label.length||goal.label.length>40||/[<>\n\r]/.test(goal.label)))throw new Error('점령 목표 이름 오류');
+  if(goal.requiredDefeated!==undefined&&(!Array.isArray(goal.requiredDefeated)||!goal.requiredDefeated.length||new Set(goal.requiredDefeated).size!==goal.requiredDefeated.length||goal.requiredDefeated.some(id=>units.filter(u=>u.id===id&&u.team==='enemy').length!==1)))throw new Error('필수 성문 격파 설정 오류');
+ }else if(goal.type==='reachTile'){
+  if(units.filter(u=>u.id===goal.unit&&u.team==='ally').length!==1||!Array.isArray(goal.tiles)||!goal.tiles.length||goal.tiles.some(p=>!Array.isArray(p)||p.length!==2||p.some(n=>!Number.isInteger(n)||n<0)||terrain&&(!terrain[p[1]]||p[0]>=terrain[0].length||terrain[p[1]][p[0]]==='#'))||new Set(goal.tiles.map(p=>p.join(','))).size!==goal.tiles.length)throw new Error('도달 목표 설정 오류');
+  if(goal.label!==undefined&&(typeof goal.label!=='string'||!goal.label.length||goal.label.length>40||/[<>\n\r]/.test(goal.label)))throw new Error('출구 이름 설정 오류');
+  if(goal.notBeforeRound!==undefined&&(!Number.isInteger(goal.notBeforeRound)||goal.notBeforeRound<1||goal.notBeforeRound>100000))throw new Error('도달 가능 라운드 설정 오류');
+  if(goal.requiredDefeated!==undefined&&(!Array.isArray(goal.requiredDefeated)||!goal.requiredDefeated.length||new Set(goal.requiredDefeated).size!==goal.requiredDefeated.length||goal.requiredDefeated.some(id=>units.filter(u=>u.id===id&&u.team==='enemy').length!==1)))throw new Error('필수 관문 격파 설정 오류');
+ }else if(typeof goal.targetId!=='string'||units.filter(u=>u.id===goal.targetId&&u.team==='enemy').length!==1){throw new Error('격파 목표는 전장에 존재하는 적 부대 하나여야 합니다.');}
+ if(goal.type==='defeatUnit'&&goal.requiredDefeated!==undefined&&(!Array.isArray(goal.requiredDefeated)||!goal.requiredDefeated.length||new Set(goal.requiredDefeated).size!==goal.requiredDefeated.length||goal.requiredDefeated.some(id=>id===goal.targetId||units.filter(u=>u.id===id&&u.team==='enemy').length!==1)))throw new Error('후속 격파 목표 설정 오류');
+ return {...goal};
+}
+export function validateDefeat(value=[],units){
+ if(!Array.isArray(value)||value.some(v=>!v||v.type!=='unitLost'||typeof v.unit!=='string'||units.filter(u=>u.team==='ally'&&u.id===v.unit).length!==1)||new Set(value.map(v=>v.unit)).size!==value.length)throw new Error('패배 조건 설정 오류');
+ return value.map(v=>({type:'unitLost',unit:v.unit}));
+}
+export function objectiveOutcome(state){
+ const all=objectiveUnits(state),goal=validateObjective(state.objective,all,state.terrain);
+ const losses=validateDefeat(state.defeat,state.units);
+ if(losses.some(v=>state.units.find(u=>u.id===v.unit).hp<=0))return 'defeat';
+ if(!state.units.some(u=>u.team==='ally'&&u.hp>0))return 'defeat';
+ const reserveEnemies=state.reinforcements?.pending.some(w=>w.units.some(u=>u.team==='enemy'))??false;
+ if(goal.type==='defendTiles'){if(goal.tiles.some(([x,y])=>state.units.some(u=>u.team==='enemy'&&u.hp>0&&u.x===x&&u.y===y)))return 'defeat';return (state.completedRounds??0)>=goal.rounds?'victory':null;}
+ if(goal.type==='escortUnits')return goal.unitIds.every(id=>{const u=state.units.find(v=>v.id===id);return u.hp>0&&u.done&&goal.tiles.some(([x,y])=>u.x===x&&u.y===y);})?'victory':null;
+ if(goal.type==='surviveRounds')return (state.completedRounds??0)>=goal.rounds||goal.alsoWinOnDefeatAll&&!state.units.some(u=>u.team==='enemy'&&u.hp>0)&&!reserveEnemies?'victory':null;
+ if(goal.type==='occupyTiles')return (goal.requiredDefeated??[]).every(id=>state.units.find(u=>u.id===id).hp<=0)&&goal.tiles.every(([x,y])=>state.units.some(u=>u.team==='ally'&&!u.extra&&u.hp>0&&u.done&&u.x===x&&u.y===y))?'victory':null;
+ if(goal.type==='reachTile'){const u=state.units.find(u=>u.id===goal.unit);return u.hp>0&&u.done&&(state.round??1)>=(goal.notBeforeRound??1)&&(goal.requiredDefeated??[]).every(id=>state.units.find(v=>v.id===id).hp<=0)&&goal.tiles.some(([x,y])=>u.x===x&&u.y===y)?'victory':null;}
+ if(goal.type==='defeatUnit')return [goal.targetId,...(goal.requiredDefeated??[])].every(id=>all.find(u=>u.id===id).hp<=0)?'victory':null;
+ const chapter=state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter];
+ const reserve=chapter?.act===3&&state.reinforcements?.pending.some(w=>w.units.some(u=>u.team==='enemy'));
+ return state.units.some(u=>u.team==='enemy'&&u.hp>0)||reserve?null:'victory';
+}
+// A new sortie can retain a secured commander victory while offering a finite cleanup.
+export const bossCleanupPending=state=>state?.bossCleanupVersion===1&&state.bossCleanup?.status==='pending';
+export const bossCleanupRemaining=state=>objectiveUnits(state).filter(u=>u.team==='enemy'&&u.hp>0);
+const commanderVictory=state=>state.objective?.type==='defeatUnit'&&[state.objective.targetId,...(state.objective.requiredDefeated??[])].every(id=>objectiveUnits(state).find(u=>u.id===id)?.hp===0);
+export function battleOutcome(state){
+ if(state.act2EnemyWaveVictoryPending===true)return null;
+ if(state.bossCleanupVersion===1&&state.bossCleanup){
+  if(state.bossCleanup.status==='finished')return 'victory';
+  if(bossCleanupPending(state))return null;
+  if(state.bossCleanup.status==='cleanup'){
+   // Retreats after the secured victory cannot turn cleanup into a defeat.
+   return objectiveOutcome(state)==='defeat'||!bossCleanupRemaining(state).length?'victory':null;
+  }
+ }
+ const result=objectiveOutcome(state);
+ return result==='victory'&&state.bossCleanupVersion===1&&commanderVictory(state)&&bossCleanupRemaining(state).length?null:result;
+}
+export function updateBattleOutcome(state){
+ delete state.act2EnemyWaveVictoryPending;
+ recordAct4MissionProgress(state);
+ recordAct5MissionProgress(state);
+ recordAct6MissionProgress(state);
+ recordAct7MissionProgress(state);
+ applyAct6Story(state,state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter]);
+ if(state.bossCleanupVersion===1&&!state.bossCleanup&&objectiveOutcome(state)==='victory'&&commanderVictory(state)&&bossCleanupRemaining(state).length){
+  const records=state.battleRecords??{};
+  state.bossCleanup={status:'pending',round:state.round,phase:state.phase,basis:{units:state.units.map(u=>({id:u.id,hp:u.hp,maxHp:u.maxHp,...(u.withdrawn?{withdrawn:true}:{})})),defeats:structuredClone(records.defeats??[]),retreatedIds:[...(records.retreatedIds??[])],shipFire:!!state.shipFire}};
+ }
+ state.result=battleOutcome(state);return state.result;
+}
+export function chooseBossCleanup(state,choice){
+ if(state.bossCleanupVersion!==1||!state.bossCleanup||state.result||!['finish','cleanup'].includes(choice)||choice==='cleanup'&&!bossCleanupPending(state))throw new Error('보스 격파 후 선택할 수 없는 상태입니다.');
+ state.bossCleanup.status=choice==='finish'?'finished':'cleanup';
+ if(choice==='finish')for(const unit of state.units)if(unit.moveOrigin){unit.moveOrigin=null;unit.done=true;}
+ return updateBattleOutcome(state);
+}
+// Merit time, losses and troop ratios are evaluated at the first secured victory.
+// Kill experience and loot continue to use the live battle during cleanup.
+export function meritEvaluationState(state){
+ const record=state.bossCleanupVersion===1?state.bossCleanup:null;if(!record)return state;
+ const basis=record.basis,byId=new Map(basis.units.map(u=>[u.id,u]));
+ return {...state,round:record.round,units:state.units.filter(u=>byId.has(u.id)).map(u=>{const saved=byId.get(u.id),next={...u,hp:saved.hp,maxHp:saved.maxHp};if(saved.withdrawn)next.withdrawn=true;else delete next.withdrawn;return next;}),battleRecords:{...state.battleRecords,defeats:basis.defeats,retreatedIds:basis.retreatedIds},shipFire:basis.shipFire?{}:undefined};
+}
+export function validateBossCleanup(state){
+ const fail=()=>{throw new Error('보스 격파 후 선택 기록이 올바르지 않습니다.');};
+ if(state.act2EnemyWaveVictoryPending!==undefined){
+  const chapter=state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter];
+  if(state.act2EnemyWaveVictoryPending!==true||state.act2EnemyWaveLimitVersion!==1||chapter?.act!==2||chapter.rosterMode!=='story'||state.battleEventsVersion!==1||!state.act2EnemyWaveLimitRemovedIds?.length||state.result!==null||state.growthSettled||state.rewardsSettled||state.bossCleanup||objectiveOutcome(state)!=='victory'||state.reinforcements?.pending.some(wave=>wave.units.some(unit=>unit.team==='enemy')))fail();
+ }
+ if(![undefined,0,1].includes(state.bossCleanupVersion))fail();
+ const r=state.bossCleanup;if(state.bossCleanupVersion!==1){if(r!==undefined)fail();return;}
+ if(state.objective?.type!=='defeatUnit')fail();
+ if(r===undefined){if(commanderVictory(state)&&bossCleanupRemaining(state).length)fail();return;}
+ if(!r||Object.keys(r).some(k=>!['status','round','phase','basis'].includes(k))||!['pending','cleanup','finished'].includes(r.status)||!Number.isInteger(r.round)||r.round<1||r.round>state.round||!['ally','enemy'].includes(r.phase)||!commanderVictory(state))fail();
+ const b=r.basis,all=objectiveUnits(state),chapter=state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter];
+ if(!b||Object.keys(b).some(k=>!['units','defeats','retreatedIds','shipFire'].includes(k))||!Array.isArray(b.units)||!b.units.length||b.units.length>80||new Set(b.units.map(u=>u.id)).size!==b.units.length||typeof b.shipFire!=='boolean'||b.shipFire&&!state.shipFire||!Array.isArray(b.defeats)||!Array.isArray(b.retreatedIds)||new Set(b.retreatedIds).size!==b.retreatedIds.length)fail();
+ for(const u of b.units){const current=all.find(v=>v.id===u.id);if(!current||Object.keys(u).some(k=>!['id','hp','maxHp','withdrawn'].includes(k))||!Number.isInteger(u.maxHp)||u.maxHp<1||(state.campaignEnemyBalanceVersion===1&&current.team==='enemy'?u.maxHp!==current.maxHp&&!historicalCampaignEnemyCapacity(state,chapter,current,u.maxHp):u.maxHp>current.maxHp&&!historicalAct2EnemyCapacity(state,chapter,current,u.maxHp)&&!historicalGuestCapacity(state,chapter,current,u.maxHp))||!Number.isInteger(u.hp)||u.hp<0||u.hp>u.maxHp||u.withdrawn!==undefined&&u.withdrawn!==true)fail();}
+ const captured=new Set(b.units.map(u=>u.id));
+ if(b.defeats.some(d=>!captured.has(d.actorId)||!captured.has(d.targetId)||d.round>r.round||!state.battleRecords?.defeats.some(actual=>JSON.stringify(actual)===JSON.stringify(d)))||b.retreatedIds.some(id=>!captured.has(id)||!state.battleRecords?.retreatedIds.includes(id)))fail();
+ const basis=meritEvaluationState(state);if(objectiveOutcome(basis)!=='victory')fail();
+ if(r.status==='pending'&&(state.result!==null||state.round!==r.round||state.phase!==r.phase||b.units.length!==state.units.length||b.units.some(u=>{const current=state.units.find(v=>v.id===u.id);if(!current)return true;const historicalHp=historicalCampaignEnemyCapacity(state,chapter,current,u.maxHp)?u.hp===0?0:Math.max(1,Math.min(current.maxHp,Math.round(u.hp/u.maxHp*current.maxHp))):historicalAct2PendingHp(state,chapter,current,u);return u.maxHp===current.maxHp?u.hp!==current.hp:historicalHp!==current.hp;})))fail();
+ if(r.status==='finished'&&state.result!=='victory'||r.status==='cleanup'&&state.result==='defeat')fail();
+}
+const subject=name=>{const code=name.charCodeAt(name.length-1);return name+(code>=0xAC00&&code<=0xD7A3&&(code-0xAC00)%28?'이':'가');};
+export function objectiveText(state){
+ if(state.huarongChaseVersion===1)return '승리: 후위대 추격 완료 · 적을 격파하거나 탈출하여 전장에서 모두 사라지면 완료 · 패배: 관우 퇴각 / 아군 전멸';
+ if(state.bossCleanupVersion===1&&state.bossCleanup)return bossCleanupPending(state)?'승리 조건 달성 · 지금 승리 확정 또는 남은 적 정리를 선택하세요.':`승리 확보 (${state.bossCleanup.round}라운드) · 남은 적 정리 ${bossCleanupRemaining(state).length}부대 · 언제든 승리 확정 가능`;
+ const all=objectiveUnits(state),goal=validateObjective(state.objective,all);
+ const loss=validateDefeat(state.defeat,state.units).map(v=>state.units.find(u=>u.id===v.unit).name+' 퇴각');
+ if(goal.type==='defendTiles')return `승리: ${goal.rounds}라운드 적 턴까지 ${goal.label} 방어 · 적 진입 금지 · 패배: ${[...loss,'막사 침입','아군 전멸'].join(' / ')}`;
+ if(goal.type==='escortUnits')return `승리: ${goal.unitIds.map(id=>state.units.find(u=>u.id===id).name).join(' · ')} 모두 ${goal.label} 도달 후 같은 아군 턴에 행동 확정 · 패배: ${[...loss,'아군 전멸'].join(' / ')}`;
+ if(goal.type==='surviveRounds')return `승리: ${goal.rounds}라운드 적 턴까지 생존 · 남은 ${Math.max(0,goal.rounds-(state.completedRounds??0))}라운드${goal.alsoWinOnDefeatAll?' / 적 전멸':''} · 패배: ${[...loss,'아군 전멸'].join(' / ')}`;
+ if(goal.type==='occupyTiles')return `승리: ${goal.label??'모든 목표'} ${goal.tiles.map(([x,y])=>String.fromCharCode(65+x)+(y+1)).join('/')}에 정규 아군을 배치하고 같은 턴에 행동 확정${goal.requiredDefeated?.length?' · 성문 장수 모두 격파':''} · 패배: ${[...loss,'아군 전멸'].join(' / ')}`;
+ if(goal.type==='reachTile')return `승리: ${subject(state.units.find(u=>u.id===goal.unit).name)} ${goal.label??'서문'} ${goal.tiles.map(([x,y])=>String.fromCharCode(65+x)+(y+1)).join('/')}에서 행동 확정${goal.notBeforeRound?` (${goal.notBeforeRound}라운드부터)`:''}${goal.requiredDefeated?.length?' · 관문 장수 모두 격파':''} · 패배: ${[...loss,'아군 전멸'].join(' / ')}`;
+ return (goal.type==='defeatAll'?'승리: 적 전멸':`승리: ${[goal.targetId,...(goal.requiredDefeated??[])].map(id=>all.find(u=>u.id===id).name).join(' · ')} 격파`)+' · 패배: '+[...loss,'아군 전멸'].join(' / ');
+}

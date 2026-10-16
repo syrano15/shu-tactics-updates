@@ -1,0 +1,63 @@
+import {ZHUGELIANG_BALANCE_VERSION,modernZhugeliangBalance,zhugeliangIdentity} from './zhugeliang-balance.js';
+
+const ACTIVE=new Set(['preDialogue','deployment','battle']);
+const eligible=zhugeliangIdentity;
+const fail=message=>{throw new Error('제갈량 능력 저장 오류: '+message);};
+const current=value=>value.state.result===null&&!value.state.rewardsSettled&&ACTIVE.has(value.campaign.stage);
+const sameTraining=(a,b)=>a===undefined&&b===undefined||a&&b&&Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(key=>a[key]===b[key]);
+const allUnits=state=>[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+function expectedStats(unit,reference){
+ if(!reference||!eligible(reference)||reference.cls!==unit.cls)fail('출전 참조가 다릅니다.');
+ for(const key of ['maxHp','int','def'])if(unit[key]!==reference[key])fail('출전 '+key+' 수치가 다릅니다.');
+ if(!sameTraining(unit.classTraining,reference.classTraining))fail('병과 적성 보정이 다릅니다.');
+}
+
+// Called with references built under the snapshot's own version. No numbers
+// are normalized before the historical save has been fully validated.
+export function validateZhugeliangBalance(value,chapter,refs=null){
+ const state=value.state,version=state.zhugeliangBalanceVersion??0;
+ if(version!==0&&version!==ZHUGELIANG_BALANCE_VERSION)fail('지원하지 않는 버전입니다.');
+ if(version===1&&!modernZhugeliangBalance(chapter))fail('이 전장에는 적용할 수 없습니다.');
+ if(state.zhugeliangBalanceSourceVersion!==undefined&&(state.zhugeliangBalanceSourceVersion!==0||version!==1||!modernZhugeliangBalance(chapter)))fail('이행 출처가 다릅니다.');
+ for(const unit of allUnits(state)){
+  if(unit.zhugeliangBalanceVersion!==undefined&&(unit.zhugeliangBalanceVersion!==1||version!==1||!eligible(unit)))fail('부대 표식이 다릅니다.');
+  if(eligible(unit)){
+   if(version===1&&unit.zhugeliangBalanceVersion!==1)fail('부대 표식이 누락되었습니다.');
+   // Schema 1 and Act 1 use the original validator and may supply structural
+   // LEGACY_V1 references without numeric stats. Personal tuning never applies
+   // there. Modern references must still carry and match the complete stats.
+   if(refs&&current(value)&&modernZhugeliangBalance(chapter))expectedStats(unit,refs.find(reference=>reference.id===unit.id&&reference.team==='ally'));
+  }
+ }
+ return true;
+}
+
+// Only a validated unfinished battle changes. HP ratio, death, SP, RNG,
+// actions, positions, spirits, progression, gear, rewards and old results keep
+// their meanings; no new heal or revival is inserted into the action history.
+export function upgradeValidatedZhugeliangBalance(value,chapter,oldRefs,newRefs){
+ const state=value.state;
+ if(!modernZhugeliangBalance(chapter)||(state.zhugeliangBalanceVersion??0)!==0||!current(value))return false;
+ const units=allUnits(state).filter(eligible);if(!units.length)return false;
+ for(const unit of units){
+  const before=oldRefs.find(reference=>reference.id===unit.id&&reference.team==='ally'),after=newRefs.find(reference=>reference.id===unit.id&&reference.team==='ally');
+  expectedStats(unit,before);
+  if(!after||after.zhugeliangBalanceVersion!==1||after.cls!==unit.cls||!Number.isInteger(after.maxHp)||after.maxHp<before.maxHp||!Number.isInteger(after.int)||after.int<before.int||!Number.isInteger(after.def)||after.def<before.def)fail('새 능력 참조가 다릅니다.');
+ }
+ for(const unit of units){
+  const before=oldRefs.find(reference=>reference.id===unit.id&&reference.team==='ally'),after=newRefs.find(reference=>reference.id===unit.id&&reference.team==='ally');
+  const previousHp=unit.hp,previousMax=unit.maxHp;
+  unit.maxHp+=after.maxHp-before.maxHp;unit.int+=after.int-before.int;unit.def+=after.def-before.def;
+  unit.hp=previousHp===0?0:Math.max(1,Math.min(unit.maxHp,Math.round(previousHp/previousMax*unit.maxHp)));
+  if(after.classTraining)unit.classTraining=structuredClone(after.classTraining);else delete unit.classTraining;
+  unit.zhugeliangBalanceVersion=1;
+  // A pending choice requires its frozen HP basis to match this same instant.
+  // A confirmed cleanup/result keeps the historical basis untouched.
+  if(state.bossCleanup?.status==='pending'){
+   const basis=state.bossCleanup.basis.units.find(saved=>saved.id===unit.id);
+   if(basis){basis.maxHp=unit.maxHp;basis.hp=unit.hp;}
+  }
+ }
+ state.zhugeliangBalanceVersion=1;state.zhugeliangBalanceSourceVersion=0;
+ return true;
+}

@@ -1,0 +1,114 @@
+import {imageSource,retryOriginalImage} from './image-source.js';
+// Keep visible artwork ahead of a small lookahead window. The browser owns the
+// encoded HTTP cache; this module retains only a bounded number of decoded images.
+const entries = new Map(), active = new Set();
+const MAX_ACTIVE = 2, MAX_BACKGROUND = 1, MAX_READY = 24, MAX_DECODED_BYTES = 96 * 1024 * 1024;
+const MAX_QUEUED_BACKGROUND = 12;
+let sequence = 0, pumping = false;
+const isForeground = entry => entry.requests.some(request => request.priority !== 'background');
+const decodedBytes = image => (image.naturalWidth || image.width || 0) * (image.naturalHeight || image.height || 0) * 4;
+
+function trimReady() {
+  let ready = [...entries.values()].filter(entry => entry.state === 'ready');
+  let bytes = ready.reduce((total, entry) => total + entry.bytes, 0);
+  ready.sort((a, b) => a.used - b.used);
+  while (ready.length > MAX_READY || bytes > MAX_DECODED_BYTES) {
+    const entry = ready.shift();
+    bytes -= entry.bytes;
+    entries.delete(entry.src);
+  }
+}
+function removeQueued(entry) {
+  entries.delete(entry.src);
+  entry.state = 'cancelled';
+  entry.requests.length = 0;
+  entry.image.onload = entry.image.onerror = null;
+}
+function trimBackgroundQueue() {
+  const queued = [...entries.values()].filter(entry => entry.state === 'queued' && !isForeground(entry));
+  for (const entry of queued.slice(MAX_QUEUED_BACKGROUND)) removeQueued(entry);
+}
+function pump() {
+  if (pumping) return;
+  pumping = true;
+  try {
+    while (active.size < MAX_ACTIVE) {
+      const queued = [...entries.values()].filter(entry => entry.state === 'queued' && entry.requests.length);
+      let entry = queued.find(isForeground);
+      if (!entry && [...active].filter(job => job.background).length < MAX_BACKGROUND) entry = queued[0];
+      if (!entry) break;
+      entry.state = 'loading';
+      entry.background = !isForeground(entry);
+      active.add(entry);
+      entry.image.fetchPriority = entry.background ? 'low' : 'high';
+      entry.image.decoding = 'async';
+      entry.image.src = imageSource(entry.src);
+    }
+  } finally { pumping = false; }
+}
+
+export function prepareArtwork(src, {createImage = () => document.createElement('img'), ready, failed, priority = 'foreground', scope} = {}) {
+  const request = {ready, failed, priority, scope};
+  const cached = entries.get(src);
+  if (cached?.state === 'ready') { cached.used = ++sequence; ready?.(); return cached.image; }
+  if (cached) {
+    cached.requests.push(request);
+    if (priority !== 'background' && cached.state === 'loading') cached.image.fetchPriority = 'high';
+    pump();
+    return cached.image;
+  }
+  const image = createImage(), entry = {src, state:'queued', image, requests:[request], used:++sequence, bytes:0};
+  entries.set(src, entry);
+  const settle = success => {
+    if (entries.get(src) !== entry || entry.state !== 'loading') return;
+    active.delete(entry);
+    image.onload = image.onerror = null;
+    const requests = entry.requests.splice(0);
+    if (success) {
+      entry.state = 'ready'; entry.bytes = decodedBytes(image); entry.used = ++sequence;
+      trimReady();
+    } else { entry.state = 'failed'; entries.delete(src); }
+    try { for (const request of requests) (success ? request.ready : request.failed)?.(); }
+    finally { pump(); }
+  };
+  image.onload = () => {
+    if (entries.get(src) !== entry || entry.state !== 'loading') return;
+    if (typeof image.decode === 'function') Promise.resolve().then(() => image.decode()).then(() => settle(true), () => {
+      if (entries.get(src) === entry && entry.state === 'loading' && !retryOriginalImage(image)) settle(false);
+    });
+    else settle(true);
+  };
+  image.onerror = () => { if (!retryOriginalImage(image)) settle(false); };
+  trimBackgroundQueue();
+  pump();
+  return image;
+}
+
+// Cancel ownership, not a shared in-flight download. A stale chapter cannot keep
+// queued work or callbacks alive, while its at-most-two started requests may finish.
+export function cancelArtworkScope(scope) {
+  if (scope === undefined) return;
+  for (const entry of entries.values()) {
+    if (entry.state === 'ready') continue;
+    entry.requests = entry.requests.filter(request => request.scope !== scope);
+    if (!entry.requests.length && entry.state === 'queued') removeQueued(entry);
+  }
+  pump();
+}
+export function artworkCacheStats() {
+  const values = [...entries.values()], ready = values.filter(entry => entry.state === 'ready');
+  return {loading:active.size, backgroundLoading:[...active].filter(entry => entry.background).length,
+    queued:values.filter(entry => entry.state === 'queued').length, ready:ready.length,
+    decodedBytes:ready.reduce((total, entry) => total + entry.bytes, 0),
+    limits:{loading:MAX_ACTIVE, backgroundLoading:MAX_BACKGROUND, ready:MAX_READY, decodedBytes:MAX_DECODED_BYTES, queuedBackground:MAX_QUEUED_BACKGROUND}};
+}
+export function clearArtworkCache() {
+  for (const entry of entries.values()) {
+    const pending = entry.state === 'loading';
+    entry.state = 'cancelled'; entry.requests.length = 0;
+    entry.image.onload = entry.image.onerror = null;
+    if (pending) entry.image.removeAttribute?.('src');
+  }
+  entries.clear(); active.clear(); sequence = 0;
+}
+

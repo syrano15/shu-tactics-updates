@@ -1,0 +1,38 @@
+import {IMAGE_VARIANTS} from './image-variants.js';
+
+// Presentation URLs only. Logical asset IDs, authored dimensions and crop data
+// continue to refer to the original reviewed source.
+export function createImageSourceResolver(catalog,baseURL=import.meta.url){
+ const base=new URL('./',baseURL),reverse=new Map(),disabled=new Set();
+ for(const [original,record]of Object.entries(catalog)){
+  if(!reverse.has(record.src))reverse.set(record.src,original);
+ }
+ const local=source=>{
+  if(typeof source!=='string'||!source)return null;
+  try{const url=new URL(source,base);if(url.protocol!==base.protocol||url.host!==base.host||url.origin!==base.origin||!url.pathname.startsWith(base.pathname))return null;
+   return {url,key:decodeURIComponent(url.pathname.slice(base.pathname.length)),absolute:/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(source)};
+  }catch{return null;}
+ };
+ const output=(record,path)=>record.absolute?new URL(path,base).href+record.url.search+record.url.hash:path+record.url.search+record.url.hash;
+ const source=value=>{const record=local(value),variant=record&&Object.hasOwn(catalog,record.key)?catalog[record.key]:null;
+  return variant&&!disabled.has(variant.src)?output(record,variant.src):value;
+ };
+ const retry=image=>{
+  const record=local(image?.currentSrc||image?.src),original=record&&reverse.get(record.key);
+  if(!original||disabled.has(record.key))return false;
+  disabled.add(record.key);image.src=output({...record,absolute:true},original);return true;
+ };
+ return Object.freeze({source,retry,disabledCount:()=>disabled.size});
+}
+const resolver=createImageSourceResolver(IMAGE_VARIANTS);
+export const imageSource=source=>resolver.source(source);
+export const retryOriginalImage=image=>resolver.retry(image);
+
+// Attached images retry their original before any existing identity/class
+// fallback runs. Detached pre-decode probes use retryOriginalImage directly.
+export function installImageSourceFallback(root=globalThis.document){
+ if(!root?.addEventListener)return ()=>{};
+ const failed=event=>{if(event.target?.tagName==='IMG'&&retryOriginalImage(event.target))event.stopImmediatePropagation?.();};
+ root.addEventListener('error',failed,true);
+ return ()=>root.removeEventListener?.('error',failed,true);
+}

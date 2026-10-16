@@ -1,0 +1,1392 @@
+// Build-generated lossless presentation variants. Original assets remain untouched.
+// WebP only where native Chrome canvas matched; PNG preserves the original alpha decode path.
+const entries = {
+  "art/act3/sd/ferry.png": {
+    "src": "art/optimized-v0722/0de361b0a68f030aae7c89863ee989b64e7b3c0cf160d70bf8c7d864e087541b.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1126788,
+    "sourceBytes": 1202930,
+    "sha256": "0de361b0a68f030aae7c89863ee989b64e7b3c0cf160d70bf8c7d864e087541b",
+    "sourceSHA256": "9fac4e9187b447176834fd9ef92c2d098937dbf788c1a900f7ac86c027cbebd5"
+  },
+  "art/act3/sd/guanping.png": {
+    "src": "art/optimized-v0722/26e7d5ff3640f2dd370d1a7abfe9e0ff0139e1ce9cb17148fb956a7e0de0faa6.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1568353,
+    "sourceBytes": 1661708,
+    "sha256": "26e7d5ff3640f2dd370d1a7abfe9e0ff0139e1ce9cb17148fb956a7e0de0faa6",
+    "sourceSHA256": "eab3fcd23be343e877695ee06625ad2235eaad22e02431356e6634371b244145"
+  },
+  "art/act3/sd/hanxuan.png": {
+    "src": "art/optimized-v0722/cbf057abf1d487ff92fc872e6aadf30d8cf202c83819333d52dd8529763df544.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1702617,
+    "sourceBytes": 1814952,
+    "sha256": "cbf057abf1d487ff92fc872e6aadf30d8cf202c83819333d52dd8529763df544",
+    "sourceSHA256": "65815486c6495096c293dc1a71cfd8e387f825b6d855acca88e77a02611bf37f"
+  },
+  "art/act3/sd/huanggai.png": {
+    "src": "art/optimized-v0722/7df2191d67f165dccded538cd13938ed3ee89bbd3030796cb99c2112e3cbaf5a.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2047022,
+    "sourceBytes": 2161516,
+    "sha256": "7df2191d67f165dccded538cd13938ed3ee89bbd3030796cb99c2112e3cbaf5a",
+    "sourceSHA256": "8394dbc78d78486509f7062aba32a5d50d37e2ca328e255f3cac66961bd8aa6a"
+  },
+  "art/act3/sd/lady_sun.png": {
+    "src": "art/optimized-v0722/da67d87c967dc1680a03637e7ff78f1d63d4e788312526041faf3a5d801238c2.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1650073,
+    "sourceBytes": 1740886,
+    "sha256": "da67d87c967dc1680a03637e7ff78f1d63d4e788312526041faf3a5d801238c2",
+    "sourceSHA256": "116af2735d29b9397654762d51af5e878ecf61475fdcf62792d2fe7f42957d4f"
+  },
+  "art/act3/sd/liaohua.png": {
+    "src": "art/optimized-v0722/ba4d03d04577cc0d0991576d7f78d242d6d8cca98ec2c09da84b083ef60e41e0.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1847695,
+    "sourceBytes": 1973878,
+    "sha256": "ba4d03d04577cc0d0991576d7f78d242d6d8cca98ec2c09da84b083ef60e41e0",
+    "sourceSHA256": "ddfcc1d6e2bdc45016a28ea6538e242e8e60b22c54adeb8f01b30cc58e4f68f8"
+  },
+  "art/act3/sd/liufeng.png": {
+    "src": "art/optimized-v0722/a1f7f23f150af6e22bb5776c00e8e1ceb182b95555559a0d71bf7ceabc9464da.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1819634,
+    "sourceBytes": 1919019,
+    "sha256": "a1f7f23f150af6e22bb5776c00e8e1ceb182b95555559a0d71bf7ceabc9464da",
+    "sourceSHA256": "c484e11e6424d13ef040ea9be8e79794eafc864ea0b7f170f2f0c74310b77e2f"
+  },
+  "art/act3/sd/maliang.png": {
+    "src": "art/optimized-v0722/466f4b60cc51fa8525e429a08a2c9dcf7a07641fd394c442049d2b08d1fe6d82.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1855135,
+    "sourceBytes": 1958862,
+    "sha256": "466f4b60cc51fa8525e429a08a2c9dcf7a07641fd394c442049d2b08d1fe6d82",
+    "sourceSHA256": "18812f29eb3f90125c4c0b33ceae343bef23da21e7758d058322349e53779822"
+  },
+  "art/act3/sd/wei_commander_mounted-v0361.png": {
+    "src": "art/optimized-v0722/a3d47de9ca4eadfc1c08132ed554c3347703ba16b5ae444b1b8373976224926f.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1786439,
+    "sourceBytes": 1894828,
+    "sha256": "a3d47de9ca4eadfc1c08132ed554c3347703ba16b5ae444b1b8373976224926f",
+    "sourceSHA256": "b048e8e2eb40bbd74b4565371412195ee87ddcc281302af020e637c7637b5321"
+  },
+  "art/act3/sd/wei_commander-mounted.png": {
+    "src": "art/optimized-v0722/abe3e46e83a88360fc0c1eaaef8d9c9ebccd6def980d18a85561b16cad2d155f.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1967765,
+    "sourceBytes": 2075349,
+    "sha256": "abe3e46e83a88360fc0c1eaaef8d9c9ebccd6def980d18a85561b16cad2d155f",
+    "sourceSHA256": "3204161e5d2ae0ebd633df889c2d12aa82c58d26338711cb756e23806c253a94"
+  },
+  "art/act3/sd/wei_commander.png": {
+    "src": "art/optimized-v0722/7198ae257e94678345a28a5dcb9aa532412b6329819774861226f7fb03995e37.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2067197,
+    "sourceBytes": 2184640,
+    "sha256": "7198ae257e94678345a28a5dcb9aa532412b6329819774861226f7fb03995e37",
+    "sourceSHA256": "2d28b121615bb978c0a4792589c496a970d7dabe8536d8de8d9d17a3319b5202"
+  },
+  "art/act3/sd/weiyan.png": {
+    "src": "art/optimized-v0722/4d05f6bfcd6cefae125e6b460d199bbe11557b9481975b9706570b13c0921145.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1802668,
+    "sourceBytes": 1907140,
+    "sha256": "4d05f6bfcd6cefae125e6b460d199bbe11557b9481975b9706570b13c0921145",
+    "sourceSHA256": "174460f306d0590c139ff674dfcc9bb9897bc2c82e110d7e5499cdcdf76bd97f"
+  },
+  "art/act3/sd/wenpin.png": {
+    "src": "art/optimized-v0722/493c0429d9742dd081ac0bfeb70f9a9be1828fca06882e4429dfa27b83165102.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1945403,
+    "sourceBytes": 2062212,
+    "sha256": "493c0429d9742dd081ac0bfeb70f9a9be1828fca06882e4429dfa27b83165102",
+    "sourceSHA256": "7d2ea0f19d6fac961438a9a503ca1bcefc08095165a14dd8c406bf03f594d974"
+  },
+  "art/act3/sd/zhouyu.png": {
+    "src": "art/optimized-v0722/62ba248c3159ecf652cfdf0c18824da414df12acd242e70175ceb5a537eb9ec6.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1927283,
+    "sourceBytes": 2038152,
+    "sha256": "62ba248c3159ecf652cfdf0c18824da414df12acd242e70175ceb5a537eb9ec6",
+    "sourceSHA256": "734e4f39131a0329067a1f303bc6f4ceb8484ff68262f1e50994930372dc6df9"
+  },
+  "art/combat-v024/cao_vanguard-atlas.png": {
+    "src": "art/optimized-v0722/9e0089beac256fb59f11e379cae367c3c58303e218daea9109466bfda924b1e4.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1460081,
+    "sourceBytes": 1555642,
+    "sha256": "9e0089beac256fb59f11e379cae367c3c58303e218daea9109466bfda924b1e4",
+    "sourceSHA256": "59c0f22f2e943a0d22bf83ceccf30efd32819cdad84b6a3559f0e1d954e99b28"
+  },
+  "art/combat-v024/cavalry-atlas.png": {
+    "src": "art/optimized-v0722/ea725450e0859e2cf2c7d40a275a91cf148347c941b562579ecb273b8c2a05c5.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1404596,
+    "sourceBytes": 1488185,
+    "sha256": "ea725450e0859e2cf2c7d40a275a91cf148347c941b562579ecb273b8c2a05c5",
+    "sourceSHA256": "5efb24d871f1aab940c7c600d8d71fc6ac6e5fc7ac3e6ba4b76f1e6dd7f99178"
+  },
+  "art/combat-v024/crossbow-atlas.png": {
+    "src": "art/optimized-v0722/e701fc2e128647c842176215e1f3ceec4fcda732cbf6f9928dd30aa7286068d7.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1265053,
+    "sourceBytes": 1335021,
+    "sha256": "e701fc2e128647c842176215e1f3ceec4fcda732cbf6f9928dd30aa7286068d7",
+    "sourceSHA256": "d09a7ec54d867be6b709ab6351d22ffef37fd5f7ea9f3361d86480dac32d919f"
+  },
+  "art/combat-v024/guanhai-atlas.png": {
+    "src": "art/optimized-v0722/3e65aeae8bc2fc4d33a48bd7d80c6d2c6230c904176737020b0143be62f91e2c.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1051262,
+    "sourceBytes": 1137036,
+    "sha256": "3e65aeae8bc2fc4d33a48bd7d80c6d2c6230c904176737020b0143be62f91e2c",
+    "sourceSHA256": "68f9b9ebc80c4f72b41878dc128c8b9ca17043bfbf790e0a15925edd62457037"
+  },
+  "art/combat-v024/guanyu-atlas.png": {
+    "src": "art/optimized-v0722/ab3380895c033706a8cc29be3079c7b1d1c43c363860ccb2f05f908af0a5c4c9.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1250110,
+    "sourceBytes": 1335851,
+    "sha256": "ab3380895c033706a8cc29be3079c7b1d1c43c363860ccb2f05f908af0a5c4c9",
+    "sourceSHA256": "35ec2b8a69e81446372c819bf9a519bedf10c9f0b74964ea0d6bac7d37f530ce"
+  },
+  "art/combat-v024/huaxiong-atlas.png": {
+    "src": "art/optimized-v0722/46aff2f9c5de55cb369e9b1380ec69c2e476c792d21197af4d20e4a3f14976bf.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1378365,
+    "sourceBytes": 1479671,
+    "sha256": "46aff2f9c5de55cb369e9b1380ec69c2e476c792d21197af4d20e4a3f14976bf",
+    "sourceSHA256": "0c944eee04e15c3110be5d83f953e4f73e9f8b35c499b39e96155ead75d4cfe2"
+  },
+  "art/combat-v024/infantry-atlas.png": {
+    "src": "art/optimized-v0722/03a005146102579c0eaa27af1fb96fd39aa0cf1d7ac0e4735e8640b7b1284ae9.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1173024,
+    "sourceBytes": 1247190,
+    "sha256": "03a005146102579c0eaa27af1fb96fd39aa0cf1d7ac0e4735e8640b7b1284ae9",
+    "sourceSHA256": "64b8066b2236841645b1faec270fd9e674c3c6e97d49dd1b84d4065ada5c28c0"
+  },
+  "art/combat-v024/jianyong-atlas.png": {
+    "src": "art/optimized-v0722/98688431a65909d08176fa17195f619d02849bed3a4d6a575daca25114f75a9d.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1143325,
+    "sourceBytes": 1229407,
+    "sha256": "98688431a65909d08176fa17195f619d02849bed3a4d6a575daca25114f75a9d",
+    "sourceSHA256": "05e0fef5a687b9d562fbca2352aa74442a5c4edaa2dff825f02e162db5bc8a31"
+  },
+  "art/combat-v024/liubei-atlas.png": {
+    "src": "art/optimized-v0722/6aa1af7c1543770f0dbd753f2c01dcc11190e6acf375291b0ffc7f39342ebdf9.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1291887,
+    "sourceBytes": 1397766,
+    "sha256": "6aa1af7c1543770f0dbd753f2c01dcc11190e6acf375291b0ffc7f39342ebdf9",
+    "sourceSHA256": "8cb1ea71f1a88722ec05952dc19d1d70678e9bf97c728ca2ca660289971271c6"
+  },
+  "art/combat-v024/lvbu-atlas.png": {
+    "src": "art/optimized-v0722/e46cc2e5411fb2777233c629846b7b9a8efacbc0a9ff770e53b88026cde0cc84.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1531423,
+    "sourceBytes": 1633042,
+    "sha256": "e46cc2e5411fb2777233c629846b7b9a8efacbc0a9ff770e53b88026cde0cc84",
+    "sourceSHA256": "8990fed7616a743b05273404df5cb5e4323ba52216e29c723770614ec4d19cc5"
+  },
+  "art/combat-v024/mizhu-atlas.png": {
+    "src": "art/optimized-v0722/06c674ae896a39eb0588a77fb10ceb95e863645e355c6123f5baf684b65dc3bf.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1343361,
+    "sourceBytes": 1446207,
+    "sha256": "06c674ae896a39eb0588a77fb10ceb95e863645e355c6123f5baf684b65dc3bf",
+    "sourceSHA256": "72d944fb2d1acca1030e9e1a5551ff7847ce1ac3e7d7819b2f65312f5d50ee59"
+  },
+  "art/combat-v024/spear-atlas.png": {
+    "src": "art/optimized-v0722/9ce54cd5c603e2c5a308838d736f020e19f996494f658ca83ae820327d07b8fb.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 972854,
+    "sourceBytes": 1036220,
+    "sha256": "9ce54cd5c603e2c5a308838d736f020e19f996494f658ca83ae820327d07b8fb",
+    "sourceSHA256": "eb976c0463ee0ea724f6d1b6dae688445cf77cd45753f083be7ad377141c9175"
+  },
+  "art/combat-v024/sunqian-atlas.png": {
+    "src": "art/optimized-v0722/dab93352c4f8d9c99d019f20a0b3a189f95a80da1e7e89b2b6bc6d1b4c3d2c7e.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1317267,
+    "sourceBytes": 1405228,
+    "sha256": "dab93352c4f8d9c99d019f20a0b3a189f95a80da1e7e89b2b6bc6d1b4c3d2c7e",
+    "sourceSHA256": "cc84e8d39d799e2349894614a96a6f9ee9d242364a7af8236c4d8dd222342df5"
+  },
+  "art/combat-v024/x_kongrong-atlas.png": {
+    "src": "art/optimized-v0722/bf45ab78391346df689797e14c093a1f8adadba866024f7d69868ad86d9f8e03.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1409843,
+    "sourceBytes": 1510434,
+    "sha256": "bf45ab78391346df689797e14c093a1f8adadba866024f7d69868ad86d9f8e03",
+    "sourceSHA256": "83645ae4c3f8c2aaf576d212716699b2f3d26c27d693bc0c7e96b8ffb13de434"
+  },
+  "art/combat-v024/yellow_boss-atlas.png": {
+    "src": "art/optimized-v0722/54fbc683e021eb566d8e3a7f5fc0c689957b34fa33ee8d0770a1175f5f37c399.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1361740,
+    "sourceBytes": 1454631,
+    "sha256": "54fbc683e021eb566d8e3a7f5fc0c689957b34fa33ee8d0770a1175f5f37c399",
+    "sourceSHA256": "477c019a4e005d02549ef155fc8ef306623c16c382cbb741cfe8babd7aaa450b"
+  },
+  "art/combat-v024/zhangfei-atlas.png": {
+    "src": "art/optimized-v0722/cfd6e9ae520ca6b71e92ea117cba2adb1350fdf70cfa381faa8eed94b09330ea.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1167469,
+    "sourceBytes": 1244098,
+    "sha256": "cfd6e9ae520ca6b71e92ea117cba2adb1350fdf70cfa381faa8eed94b09330ea",
+    "sourceSHA256": "6753ced08eccb20eef54ee466c2e034d010534e3dd5caac81abb33c18eb15272"
+  },
+  "art/combat-v0384/huangzhong-bow-atlas.png": {
+    "src": "art/optimized-v0722/57d887122ac4847ae5986910a3d00414c7974ff59c2e0fff4fe24b985bf4a79e.png",
+    "width": 1211,
+    "height": 1299,
+    "bytes": 1738994,
+    "sourceBytes": 1854689,
+    "sha256": "57d887122ac4847ae5986910a3d00414c7974ff59c2e0fff4fe24b985bf4a79e",
+    "sourceSHA256": "a179d96f7a5435054c08f5de3ee9f8757c4ec1791bc6280dde583f927bdcbc80"
+  },
+  "art/combat-v0384/zhaoyun-spear-atlas.png": {
+    "src": "art/optimized-v0722/d945e912805ca41a92d9b8bb6808eb3b72a92a2c6c8e1ac755496f0f7ee07db9.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1580243,
+    "sourceBytes": 1720597,
+    "sha256": "d945e912805ca41a92d9b8bb6808eb3b72a92a2c6c8e1ac755496f0f7ee07db9",
+    "sourceSHA256": "609af2ad194cbbd0b52c2c23dd8b0c9c11d9f307d582ac17646b75c822edfdc1"
+  },
+  "art/infantry-v1.png": {
+    "src": "art/optimized-v0722/bb2ad935c467fd90edf3193f7c43006ce3748ec9d27b3354630515198b655f61.png",
+    "width": 1024,
+    "height": 1536,
+    "bytes": 1558976,
+    "sourceBytes": 1686362,
+    "sha256": "bb2ad935c467fd90edf3193f7c43006ce3748ec9d27b3354630515198b655f61",
+    "sourceSHA256": "4c5d2aef8dcbd620c1d95e07f006486c6b0e1d8a9bef6b89d29222bf74b1a205"
+  },
+  "art/terrain-v1.png": {
+    "src": "art/optimized-v0722/258fd6cbf67b514fa81db8448d6a8a4d754dc3a397daa5e25e54ac4261e8a48d.webp",
+    "width": 1536,
+    "height": 1024,
+    "bytes": 1977560,
+    "sourceBytes": 3130327,
+    "sha256": "258fd6cbf67b514fa81db8448d6a8a4d754dc3a397daa5e25e54ac4261e8a48d",
+    "sourceSHA256": "59017cf7530ea57aad63b1a48375c4ce1e8b5208d86cd732b5fcf0ba00c7b142"
+  },
+  "art/units/zhaoyun-cavalry-v029.png": {
+    "src": "art/optimized-v0722/784bd93631c97b96ac6e51044f6eee2349d417b66f5bcaf2d650e3cd94e594a8.png",
+    "width": 1135,
+    "height": 1386,
+    "bytes": 1875889,
+    "sourceBytes": 2013305,
+    "sha256": "784bd93631c97b96ac6e51044f6eee2349d417b66f5bcaf2d650e3cd94e594a8",
+    "sourceSHA256": "9eb3a5463123017bc090d40a3ce16fb7bde9b404b28c29e49e93d24121b0dcba"
+  },
+  "art/v032/kongrong-atlas.png": {
+    "src": "art/optimized-v0722/c972d74b915ef872899eb8a6df3e424882f72a48daaed9a5ac58ff27ca91c286.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1610660,
+    "sourceBytes": 1738133,
+    "sha256": "c972d74b915ef872899eb8a6df3e424882f72a48daaed9a5ac58ff27ca91c286",
+    "sourceSHA256": "498ef95d1d9373faf4935d2b34f1f219599b10f0edeac75f25fa73107e0b69d0"
+  },
+  "art/v032/kongrong-map.png": {
+    "src": "art/optimized-v0722/1c6e5044f2ca1f95bfa238202d085e2e3d30f8a5fd4852e519ee85773133ac96.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1496560,
+    "sourceBytes": 1589204,
+    "sha256": "1c6e5044f2ca1f95bfa238202d085e2e3d30f8a5fd4852e519ee85773133ac96",
+    "sourceSHA256": "0d28f7ce82ba9834a7cd4a0e89a88182497a12c1d49cfba88b6f98341a74d1c7"
+  },
+  "art/v033/sd/bianxi.png": {
+    "src": "art/optimized-v0722/e01d963ee7de9bdd0930ad124358795e1c2b9cbf58152cc28b0acaffc85d2f82.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1530654,
+    "sourceBytes": 1628280,
+    "sha256": "e01d963ee7de9bdd0930ad124358795e1c2b9cbf58152cc28b0acaffc85d2f82",
+    "sourceSHA256": "3a7b95446f5e91d673c9444ba547a0067c00d67078fd0c56bcd8d4fc99e9b0c7"
+  },
+  "art/v033/sd/caocao.png": {
+    "src": "art/optimized-v0722/7c94105a70578bb3cbb433474cec795782137bf85d1c3ec78d3befded44d1df3.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1877112,
+    "sourceBytes": 1979080,
+    "sha256": "7c94105a70578bb3cbb433474cec795782137bf85d1c3ec78d3befded44d1df3",
+    "sourceSHA256": "0b3fc4173768728c42ba3117eacbf1fed3b9bc65d201e543251ca2ffb14910b9"
+  },
+  "art/v033/sd/caoren.png": {
+    "src": "art/optimized-v0722/72880432d9af617e1003eddb6b06c136283f5e78a5b3381e9478478f40aa8838.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1920081,
+    "sourceBytes": 2032224,
+    "sha256": "72880432d9af617e1003eddb6b06c136283f5e78a5b3381e9478478f40aa8838",
+    "sourceSHA256": "20745d546752076c65b52c0800fbbbd5eae7751db75009de3f1bf1b07aa506a8"
+  },
+  "art/v033/sd/chendao.png": {
+    "src": "art/optimized-v0722/3f24f1d13899a300a69ef9c504df2c5e4d68d30c080861b30186708106f7dcf4.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1719584,
+    "sourceBytes": 1821834,
+    "sha256": "3f24f1d13899a300a69ef9c504df2c5e4d68d30c080861b30186708106f7dcf4",
+    "sourceSHA256": "455323d2fccb82da7d50e5c117a80c1cddaa3edd0300e24ea047f3c1aff47e0f"
+  },
+  "art/v033/sd/kongxiu.png": {
+    "src": "art/optimized-v0722/c302a98b5e5fb11aa04775924188826ef05a8259f9c12c92a07bf0635754dc65.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1652241,
+    "sourceBytes": 1746385,
+    "sha256": "c302a98b5e5fb11aa04775924188826ef05a8259f9c12c92a07bf0635754dc65",
+    "sourceSHA256": "d4aeba3bb2ad7c37bcf57655399560d92302ddd2531058933c042115fa9da597"
+  },
+  "art/v033/sd/pursuit_captain.png": {
+    "src": "art/optimized-v0722/d473f1d7aa28c92aac52d7416a2135dbc08b12fd31f2c19a9951c18edff06340.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1614732,
+    "sourceBytes": 1702126,
+    "sha256": "d473f1d7aa28c92aac52d7416a2135dbc08b12fd31f2c19a9951c18edff06340",
+    "sourceSHA256": "b709ae6d69b82547f55d6d9a526706cc8b3659f95c4ec82f4bc227656d73bc2a"
+  },
+  "art/v033/sd/xiahoudun.png": {
+    "src": "art/optimized-v0722/c522bb6ff09ac174713dfd55ffc21b78638c982981e2757a0c05d667b5a0ab34.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1927398,
+    "sourceBytes": 2037738,
+    "sha256": "c522bb6ff09ac174713dfd55ffc21b78638c982981e2757a0c05d667b5a0ab34",
+    "sourceSHA256": "99b36c65ac936d68de1f164a10949edf88c7455bb8a828365df04416634ceb11"
+  },
+  "art/v033/sd/xiahouen.png": {
+    "src": "art/optimized-v0722/078f4997a0eb73a5c24589fa8fbc393972b98130a7d492ed2e3951348ed19f90.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1573546,
+    "sourceBytes": 1679861,
+    "sha256": "078f4997a0eb73a5c24589fa8fbc393972b98130a7d492ed2e3951348ed19f90",
+    "sourceSHA256": "906ee6dcd876ab89454c16161c3b45223163e4a090fec9e66da259c87bdf1187"
+  },
+  "art/v033/sd/xushu.png": {
+    "src": "art/optimized-v0722/e50a3e9c493527fbbb63a5eb405f0c14fff0bdd751410b7a7df7681e18340770.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1373465,
+    "sourceBytes": 1456851,
+    "sha256": "e50a3e9c493527fbbb63a5eb405f0c14fff0bdd751410b7a7df7681e18340770",
+    "sourceSHA256": "bcae210a45d93c3b888435d57bcf4baa426c927e8b725a1fdccca6ff2a8314b1"
+  },
+  "art/v033/sd/zhoucang.png": {
+    "src": "art/optimized-v0722/003b71bfac5338ec2bb88edfe39a4edcf4708593a37846aae233abd282121a25.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1517877,
+    "sourceBytes": 1615037,
+    "sha256": "003b71bfac5338ec2bb88edfe39a4edcf4708593a37846aae233abd282121a25",
+    "sourceSHA256": "2bdd976c494b7129d6aaec03b5e09c998179fcda171a0c315c3f4483e90b8de9"
+  },
+  "art/v034/identity/bianxi.png": {
+    "src": "art/optimized-v0722/fab5846495c0b068b08196a7e7c9b3ba02d2c1cc6aa399456a19c48ace5b8b0c.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1540367,
+    "sourceBytes": 1639240,
+    "sha256": "fab5846495c0b068b08196a7e7c9b3ba02d2c1cc6aa399456a19c48ace5b8b0c",
+    "sourceSHA256": "3a3e724990e0d7b5aac60d1fef4aadbbbea9bcf164684fad7c50cecf9057788f"
+  },
+  "art/v034/identity/jianyong.png": {
+    "src": "art/optimized-v0722/aebcbd178cb5a3fc7ece655b52bc8e879d4ac251780ec1c3efa1632a18ad9575.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1325791,
+    "sourceBytes": 1417918,
+    "sha256": "aebcbd178cb5a3fc7ece655b52bc8e879d4ac251780ec1c3efa1632a18ad9575",
+    "sourceSHA256": "644e6f4a63b3924a4c42e9b74f413ac668b759cce9fb58f51b03637d89b5e4cd"
+  },
+  "art/v034/identity/liubei.png": {
+    "src": "art/optimized-v0722/6a16108daaff35984a75ca37cfa656d7ce32377b784338fea39b11d5885d84fe.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1329175,
+    "sourceBytes": 1419565,
+    "sha256": "6a16108daaff35984a75ca37cfa656d7ce32377b784338fea39b11d5885d84fe",
+    "sourceSHA256": "2bd5eb828e3fc14adff22ab0183d363713512ab21de89ef732bd730c73be9c3b"
+  },
+  "art/v034/identity/xiahoudun.png": {
+    "src": "art/optimized-v0722/7cd84678623bfe086dec5c870cd1135e22671d85baa967aa1b45372318270514.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1792719,
+    "sourceBytes": 1902506,
+    "sha256": "7cd84678623bfe086dec5c870cd1135e22671d85baa967aa1b45372318270514",
+    "sourceSHA256": "29f030bc0d8078700ce4c827058ad2763770e3fb207a9ae98ac127138069b33a"
+  },
+  "art/v034/identity/zhangliao.png": {
+    "src": "art/optimized-v0722/eb6b70be8a818e5ffc2ac18a9f08d24f5f20fa671952faa7c69fb5fcfef838d1.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1874641,
+    "sourceBytes": 1982417,
+    "sha256": "eb6b70be8a818e5ffc2ac18a9f08d24f5f20fa671952faa7c69fb5fcfef838d1",
+    "sourceSHA256": "7ea7c758103b7b95b5f3adca7fef62c9ca453d3e0d2a4844a7d788272e090803"
+  },
+  "art/v034/identity/zhugeliang.png": {
+    "src": "art/optimized-v0722/8673420d3b6d9e81b27565cba9983686db914404f3b4ff2db50ffc5636691e6c.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1454241,
+    "sourceBytes": 1541816,
+    "sha256": "8673420d3b6d9e81b27565cba9983686db914404f3b4ff2db50ffc5636691e6c",
+    "sourceSHA256": "2040d631b385fbd32b3941cd6979f402c103c51fff7124e3aca5b880f9e6ce02"
+  },
+  "art/v038/strategist.png": {
+    "src": "art/optimized-v0722/71245271c1c102161af8f7068328ded0196c1e5e174c5be6cc2bf68dace8b0a7.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1374710,
+    "sourceBytes": 1471765,
+    "sha256": "71245271c1c102161af8f7068328ded0196c1e5e174c5be6cc2bf68dace8b0a7",
+    "sourceSHA256": "53497495db9637ca98964aff304ad724794411df6bbb2e85512cac2e5ca2b5cc"
+  },
+  "art/v038/wenchou.png": {
+    "src": "art/optimized-v0722/3e1095b9470ad94807cc6613cc68318b0603dfbd813eea307ff66201fde48010.png",
+    "width": 1226,
+    "height": 1283,
+    "bytes": 1623057,
+    "sourceBytes": 1732650,
+    "sha256": "3e1095b9470ad94807cc6613cc68318b0603dfbd813eea307ff66201fde48010",
+    "sourceSHA256": "da4d8df3fe0344127916df99dbd589ee830856f063f98eaf406571f67f832335"
+  },
+  "assets/cg/v033/cg-brothers-part-red.png": {
+    "src": "art/optimized-v0722/0c0d945006345c3277b6641c9e54d04ad305e5599cc4777b385c263cb9252196.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1892750,
+    "sourceBytes": 2830891,
+    "sha256": "0c0d945006345c3277b6641c9e54d04ad305e5599cc4777b385c263cb9252196",
+    "sourceSHA256": "44a3083798cbd0e1a84c54a8036f06942332f5c28c3ea40d83fa6774bfe007b8"
+  },
+  "assets/cg/v033/cg-changban-bridge-red.png": {
+    "src": "art/optimized-v0722/6ca9a5a2acedbb1cfb421ec306bf4c6bfa3b78f0934aff486d1a8d6ed58393e1.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1792478,
+    "sourceBytes": 2728403,
+    "sha256": "6ca9a5a2acedbb1cfb421ec306bf4c6bfa3b78f0934aff486d1a8d6ed58393e1",
+    "sourceSHA256": "663ed6b52a285cd994f47df453ac53e13d8c866235b3affbfd85879e279f0c24"
+  },
+  "assets/cg/v033/cg-gucheng-red.png": {
+    "src": "art/optimized-v0722/1f0b90676626c1430f407964bab028c4c848c7566b7d005672319be0c5d1cada.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1794890,
+    "sourceBytes": 2738508,
+    "sha256": "1f0b90676626c1430f407964bab028c4c848c7566b7d005672319be0c5d1cada",
+    "sourceSHA256": "657966db270068b17023acd2403ee88be71ae44923d3f04c9755d8f216b37a8f"
+  },
+  "assets/cg/v033/cg-jianyong-red.png": {
+    "src": "art/optimized-v0722/1b313108ee3486d9d7ac79a8c43e5599a76dd8dec9ae114761a049308973acd8.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1835408,
+    "sourceBytes": 2644957,
+    "sha256": "1b313108ee3486d9d7ac79a8c43e5599a76dd8dec9ae114761a049308973acd8",
+    "sourceSHA256": "1942e4dbb4c2ca237c510fd755b2f4f6b6c59e2eda57890c62ff697b36f98bc2"
+  },
+  "assets/cg/v033/cg-oath-red.png": {
+    "src": "art/optimized-v0722/7f404be176e22074ae8709cd8dc67a4f39ae5eb79da11562173bbd3763a214cd.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1829736,
+    "sourceBytes": 2669865,
+    "sha256": "7f404be176e22074ae8709cd8dc67a4f39ae5eb79da11562173bbd3763a214cd",
+    "sourceSHA256": "9915ad4b6c866eedce05df44446bb98f815bbbc88e453a03227b449c5c89a721"
+  },
+  "assets/cg/v033/cg-three-visits-red.png": {
+    "src": "art/optimized-v0722/58393b8673ee670a57fde7363dc8bdadd2d2e8e356fee01e0d3cc3a7faeda76a.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1846242,
+    "sourceBytes": 2836387,
+    "sha256": "58393b8673ee670a57fde7363dc8bdadd2d2e8e356fee01e0d3cc3a7faeda76a",
+    "sourceSHA256": "d2f77c9e0e8455e40904164079cf1b00c0738b51ad0b98c89f98b5565d7eb9a9"
+  },
+  "assets/cg/v033/cg-zhangfei-vow-red.png": {
+    "src": "art/optimized-v0722/0eba66a2807415299e75a515c0d258f9a00e191cbe08cb61dbfaab4121333a98.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1764876,
+    "sourceBytes": 2503232,
+    "sha256": "0eba66a2807415299e75a515c0d258f9a00e191cbe08cb61dbfaab4121333a98",
+    "sourceSHA256": "de8c920c1a92654e855a01ae871c7e11b820bd89c53174c4f4b8ad7437a8371c"
+  },
+  "assets/cg/v036/cg_lady_sun-v0361.png": {
+    "src": "art/optimized-v0722/24bc9004cdbaa92ee4307cec42012d2217a6f5d89c3fdc842e08460a3e28a94d.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 1697060,
+    "sourceBytes": 2555902,
+    "sha256": "24bc9004cdbaa92ee4307cec42012d2217a6f5d89c3fdc842e08460a3e28a94d",
+    "sourceSHA256": "5ba0b0b0fa7918c51e62ddb5e61c0e45b5a2ac6d960c34e23e9f241b21784606"
+  },
+  "assets/portrait/adopted-20261007/gongsunzan/normal.png": {
+    "src": "art/optimized-v0722/3d7652829db097966d0fd352a73e6e27331175397ab6833b3786ccd40693840b.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1598960,
+    "sourceBytes": 2543195,
+    "sha256": "3d7652829db097966d0fd352a73e6e27331175397ab6833b3786ccd40693840b",
+    "sourceSHA256": "9c6ff89398295cb00f6215dc5d229fcf39e54417c9117a19bbc0c8bf8da823bb"
+  },
+  "assets/portrait/adopted-20261007/gongsunzan/resolve.png": {
+    "src": "art/optimized-v0722/5611ce720d3f95f75b15e485c9f8ad990a12db4442a2e51fda84344584fbc144.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1511846,
+    "sourceBytes": 2419375,
+    "sha256": "5611ce720d3f95f75b15e485c9f8ad990a12db4442a2e51fda84344584fbc144",
+    "sourceSHA256": "4e46bf1990b6ecc3c125cbc3a64e9c67a5c2036a975844cf00dc7954604668a5"
+  },
+  "assets/portrait/adopted-20261007/guanyu/normal.png": {
+    "src": "art/optimized-v0722/d4c022ca45218a202c001325fdb592761736135a5d984a82abd3dd9caeed8e42.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1696480,
+    "sourceBytes": 2636290,
+    "sha256": "d4c022ca45218a202c001325fdb592761736135a5d984a82abd3dd9caeed8e42",
+    "sourceSHA256": "ee4792048dcb4789650c14a579b4a4fc641cb6031a8265b506d2c44f8b17fdf7"
+  },
+  "assets/portrait/adopted-20261007/guanyu/sheet.png": {
+    "src": "art/optimized-v0722/28cc3586ed6f3724e6182caf80cc81b5b2c43d667015dbee193d4875a65ec93e.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1817726,
+    "sourceBytes": 2892311,
+    "sha256": "28cc3586ed6f3724e6182caf80cc81b5b2c43d667015dbee193d4875a65ec93e",
+    "sourceSHA256": "9a21732d125fbe1d807229c9b0ebd3fb7157049246ede7139b3169ddad17c601"
+  },
+  "assets/portrait/adopted-20261007/huaxiong/normal.png": {
+    "src": "art/optimized-v0722/f1c93ecabedc08a94cc225316515f6aa0baae6dbce2e0ed44c6b8176454612d7.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1587452,
+    "sourceBytes": 2470710,
+    "sha256": "f1c93ecabedc08a94cc225316515f6aa0baae6dbce2e0ed44c6b8176454612d7",
+    "sourceSHA256": "ce08c216fb4cbc68f54b4952ce414d89b7177d49d0557d96b46cb3b6a12559c2"
+  },
+  "assets/portrait/adopted-20261007/huaxiong/roar.png": {
+    "src": "art/optimized-v0722/008e8836982ccc8ed2a5fb704c33107ebf8545fe36f2109de0728ad4458bd5cb.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1586240,
+    "sourceBytes": 2474679,
+    "sha256": "008e8836982ccc8ed2a5fb704c33107ebf8545fe36f2109de0728ad4458bd5cb",
+    "sourceSHA256": "a3a6e75439193b16a20e4911b6a8edff02164f02c4d8606dbb3dbaea44b817cf"
+  },
+  "assets/portrait/adopted-20261007/jianyong/normal.png": {
+    "src": "art/optimized-v0722/b9fa566dfd458e96a2bf1b60b76638f8748161a8bb764128f7db0d3e5dbb9a6e.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1446366,
+    "sourceBytes": 3004857,
+    "sha256": "b9fa566dfd458e96a2bf1b60b76638f8748161a8bb764128f7db0d3e5dbb9a6e",
+    "sourceSHA256": "1d29b683de70345939de4b86f4a9f686fb066a20b414eebf1b743f25b50d1c3c"
+  },
+  "assets/portrait/adopted-20261007/kongrong/angry.png": {
+    "src": "art/optimized-v0722/c2117317bfa0ab5d4ac12c56905f75b846abd53ba7a916655a0beb11fd1597af.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1407680,
+    "sourceBytes": 2108537,
+    "sha256": "c2117317bfa0ab5d4ac12c56905f75b846abd53ba7a916655a0beb11fd1597af",
+    "sourceSHA256": "38ffb6ecdf56468cc9ea73d05e9ab6a18f5e4d78e0104b721b72040340251246"
+  },
+  "assets/portrait/adopted-20261007/kongrong/normal.png": {
+    "src": "art/optimized-v0722/e87fef80e2de0132bb37e3698726aabb4b1b4f6cd0b465d84288876eaacf4d82.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1472714,
+    "sourceBytes": 2228480,
+    "sha256": "e87fef80e2de0132bb37e3698726aabb4b1b4f6cd0b465d84288876eaacf4d82",
+    "sourceSHA256": "fc333cdd87dcdf76fceb4079fe78c1a160c616b8b893a5b53b18c5c8d4b2b05b"
+  },
+  "assets/portrait/adopted-20261007/liubei/normal.png": {
+    "src": "art/optimized-v0722/49c3cc1539c1ead9bf9eba0e821a452735d7f461a3d98e009d9592eba1e854aa.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1589322,
+    "sourceBytes": 2402805,
+    "sha256": "49c3cc1539c1ead9bf9eba0e821a452735d7f461a3d98e009d9592eba1e854aa",
+    "sourceSHA256": "bb3e19d5924c2dfe3ed3f9fb86ea02b9e8229e38c862927b03251b2634410d5b"
+  },
+  "assets/portrait/adopted-20261007/liubei/sheet.png": {
+    "src": "art/optimized-v0722/da093d1b3662a97a8ba817e6eae2050bc5d311ab5fdb3c4645bf65c0273ad54b.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1819950,
+    "sourceBytes": 2852312,
+    "sha256": "da093d1b3662a97a8ba817e6eae2050bc5d311ab5fdb3c4645bf65c0273ad54b",
+    "sourceSHA256": "5c2a9778562a41478e2e2be51adc1c4f2b360f5350c1f0627f5575377092cbd5"
+  },
+  "assets/portrait/adopted-20261007/lvbu/normal.png": {
+    "src": "art/optimized-v0722/99942106c606b0fd3105ad603c27de64f0412391e4261d27ffd56b577644f7ea.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1634134,
+    "sourceBytes": 2456281,
+    "sha256": "99942106c606b0fd3105ad603c27de64f0412391e4261d27ffd56b577644f7ea",
+    "sourceSHA256": "95f5b297e6cb52e232809a9ea865c111153a080b222f39b68a57cd2b1a00eb6c"
+  },
+  "assets/portrait/adopted-20261007/lvbu/sneer.png": {
+    "src": "art/optimized-v0722/1fbc17c5d8a7ac5088dd6793a7891a1412254a16fcab700d5fc35ac122bde322.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1533442,
+    "sourceBytes": 2316159,
+    "sha256": "1fbc17c5d8a7ac5088dd6793a7891a1412254a16fcab700d5fc35ac122bde322",
+    "sourceSHA256": "db24d3236d2da99b0811e98699c27f57e9e07fef978eff872c323519eb9084df"
+  },
+  "assets/portrait/adopted-20261007/mizhu/normal.png": {
+    "src": "art/optimized-v0722/fc072c35a6bd029dd62ca9890b2a6269f56f72748eac001cff9b746b5c0065ab.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1487840,
+    "sourceBytes": 2266226,
+    "sha256": "fc072c35a6bd029dd62ca9890b2a6269f56f72748eac001cff9b746b5c0065ab",
+    "sourceSHA256": "1225e46ad75cfd2a76959a0ec89879392f7d746db91b2bdb40d981b1538638a2"
+  },
+  "assets/portrait/adopted-20261007/mizhu/worried.png": {
+    "src": "art/optimized-v0722/9f7cbe8dc8c2625c34c74179342a944dead654d53e9d189faf974786e9603c53.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1425270,
+    "sourceBytes": 2177213,
+    "sha256": "9f7cbe8dc8c2625c34c74179342a944dead654d53e9d189faf974786e9603c53",
+    "sourceSHA256": "656a9858a4ca3b9d1a7b16d60058767b6a865bc8042a2635e3c35c63fc07aaef"
+  },
+  "assets/portrait/adopted-20261007/pangtong/normal.png": {
+    "src": "art/optimized-v0722/395f64e8796615acbb99c9ba75024ea2943516c198e17fe9c8cfc578e494a681.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1675570,
+    "sourceBytes": 2548762,
+    "sha256": "395f64e8796615acbb99c9ba75024ea2943516c198e17fe9c8cfc578e494a681",
+    "sourceSHA256": "5199a27957f7bb353d47852dbcada77e5ca3fbdf5c7f55d6bd0d2ee493adad31"
+  },
+  "assets/portrait/adopted-20261007/pangtong/sheet.png": {
+    "src": "art/optimized-v0722/d5b5daa80fcaa7f33a1b5de9bc86b8422ef4ee1d6a28e90196a3de818a7c0afd.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1871810,
+    "sourceBytes": 2897657,
+    "sha256": "d5b5daa80fcaa7f33a1b5de9bc86b8422ef4ee1d6a28e90196a3de818a7c0afd",
+    "sourceSHA256": "b0a2e30605fdbfa1a41f078025f0f19896c8857f264566bcce506c2bb6d566d0"
+  },
+  "assets/portrait/adopted-20261007/sunqian/normal.png": {
+    "src": "art/optimized-v0722/4c663e569317b278ca4672855ae3271ba545466acb5e6b835919d2dc206d407f.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1436708,
+    "sourceBytes": 2203321,
+    "sha256": "4c663e569317b278ca4672855ae3271ba545466acb5e6b835919d2dc206d407f",
+    "sourceSHA256": "9bf08ada691d88c6bae0e9173b772793b2fc4871472dafb1a9a4cfb041a11f43"
+  },
+  "assets/portrait/adopted-20261007/sunqian/worried.png": {
+    "src": "art/optimized-v0722/52b79fe833d6016baaa7fae371144f8a5939cf94d5f9f898884bcb90605bb969.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1346600,
+    "sourceBytes": 2071708,
+    "sha256": "52b79fe833d6016baaa7fae371144f8a5939cf94d5f9f898884bcb90605bb969",
+    "sourceSHA256": "741ea99b5bdf2a90ca9125bb126290578dcc19620d118689df6f4ffbef70863d"
+  },
+  "assets/portrait/adopted-20261007/taishici/normal.png": {
+    "src": "art/optimized-v0722/19d43853c546741acbc27148a61ff7a5cd1d97de0aa453f99e55c2163674fa0c.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1595910,
+    "sourceBytes": 3295540,
+    "sha256": "19d43853c546741acbc27148a61ff7a5cd1d97de0aa453f99e55c2163674fa0c",
+    "sourceSHA256": "bcccda050bbd08d37ad7ee6d61c2a6294e64f760aeaf969a194f7579808a8697"
+  },
+  "assets/portrait/adopted-20261007/taoqian/normal.png": {
+    "src": "art/optimized-v0722/218792433e536ef9dd44965008f4a6d69eac65038b9b77b8456770f91da14707.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1544304,
+    "sourceBytes": 2408774,
+    "sha256": "218792433e536ef9dd44965008f4a6d69eac65038b9b77b8456770f91da14707",
+    "sourceSHA256": "c1f10cabd260fee642ee8ceba9e6b0325b2d235e80a235aa7da2125eb988aa8f"
+  },
+  "assets/portrait/adopted-20261007/taoqian/sad.png": {
+    "src": "art/optimized-v0722/40291ccbfc4e5dfbaa5bd11119f707101c16a2b2992736df941801422af90ea5.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1425932,
+    "sourceBytes": 2230907,
+    "sha256": "40291ccbfc4e5dfbaa5bd11119f707101c16a2b2992736df941801422af90ea5",
+    "sourceSHA256": "b4d80719c1633409f24b029b47de9618e223f6e07c1c21a9afc66d3649e3cf4d"
+  },
+  "assets/portrait/adopted-20261007/xushu/normal.png": {
+    "src": "art/optimized-v0722/e9c7e70a37ec05824b3240f41671b22b0b32a3723b0d45d2278264c010ac5989.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1518550,
+    "sourceBytes": 2287118,
+    "sha256": "e9c7e70a37ec05824b3240f41671b22b0b32a3723b0d45d2278264c010ac5989",
+    "sourceSHA256": "9f97d58779ed64f9363cd9866cd43cf837f41d2b35194ecbe85289ac20745150"
+  },
+  "assets/portrait/adopted-20261007/xushu/sheet.png": {
+    "src": "art/optimized-v0722/e44d882d2f0407ed1839087b36a11d1ab9e1791412eafb42c4a81c3ab9a302ed.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1609216,
+    "sourceBytes": 2471145,
+    "sha256": "e44d882d2f0407ed1839087b36a11d1ab9e1791412eafb42c4a81c3ab9a302ed",
+    "sourceSHA256": "4f68a8857268766ef71779667f41e969897cbb9936b804554682b77a9d4c1eee"
+  },
+  "assets/portrait/adopted-20261007/zhangfei/normal.png": {
+    "src": "art/optimized-v0722/9c5260f39474d7782ef998aaae05ea3e5bb5e7e1ecef859d260020f961d15b75.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1808826,
+    "sourceBytes": 2713734,
+    "sha256": "9c5260f39474d7782ef998aaae05ea3e5bb5e7e1ecef859d260020f961d15b75",
+    "sourceSHA256": "acdbdceb328887b5fdb8a0886fc7e78da0fd8b33c24f4f43f0bf4d8cf8e9014d"
+  },
+  "assets/portrait/adopted-20261007/zhangfei/sheet.png": {
+    "src": "art/optimized-v0722/44412cac2a26f87a1d2a0c5b52902a0b18335b726bb713dac4213221b45b8ebf.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1866312,
+    "sourceBytes": 2908656,
+    "sha256": "44412cac2a26f87a1d2a0c5b52902a0b18335b726bb713dac4213221b45b8ebf",
+    "sourceSHA256": "d5838d555f2ed65a475bc1277b195994e481e7563543fe95178145db581a8dfc"
+  },
+  "assets/portrait/adopted-20261007/zhaoyun/normal.png": {
+    "src": "art/optimized-v0722/fb19d9e1058283fbeaae36041c473fec254887c23ac3238bd35bb7e68d08a713.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1738510,
+    "sourceBytes": 2840862,
+    "sha256": "fb19d9e1058283fbeaae36041c473fec254887c23ac3238bd35bb7e68d08a713",
+    "sourceSHA256": "c2343633b53cf27c3748ee4ce2ebaf910a63ffbcd34d48979d7f1d2347c2907f"
+  },
+  "assets/portrait/adopted-20261007/zhaoyun/sheet.png": {
+    "src": "art/optimized-v0722/9bdf765632a0a87e8cd0c873ffbc992cbcb4335f4712a739c60602c8bcc7bb97.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1921272,
+    "sourceBytes": 3222755,
+    "sha256": "9bdf765632a0a87e8cd0c873ffbc992cbcb4335f4712a739c60602c8bcc7bb97",
+    "sourceSHA256": "17587b1c608e71864c565d359a8c07272f0c5baecf58b2937c45adf99c8d7781"
+  },
+  "assets/portrait/adopted-20261007/zhugeliang/normal.png": {
+    "src": "art/optimized-v0722/1ce5a87e4345ededd30136700ca6fc9a57234df561f2834629387fe51ac4f2d1.webp",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 1614762,
+    "sourceBytes": 2526776,
+    "sha256": "1ce5a87e4345ededd30136700ca6fc9a57234df561f2834629387fe51ac4f2d1",
+    "sourceSHA256": "23e75280c98af6ce176f1095d2cbb06dec09d057f7f292bbc06e93315eb7ab92"
+  },
+  "assets/portrait/adopted-20261007/zhugeliang/sheet.png": {
+    "src": "art/optimized-v0722/6ef977e4a3f3539f9c8419028ea27c419f765f92e3ccaca9896c0a9050446bbe.webp",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1755928,
+    "sourceBytes": 2812877,
+    "sha256": "6ef977e4a3f3539f9c8419028ea27c419f765f92e3ccaca9896c0a9050446bbe",
+    "sourceSHA256": "d351ec2598ef23227d0062e0f13c4ab99d2d3cc61dd1d076c0e5460e594e132e"
+  },
+  "assets/portrait/v031/bianxi/normal.png": {
+    "src": "art/optimized-v0722/bb7151e5cb6bfdb5e1f6e3c9aa5de764a1eba6634e2ed72e2a395d29a793a3df.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2175809,
+    "sourceBytes": 2342194,
+    "sha256": "bb7151e5cb6bfdb5e1f6e3c9aa5de764a1eba6634e2ed72e2a395d29a793a3df",
+    "sourceSHA256": "6faf39c7ddd61ad10202790cc3df1ae7073fbedb5cd50c1fbc92e0deb2421f11"
+  },
+  "assets/portrait/v031/caoren/normal.png": {
+    "src": "art/optimized-v0722/2baf6f058b7ba12a2b6ddb76b1a56a65145fb240cc3955f1183b381aad574552.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2483998,
+    "sourceBytes": 2678866,
+    "sha256": "2baf6f058b7ba12a2b6ddb76b1a56a65145fb240cc3955f1183b381aad574552",
+    "sourceSHA256": "3a4d749b8ad3d9848c7177f9ffae1a1659a386f73825f675371cc76470fdc70d"
+  },
+  "assets/portrait/v031/chendao/normal.png": {
+    "src": "art/optimized-v0722/e33f5dd232d5c830c8f88f2132ccbe6d814aa1cb77479e2c7148a5aea5a59774.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2260208,
+    "sourceBytes": 2424863,
+    "sha256": "e33f5dd232d5c830c8f88f2132ccbe6d814aa1cb77479e2c7148a5aea5a59774",
+    "sourceSHA256": "f0e10ad729e5b8f80a443273e3f0fd18901c26d0c05f4f7927877f743ef94932"
+  },
+  "assets/portrait/v031/chengong/normal.png": {
+    "src": "art/optimized-v0722/b948f28d457fef33f5f6b6765562b99ba2977177d9bdf994eb727faaa019fb9e.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2059043,
+    "sourceBytes": 2260687,
+    "sha256": "b948f28d457fef33f5f6b6765562b99ba2977177d9bdf994eb727faaa019fb9e",
+    "sourceSHA256": "a6949f5e72fcc4e56bef0c3f296412e741e97d2f2ca03d034874cff6a444777d"
+  },
+  "assets/portrait/v031/guanyu/normal.png": {
+    "src": "art/optimized-v0722/40f7d565ea51efc0c1f871819d689bcbdd3b56ec963f8b0c1b77b66c17179346.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2476460,
+    "sourceBytes": 2647621,
+    "sha256": "40f7d565ea51efc0c1f871819d689bcbdd3b56ec963f8b0c1b77b66c17179346",
+    "sourceSHA256": "78e77b9eec129b4c820dcaf1875cafce155b06e9d22ce9e5012fed67a4885a77"
+  },
+  "assets/portrait/v031/hanfu/normal.png": {
+    "src": "art/optimized-v0722/3feea2836033348066463efd5e70012923fc4ce2cf61f8ecd4c62aaa1800b837.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2514930,
+    "sourceBytes": 2698590,
+    "sha256": "3feea2836033348066463efd5e70012923fc4ce2cf61f8ecd4c62aaa1800b837",
+    "sourceSHA256": "c6f25c9335ebc648268a0cee9d4c171ba325ca353c8dd0d4c862aaee5a4b43b4"
+  },
+  "assets/portrait/v031/kongxiu/normal.png": {
+    "src": "art/optimized-v0722/2e050eee25dc4b886eb483a6c320ee91e11ca30fc14bd2291225a3fed9f9632a.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2467791,
+    "sourceBytes": 2662213,
+    "sha256": "2e050eee25dc4b886eb483a6c320ee91e11ca30fc14bd2291225a3fed9f9632a",
+    "sourceSHA256": "baf0683f0ceea46bcf9bf5fb97a29e71c916aa6688249873937be3d144894fcc"
+  },
+  "assets/portrait/v031/lady_gan/normal.png": {
+    "src": "art/optimized-v0722/0c484f74225256be8e520986dc2955f248df920502005089a0c41b08ff872e0f.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2085777,
+    "sourceBytes": 2266385,
+    "sha256": "0c484f74225256be8e520986dc2955f248df920502005089a0c41b08ff872e0f",
+    "sourceSHA256": "c8fde540b1c611974973dc8e2a409cdf4694fdaf8564ad075869119e2d05ecb0"
+  },
+  "assets/portrait/v031/lady_mi/normal.png": {
+    "src": "art/optimized-v0722/ecd81a22b3965013471bb12e1cd349eac0a143e23cb18525064c96ba80ba4865.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 1968534,
+    "sourceBytes": 2118792,
+    "sha256": "ecd81a22b3965013471bb12e1cd349eac0a143e23cb18525064c96ba80ba4865",
+    "sourceSHA256": "a4fd645b42fb717594e132b667bdad2c50e2851130b1e6d88ca444dbac05edc0"
+  },
+  "assets/portrait/v031/liubei/normal.png": {
+    "src": "art/optimized-v0722/d4af2b667c7a8ebc81302e79d29e5984be55c3c21226b9824c7ca41693d6a1ac.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2102605,
+    "sourceBytes": 2255121,
+    "sha256": "d4af2b667c7a8ebc81302e79d29e5984be55c3c21226b9824c7ca41693d6a1ac",
+    "sourceSHA256": "8b8a451e81def19c71922b559669bd838f6aa4808b165ea03d6d8f365ac0d855"
+  },
+  "assets/portrait/v031/liubiao/normal.png": {
+    "src": "art/optimized-v0722/07cc584d9736544f1eab15f17e6e72f3041298ca931eefa2aec571a8292b5c05.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2146718,
+    "sourceBytes": 2312353,
+    "sha256": "07cc584d9736544f1eab15f17e6e72f3041298ca931eefa2aec571a8292b5c05",
+    "sourceSHA256": "eedd179f7cd54e7aa6f4c3220711f6503cb21c2e3e5af8057ad9a89ed86ba93c"
+  },
+  "assets/portrait/v031/liuqi/normal.png": {
+    "src": "art/optimized-v0722/6102b8bdc10918d841e48ca7cf013cf06d033ba3ee1be0500e6bc3bf155d4408.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 1952128,
+    "sourceBytes": 2115440,
+    "sha256": "6102b8bdc10918d841e48ca7cf013cf06d033ba3ee1be0500e6bc3bf155d4408",
+    "sourceSHA256": "4ad6a04bb721f7ef80128220978817936c1d155f20bdf8ce08ca2b1310356842"
+  },
+  "assets/portrait/v031/lusu/normal.png": {
+    "src": "art/optimized-v0722/b223afe47dd83f0667ee5a83b7969a5ef238be5b82fdd3c7ed3d386b1dae80ed.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 1914534,
+    "sourceBytes": 2108252,
+    "sha256": "b223afe47dd83f0667ee5a83b7969a5ef238be5b82fdd3c7ed3d386b1dae80ed",
+    "sourceSHA256": "ca7cba3b0283ad857a23a5bdd267c0592433f16e7e9641e37025bd17488a191e"
+  },
+  "assets/portrait/v031/messenger/normal.png": {
+    "src": "art/optimized-v0722/e7e68d03e0d6c714391a5b7dd44ace6e887a1c4544e5aba81dfacf11d6cc79a4.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2072500,
+    "sourceBytes": 2264671,
+    "sha256": "e7e68d03e0d6c714391a5b7dd44ace6e887a1c4544e5aba81dfacf11d6cc79a4",
+    "sourceSHA256": "87bbc700dcdac711bb119aed40d701e25535b76ac04420add52fb2e67f796ad0"
+  },
+  "assets/portrait/v031/militia_leader/normal.png": {
+    "src": "art/optimized-v0722/b14492e776829c456c51d0ce33abbcf2a07a88190b51929d49ed65f88add8972.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2197621,
+    "sourceBytes": 2367529,
+    "sha256": "b14492e776829c456c51d0ce33abbcf2a07a88190b51929d49ed65f88add8972",
+    "sourceSHA256": "e0b6e12750421cb15699381da524afdfd5e6463c13a1623f41f5a8f7218789ba"
+  },
+  "assets/portrait/v031/pass_guard/normal.png": {
+    "src": "art/optimized-v0722/9d97a43724b1f7364563e6b78383eb8ff84b880e508b5b38fbacd292ba1d36f8.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2369075,
+    "sourceBytes": 2534580,
+    "sha256": "9d97a43724b1f7364563e6b78383eb8ff84b880e508b5b38fbacd292ba1d36f8",
+    "sourceSHA256": "87642f194b9fd23a6f0e59bcd259f9964c3a408e013824a7719ad163937df044"
+  },
+  "assets/portrait/v031/pursuit_captain/normal.png": {
+    "src": "art/optimized-v0722/c1fb8539006aae0f84ab65fb9036c97a1460536ed02485b027b3e84100594b34.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2426122,
+    "sourceBytes": 2590427,
+    "sha256": "c1fb8539006aae0f84ab65fb9036c97a1460536ed02485b027b3e84100594b34",
+    "sourceSHA256": "5fda729b1a74e50a2690cc25a2e11774d0fbb7af073282814cc8b8a150f04184"
+  },
+  "assets/portrait/v031/shu_soldier/normal.png": {
+    "src": "art/optimized-v0722/f5aa5a9dd6e555a65bfa1c555ed1dbbb5169ba71c92f8c6f0259eda97d02a2f6.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2171832,
+    "sourceBytes": 2353674,
+    "sha256": "f5aa5a9dd6e555a65bfa1c555ed1dbbb5169ba71c92f8c6f0259eda97d02a2f6",
+    "sourceSHA256": "2185800ce979178c327865031e356a7dd3b754f9a59e9b49ada10a0f7f8132b9"
+  },
+  "assets/portrait/v031/simahui/normal.png": {
+    "src": "art/optimized-v0722/d04702d6f52730e0504043df9873ef0ab85cb49ff898bf70d910782b5d2bebe7.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2332247,
+    "sourceBytes": 2603027,
+    "sha256": "d04702d6f52730e0504043df9873ef0ab85cb49ff898bf70d910782b5d2bebe7",
+    "sourceSHA256": "9f424d42d0d2271951a5253c4c76e26a0101500055939c9eafe159461ed69adb"
+  },
+  "assets/portrait/v031/villager/normal.png": {
+    "src": "art/optimized-v0722/624e9671aab0835ccf345381d7a26052d695fc2468bbfc6d4421f20148e9dbf6.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2394559,
+    "sourceBytes": 2655918,
+    "sha256": "624e9671aab0835ccf345381d7a26052d695fc2468bbfc6d4421f20148e9dbf6",
+    "sourceSHA256": "4a885a0b08f64690b876eca504e5fa062091995ade4b745596a9987209515fa7"
+  },
+  "assets/portrait/v031/wei_soldier/normal.png": {
+    "src": "art/optimized-v0722/ef2ee3b55677080c7edd4063021e3297878bd6916ce412c5687ecea8d053696e.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2331069,
+    "sourceBytes": 2498194,
+    "sha256": "ef2ee3b55677080c7edd4063021e3297878bd6916ce412c5687ecea8d053696e",
+    "sourceSHA256": "38c03c0af30b8469cfd842f874137e0eff6080cd6cdf7c88a739ecc4cf8d1116"
+  },
+  "assets/portrait/v031/xiahoudun/normal.png": {
+    "src": "art/optimized-v0722/cc7866b9de1de19b96ad6ada21231915ac18870e276cdb613c24372ab374961e.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2142955,
+    "sourceBytes": 2283058,
+    "sha256": "cc7866b9de1de19b96ad6ada21231915ac18870e276cdb613c24372ab374961e",
+    "sourceSHA256": "74fe5131066138f2d9cc0cb8a85cbd3fead10f0c5dbf499e19fae8386eef0081"
+  },
+  "assets/portrait/v031/xiahouen/normal.png": {
+    "src": "art/optimized-v0722/08efdb15ef09d544c5e06dcb5adf0262db8141e0a7d4bf0d30c07442b83fd360.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2209834,
+    "sourceBytes": 2362665,
+    "sha256": "08efdb15ef09d544c5e06dcb5adf0262db8141e0a7d4bf0d30c07442b83fd360",
+    "sourceSHA256": "2f7081060c452b4abfa2c719f248c9563a77b92a520932f1827f1c45c75623f3"
+  },
+  "assets/portrait/v031/xiandi/normal.png": {
+    "src": "art/optimized-v0722/a4257417cb4cfa19a71ee29aaa4c3480105ffab1b3601353aca268c79e66b26c.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2221128,
+    "sourceBytes": 2338872,
+    "sha256": "a4257417cb4cfa19a71ee29aaa4c3480105ffab1b3601353aca268c79e66b26c",
+    "sourceSHA256": "06b4833512dd77836251997d0ebb2621297e926f3e66ef39e6bfb6a4a6127eba"
+  },
+  "assets/portrait/v031/yanliang/normal.png": {
+    "src": "art/optimized-v0722/7d2cb111335939298d59eb52cc91a72a4c4dde2c938ec72137b547f820c69e29.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2531718,
+    "sourceBytes": 2681378,
+    "sha256": "7d2cb111335939298d59eb52cc91a72a4c4dde2c938ec72137b547f820c69e29",
+    "sourceSHA256": "7b5bb27e60ac03c714c0af30253a583ba763d2ddc666a3affe9441b8e8e9529d"
+  },
+  "assets/portrait/v031/yuanshao/normal.png": {
+    "src": "art/optimized-v0722/c1c9a88963bc53284b98bcab461ea4605caeb6bb2166787a9898247e37c7bbd4.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2207105,
+    "sourceBytes": 2352129,
+    "sha256": "c1c9a88963bc53284b98bcab461ea4605caeb6bb2166787a9898247e37c7bbd4",
+    "sourceSHA256": "fcb469a387095e79e7d94cd3816e8ee53015d138930064e8c849eafbc1c1bfd2"
+  },
+  "assets/portrait/v031/zhangfei/normal.png": {
+    "src": "art/optimized-v0722/4f38a8616e318edac04f236110ccf8034a63b49cd5e29178e4078eaac2c6bbf8.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2354076,
+    "sourceBytes": 2521855,
+    "sha256": "4f38a8616e318edac04f236110ccf8034a63b49cd5e29178e4078eaac2c6bbf8",
+    "sourceSHA256": "6b9473d0bc6d1f45355c7c08a9b2f9fd03647fc97c47a6336b577b663ccd4707"
+  },
+  "assets/portrait/v031/zhangliao/normal.png": {
+    "src": "art/optimized-v0722/74632b14624e10eb90712761d81f176a2e90f6c9022ee4dc6fdb69c42c7bf851.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2651790,
+    "sourceBytes": 2809903,
+    "sha256": "74632b14624e10eb90712761d81f176a2e90f6c9022ee4dc6fdb69c42c7bf851",
+    "sourceSHA256": "4458c394a0214c758a8f0e8e58af86bf18ad1728f3b65dea710e999df732e940"
+  },
+  "assets/portrait/v031/zhaoyun/normal.png": {
+    "src": "art/optimized-v0722/fd9c397b13c4b6d34ace54f88cbcbaee560721a9188f81f5e78684be6bab3bb0.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2749331,
+    "sourceBytes": 2951808,
+    "sha256": "fd9c397b13c4b6d34ace54f88cbcbaee560721a9188f81f5e78684be6bab3bb0",
+    "sourceSHA256": "cf4e1b2fc9308563e604678974206d64f926c42c4e263b70176f6f4a84120428"
+  },
+  "assets/portrait/v031/zhoucang/normal.png": {
+    "src": "art/optimized-v0722/7f01ff84eeadd2e188bc5b72b59a5445f88dd1971680140c9f426b09945327bd.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2369034,
+    "sourceBytes": 2571088,
+    "sha256": "7f01ff84eeadd2e188bc5b72b59a5445f88dd1971680140c9f426b09945327bd",
+    "sourceSHA256": "e1f00b26d4e454a12d71283782e759a9d2d9ad2bc14ba5b392fdad403e258377"
+  },
+  "assets/portrait/v031/zhugeliang/normal.png": {
+    "src": "art/optimized-v0722/b349eba2b552472c4b085d026b128f6625542c62624debadae4f4be53767cf84.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2287511,
+    "sourceBytes": 2422737,
+    "sha256": "b349eba2b552472c4b085d026b128f6625542c62624debadae4f4be53767cf84",
+    "sourceSHA256": "1a6c0728a75a6e999c9492f9383281aed1d6bb6260f0793eabcfce7dc333d37c"
+  },
+  "assets/portrait/v032/caocao/sheet-act2-identity.png": {
+    "src": "art/optimized-v0722/01a3346bb2a7bc668533422f15433947d231b5463ea7559dcc29bf616e44f4fe.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2324636,
+    "sourceBytes": 2463563,
+    "sha256": "01a3346bb2a7bc668533422f15433947d231b5463ea7559dcc29bf616e44f4fe",
+    "sourceSHA256": "490f8ace0a20cd0781b7a84f3620fcd472c1541866e95a766abe8a9986847b19"
+  },
+  "assets/portrait/v032/gongsunzan/normal.png": {
+    "src": "art/optimized-v0722/01e05829ecc35c0cf415c88cb713e7cc62718e04001aa66aba7c213f5a038379.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2402365,
+    "sourceBytes": 2571502,
+    "sha256": "01e05829ecc35c0cf415c88cb713e7cc62718e04001aa66aba7c213f5a038379",
+    "sourceSHA256": "ed4b3180c620bd03f37624db74939e284e76c37156ccb0178d3686092babae59"
+  },
+  "assets/portrait/v032/gongsunzan/resolve.png": {
+    "src": "art/optimized-v0722/9371ff50ef5ca0446fcf0d587cb63e9578a487d1d8b54731a3ebbb97abba5634.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2307459,
+    "sourceBytes": 2472278,
+    "sha256": "9371ff50ef5ca0446fcf0d587cb63e9578a487d1d8b54731a3ebbb97abba5634",
+    "sourceSHA256": "0ddf3406f39b8ccfe4e6f6a8b09bf04b8cf8e192f7f6ec1753cabfb49d737634"
+  },
+  "assets/portrait/v032/guanyu/sheet-act2-identity.png": {
+    "src": "art/optimized-v0722/2fb6f31a76a79ef2e45531f0f62f72f69bcfa2e0179d8c206007fb25dd1247af.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2510013,
+    "sourceBytes": 2700198,
+    "sha256": "2fb6f31a76a79ef2e45531f0f62f72f69bcfa2e0179d8c206007fb25dd1247af",
+    "sourceSHA256": "f44601c4e4a29785c10ca3c7e68da969676e6985c8f1201109eb43787044c4d2"
+  },
+  "assets/portrait/v032/huaxiong/normal.png": {
+    "src": "art/optimized-v0722/5da6d15260089d0f63fcdeb8a2800f318b07eb02ccc15653770bc25cb9987a03.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2604003,
+    "sourceBytes": 2804802,
+    "sha256": "5da6d15260089d0f63fcdeb8a2800f318b07eb02ccc15653770bc25cb9987a03",
+    "sourceSHA256": "fd3aaabd63a92d0285497d433b2290fd1d66e451995bd6e24d5689534d7168a0"
+  },
+  "assets/portrait/v032/huaxiong/roar.png": {
+    "src": "art/optimized-v0722/97b59218cc9b9d7d3f5f2d889ebf70bf70a05ec5799274f06493514f3af71cff.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2643333,
+    "sourceBytes": 2843612,
+    "sha256": "97b59218cc9b9d7d3f5f2d889ebf70bf70a05ec5799274f06493514f3af71cff",
+    "sourceSHA256": "cc26846d29dbd24b3e97ad1535a7612cdc9b9ec7c92099dc00e8cb83e69622a0"
+  },
+  "assets/portrait/v032/kongrong/normal.png": {
+    "src": "art/optimized-v0722/6e335bf0187a3e17a42890f61a0c32222553e9dd29674e62540813366a3349ee.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2004940,
+    "sourceBytes": 2124429,
+    "sha256": "6e335bf0187a3e17a42890f61a0c32222553e9dd29674e62540813366a3349ee",
+    "sourceSHA256": "298612f8cfc82f62297328b33603ea4ba5c09960ab961cad0eaacbcae1f9fd5e"
+  },
+  "assets/portrait/v032/liubei/sheet-act2-identity.png": {
+    "src": "art/optimized-v0722/b2df4fbf1aca7b8de8d9d9a37f4e9820ed742d9c2e84f3a3b0ae88e073926d50.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2145688,
+    "sourceBytes": 2312917,
+    "sha256": "b2df4fbf1aca7b8de8d9d9a37f4e9820ed742d9c2e84f3a3b0ae88e073926d50",
+    "sourceSHA256": "bb6857cc39a3300cbc25c15f096de9195f66ef4a176eee5026f33bc2f6198ffe"
+  },
+  "assets/portrait/v032/mizhu/worried-act2-identity.png": {
+    "src": "art/optimized-v0722/0a9d42dd14dee4e37ef13fbdacc088c6752d5a4592459b90c234e2fac4df900a.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 1503565,
+    "sourceBytes": 1619029,
+    "sha256": "0a9d42dd14dee4e37ef13fbdacc088c6752d5a4592459b90c234e2fac4df900a",
+    "sourceSHA256": "5bf253637da63dbfe6429c39f49d1dcc5a2f4c6107a20817a3814768971d6fad"
+  },
+  "assets/portrait/v032/sunqian/worried-act2-identity.png": {
+    "src": "art/optimized-v0722/71cc28148cc1b3f5d15e24460ed58e32be2eb932ab23b54fb50f0078087b2697.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 1355204,
+    "sourceBytes": 1487921,
+    "sha256": "71cc28148cc1b3f5d15e24460ed58e32be2eb932ab23b54fb50f0078087b2697",
+    "sourceSHA256": "3beee8d1885a229917758558bcaadd5bc44a14dda1dd4d9091f7e4de3bffd10a"
+  },
+  "assets/portrait/v032/taishici/normal.png": {
+    "src": "art/optimized-v0722/26b1a9a0e7391b52e86d670f8e06ad9b1268e942b5ba20547dddc314a3f3fc58.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2564718,
+    "sourceBytes": 2713236,
+    "sha256": "26b1a9a0e7391b52e86d670f8e06ad9b1268e942b5ba20547dddc314a3f3fc58",
+    "sourceSHA256": "f41b67afef7daed85a98b3d703b014abef5fad00615524ec37673927e0f3ea67"
+  },
+  "assets/portrait/v032/taoqian/normal.png": {
+    "src": "art/optimized-v0722/57860e8e41f5150d8cbfea976e1e656034eba1150ce6f07ce2c9d0edc71ec7bf.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2153518,
+    "sourceBytes": 2319079,
+    "sha256": "57860e8e41f5150d8cbfea976e1e656034eba1150ce6f07ce2c9d0edc71ec7bf",
+    "sourceSHA256": "b15777776240eb05e6c7a0aed0331c34fd4d105da0bcba8bed2cdd8a35d5536b"
+  },
+  "assets/portrait/v032/taoqian/sad.png": {
+    "src": "art/optimized-v0722/327360ed32e65f0ee5418419d026a277a1f9227f9fa1ad83b4913b7eaa1ff49c.png",
+    "width": 1086,
+    "height": 1448,
+    "bytes": 2060625,
+    "sourceBytes": 2211198,
+    "sha256": "327360ed32e65f0ee5418419d026a277a1f9227f9fa1ad83b4913b7eaa1ff49c",
+    "sourceSHA256": "a5e19c6331907a2f1b67aca81bbeeb17d6b62cad7265f45ca21f120d77e6e9b3"
+  },
+  "assets/portrait/v032/zhangfei/sheet-act2-identity.png": {
+    "src": "art/optimized-v0722/f0baab746097d52a0b2598d1428cd6f84b621948999428bb04beb11b0a2b606a.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2752788,
+    "sourceBytes": 3005190,
+    "sha256": "f0baab746097d52a0b2598d1428cd6f84b621948999428bb04beb11b0a2b606a",
+    "sourceSHA256": "3754c8727fcc5449cd046350897886d22d2e1dcc333806da69c40aa0fec5e3fe"
+  },
+  "assets/portrait/v033/zhangfei/normal.png": {
+    "src": "art/optimized-v0722/e4d7d7fe7486385f743f99428bd6f9e31617daf5adb97c5eed85c1f4e2f0f6cf.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2225155,
+    "sourceBytes": 2386240,
+    "sha256": "e4d7d7fe7486385f743f99428bd6f9e31617daf5adb97c5eed85c1f4e2f0f6cf",
+    "sourceSHA256": "e799d7aae3a6d299d1b53c48ece17be9a6c0a578980702be8ba9122e9ef4b76b"
+  },
+  "assets/portrait/v033/zhangfei/sheet-red.png": {
+    "src": "art/optimized-v0722/fa9893f64ac7c28dd585f270f4363dfe165261ff7bd9346ffb79f1945f8708bc.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 2580152,
+    "sourceBytes": 2769309,
+    "sha256": "fa9893f64ac7c28dd585f270f4363dfe165261ff7bd9346ffb79f1945f8708bc",
+    "sourceSHA256": "26d981300749ad8fd2581b68f6f83189b898456c4dbaba44dfaf3f94a589fa47"
+  },
+  "assets/portrait/v036/guanping.png": {
+    "src": "art/optimized-v0722/28ac0700440768dd6ea56c22996337db262ed0e7639e279795a7f67a8ed8ad82.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2254121,
+    "sourceBytes": 2379312,
+    "sha256": "28ac0700440768dd6ea56c22996337db262ed0e7639e279795a7f67a8ed8ad82",
+    "sourceSHA256": "e97b9c8f075b648ccec71173964bd0e5e661f8ccf77cc888097a91ba005fc598"
+  },
+  "assets/portrait/v036/hanxuan.png": {
+    "src": "art/optimized-v0722/124f666b8f205618bfd0526bff5fa5a8c78a61260961ea93d590068d6dfa1814.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2209777,
+    "sourceBytes": 2390270,
+    "sha256": "124f666b8f205618bfd0526bff5fa5a8c78a61260961ea93d590068d6dfa1814",
+    "sourceSHA256": "bcef986d1f44754fcbd4f191c546a1d6a3cb7d01ab441707acb712e13dfdbb1e"
+  },
+  "assets/portrait/v036/huanggai.png": {
+    "src": "art/optimized-v0722/7bbcd7005ed7333b97a768e77dba87858a1f7dc2bb4b2f3b77b4041a2ccbdd03.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2323789,
+    "sourceBytes": 2455368,
+    "sha256": "7bbcd7005ed7333b97a768e77dba87858a1f7dc2bb4b2f3b77b4041a2ccbdd03",
+    "sourceSHA256": "9230b7ebc1235e757b714135e4811c3fb812c532512abce0a6ba75cc80cff34d"
+  },
+  "assets/portrait/v036/huangzhong.png": {
+    "src": "art/optimized-v0722/8736f02688ae1d410cd5e7c462598bd93c6c948811aef28073b7eafb6d51537b.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2566328,
+    "sourceBytes": 2717621,
+    "sha256": "8736f02688ae1d410cd5e7c462598bd93c6c948811aef28073b7eafb6d51537b",
+    "sourceSHA256": "d6424999b66c5983fefba6e02ece67cb2a7713c48e4c3196108296f6da4697ea"
+  },
+  "assets/portrait/v036/liaohua.png": {
+    "src": "art/optimized-v0722/99be550e3ca3de236f9d35499761dba6d355a950fac69828a4a1f376ec31181a.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2311936,
+    "sourceBytes": 2446301,
+    "sha256": "99be550e3ca3de236f9d35499761dba6d355a950fac69828a4a1f376ec31181a",
+    "sourceSHA256": "367fc5d164f6fceb5aa6f985dab2641e9906977bdab4faee993b75075303499c"
+  },
+  "assets/portrait/v036/maliang.png": {
+    "src": "art/optimized-v0722/076dc6a96f8c2a738fa350231f7c626a63a1ab980e1e332fdaeec3e09484ded1.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2193249,
+    "sourceBytes": 2341214,
+    "sha256": "076dc6a96f8c2a738fa350231f7c626a63a1ab980e1e332fdaeec3e09484ded1",
+    "sourceSHA256": "9a4ce01451ea2862545e8900a40963ddb8b37d29b7e8f467807e8151f5744933"
+  },
+  "assets/portrait/v036/masu.png": {
+    "src": "art/optimized-v0722/d3877ddce17e99384049daf4fbcb37d8119c275abb8452360b85d00be3830a76.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2244095,
+    "sourceBytes": 2390754,
+    "sha256": "d3877ddce17e99384049daf4fbcb37d8119c275abb8452360b85d00be3830a76",
+    "sourceSHA256": "0468c1b9fcd475a819d04755a44d863b7bf653afa86e05bfbb0387c45d6581af"
+  },
+  "assets/portrait/v036/wei_commander.png": {
+    "src": "art/optimized-v0722/fdf404f2c3713d198276802ba2904db804a5db58f7617eab0f6a0a7e91a5cc7d.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2535347,
+    "sourceBytes": 2670884,
+    "sha256": "fdf404f2c3713d198276802ba2904db804a5db58f7617eab0f6a0a7e91a5cc7d",
+    "sourceSHA256": "9df4e54581b5e369df79daf0c0bb10b08be5153712e735b6b452288a164d752c"
+  },
+  "assets/portrait/v036/weiyan.png": {
+    "src": "art/optimized-v0722/11aba17735d971fc6ddd811e29c2b3ca57f090a97d9db510a2111ac2884b8b5d.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2485772,
+    "sourceBytes": 2620579,
+    "sha256": "11aba17735d971fc6ddd811e29c2b3ca57f090a97d9db510a2111ac2884b8b5d",
+    "sourceSHA256": "d38458bd39f1794701e98f9212ee8f0d1f1eefe94268b2f28e94f534505576b6"
+  },
+  "assets/portrait/v036/zhangzhao.png": {
+    "src": "art/optimized-v0722/fb555ec272908bea8e67619f325cfd960f1cfc5266736c91095189a3dd39b203.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2240003,
+    "sourceBytes": 2394939,
+    "sha256": "fb555ec272908bea8e67619f325cfd960f1cfc5266736c91095189a3dd39b203",
+    "sourceSHA256": "caf428ab47bd52cb58d5a25df7c253b2ff22d28b2f7351cf52d7d6713494643d"
+  },
+  "assets/portrait/v036/zhaofan.png": {
+    "src": "art/optimized-v0722/27fdebfbcd16db9031226b71543d0320400c6d3a36fe1f9118d1f5376dd3a763.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 1970490,
+    "sourceBytes": 2146340,
+    "sha256": "27fdebfbcd16db9031226b71543d0320400c6d3a36fe1f9118d1f5376dd3a763",
+    "sourceSHA256": "738db6e3d36e3b080428be0647eb6ec436ff51169886552298cee3cb2add4e39"
+  },
+  "assets/portrait/v036/zhouyu.png": {
+    "src": "art/optimized-v0722/cf6eb604bc666e245936d4f53efaabe2889d2046572590ab3144bd8d20594607.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2461328,
+    "sourceBytes": 2598180,
+    "sha256": "cf6eb604bc666e245936d4f53efaabe2889d2046572590ab3144bd8d20594607",
+    "sourceSHA256": "676eefbc847893071008bc7ad5932ca42954b6f9fe2f127126281959edd30805"
+  },
+  "assets/portrait/v036/zhugejin.png": {
+    "src": "art/optimized-v0722/20d34c1c740f783c54d604187d05b48075db4660195343043e5d8ae150fb5a58.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2304548,
+    "sourceBytes": 2465211,
+    "sha256": "20d34c1c740f783c54d604187d05b48075db4660195343043e5d8ae150fb5a58",
+    "sourceSHA256": "83f03b6485462022446ded72819740e7ef10f204264a068ca408fcb7e1000c84"
+  },
+  "assets/portrait/v038/wenchou/normal.png": {
+    "src": "art/optimized-v0722/e335a24ed9242033af43055f24cc860a71d058f2b675e623227016d2bd16659e.png",
+    "width": 1122,
+    "height": 1402,
+    "bytes": 2626522,
+    "sourceBytes": 2786332,
+    "sha256": "e335a24ed9242033af43055f24cc860a71d058f2b675e623227016d2bd16659e",
+    "sourceSHA256": "59c42a3292e70006028abef806a1bb0d0ebe5ac1fdd0831adc08fa3e86690093"
+  }
+};
+for (const value of Object.values(entries)) Object.freeze(value);
+export const IMAGE_VARIANTS = Object.freeze(entries);
