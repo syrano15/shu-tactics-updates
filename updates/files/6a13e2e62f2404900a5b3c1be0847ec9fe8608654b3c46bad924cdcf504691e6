@@ -1,0 +1,233 @@
+// Sound is presentation only: no battle state, timers, saves or game RNG are touched.
+const GROUP_GAIN={ui:.42,combat:.8,notice:.62}, SETTINGS_KEY='shu-sfx-v1';
+// Catalogue edits keep the same mix/user settings; new clips share this budget.
+export const SOUND_RESOURCE_LIMITS=Object.freeze({jobs:2,decodedBytes:16*1024*1024,encodedBytes:8*1024*1024,entries:64});
+const PERSONAL_SPIRIT_SOUNDS=Object.freeze({strike:'spiritStrike',spirit:'spiritSpirit',focus:'spiritFocus',accel:'spiritAccel',wall:'spiritWall',flash:'spiritFlash',fury:'spiritFury',wisdom:'spiritWisdom'});
+export const SPIRIT_SOUND_IDS=Object.freeze([...Object.values(PERSONAL_SPIRIT_SOUNDS),'spiritCast']);
+/** All eight personal spirits are distinct; unknown and legacy IDs keep the common sound. */
+export const spiritSoundId=id=>Object.hasOwn(PERSONAL_SPIRIT_SOUNDS,id)?PERSONAL_SPIRIT_SOUNDS[id]:'spiritCast';
+/** Call only after the resolved skill is committed; a miss still spent the action. */
+export function skillVoiceSoundId(meta,result){
+ return meta?.kind==='special'&&object(meta.gate)&&typeof meta.id==='string'&&meta.id===result?.skillId&&!meta.reason&&!result.reason&&!result.failed&&!result.cancelled&&!result.error?'skillVoice':null;
+}
+function resourceCache(limit){
+ const values=new Map();let bytes=0;
+ const remove=id=>{const old=values.get(id);if(old){bytes-=old.bytes;values.delete(id);}};
+ return {get size(){return values.size;},get bytes(){return bytes;},has:id=>values.has(id),
+  get(id){const entry=values.get(id);if(!entry)return undefined;values.delete(id);values.set(id,entry);return entry.value;},
+  delete:remove,set(id,value,size){remove(id);const cost=Number.isFinite(size)&&size>0?size:0;if(cost>limit)return;
+   values.set(id,{value,bytes:cost});bytes+=cost;
+   while(bytes>limit||values.size>SOUND_RESOURCE_LIMITS.entries)remove(values.keys().next().value);
+  }};
+}
+const decodedBytes=buffer=>Number.isFinite(buffer?.length)&&Number.isFinite(buffer?.numberOfChannels)?buffer.length*buffer.numberOfChannels*4:0;
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const localAudioPath=value=>typeof value==='string'&&/^\.\/audio\/(?:[a-z0-9_-]+\/)+$/i.test(value);
+export function soundSettings(raw){
+ let value=raw;try{if(typeof raw==='string')value=JSON.parse(raw);}catch{value=null;}
+ return {enabled:object(value)&&typeof value.enabled==='boolean'?value.enabled:true,volume:object(value)&&Number.isFinite(value.volume)?clamp(value.volume,0,1):.65};
+}
+export function soundManifest(raw){
+ const result={version:1,basePath:'./audio/sfx-v031/',clips:{}};
+ if(!object(raw)||!localAudioPath(raw.basePath))return result;
+ result.basePath=raw.basePath;
+ for(const [id,entry] of Object.entries(object(raw.clips)?raw.clips:{})){
+  if(!/^[a-z][a-zA-Z0-9]*$/.test(id)||!object(entry)||!/^[a-z0-9_.-]+\.(wav|mp3|ogg|webm)$/i.test(entry.file??'')||!Object.hasOwn(GROUP_GAIN,entry.group)||!Number.isFinite(entry.duration)||entry.duration<=0||entry.duration>8)continue;
+  if(Object.hasOwn(entry,'basePath')&&!localAudioPath(entry.basePath))continue;
+  result.clips[id]={file:entry.file,group:entry.group,duration:entry.duration,gain:Number.isFinite(entry.gain)?clamp(entry.gain,0,1):1,...(Object.hasOwn(entry,'basePath')?{basePath:entry.basePath}:{})};
+ }return result;
+}
+export function createSoundManager({contextFactory=()=>{const Audio=globalThis.AudioContext??globalThis.webkitAudioContext;return Audio?new Audio():null;},fetcher=globalThis.fetch,storage=null,now=()=>globalThis.performance?.now?.()??Date.now(),hidden=()=>globalThis.document?.hidden===true,baseURL=import.meta.url,onplay=()=>{}}={}){
+ let settings;try{settings=soundSettings(storage?.getItem(SETTINGS_KEY));}catch{settings=soundSettings();}
+ let ctx=null,master=null,manifest=soundManifest(null),manifestRequest=null,generation=0,sequence=0,uiLast=-Infinity;
+ const cache=resourceCache(SOUND_RESOURCE_LIMITS.decodedBytes),pending=new Map(),encoded=resourceCache(SOUND_RESOURCE_LIMITS.encodedBytes),encodedPending=new Map(),warmRequested=new Set(),warmQueued=new Set(),voices=new Set(),last=new Map(),dedupes=new Set(),stats={played:0,dropped:0,failed:0};
+ const jobs=[];let activeJobs=0;
+ let warmTail=Promise.resolve();
+ const persist=()=>{try{storage?.setItem(SETTINGS_KEY,JSON.stringify(settings));}catch{}};
+ const status=()=>({...settings,context:ctx?.state??'unavailable',cached:cache.size,active:voices.size,cachedBytes:cache.bytes,encodedBytes:encoded.bytes,preparing:activeJobs,queued:jobs.length,...stats});
+ const stopVoice=voice=>{voices.delete(voice);try{voice.source.stop();}catch{}try{voice.source.disconnect();voice.gain.disconnect();}catch{}};
+ const stop=()=>{generation++;for(const voice of [...voices])stopVoice(voice);};
+ const setEnabled=enabled=>{settings.enabled=!!enabled;if(!settings.enabled)stop();persist();return status();};
+ const setVolume=volume=>{if(Number.isFinite(volume))settings.volume=clamp(volume,0,1);if(master)master.gain.value=settings.volume;if(settings.volume===0)stop();persist();return status();};
+ const loadManifest=()=>manifestRequest??=(async()=>{
+  try{if(typeof fetcher!=='function')return manifest;const response=await fetcher(new URL('./audio/sfx-manifest.json',baseURL));if(response.ok)manifest=soundManifest(await response.json());}
+  catch{stats.failed++;}return manifest;
+ })();
+ const readClip=id=>{
+  if(encoded.has(id))return Promise.resolve(encoded.get(id));if(encodedPending.has(id))return encodedPending.get(id);
+  const request=(async()=>{try{const entry=manifest.clips[id],response=await fetcher(new URL((entry.basePath??manifest.basePath)+entry.file,baseURL));if(!response.ok)throw new Error('audio');const bytes=await response.arrayBuffer();encoded.set(id,bytes,bytes.byteLength);return bytes;}finally{encodedPending.delete(id);}})();
+  encodedPending.set(id,request);return request;
+ };
+ const pump=()=>{
+  while(activeJobs<SOUND_RESOURCE_LIMITS.jobs&&jobs.length){
+   const job=jobs.shift();activeJobs++;
+   (async()=>{try{const bytes=await readClip(job.id);encoded.delete(job.id);const buffer=await ctx.decodeAudioData(bytes);cache.set(job.id,buffer,decodedBytes(buffer));job.resolve(buffer);}
+    catch{stats.failed++;job.resolve(null);}finally{pending.delete(job.id);activeJobs--;pump();}})();
+  }
+ };
+ const enqueue=job=>{const index=job.priority?jobs.findIndex(next=>!next.priority):-1;if(index<0)jobs.push(job);else jobs.splice(index,0,job);};
+ const promote=id=>{const index=jobs.findIndex(job=>job.id===id);if(index<0||jobs[index].priority)return;const [job]=jobs.splice(index,1);job.priority=true;enqueue(job);};
+ const prepare=async (id,{priority=false}={})=>{
+  await loadManifest();if(!ctx||!manifest.clips[id])return null;
+  if(cache.has(id))return cache.get(id);if(pending.has(id)){if(priority)promote(id);return pending.get(id);}
+  // Fetch and decode share two slots. Waiting jobs hold IDs, not downloaded
+  // ArrayBuffers; an actual cue can overtake speculative warm-up work.
+  const request=new Promise(resolve=>enqueue({id,resolve,priority}));
+  pending.set(id,request);pump();return request;
+ };
+ // Small, explicitly requested scene groups warm serially. Before a gesture,
+ // only encoded bytes are fetched; AudioContext creation still requires unlock.
+ const warm=ids=>{
+  for(const id of ids){
+   if(typeof id!=='string')continue;if(!ctx)warmRequested.add(id);
+   if(cache.has(id)||warmQueued.has(id)||!ctx&&encoded.has(id))continue;
+   warmQueued.add(id);warmTail=warmTail.then(async()=>{
+    try{await loadManifest();if(!manifest.clips[id]||cache.has(id))return;if(ctx)await prepare(id);else{await readClip(id);if(ctx)await prepare(id);}}
+    catch{stats.failed++;}finally{warmQueued.delete(id);}
+   });
+  }
+  return warmTail;
+ };
+ const unlock=()=>{
+  try{
+   if(!ctx){
+    ctx=contextFactory();if(!ctx)return Promise.resolve(false);master=ctx.createGain();master.gain.value=settings.volume;
+    if(typeof ctx.createDynamicsCompressor==='function'){const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-2;limiter.knee.value=0;limiter.ratio.value=16;limiter.attack.value=.001;limiter.release.value=.08;master.connect(limiter);limiter.connect(ctx.destination);}
+    else master.connect(ctx.destination);
+   }
+   const ready=ctx.state==='running'?Promise.resolve():ctx.resume();
+   // A gesture never requests the complete combat catalogue. Only groups that
+   // their scene explicitly requested may decode, one at a time, from the cache.
+   return Promise.resolve(ready).then(()=>{if(ctx.state!=='running')return false;const requested=[...warmRequested];warmRequested.clear();void warm(requested);return true;},()=>false);
+  }catch{stats.failed++;return Promise.resolve(false);}
+ };
+ const scope=()=>({generation,closed:false,id:++sequence});
+ const stopScope=token=>{if(!token)return;token.closed=true;for(const voice of [...voices])if(voice.scope===token||voice.parentScope===token)stopVoice(voice);};
+ const play=async(id,{gain=1,scope:token=null,maxAge=120,delay=0,dedupe=null,parentScope=null,loopUntil=null,resolvedEvent=false}={})=>{
+  if(!settings.enabled||settings.volume===0||!ctx||ctx.state!=='running'||hidden())return false;
+  const wait=Math.max(0,Math.min(200,Number.isFinite(delay)?delay:0)),requested=now()+wait,atGeneration=generation;
+  const validScope=scope=>!scope||!scope.closed&&scope.generation===generation;
+  const ready=()=>settings.enabled&&settings.volume>0&&ctx?.state==='running'&&!hidden()&&generation===atGeneration&&validScope(token)&&validScope(parentScope)&&(loopUntil===null||Number.isFinite(loopUntil)&&now()<loopUntil);
+  if(wait)await new Promise(resolve=>setTimeout(resolve,wait));
+  if(!ready())return false;
+  const buffer=cache.get(id)??await prepare(id,{priority:true}),entry=manifest.clips[id];
+  const once=typeof dedupe==='string'&&dedupe.trim().length>0&&dedupe.length<=120?id+':'+dedupe:null;
+  if(once&&dedupes.has(once)){stats.dropped++;return false;}
+  if(!buffer||!entry||!ready()||now()-requested>maxAge){stats.dropped++;return false;}
+  const at=now(),minimum=entry.group==='ui'?55:['heal','levelUp','turnAlly','turnEnemy','victory'].includes(id)?250:45;
+  // Two distinct resolved strikes may contact within 45ms in compact/fast/reduced modes.
+  // Only a named combat event may bypass the interval; its dedupe still prevents replay.
+  const resolved=entry.group==='combat'&&resolvedEvent===true&&once!==null;
+  if(!resolved&&at-(last.get(id)??-Infinity)<minimum||entry.group==='ui'&&at-uiLast<55){stats.dropped++;return false;}
+  last.set(id,at);if(entry.group==='ui')uiLast=at;
+  // Short selected clips and a bounded voice pool keep AOE/UI from becoming a wall of sound.
+  const same=[...voices].filter(voice=>voice.id===id);while(same.length>=2)stopVoice(same.shift());
+  while(voices.size>=6)stopVoice(voices.values().next().value);
+  try{
+   const source=ctx.createBufferSource(),node=ctx.createGain();source.buffer=buffer;node.gain.value=GROUP_GAIN[entry.group]*entry.gain*clamp(Number.isFinite(gain)?gain:1,0,1);source.connect(node);node.connect(master);
+   const voice={source,gain:node,id,scope:token,parentScope};voices.add(voice);source.onended=()=>{voices.delete(voice);try{source.disconnect();node.disconnect();}catch{}};
+   if(loopUntil!==null){
+    source.loop=true;const end=(ctx.currentTime??0)+Math.max(0,loopUntil-now())/1000;
+    node.gain.setValueAtTime?.(node.gain.value,Math.max(ctx.currentTime??0,end-.012));node.gain.linearRampToValueAtTime?.(0,end);
+    source.start();source.stop(end);
+   }else source.start();if(once){dedupes.add(once);while(dedupes.size>128)dedupes.delete(dedupes.values().next().value);}stats.played++;try{onplay({id,gain:node.gain.value*settings.volume,scope:token?.id??null});}catch{}return true;
+  }catch{stats.failed++;return false;}
+ };
+ // A freshly entered scene may await one cold clip briefly. Ordinary combat/UI
+ // cues keep their 120ms expiry; this uses the same queue/cache and a real scope.
+ const playPrepared=async(id,{isCurrent=()=>true,maxWait=800,...options}={})=>{
+  const current=()=>{try{return isCurrent()!==false;}catch{return false;}};
+  if(!current()||!settings.enabled||settings.volume===0||!ctx||ctx.state!=='running'||hidden())return false;
+  const requested=now(),token=options.scope??scope(),budget=Number.isFinite(maxWait)?clamp(maxWait,0,1000):800;
+  const buffer=await prepare(id,{priority:true});
+  if(!buffer||now()-requested>budget||!current()||token.closed||token.generation!==generation){stats.dropped++;return false;}
+  return play(id,{...options,scope:token});
+ };
+ // An independent child scope lets movement end without cancelling other sounds in its parent scope.
+ const loop=(id,{durationMs=500,scope:parentScope=null,gain=.55,maxAge=120}={})=>{
+  const token=scope(),duration=Number.isFinite(durationMs)?clamp(durationMs,0,10000):0;
+  const ready=duration>0?play(id,{gain,scope:token,parentScope,maxAge,loopUntil:now()+duration}):Promise.resolve(false);
+  return {scope:token,ready,stop:()=>stopScope(token)};
+ };
+ return {loadManifest,unlock,prepare,warm,play,playPrepared,loop,stop,scope,stopScope,setEnabled,setVolume,status};
+}
+let storage=null;try{storage=globalThis.localStorage??null;}catch{}
+const audio=createSoundManager({storage,onplay:detail=>{if(typeof globalThis.CustomEvent==='function')globalThis.document?.dispatchEvent?.(new CustomEvent('shu-sfx',{detail}));}});
+export const playSfx=(id,options)=>audio.play(id,options);
+export const playPreparedSfx=(id,options)=>audio.playPrepared(id,options);
+export const stopSfx=()=>audio.stop();
+export const soundScope=()=>audio.scope();
+export const stopSoundScope=scope=>audio.stopScope(scope);
+export const finishSoundScope=scope=>{if(scope)scope.closed=true;};
+export const audioStatus=()=>audio.status();
+export const prepareSfx=ids=>{for(const id of ids)void audio.prepare(id);};
+const SOUND_CONTEXTS=Object.freeze({ui:['uiCursor','uiConfirm','uiBack','uiError'],movement:['unitSelect','moveFoot','moveCavalry','moveCart'],turns:['turnAlly','turnEnemy'],outcomes:['victory','defeat','itemGet','levelUp'],preparation:['preparationEnter','promotion'],announcements:['allyArrival'],retreats:['allyRetreat']});
+const warmedContexts=new Set();
+export function prepareSoundContext(name,{idle=true}={}){
+ const groups=name==='battle'?['movement','turns','outcomes','announcements','retreats']:[name],ids=[];
+ for(const group of groups){if(warmedContexts.has(group)||!SOUND_CONTEXTS[group])continue;warmedContexts.add(group);ids.push(...SOUND_CONTEXTS[group]);}
+ if(!ids.length)return;
+ const warm=()=>{if(audio.status().enabled&&audio.status().volume>0)void audio.warm(ids);else for(const group of groups)warmedContexts.delete(group);};
+ if(idle&&typeof globalThis.requestIdleCallback==='function')globalThis.requestIdleCallback(warm,{timeout:800});else setTimeout(warm,0);
+}
+export function installSoundControls({toggle,volume,value,doc=globalThis.document,win=globalThis.window}={}){
+ if(!doc)return;
+ const update=()=>{const settings=audio.status();if(toggle){toggle.textContent='효과음 · '+(settings.enabled?'켬':'끔');toggle.setAttribute('aria-pressed',String(settings.enabled));}if(volume)volume.value=String(Math.round(settings.volume*100));if(value)value.textContent=Math.round(settings.volume*100)+'%';};
+ const unlock=()=>{void audio.unlock();};
+ doc.addEventListener('pointerdown',unlock,{capture:true});doc.addEventListener('keydown',event=>{if(!event.repeat)unlock();},{capture:true});
+ if(toggle)toggle.onclick=()=>{const was=audio.status().enabled;audio.setEnabled(!was);update();if(!was){prepareSoundContext('ui');void audio.unlock().then(()=>playSfx('uiConfirm'));}};
+ if(volume){
+  volume.oninput=()=>{audio.setVolume(Number(volume.value)/100);if(Number(volume.value)>0)prepareSoundContext('ui');update();};
+  const menu=volume.closest?.('details'),panel=volume.closest?.('.sfx-volume-panel');
+  const place=()=>{if(!menu?.open||!panel)return;panel.style.removeProperty('left');panel.style.removeProperty('right');const rect=panel.getBoundingClientRect(),anchor=menu.getBoundingClientRect(),width=doc.documentElement?.clientWidth??win?.innerWidth;if(!Number.isFinite(width))return;const left=Math.max(8,Math.min(rect.left,width-rect.width-8));if(left!==rect.left){panel.style.right='auto';panel.style.left=(left-anchor.left)+'px';}};
+  menu?.addEventListener('toggle',place);win?.addEventListener?.('resize',place);
+ }
+ doc.addEventListener('visibilitychange',()=>{if(doc.hidden)audio.stop();});win?.addEventListener?.('pagehide',()=>audio.stop());
+ void audio.loadManifest();prepareSoundContext('ui');update();
+}
+/** Actual resolved results alone select attack, evasion and tactic feedback. */
+export function combatSoundCues(step,phase,{suppressCast=false,weaponStyle=null}={}){
+ const kind=step?.kind,control=['confusion','deception'].includes(kind),physical=['infantry','cavalry','spear','archer','crossbow','strategist'].includes(kind);
+ const style=['slash','thrust','charge','mounted-slash','mounted-thrust','glaive','halberd','arrow','bolts','fire'].includes(weaponStyle)?weaponStyle:null;
+ const ranged=style?['arrow','bolts'].includes(style):['archer','crossbow'].includes(kind);
+ if(phase==='launch'){
+  if(suppressCast)return [];
+  if(kind==='fire')return [{id:'fireCast',gain:.8}];
+  if(control)return [];
+  if(style){
+   if(style==='fire')return [{id:'fireCast',gain:.8}];
+   if(ranged)return [{id:'arrowLaunch',gain:.8}];
+   if(['thrust','mounted-thrust'].includes(style))return [{id:'spearThrust',gain:.8}];
+   return [{id:'swordSwing',gain:.8}];
+  }
+  if(ranged)return [{id:'arrowLaunch',gain:.8}];
+  if(kind==='spear')return [{id:'spearThrust',gain:.8}];
+  if(['infantry','cavalry'].includes(kind))return [{id:'swordSwing',gain:.8}];
+  return [];
+ }
+ if(phase!=='impact')return [];
+ if(control)return step.landed===true?[{id:kind==='confusion'?'confusionCast':'deceptionCast',gain:.75}]:step.landed===false?[{id:'skillFail',gain:.7}]:[];
+ if(step.landed===false)return kind==='fire'?[{id:'skillFail',gain:.7}]:physical?[{id:'attackMiss',gain:.7}]:[];
+ if(!step.landed||!Number.isFinite(step.hpBefore)||!Number.isFinite(step.hpAfter)||step.hpAfter>=step.hpBefore)return [];
+ // Class materials are sound texture only, never a new armor, block or combat RNG check.
+ const material=['infantry','spear','cavalry'].includes(step.targetClass)?'metalHit':'bodyHit';
+ const id=step.critical?'criticalHit':kind==='fire'?'attackHit':ranged?'arrowHit':material;
+ return [{id,gain:kind==='fire'?.38:step.counter?.8:1}];
+}
+/** Physical appearance can refine movement sounds. Boats deliberately have no cart substitute. */
+export function movementSoundId(unit,{kind=null}={}){
+ if(!unit||kind==='boat'||unit.movementKind==='boat'||unit.cls==='boat'||['x_lady_sun','x_ferry'].includes(unit.id))return null;
+ if(kind==='cart'||unit.movementKind==='cart'||unit.cls==='cart'||unit.id==='x_carriage')return 'moveCart';
+ if(kind==='mounted'||unit.cls==='cavalry')return 'moveCavalry';
+ return 'moveFoot';
+}
+export function movementSound(unit,{durationMs=500,kind=null,scope=null,gain=null}={}){
+ const id=movementSoundId(unit,{kind});
+ // Soft-ground hoof transients have lower average energy than the selected foot/cart clips.
+ const mixGain=Number.isFinite(gain)?gain:id==='moveCavalry'?.8:.55;
+ return id?audio.loop(id,{durationMs,scope,gain:mixGain}):{scope:null,ready:Promise.resolve(false),stop(){}};
+}
+export function emitCombatSound(step,phase,options={}){
+ for(const cue of combatSoundCues(step,phase,options))void playSfx(cue.id,{resolvedEvent:true,...options,gain:cue.gain});
+}

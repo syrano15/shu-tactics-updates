@@ -1,0 +1,41 @@
+import {playPreparedSfx,soundScope,stopSoundScope} from './sfx.js';
+const observed=new WeakMap();
+let activeClose=null;
+export function primeBattleAnnouncements(state){observed.set(state,{waves:new Set(state.reinforcements?.spawned??[]),withdrawals:new Set((state.storyWithdrawals??[]).map(r=>r.unit))});}
+export function takeBattleAnnouncements(state,chapter,{deferPhase=false}={}){
+ const record=observed.get(state)??{waves:new Set(),withdrawals:new Set()};observed.set(state,record);const notices=[];
+ for(const id of state.reinforcements?.spawned??[]){
+  if(record.waves.has(id)||id==='baima_yanjin'&&deferPhase&&state.storyEvents?.pending.some(index=>{const event=chapter.events[index];return event.trigger.type==='unitDefeated'&&event.trigger.unit==='e_boss';}))continue;record.waves.add(id);
+  const wave=chapter.reinforcements?.find(w=>w.id===id);if(!wave)continue;
+  const units=wave.unitIds.map(unitId=>state.units.find(u=>u.id===unitId)).filter(Boolean);if(!units.length)continue;
+  const ally=wave.team==='ally',positions=units.map(u=>String.fromCharCode(65+u.x)+(u.y+1)).join(' · ');
+  notices.push(id==='baima_yanjin'?{kind:'campaign-phase',title:'백마 이후 · 연진의 추격',text:'며칠 뒤 연진의 강변 · 문추 등장',detail:'문추를 격파해 원소군의 추격을 물리치십시오.',unitIds:units.map(u=>u.id),wave:id}:{kind:ally?'ally-arrival':'enemy-arrival',title:(ally?'아군 합류':'적 증원')+' · '+units.length+'부대',text:units.map(u=>u.name).join(' · '),detail:'등장 위치 '+positions,unitIds:units.map(u=>u.id),wave:id});
+ }
+ for(const withdrawal of state.storyWithdrawals??[]){
+  if(record.withdrawals.has(withdrawal.unit))continue;record.withdrawals.add(withdrawal.unit);
+  const unit=state.units.find(u=>u.id===withdrawal.unit);notices.push({kind:'departure',title:(unit?.name??withdrawal.unit)+' · 전장 이탈',text:'하비로 향합니다. 이번 전투에서 제외됩니다.',detail:'병력·육성 기록 보존 · 전사 아님',unitIds:[withdrawal.unit]});
+ }
+ return notices;
+}
+export function clearCampaignNotice(){const close=activeClose;activeClose=null;if(close)close();}
+export function showCampaignNotice(notice,{host=document.body,fast=false,reducedMotion=false,isCurrent=()=>true}={}){
+ clearCampaignNotice();if(!notice||!isCurrent())return Promise.resolve(false);
+ return new Promise(resolve=>{
+  const box=document.createElement('dialog'),focus=document.activeElement,audio=notice.kind==='ally-arrival'?soundScope():null;let timer,closed=false;
+  box.className='campaign-notice '+notice.kind+(reducedMotion?' reduced-motion':'');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',notice.title);box.dataset.campaignNotice=notice.kind;
+  const eyebrow=document.createElement('p');eyebrow.className='campaign-notice-kicker';eyebrow.textContent=notice.kind==='act'?'촉한전기 · 새로운 여정':'전장 상황 변경';
+  const title=document.createElement('h2');title.textContent=notice.title;
+  const text=document.createElement('p');text.className='campaign-notice-text';text.textContent=notice.text;
+  const detail=document.createElement('p');detail.className='campaign-notice-detail';detail.textContent=notice.detail??'';
+  const button=document.createElement('button');button.type='button';button.textContent=notice.kind==='act'?'이야기 시작':'전투 계속';
+  const card=document.createElement('div');card.className='campaign-notice-card';card.append(eyebrow,title,text,detail,button);box.append(card);
+  const key=event=>{if(['Enter','Escape',' '].includes(event.key)){event.preventDefault();event.stopPropagation();close();}};
+  const close=()=>{if(closed)return;closed=true;stopSoundScope(audio);clearTimeout(timer);document.removeEventListener('keydown',key,true);if(box.open)box.close();box.remove();if(activeClose===close)activeClose=null;if(focus?.isConnected)focus.focus({preventScroll:true});resolve(isCurrent());};
+  activeClose=close;button.onclick=close;box.onclick=event=>{if(event.target===box)close();};document.addEventListener('keydown',key,true);host.append(box);box.addEventListener('cancel',event=>{event.preventDefault();close();});box.showModal();button.focus({preventScroll:true});
+  if(audio)void playPreparedSfx('allyArrival',{scope:audio,isCurrent:()=>!closed&&box.open&&isCurrent(),maxWait:500,dedupe:'ally-arrival:'+audio.id+':'+notice.wave});
+  timer=setTimeout(close,notice.kind==='act'?(fast?1100:2200):(fast?750:1650));
+ });
+}
+export async function showBattleAnnouncements(state,chapter,options={}){for(const notice of takeBattleAnnouncements(state,chapter,options)){if(options.isCurrent&&!options.isCurrent())break;await showCampaignNotice(notice,options);}}
+const ACT_TITLES={1:'의용',2:'유랑',3:'적벽과 형주'};
+export function showActTransition(transition,options={}){if(!transition)return Promise.resolve(false);return showCampaignNotice({kind:'act',title:'제 '+transition.act+'막',text:ACT_TITLES[transition.act]??transition.title,detail:'다음 장의 이야기와 전투가 시작됩니다.'},options);}

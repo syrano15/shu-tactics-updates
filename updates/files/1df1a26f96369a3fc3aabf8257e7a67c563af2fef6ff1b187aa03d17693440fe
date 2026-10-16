@@ -1,0 +1,71 @@
+import {createCombatPlan} from './combat-plan.js';
+import {playPreparedSfx,soundScope,stopSoundScope,finishSoundScope} from './sfx.js';
+// Presentation event selection only. Callers resolve/commit game actions first.
+// Scoped notices use the existing audio manager, never battle state/RNG/storage.
+export function createPreparationEntrySoundTracker(){
+ let lastEntry=null;
+ return ({epoch,chapter,stage,visible}={})=>{
+  if(visible!==true||stage!=='intermission'||!Number.isInteger(epoch)||epoch<0||typeof chapter!=='string'||!chapter)return null;
+  const entry=JSON.stringify([epoch,chapter,stage]);
+  if(entry===lastEntry)return null;
+  lastEntry=entry;return 'preparationEnter';
+ };
+}
+
+/** Invoke after applyPreparation succeeded, never for its preview candidate. */
+export function preparationAppliedSoundId(action,result){
+ if(action?.kind!=='promote'||!result||result.reason||result.error)return null;
+ const before=result.before,after=result.after;
+ if(!before||!after||typeof before.id!=='string'||before.id!==after.id)return null;
+ const from=before.promotion??before.rank,to=after.promotion??after.rank;
+ return Number.isInteger(from)&&from>=0&&from<2&&to===from+1?'promotion':null;
+}
+
+/** Invoke once for an already committed area presentation, never per target. */
+export function areaCastSoundId(meta){
+ if(!meta||typeof meta!=='object')return null;
+ if(meta.id==='tactic-area-fire'&&meta.actionKind==='tactic')return 'areaFireCast';
+ return meta.actionKind==='tactic'?'fireCast':'swordSwing';
+}
+
+/** At result settlement one secondary notice may accompany the verdict cue. */
+export function outcomeNoticeSoundId({growth=[],victory=false,freshReceipt=false,receipt=null}={}){
+ if(Array.isArray(growth)&&growth.some(event=>event&&Number.isFinite(event.from)&&Number.isFinite(event.to)&&event.to>event.from))return 'levelUp';
+ if(victory===true&&freshReceipt===true&&receipt&&!receipt.alreadyClaimed&&(Number.isFinite(receipt.gold)&&receipt.gold>0||Array.isArray(receipt.items)&&receipt.items.length>0))return 'itemGet';
+ return null;
+}
+
+/** Only the resolved, damaging combat transition is a new allied retreat. */
+export function allyRetreatSoundId(plan,step){
+ const unit=plan?.[step?.target];
+ return unit?.team==='ally'&&typeof unit.id==='string'&&unit.id&&!unit.withdrawn&&!unit.escaped&&step?.retreat===true&&step.landed===true&&Number.isFinite(step.damage)&&step.damage>0&&Number.isFinite(step.hpBefore)&&step.hpBefore>0&&step.hpAfter===0?'allyRetreat':null;
+}
+
+/** Inspect only executed exchange reports, never a live roster or HP diff. */
+export function resolvedAllyRetreats(exchanges){
+ const seen=new Set(),events=[];
+ for(const [exchangeIndex,exchange] of (Array.isArray(exchanges)?exchanges:[]).entries()){
+  if(!exchange?.actor||!exchange.target||!exchange.result||exchange.result.skipped)continue;
+  const plan=createCombatPlan(exchange.actor,exchange.target,exchange.result);
+  for(const [stepIndex,step] of plan.steps.entries())if(allyRetreatSoundId(plan,step)){
+   const unitId=plan[step.target].id;if(seen.has(unitId))continue;
+   seen.add(unitId);events.push({id:'allyRetreat',unitId,exchangeIndex,stepIndex});
+  }
+ }
+ return events;
+}
+
+/** One already committed map presentation owns its own bounded audio scope. */
+export function createAllyRetreatSoundSession({isCurrent=()=>true,play=playPreparedSfx,createScope=soundScope,stopScope=stopSoundScope,finishScope=finishSoundScope}={}){
+ const token=createScope();let closed=false,emitted=false;
+ const current=()=>{try{return !closed&&isCurrent()!==false;}catch{return false;}};
+ return Object.freeze({
+  emit(exchanges){
+   if(!current()||emitted||!resolvedAllyRetreats(exchanges).length)return Promise.resolve([]);
+   emitted=true;
+   // Simultaneous map casualties share one notice, preserving every visual mark.
+   try{return Promise.resolve(play('allyRetreat',{scope:token,isCurrent:current,maxWait:120,dedupe:'map-retreat:'+token.id})).then(value=>[value],()=>[false]);}catch{return Promise.resolve([false]);}
+  },
+  finish(completed=false){if(closed)return;closed=true;if(completed===true)finishScope(token);else stopScope(token);},
+ });
+}

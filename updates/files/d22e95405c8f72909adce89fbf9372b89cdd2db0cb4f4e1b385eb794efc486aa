@@ -1,0 +1,571 @@
+import {imageSource} from './image-source.js';
+import {createCombatPlan,combatBarkTimeline} from './combat-plan.js';
+import {applyPromotionVisual} from './promotion-visuals.js';
+import {resolveCombatContact} from './combat-contact.js';
+import {sanitizeCombatVisibleBounds,sanitizeCombatDisplayHeight,combatSpriteLayout} from './combat-scale.js';
+import {artFor,NAMED_BOSS_ART,ACT2_OFFICER_ART,ACT3_OFFICER_ART,ACT4_OFFICER_ART,troopArtClass} from './unit-art.js';
+import {footFallbackRecord} from './unit-body-metrics.js';
+import {assetURL,activeManifest,portraitAsset,markAssetURLUnavailable} from './story-assets.js';
+import {battleBarkSpeaker} from './battle-barks.js';
+import {emitCombatSound,playPreparedSfx,soundScope,stopSoundScope,finishSoundScope,prepareSfx} from './sfx.js';
+import {allyRetreatSoundId} from './audio-events.js';
+import {combatAttackMotion,combatMotionLayout,distinctAttackPose} from './combat-motion.js';
+import {attachSpiritEffects,reactSpiritEffects,clearSpiritReaction,combatSpiritReactions,retireSpiritEffects} from './spirit-effects.js';
+
+const sessions=new WeakMap(),failedAtlases=new Set();
+let poseManifest={schemaVersion:1,units:{},classes:{}},manifestRequest=null;
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const localPath=value=>typeof value==='string'&&(/^art\/act4\/units\/[a-z0-9_.-]+\.svg$/i.test(value)||/^art\/(?:combat-v024|combat-v0384|units|act2-characters|v032|v033\/sd|v034\/identity|v038|act3\/sd)\/[a-z0-9_.-]+\.(?:png|webp)$/i.test(value));
+const localURL=path=>new URL(imageSource(path),import.meta.url).href;
+const element=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=String(text);return node;};
+const labels={infantry:'베기',spear:'찌르기',cavalry:'돌격',archer:'활 공격',crossbow:'석궁 사격',strategist:'책략',fire:'화공',confusion:'혼란',deception:'위보'};
+const validRect=value=>Array.isArray(value)&&value.length===4&&value.every(Number.isFinite)&&value[0]>=0&&value[1]>=0&&value[2]>0&&value[3]>0&&value[0]+value[2]<=1.000001&&value[1]+value[3]<=1.000001;
+const validOffset=value=>Array.isArray(value)&&value.length===2&&value.every(number=>Number.isFinite(number)&&Math.abs(number)<=.25);
+
+export function setCombatPoseManifest(raw){
+ const next={schemaVersion:1,units:{},classes:{}};
+ if(!object(raw)||raw.schemaVersion!==1)return next;
+ for(const group of ['units','classes'])for(const [key,record] of Object.entries(object(raw[group])?raw[group]:{})){
+  if(!/^[a-z][a-z0-9_]*$/.test(key)||!object(record)||!localPath(record.src))continue;
+  const {columns,rows,frames}=record;
+  if(!Number.isInteger(columns)||columns<1||columns>8||!Number.isInteger(rows)||rows<1||rows>8||!object(frames))continue;
+  const clean={};
+  for(const pose of ['ready','attack','recover','hit','idle','retreat']){
+   const frame=frames[pose];
+   if(Number.isInteger(frame)&&frame>=0&&frame<columns*rows)clean[pose]=frame;
+   else if(object(frame)&&validRect(frame.rect)&&(frame.offset===undefined||validOffset(frame.offset))){
+    const bounds=sanitizeCombatVisibleBounds(frame.visibleBounds);
+    const weaponTip=Array.isArray(frame.weaponTip)&&frame.weaponTip.length===2&&frame.weaponTip.every(value=>Number.isFinite(value)&&value>=0&&value<=1)?[...frame.weaponTip]:null;
+    clean[pose]={rect:[...frame.rect],...(frame.offset?{offset:[...frame.offset]}:{}),...(bounds?{visibleBounds:bounds}:{}),...(weaponTip?{weaponTip}:{})};
+   }
+  }
+  if(!Object.hasOwn(clean,'idle')&&!Object.hasOwn(clean,'ready'))continue;
+  const displayHeight=sanitizeCombatDisplayHeight(record.displayHeight);
+  next[group][key]={src:record.src,columns,rows,frames:clean,facing:record.facing==='left'?'left':'right',...(displayHeight===null?{}:{displayHeight}),...(Number.isFinite(record.bodyTop)&&record.bodyTop>=0&&record.bodyTop<.9?{bodyTop:record.bodyTop}:{})};
+ }
+ poseManifest=next;failedAtlases.clear();return next;
+}
+
+/** Optional art. Failed/missing manifests never delay an attack or change its outcome. */
+export function loadCombatPoseManifest({fetcher=globalThis.fetch,url=new URL('./art/combat-v024/manifest.json',import.meta.url)}={}){
+ if(manifestRequest)return manifestRequest;
+ manifestRequest=(async()=>{
+  if(typeof fetcher!=='function')return poseManifest;
+  let timer,controller;
+  try{
+   controller=typeof AbortController==='function'?new AbortController():null;
+   if(controller)timer=setTimeout(()=>controller.abort(),2500);
+   const response=await fetcher(url,controller?{signal:controller.signal}:{});
+   if(response.ok)return setCombatPoseManifest(await response.json());
+  }catch{/* The approved existing art is the fallback. */}
+  finally{clearTimeout(timer);}
+  return poseManifest;
+ })();
+ return manifestRequest;
+}
+
+function unitKey(unit,scenario){
+ const art=artFor(unit);
+ if(art?.src?.startsWith('art/act4/units/'))return art.src.split('/').at(-1).split('-')[0];
+ // Reused campaign IDs retain the identity verified by the art resolver.
+ // Wen Chou replaces an old generic e06 order only on a new campaign sortie.
+ const named=Object.entries({...NAMED_BOSS_ART,...ACT2_OFFICER_ART,...ACT3_OFFICER_ART,...ACT4_OFFICER_ART}).find(([,record])=>record.src===art?.src&&(!record.name||record.name===unit.name));
+ if(unit.id==='e_boss')return named?.[0]??null;
+ if(unit.team==='enemy'&&!unit.generic&&['officer','boss'].includes(unit.combatTier)&&named)return named[0];
+ return (battleBarkSpeaker(unit,scenario)??unit.id??'').replace(/^extra_/,'');
+}
+function atlasFor(unit,scenario){
+ if(unit.classTraining)return null;
+ const key=unitKey(unit,scenario),keys=unit.id==='e_boss'?[key]:[key,unit.id];
+ const matched=keys.find(candidate=>candidate&&Object.hasOwn(poseManifest.units,candidate));
+ if((matched==='zhaoyun'&&unit.cls!=='spear')||(matched==='weiyan'&&unit.cls!=='infantry')||(matched==='huangzhong'&&unit.cls!=='archer'))return null;
+ const record=matched?poseManifest.units[matched]:troopArtClass(unit)&&Object.hasOwn(poseManifest.classes,unit.cls)?poseManifest.classes[unit.cls]:null;
+ return record&&!failedAtlases.has(record.src)?record:null;
+}
+// Single-image fallback shares the atlas feet line and contact geometry even if loading fails.
+function fallbackRecordFor(unit){return footFallbackRecord(artFor(unit));}
+
+function weapon(unit,scenario,kind){
+ if(['fire','confusion','deception'].includes(kind))return kind;
+ if(unit.classTraining)return ({infantry:'slash',spear:'thrust',cavalry:'charge',archer:'arrow',crossbow:'bolts',strategist:'fire'})[unit.cls]??'slash';
+ const key=unitKey(unit,scenario);
+ if(['zhangfei','guanhai'].includes(key))return 'thrust';
+ if(key==='lvbu')return 'halberd';
+ if(key==='guanyu')return 'glaive';
+ if(key==='huaxiong')return 'mounted-slash';
+ if(key==='cao_vanguard')return 'mounted-thrust';
+ return ({infantry:'slash',spear:'thrust',cavalry:'charge',archer:'arrow',crossbow:'bolts',strategist:'fire'})[kind]??'slash';
+}
+function attackLabel(unit,scenario,kind){
+ const style=weapon(unit,scenario,kind);
+ return ({slash:'베기',thrust:'찌르기',charge:'기병 돌격','mounted-slash':'기마 베기','mounted-thrust':'기마 찌르기',glaive:unit.cls==='cavalry'?'청룡도 돌격':'청룡도 베기',halberd:'방천화극 돌격',arrow:'활 공격',bolts:'석궁 사격'})[style]??labels[kind]??'공격';
+}
+export function combatMotionProfile(unit,scenario={},kind=unit.cls){
+ const record=atlasFor(unit,scenario),style=weapon(unit,scenario,kind);
+ return {...combatAttackMotion(style,{animatedPose:distinctAttackPose(record)}),identity:unitKey(unit,scenario),art:artFor(unit)?.src??null,atlas:record?.src??null};
+}
+function approvedAsset(kind,id){return id&&activeManifest().available?.[kind]?.includes(id)?assetURL(kind,id):null;}
+function backgroundFor(scenario){
+ const id=typeof scenario.bg==='string'?scenario.bg:scenario.bg?.battle??scenario.bg?.pre;
+ const background=approvedAsset('bg',id);if(background)return background;
+ const maps=new Set(['s01_zhuoxian','s02_yellow_camp','s03_hulao','s04_beihai','s05_xuzhou_relief','s06_xuzhou_fall']);
+ return maps.has(scenario.id)?localURL('art/maps/'+scenario.id+'-v021.webp'):localURL('art/terrain/ground-v020.webp');
+}
+function listen(state,node,type,fn){
+ if(typeof node.addEventListener==='function'){node.addEventListener(type,fn);state.cleanup.push(()=>node.removeEventListener?.(type,fn));}
+ else{const key='on'+type;node[key]=fn;state.cleanup.push(()=>{if(node[key]===fn)node[key]=null;});}
+}
+function picture(state,node,src,fallback){
+ const tried=new Set();
+ const load=source=>{
+  if(!source||tried.has(source)){node.hidden=true;return;}
+  tried.add(source);node.hidden=false;node.src=source;
+ };
+ node.onerror=()=>{if(state.current())load(fallback?.(node.src));};
+ state.cleanup.push(()=>{node.onerror=null;node.onload=null;});load(src);
+ return load;
+}
+function makeFighter(state,unit,role,scenario){
+ const body=element('figure','combat-combatant combat-'+role);body.dataset.combatRole=role;
+ const promoted=applyPromotionVisual(body,unit);body.dataset.promotionLabel=promoted.label;
+ body.dataset.unitClass=unit.cls??'infantry';
+ const crop=element('span','combat-sprite-crop pose-window'),img=element('img','combat-scene-sprite');img.alt=unit.name??'부대';img.draggable=false;crop.append(img);
+ const shadow=element('span','combat-ground-shadow'),crest=element('span','combat-fallback-crest',unit.name?.slice(0,1)??'군');crest.hidden=true;
+ const name=element('figcaption','combat-unit-name');name.append(element('span','combat-name-text',unit.name??'부대'));
+ const badge=promoted.rank?promoted.label:unit.team==='enemy'?({elite:'정예',officer:'장수',boss:'S급'})[unit.combatTier]:null;
+ if(badge)name.append(element('span','combat-rank-badge',badge));
+ body.append(shadow,crop,crest,name);
+ attachSpiritEffects(body,unit,{context:'combat'});
+ const base=artFor(unit),view={body,crop,img,crest,unit,role,base,source:null};body.classList.toggle('is-class-portrait',!!base?.classPortrait);
+ if(troopArtClass(unit)&&['shu','wei','wu','yellow','dong','cao','lu'].includes(base?.palette))img.classList.add('combat-palette-'+base.palette);
+ const fallbackRecord=fallbackRecordFor(unit);
+ const paintLayout=(record,pose,atlas)=>{
+  const layout=combatSpriteLayout(record,pose);
+  crop.classList.toggle('is-atlas',atlas);crop.classList.toggle('is-scaled-fallback',!atlas);
+  crop.classList.toggle('is-static-sprite',record.columns===1&&record.rows===1);
+  crop.classList.toggle('is-mirrored',record.facing!==(role==='actor'?'right':'left'));
+  crop.style.width=`calc(var(--combat-sprite-size) * ${layout.cropWidth})`;crop.style.height=`calc(var(--combat-sprite-size) * ${layout.cropHeight})`;
+  img.style.width=layout.imageWidth+'%';img.style.height=layout.imageHeight+'%';img.style.left=layout.imageLeft+'%';img.style.top=layout.imageTop+'%';img.style.clipPath=layout.clipPath;
+ };
+ const showFallback=()=>{
+  crop.classList.remove('is-atlas','is-scaled-fallback','is-static-sprite');crop.style.width='';crop.style.height='';img.style.width='';img.style.height='';img.style.left='';img.style.top='';img.style.clipPath='';
+  if(fallbackRecord)paintLayout(fallbackRecord,'ready',false);
+  if(base){view.source=localURL(base.src);img.src=view.source;img.hidden=false;crop.classList.toggle('is-mirrored',(base.facing??'right')!==(role==='actor'?'right':'left'));}
+  else{img.hidden=true;crest.hidden=false;}
+ };
+ img.onerror=()=>{
+  if(!state.current())return;
+  const record=atlasFor(unit,scenario);
+  if(record&&view.source===localURL(record.src)){failedAtlases.add(record.src);showFallback();}
+  else{img.hidden=true;crest.hidden=false;}
+ };
+ state.cleanup.push(()=>{img.onerror=null;});
+ view.useFallback=()=>{view.fallbackOnly=true;showFallback();};
+ view.record=()=>view.fallbackOnly?fallbackRecord:atlasFor(unit,scenario)??fallbackRecord;
+ view.hasPose=pose=>!view.fallbackOnly&&Object.hasOwn(atlasFor(unit,scenario)?.frames??{},pose);
+ view.hasAttackMotion=()=>!view.fallbackOnly&&distinctAttackPose(atlasFor(unit,scenario));
+ view.pose=pose=>{
+  if(!state.current())return;
+  body.dataset.pose=pose;
+  const record=atlasFor(unit,scenario);
+  if(!record||view.fallbackOnly){if(view.source!==localURL(base?.src??'art/units/none.png'))showFallback();return;}
+  paintLayout(record,pose,true);
+  const source=localURL(record.src);if(view.source!==source){view.source=source;img.src=source;}img.hidden=false;crest.hidden=true;
+ };
+ body.style.setProperty('--combat-direction',role==='actor'?'1':'-1');view.pose('ready');return view;
+}
+function makeHP(unit,role){
+ const box=element('div','combat-hud combat-hud-'+role),name=element('strong','',unit.name??'부대');
+ box.classList.add(unit.team==='enemy'?'is-enemy':'is-ally');
+ const value=element('span','combat-scene-hp',String(unit.hp??0)+' / '+String(unit.maxHp??unit.hp??0));value.dataset.combatRole=role;
+ const track=element('span','combat-hp-track'),fill=element('span','combat-hp-fill');track.append(fill);box.append(name,value,track);
+ return {box,value,fill,max:Math.max(1,unit.maxHp??unit.hp??1),hp:unit.hp??0};
+}
+function setHP(hud,value){
+ hud.hp=value;hud.value.textContent=Math.round(value).toLocaleString()+' / '+hud.max.toLocaleString();
+ hud.value.dataset.hp=String(value);hud.fill.style.width=Math.max(0,Math.min(100,value/hud.max*100))+'%';hud.fill.classList.toggle('is-low',value/hud.max<.3);
+}
+function resultText(step){
+ if(!step.landed)return ['fire','confusion','deception'].includes(step.kind)?'책략 실패':'회피';
+ if(['confusion','deception'].includes(step.kind))return labels[step.kind]+' 성공';
+ return (step.critical?'치명타 · ':'')+'−'+step.damage.toLocaleString();
+}
+function paintStrikeResult(node,step){
+ node.textContent='';
+ if(step.landed&&step.critical){
+  node.append(element('span','combat-critical-label','치명타'),element('strong','combat-critical-number','−'+step.damage.toLocaleString()));
+ }else node.textContent=resultText(step);
+}
+function compactResult(plan,step){
+ const row=element('p','combat-map-strike'+(step.landed&&step.critical?' is-critical':''));
+ row.append(element('span','combat-map-strike-owner',(plan[step.actor].name??'부대')+' '+(step.counter?'반격':'공격')+' → '+(plan[step.target].name??'부대')+' · '));
+ const value=element('span','combat-map-strike-value');paintStrikeResult(value,step);row.append(value);
+ if(step.retreat)row.append(element('span','combat-map-retreat',' · 퇴각'));
+ return row;
+}
+function compactResults(){
+ const results=element('div','combat-map-result');
+ results.setAttribute('aria-live','polite');
+ return results;
+}
+function summary(plan){
+ return plan.steps.map(step=>`${plan[step.actor].name??'부대'} ${step.counter?'반격':'공격'} · ${resultText(step)}${step.retreat?' · '+(plan[step.target].name??'부대')+' 퇴각':''}`).join(' / ');
+}
+function renderQuotes(slot,lines){
+ slot.textContent='';
+ for(const line of (Array.isArray(lines)?lines:[]).slice(0,2)){
+  if(typeof line.text!=='string')continue;
+  const row=element('p','combat-scene-line'),who=element('strong','',line.name??line.speakerId??'');row.append(who,element('span','',line.text));slot.append(row);
+ }
+ if(!slot.children.length)slot.append(element('p','combat-scene-line combat-scene-silent','서로의 움직임을 살핀다.'));
+}
+function quotes(lines){
+ const slot=element('div','combat-scene-lines');slot.setAttribute('aria-live','polite');renderQuotes(slot,lines);return slot;
+}
+function contactFor(field,scene,source,defender,style){
+ const fieldRect=field.getBoundingClientRect?.()??{},width=fieldRect.width>0?fieldRect.width:860,height=fieldRect.height>0?fieldRect.height:342;
+ const css=typeof globalThis.getComputedStyle==='function'?globalThis.getComputedStyle(scene):null;
+ const size=parseFloat(css?.getPropertyValue('--combat-sprite-size'))||(width<=620?160:240);
+ const sourceRect=source.body.getBoundingClientRect?.(),targetRect=defender.body.getBoundingClientRect?.();
+ const center=(rect,role)=>rect?.width>0?rect.left+rect.width/2-(fieldRect.left??0):width*(role==='actor'?(width<=620?.25:.27):(width<=620?.75:.73));
+ const foot=rect=>rect?.height>0?rect.bottom-(fieldRect.top??0)-26-size*.08:height-(width<=620?58:46)-size*.08;
+ const sourceCenter=center(sourceRect,source.role),sourceFoot=foot(sourceRect);
+ return {...resolveCombatContact({fieldWidth:width,fieldHeight:height,spriteSize:size,direction:source.role==='actor'?1:-1,sourceCenter,targetCenter:center(targetRect,defender.role),sourceFoot,targetFoot:foot(targetRect),sourceRecord:source.record(),targetRecord:defender.record(),style}),sourceCenter,sourceFoot,spriteSize:size};
+}
+async function animateStepHP(state,hud,step,reduced,duration){
+ const frames=reduced?1:6;
+ for(let frame=1;frame<=frames;frame++){
+  if(!state.current())return false;
+  setHP(hud,step.hpBefore+(step.hpAfter-step.hpBefore)*frame/frames);
+  if(!await state.wait(duration/frames))return false;
+ }
+ setHP(hud,step.hpAfter);return true;
+}
+function impactFlash(field,step,contact,playerSlash=false,fury=false){
+ const flash=element('div','combat-impact-flash'+(step.critical?' is-critical':'')),burst=element('div','combat-impact-burst'+(step.critical?' is-critical':''));
+ for(const effect of [flash,burst]){effect.setAttribute('aria-hidden','true');effect.style.setProperty('--impact-x',contact.impactX+'px');effect.style.setProperty('--impact-y',contact.impactY+'px');field.append(effect);}
+ if(fury)burst.classList.add('is-spirit-fury');
+ let chips=null;
+ if(playerSlash){
+  chips=element('span','combat-player-slash-chips');chips.setAttribute('aria-hidden','true');chips.style.setProperty('--impact-x',contact.impactX+'px');chips.style.setProperty('--impact-y',contact.impactY+'px');
+  for(let index=0;index<6;index++){const chip=element('i','combat-slash-chip');chip.style.setProperty('--chip-index',String(index));chips.append(chip);}field.append(chips);
+ }
+ return ()=>{flash.remove();burst.remove();chips?.remove();};
+}
+function effects(state,field,step,source,defender,contact){
+ const style=weapon(source.unit,state.scenario,step.kind),effect=element('div','combat-effect combat-effect-'+style);effect.setAttribute('aria-hidden','true');
+ const playerAttack=source.unit.team==='ally',tactic=['fire','confusion','deception'].includes(style),mounted=['charge','mounted-slash','mounted-thrust','glaive','halberd'].includes(style);
+ if(playerAttack){effect.classList.add('is-player-attack');effect.dataset.attackFamily=tactic?'tactic':mounted?'mounted':['arrow','bolts'].includes(style)?style:style==='thrust'?'thrust':'blade';}
+ const playerSlash=source.unit.team==='ally'&&style==='slash';if(playerSlash)effect.classList.add('is-player-slash');
+ const spiritReaction=combatSpiritReactions(source.unit,defender.unit,step);
+ if(spiritReaction.attack.includes('fury'))effect.classList.add('is-spirit-fury');
+ if(spiritReaction.attack.includes('strike'))effect.classList.add('is-spirit-strike');
+ const promoted=applyPromotionVisual(effect,source.unit);
+ const rankSparks=()=>{if(promoted.rank&&tactic)for(let index=0;index<promoted.rank*2;index++){
+  const spark=element('i','combat-rank-spark'),offset=[[-20,-14],[18,8],[-10,15],[24,-18]][index];spark.style.setProperty('--rank-spark-x',offset[0]+'px');spark.style.setProperty('--rank-spark-y',offset[1]+'px');spark.style.setProperty('--rank-spark-index',String(index));effect.append(spark);
+ }};
+ if(!playerAttack)rankSparks();
+ effect.style.setProperty('--projectile-start',contact.projectileX+'px');effect.style.setProperty('--projectile-end',contact.impactX+'px');effect.style.setProperty('--projectile-start-y',contact.projectileY+'px');effect.style.setProperty('--impact-y',contact.impactY+'px');effect.style.setProperty('--combat-direction',String(contact.direction));
+ effect.style.setProperty('--impact-x',contact.impactX+'px');
+ effect.style.setProperty('--combat-source-foot',contact.sourceFoot+'px');
+ if(playerAttack&&style==='arrow')effect.style.setProperty('--projectile-arc',Math.max(12,Math.min(38,Math.abs(contact.impactX-contact.projectileX)*.12))+'px');
+ const posedAttack=['thrust','slash','arrow'].includes(style)&&source.hasAttackMotion(),posedMelee=posedAttack&&style!=='arrow';
+ effect.classList.toggle('is-posed-attack',posedAttack);effect.classList.toggle('is-posed-thrust',posedAttack&&style==='thrust');effect.style.setProperty('--combat-strike-duration',contact.collision/1000+'s');
+ const tacticImpact=()=>{
+  if(playerAttack&&!step.landed){effect.append(element('i','combat-tactic-dissipate'));return;}
+  if(style==='confusion'||style==='deception')for(let i=0;i<(playerAttack?1:3);i++){const mark=element('i','combat-status-mark',style==='confusion'?'혼란':'위보');mark.style.setProperty('--mark-index',String(i));effect.append(mark);}
+  else if(style==='fire')for(let i=0;i<5;i++){const flame=element('i','combat-flame');flame.style.setProperty('--flame-index',String(i));effect.append(flame);}
+ };
+ if(style==='arrow'||style==='bolts')for(let i=0;i<(style==='bolts'&&!playerAttack?3:1);i++){const bolt=element('i','combat-projectile');bolt.style.setProperty('--bolt-delay',i*.055+'s');effect.append(bolt);}
+ else if(tactic){if(playerAttack){effect.classList.add('is-winding-up');effect.append(element('i','combat-cast-mote'));}else tacticImpact();}
+ else{effect.append(element('i','combat-weapon-streak'));if(playerSlash)effect.append(element('i','combat-slash-tail'));}
+ if(playerAttack&&style==='thrust')effect.append(element('i','combat-thrust-wake'));
+ if(playerAttack&&mounted)for(let index=0;index<3;index++){const dust=element('i','combat-charge-dust');dust.style.setProperty('--dust-index',String(index));effect.append(dust);}
+ const motion=combatAttackMotion(style,{animatedPose:source.hasAttackMotion()});
+ const layout=combatMotionLayout(motion,contact);
+ source.body.dataset.attackMotion=motion.motion;source.body.dataset.motionSource=motion.source;
+ source.body.dataset.actionPhase='approach';source.body.dataset.bodyTravel=String(layout.bodyTravel);
+ source.body.style.setProperty('--combat-body-travel',layout.bodyTravel+'px');
+ source.body.style.setProperty('--combat-weapon-reach',layout.weaponReach+'px');
+ source.body.style.setProperty('--combat-weapon-top',layout.weaponTop+'px');
+ source.body.style.setProperty('--combat-hand-offset',layout.handOffset+'px');
+ defender.body.style.setProperty('--combat-recoil-distance',layout.recoilDistance+'px');
+ let movingWeapon=null;
+ if(motion.source==='procedural'){
+  movingWeapon=element('i','combat-motion-weapon weapon-'+motion.weapon);movingWeapon.setAttribute('aria-hidden','true');source.body.append(movingWeapon);
+ }
+ field.append(effect);source.body.classList.add('is-attacking','attack-'+style);source.body.classList.toggle('has-attack-poses',posedAttack);source.body.classList.toggle('has-thrust-poses',posedAttack&&style==='thrust');source.pose(posedMelee?'ready':'attack');
+ const stop=()=>{effect.remove();movingWeapon?.remove();clearSpiritReaction(source.body);clearSpiritReaction(defender.body);source.body.classList.remove('is-attacking','is-contact','is-recovering','has-attack-poses','has-thrust-poses','attack-'+style);source.body.dataset.actionPhase='idle';source.pose('idle');defender.body.classList.remove('is-hit','is-critical-hit','is-dodging');defender.body.dataset.reaction='idle';defender.pose('idle');};
+ let impactShown=false;
+ stop.impact=()=>{if(playerAttack&&tactic&&!impactShown){impactShown=true;effect.classList.remove('is-winding-up');effect.classList.add('is-tactic-contact');if(step.landed)rankSparks();tacticImpact();}};
+ return stop;
+}
+
+function skillAccent(scene,field,skill){
+ if(!skill||typeof skill.name!=='string'||!skill.name.trim())return null;
+ const styles=new Set(['dragon','storm','oath','relief','spear','fire','supply']);
+ scene.classList.add('is-signature');scene.dataset.skillStyle=styles.has(skill.style)?skill.style:'dragon';
+ const banner=element('div','combat-signature-title');banner.setAttribute('role','status');
+ banner.append(element('span','combat-signature-glyph',typeof skill.glyph==='string'?skill.glyph.slice(0,3):'極'),element('strong','',skill.name));
+ scene.append(banner);
+ const aura=element('div','combat-signature-aura');aura.setAttribute('aria-hidden','true');field.append(aura);
+ return {banner,aura};
+}
+async function showCutin(state,scene,unit,critical){
+ if(unit.generic)return;
+ const hero=unitKey(unit,state.scenario);if(!hero)return;
+ const cutin=element('div','combat-scene-cutin'),frame=element('span','combat-cutin-frame'),img=element('img');img.alt=unit.name??'';frame.append(img);
+ cutin.append(frame,element('strong','',unit.name??''),element('span','',critical?'일격에 승부를 건다':'진격'));scene.append(cutin);
+ const tried=new Set();
+ const load=()=>{
+  const asset=portraitAsset(hero,critical?'resolve':'normal',state.scenario.id,{faction:unit.faction});
+  if(!asset||tried.has(asset.url)){frame.hidden=true;return;}
+  tried.add(asset.url);const [x,y,w,h]=asset.crop??[0,0,1,1];
+  img.style.width=100/w+'%';img.style.height=100/h+'%';img.style.left=-x/w*100+'%';img.style.top=-y/h*100+'%';img.style.objectFit=asset.crop?'fill':'cover';img.style.objectPosition='center 25%';img.src=imageSource(asset.url);
+  img.onerror=()=>{if(state.current()){markAssetURLUnavailable('portrait',asset.url);load();}};
+ };
+ load();state.cleanup.push(()=>{img.onerror=null;});await state.wait(500);cutin.remove();
+}
+
+// Decode the actual visible images while their fixed scene is still closed. These requests
+// warm the browser's image cache too; none of this wait is added to engine state or RNG.
+function readySceneArtwork(state,images,refreshSprites,timeoutFallback){
+ return new Promise(resolve=>{
+  let done=false,manifestReady=false,deadline=null,poll=null;
+  const requests=new Map();
+  const clear=timer=>{if(timer!==null){clearTimeout(timer);state.timers.delete(timer);}};
+  const finish=ready=>{
+   if(done)return;done=true;clear(deadline);clear(poll);state.waiters.delete(finish);
+   resolve(ready&&state.current());
+  };
+  state.waiters.add(finish);
+  const current=()=>{
+   if(done)return false;
+   if(!state.current()){state.finish('stale');finish(false);return false;}
+   return true;
+  };
+  const check=()=>{
+   if(!current())return;
+   for(const image of images){
+    const src=image.src;
+    if(!src||image.hidden||typeof image.decode!=='function'||requests.get(image)?.src===src)continue;
+    const request={src,ready:false};requests.set(image,request);
+    Promise.resolve().then(()=>{if(!done&&state.current())return image.decode();}).then(()=>{
+     if(!current())return;
+     if(image.src===src&&requests.get(image)===request){request.ready=true;settled();}
+    },()=>{/* Existing per-image error handlers select the approved fallback. */});
+   }
+   settled();
+  };
+  const settled=()=>{
+   if(!current()||!manifestReady)return;
+   if(images.every(image=>!image.src||image.hidden||typeof image.decode!=='function'||requests.get(image)?.src===image.src&&requests.get(image).ready))finish(true);
+  };
+  const nextPoll=()=>{
+   if(!current())return;check();if(done)return;
+   poll=setTimeout(()=>{state.timers.delete(poll);poll=null;nextPoll();},50);state.timers.add(poll);
+  };
+  deadline=setTimeout(()=>{
+   state.timers.delete(deadline);deadline=null;if(!current())return;
+   const pending=images.filter(image=>image.src&&!image.hidden&&typeof image.decode==='function'&&!(requests.get(image)?.src===image.src&&requests.get(image).ready));
+   timeoutFallback(pending,manifestReady);finish(true);
+  },600);state.timers.add(deadline);
+  loadCombatPoseManifest().then(()=>{
+   if(!current())return;
+   refreshSprites();manifestReady=true;check();
+  },()=>{if(current()){manifestReady=true;check();}});
+  nextPoll();
+ });
+}
+
+export function clearCombatScene(host){
+ sessions.get(host)?.finish('cancel');
+ host?.querySelectorAll?.('.combat-scene,.combat-map-toast').forEach(node=>node.remove());
+ host?.classList?.remove('combat-scene-host','combat-map-host');
+}
+
+/**
+ * Plays an already resolved engine exchange. No engine state, RNG, save or line selection is used.
+ * Every completion path resolves; clearCombatScene can cancel even while artwork is loading.
+ */
+export function playCombatScene(host,actorBefore,targetBefore,result,options={}){
+ const plan=createCombatPlan(actorBefore,targetBefore,result),scenario=options.scenario??{},mode=['all','important','map'].includes(options.mode)?options.mode:'all';
+ const full=mode==='all'||mode==='important'&&plan.important;
+ if(!host||typeof document==='undefined')return Promise.resolve({reason:'cancel',full,plan});
+ clearCombatScene(host);void loadCombatPoseManifest();
+ return new Promise(resolve=>{
+  const reduced=!!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const state={host,plan,scenario,full,audio:soundScope(),audioImpacts:new Set(),audioLaunches:new Set(),audioRetreats:new Set(),closed:false,cleanup:[],timers:new Set(),waiters:new Set(),opened:false,huds:null,beforeHidden:host.hidden};
+  state.current=()=>{try{return !state.closed&&sessions.get(host)===state&&(typeof options.isCurrent!=='function'||options.isCurrent()!==false);}catch{return false;}};
+  const retreatSound=(index,step)=>{if(!state.current()||state.audioRetreats.has(index)||!allyRetreatSoundId(plan,step))return;state.audioRetreats.add(index);void playPreparedSfx('allyRetreat',{scope:state.audio,isCurrent:state.current,maxWait:120,dedupe:'combat-retreat:'+state.audio.id+':'+index});};
+  state.finish=reason=>{
+   if(state.closed)return;
+   if(reason==='skip'){
+    stopSoundScope(state.audio);
+    // Skipping collapses the remaining resolved strikes, never invents a hit on a miss.
+    let compactIndex=0;
+    for(const [index,step] of plan.steps.entries())if(!state.audioImpacts.has(index)){
+     const delay=compactIndex++*90;
+     if(!state.audioLaunches.has(index))emitCombatSound(step,'launch',{weaponStyle:weapon(plan[step.actor],scenario,step.kind),suppressCast:options.suppressCast,delay,dedupe:'combat:'+state.audio.id+':'+index+':launch'});
+     emitCombatSound(step,'impact',{weaponStyle:weapon(plan[step.actor],scenario,step.kind),delay,dedupe:'combat:'+state.audio.id+':'+index+':impact'});
+    }
+   }else if(reason==='complete')finishSoundScope(state.audio);else stopSoundScope(state.audio);
+   state.closed=true;
+   for(const timer of state.timers)clearTimeout(timer);state.timers.clear();
+   for(const wake of state.waiters)wake(false);state.waiters.clear();
+   for(const clean of state.cleanup.splice(0))try{clean();}catch{/* Cleanup must not leave the action pending. */}
+   if(state.huds)for(const step of plan.steps)setHP(state.huds[step.target],step.hpAfter);
+   state.scene?.remove();host.classList.remove('combat-scene-host','combat-map-host');
+   if(state.opened&&host.open)try{host.close();}catch{}
+   host.hidden=state.beforeHidden;
+   if(sessions.get(host)===state)sessions.delete(host);resolve({reason,full,plan});
+  };
+  const scale=options.fast ? .42 : reduced ? .2 : 1;
+  state.wait=duration=>new Promise(wake=>{
+   let remaining=Math.max(0,duration*scale),done=false;
+   const finish=value=>{if(done)return;done=true;state.waiters.delete(finish);wake(value);};
+   state.waiters.add(finish);
+   const tick=()=>{
+    if(!state.current()){state.finish('stale');finish(false);return;}
+    if(remaining<=0){finish(true);return;}
+    const slice=Math.min(50,remaining);remaining-=slice;
+    const timer=setTimeout(()=>{state.timers.delete(timer);tick();},slice);state.timers.add(timer);
+   };tick();
+  });
+  sessions.set(host,state);
+  prepareSfx(['arrowLaunch','attackHit','criticalHit','fireCast','swordSwing','spearThrust','arrowHit','attackMiss','confusionCast','deceptionCast','skillFail','bodyHit','metalHit','allyRetreat']);
+  if(!state.current()){state.finish('stale');return;}
+  try{
+   for(const child of [...host.children])child.remove();
+   host.hidden=false;
+   host.classList.add(full?'combat-scene-host':'combat-map-host');
+   const scene=element('section',full?'combat-scene':'combat-map-toast');state.scene=scene;scene.dataset.mode=mode;scene.classList.toggle('is-reduced-motion',reduced);scene.style.setProperty('--combat-speed',String(scale));scene.setAttribute('aria-label',full?'전투 장면':'전투 결과');
+   const heading=element('header','combat-scene-heading'),label=element('span','combat-scene-label',full?'교전':'전투 결과'),skip=element('button','combat-scene-skip combat-scene-close',full?'연출 건너뛰기':'닫기');skip.type='button';heading.append(label,skip);scene.append(heading);
+   listen(state,skip,'click',()=>state.finish('skip'));
+   listen(state,host,'cancel',event=>{event.preventDefault?.();state.finish('skip');});
+   // Native close events are queued: an old scene may dispatch after the next scene has reopened.
+   listen(state,host,'close',()=>{if(!host.open)state.finish('cancel');});
+   listen(state,document,'keydown',event=>{if(event.key==='Escape'){event.preventDefault?.();state.finish('skip');}});
+   const huds={actor:makeHP(plan.actor,'actor'),target:makeHP(plan.target,'target')};state.huds=huds;setHP(huds.actor,plan.actor.hp??0);setHP(huds.target,plan.target.hp??0);
+   const hudRow=element('div','combat-scene-huds');hudRow.append(huds.actor.box,huds.target.box);
+   if(!full){
+    const results=compactResults(),timeline=combatBarkTimeline(plan,options.lines),lineSlot=quotes([]),shown=new Set(),visibleLines=[];
+    const revealCompact=(index,phase)=>{
+     scene.dataset.combatStep=String(index);scene.dataset.phase=phase;
+     for(const [lineIndex,entry] of timeline.entries())if(!shown.has(lineIndex)&&entry.step===index&&entry.phase===phase){shown.add(lineIndex);visibleLines.push(entry.line);}
+     renderQuotes(lineSlot,visibleLines);
+    };
+    scene.append(results,hudRow);if(timeline.length)scene.append(lineSlot);
+    if(options.skill?.name){scene.classList.add('is-signature');label.textContent=options.skill.name;}
+    revealCompact(0,'prepare');
+    host.append(scene);
+    if(!host.open&&typeof host.show==='function'){host.show();state.opened=true;}
+    const runCompact=async()=>{
+     for(const [index,step] of plan.steps.entries()){
+      if(!state.current())return;
+      revealCompact(index,'prepare');
+      emitCombatSound(step,'launch',{weaponStyle:weapon(plan[step.actor],scenario,step.kind),scope:state.audio,suppressCast:options.suppressCast,dedupe:'combat:'+state.audio.id+':'+index+':launch'});state.audioLaunches.add(index);
+      if(!await state.wait(index?110:90))return;
+      results.append(compactResult(plan,step));setHP(huds[step.target],step.hpAfter);revealCompact(index,'impact');
+      emitCombatSound(step,'impact',{weaponStyle:weapon(plan[step.actor],scenario,step.kind),scope:state.audio,dedupe:'combat:'+state.audio.id+':'+index+':impact'});state.audioImpacts.add(index);
+      revealCompact(index,'hp');if(step.retreat){revealCompact(index,'retreat');retreatSound(index,step);}
+     }
+     revealCompact(plan.steps.length-1,'finish');
+     if(await state.wait(plan.steps.length>1?400:510))state.finish('complete');
+    };runCompact().catch(()=>state.finish('error'));return;
+   }
+   const field=element('div','combat-scene-field'),background=element('img','combat-scene-background');background.alt='';background.setAttribute('aria-hidden','true');
+   picture(state,background,backgroundFor(scenario),()=>localURL('art/terrain/ground-v020.webp'));field.append(background,element('div','combat-scene-vignette'),hudRow);
+   const views={actor:makeFighter(state,plan.actor,'actor',scenario),target:makeFighter(state,plan.target,'target',scenario)};field.append(views.actor.body,views.target.body);
+   const signature=skillAccent(scene,field,options.skill);
+   const cue=element('div','combat-scene-cue');cue.setAttribute('role','status');field.append(cue);
+   const timeline=combatBarkTimeline(plan,options.lines),lineSlot=quotes([]),shown=new Set(),visibleLines=[];
+   const reveal=(step,phase)=>{
+    scene.dataset.phase=phase;scene.dataset.combatStep=String(step);
+    let changed=false;
+    for(let index=0;index<timeline.length;index++)if(!shown.has(index)&&timeline[index].step===step&&timeline[index].phase===phase){shown.add(index);visibleLines.push(timeline[index].line);changed=true;}
+    if(changed)renderQuotes(lineSlot,visibleLines);
+   };
+   reveal(0,'prepare');scene.append(field,lineSlot);
+   const footer=element('footer','combat-scene-footer'),phase=element('strong','combat-scene-phase','준비'),detail=element('p','combat-scene-detail','병력을 가다듬고 상대를 바라본다.');footer.append(phase,detail);scene.append(footer);host.append(scene);
+   const rich=plan.important||plan.steps.length>1;
+   const run=async()=>{
+    // DOM and HUD are already constructed synchronously for skip/clear and tests.
+    // A real browser additionally waits for first-paint artwork, for at most 600ms.
+    if(typeof globalThis.Image==='function'){
+     host.hidden=true;
+     const ready=await readySceneArtwork(state,[views.actor.img,views.target.img,background],()=>{views.actor.pose('ready');views.target.pose('ready');},(pending,manifestReady)=>{
+      for(const view of Object.values(views))if(!manifestReady||pending.includes(view.img))view.useFallback();
+      if(pending.includes(background))background.hidden=true;
+     });
+     if(!ready){if(!state.closed)state.finish('stale');return;}
+    }
+    if(!state.current()){state.finish('stale');return;}
+    host.hidden=false;
+    if(!host.open&&typeof host.showModal==='function'){host.showModal();state.opened=true;}
+    else if(!host.open&&typeof host.show==='function'){host.show();state.opened=true;}
+    if(!await state.wait(rich?400:220))return;
+    if(plan.important||timeline.some(entry=>entry.step===0&&entry.line.situation==='pair')){await showCutin(state,scene,plan.actor,plan.steps[0].critical);if(!state.current())return;}
+    for(const [stepIndex,step] of plan.steps.entries()){
+     if(!state.current()){state.finish('stale');return;}
+     const source=views[step.actor],defender=views[step.target];
+     label.textContent=step.counter?'반격':signature?options.skill.name:'교전';phase.textContent=(step.counter?'반격 · ':'')+attackLabel(source.unit,state.scenario,step.kind);detail.textContent=(source.unit.name??'부대')+' → '+(defender.unit.name??'부대');cue.textContent='';cue.className='combat-scene-cue';
+     scene.classList.remove('is-signature-impact');if(step.counter&&signature){signature.banner.hidden=true;signature.aura.hidden=true;}
+     reveal(stepIndex,'prepare');
+     if(step.counter&&(step.critical||timeline.some(entry=>entry.step===stepIndex&&entry.line.situation==='pair'))){await showCutin(state,scene,source.unit,step.critical);if(!state.current())return;}
+     const style=weapon(source.unit,state.scenario,step.kind),hasRecovery=['thrust','slash','arrow'].includes(style)&&source.hasPose('recover'),posedAttack=['thrust','slash','arrow'].includes(style)&&source.hasAttackMotion(),posedMelee=posedAttack&&style!=='arrow';
+     const bladeCharge=source.unit.team==='ally'&&style==='slash'?element('i','combat-player-blade-charge'):null;
+     if(bladeCharge){bladeCharge.setAttribute('aria-hidden','true');source.body.append(bladeCharge);}
+     source.pose('ready');if(!await state.wait(hasRecovery?(style==='arrow'?220:160):rich?100:70))return;bladeCharge?.remove();
+     const contact=contactFor(field,scene,source,defender,style),collision=contact.collision,physical=!['fire','confusion','deception'].includes(step.kind),status=['confusion','deception'].includes(step.kind);
+     const hpDuration=step.critical?340:260;
+     const spiritReaction=combatSpiritReactions(source.unit,defender.unit,step);
+     reactSpiritEffects(source.body,spiritReaction.attack,physical?'attack':'tactic');
+     source.body.style.setProperty('--combat-travel',contact.travel+'px');source.body.style.setProperty('--combat-action-duration',(collision+hpDuration)/1000+'s');
+     source.body.style.setProperty('--combat-strike-duration',collision/1000+'s');source.body.style.setProperty('--combat-recovery-duration',(hpDuration-100)/1000+'s');
+     source.body.dataset.contactTravel=String(contact.travel);source.body.dataset.weaponTipX=String(contact.sourceTipX);
+     defender.body.style.setProperty('--combat-dodge-distance',contact.dodgeDistance+'px');defender.body.style.setProperty('--combat-dodge-lift',contact.dodgeLift+'px');
+     field.dataset.impactX=String(contact.impactX);field.dataset.impactY=String(contact.impactY);
+     cue.style.left=contact.cueX+'px';cue.style.top=contact.cueY+'px';cue.dataset.targetRole=step.target;
+     emitCombatSound(step,'launch',{weaponStyle:weapon(plan[step.actor],scenario,step.kind),scope:state.audio,suppressCast:options.suppressCast,dedupe:'combat:'+state.audio.id+':'+stepIndex+':launch'});state.audioLaunches.add(stepIndex);
+     const stop=effects(state,field,step,source,defender,contact),dodgeLead=!step.landed&&physical?90:0;
+     // The arms extend just before contact; wind-up and recovery use distinct artwork.
+     const releaseAt=posedMelee?Math.max(0,collision-130):0;
+     let flashEcho=null;
+     if(posedMelee){if(!await state.wait(releaseAt))return;source.pose('attack');source.body.dataset.actionPhase='strike';}
+     if(!await state.wait(collision-dodgeLead-releaseAt))return;
+     if(dodgeLead){
+      if(!reduced&&spiritReaction.defense.includes('flash')){flashEcho=defender.crop.cloneNode?.(true)??null;if(flashEcho){flashEcho.classList.add('combat-spirit-evasion-echo');flashEcho.setAttribute('aria-hidden','true');defender.body.append(flashEcho);state.cleanup.push(()=>flashEcho?.remove());}}
+      defender.body.classList.add('is-dodging');defender.body.dataset.reaction='dodge';reactSpiritEffects(defender.body,spiritReaction.defense,'dodge');if(!await state.wait(dodgeLead))return;
+     }
+     source.body.classList.add('is-contact');source.body.dataset.actionPhase='contact';
+     stop.impact();
+     if(signature&&!step.counter)scene.classList.add('is-signature-impact');
+     paintStrikeResult(cue,step);cue.classList.add(step.landed?'is-landed':'is-miss');cue.classList.toggle('is-critical',step.landed&&step.critical);
+     let clearImpact=()=>{};
+     if(step.landed&&!status){
+      defender.body.classList.add('is-hit');defender.body.classList.toggle('is-critical-hit',step.critical);defender.body.dataset.reaction=step.critical?'critical-hit':'hit';defender.pose('hit');
+      if(physical)reactSpiritEffects(defender.body,spiritReaction.defense,'physical-hit');
+      clearImpact=impactFlash(field,step,contact,source.unit.team==='ally'&&style==='slash',spiritReaction.attack.includes('fury'));if(!reduced&&!step.critical)field.classList.add('is-hit-impact');
+     }
+     emitCombatSound(step,'impact',{weaponStyle:weapon(plan[step.actor],scenario,step.kind),scope:state.audio,dedupe:'combat:'+state.audio.id+':'+stepIndex+':impact'});state.audioImpacts.add(stepIndex);
+     reveal(stepIndex,'impact');
+     // The first displayed troop change begins with the resolved contact, not a later phase.
+     const hpDone=animateStepHP(state,huds[step.target],step,reduced,hpDuration);
+     if(!await state.wait(100))return;source.pose(hasRecovery?'recover':'idle');source.body.classList.add('is-recovering');source.body.dataset.actionPhase='recover';
+     if(!await state.wait((step.critical?240:150)-100))return;clearImpact();field.classList.remove('is-critical-impact','is-hit-impact');
+     phase.textContent=step.retreat?'병력 · 퇴각':'병력 변화';
+     if(!await hpDone)return;stop();flashEcho?.remove();retireSpiritEffects(source.body,spiritReaction.consumeSource);retireSpiritEffects(defender.body,spiritReaction.consumeTarget);reveal(stepIndex,'hp');
+     if(step.retreat){defender.body.classList.add('is-retreating');defender.pose('retreat');detail.textContent=(defender.unit.name??'부대')+' 퇴각';retreatSound(stepIndex,step);if(!await state.wait(300))return;reveal(stepIndex,'retreat');}
+     if(step!==plan.steps.at(-1)&&!await state.wait(120))return;
+    }
+    phase.textContent='교전 종료';detail.textContent=summary(plan);cue.classList.add('is-finished');reveal(plan.steps.length-1,'finish');
+    const resultLines=timeline.filter((entry,index)=>entry.phase!=='prepare'&&shown.has(index)).map(entry=>entry.line.text);
+    const readingPause=resultLines.length?Math.min(1100,500+Math.max(...resultLines.map(text=>text.length))*16):0;
+    const closingPause=plan.steps.some(step=>step.landed&&step.critical)?Math.max(280,Math.min(650,readingPause)):Math.max(rich?360:220,readingPause);scene.dataset.readingPause=String(readingPause);
+    if(await state.wait(closingPause))state.finish('complete');
+   };
+   run().catch(()=>state.finish('error'));
+  }catch{state.finish('error');}
+ });
+}
