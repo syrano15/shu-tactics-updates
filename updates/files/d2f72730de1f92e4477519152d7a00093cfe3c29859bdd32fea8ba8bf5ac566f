@@ -1,0 +1,2962 @@
+// Authored from the seven manuscripts used by story-entry.js; presentation only.
+// No story text, saved state, battle rule or RNG is read or changed at runtime.
+// Indices refer to ORIGINAL pre/post arrays. Baima runtime text substitutions
+// retain their length and index; filtered battle events keep battle music.
+// Intro entry identity and bed identity are deliberately independent.
+const deepFreeze=value=>{if(value&&typeof value==='object'&&!Object.isFrozen(value)){for(const item of Object.values(value))deepFreeze(item);Object.freeze(value);}return value;};
+export const DIALOGUE_BED_IDS=Object.freeze(['dialogGeneral','dialogSad','dialogDrama','dialogPositive','dialogPeace']);
+export const DIALOGUE_INTRO_IDS=Object.freeze(['sceneSad','scenePalace','sceneRoyal']);
+export const DIALOGUE_MUSIC_CUES=deepFreeze({
+  "s01_zhuoxian": {
+    "pre": {
+      "length": 117,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "중평 원년 봄. 누런 두건을 두른 황건적이 들고일어나 천하가 들끓었다."
+          }
+        },
+        {
+          "at": 47,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "이튿날, 장비의 집 뒤 복숭아 동산에 꽃이 한창이었다. 세 사람은 그 아래 술상을 차렸다."
+          }
+        },
+        {
+          "at": 77,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "같은 무렵, 탁현 북쪽 산자락. 누런 깃발이 꽂힌 진채에서 두목 하나가 졸개들을 둘러보았다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 75,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhangfei",
+            "text": "하하, 다 쓸어버렸소! 둘째 형님, 오늘 내기는 내가 이겼지요?"
+          }
+        },
+        {
+          "at": 23,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "해 질 무렵, 마을 노인 하나가 아이들을 감싸다 입은 상처로 숨을 거두었다."
+          }
+        },
+        {
+          "at": 30,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤 들판에 작은 술자리가 벌어졌다. 누가 불쑥 술병을 들고 끼어들었다."
+          }
+        },
+        {
+          "at": 63,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤, 북쪽 진채. 탁현에서 쫓겨 온 졸개들이 두목 앞에 엎드렸다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 4
+  },
+  "s02_yellow_camp": {
+    "pre": {
+      "length": 94,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "탁현을 떠난 지 닷새. 의병의 행렬은 길게 늘어졌고, 해진 짚신이 길가에 하나둘 버려졌다."
+          }
+        },
+        {
+          "at": 10,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그러나 관군 진영에서 의병에게 주어진 자리는 가장 바깥, 바람 부는 말석이었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 81,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "liubei",
+            "text": "두목이 쓰러지자 무리가 흩어지는구먼. 모두 수고했네. 다친 사람부터 살피게."
+          }
+        },
+        {
+          "at": 29,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "안희현에서의 몇 해. 유비는 송사를 공평히 듣고, 굶는 집에는 관청 쌀을 꾸어 주었다."
+          }
+        },
+        {
+          "at": 45,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "어느 해, 조정에서 독우가 안희현에 내려왔다. 공을 세워 벼슬을 받은 자를 솎아 내러 온 것이다."
+          }
+        },
+        {
+          "at": 65,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "유비는 현위의 인수를 독우의 목에 걸어 두고, 형제들과 함께 고을을 떠났다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 4
+  },
+  "s03_hulao": {
+    "pre": {
+      "length": 84,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "초평 원년. 동탁을 치려는 제후들이 반동탁 연합을 맺고 호뢰관 앞에 모였다."
+          }
+        },
+        {
+          "at": 46,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "같은 시각, 호뢰관 위. 동탁의 장수 화웅이 연합군 진영을 내려다보고 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 81,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "화웅이 쓰러졌다는 소식이 진영에 퍼졌다. 막사의 술잔에는 아직 김이 오르고 있었다."
+          }
+        },
+        {
+          "at": 28,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤, 관문 너머 동탁군의 진영에서 붉은 말을 탄 장수 하나가 연합군을 노려보았다."
+          }
+        },
+        {
+          "at": 44,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "연합군이 낙양에 들어섰을 때, 천하의 도읍은 이미 잿더미였다. 연기 속에 사람의 울음이 섞여 있었다."
+          }
+        },
+        {
+          "at": 65,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "연합은 흩어졌고 제후들은 서로의 땅을 빼앗기 시작했다. 공손찬도 원소와 맞섰다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 4
+  },
+  "s04_beihai": {
+    "pre": {
+      "length": 95,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "평원의 상이 된 지 두 해. 유비는 고을 창고를 열어 백성과 함께 겨울을 났다."
+          }
+        },
+        {
+          "at": 44,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그때, 포위된 북해성에서 한 장수가 홀로 포위를 뚫고 평원까지 달려왔다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 79,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "kongrong",
+            "text": "현덕공 덕에 성안 백성이 살았소. 이 은혜는 잊지 않겠소."
+          }
+        },
+        {
+          "at": 15,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤 공융은 성안에서 작은 잔치를 열었다. 피난민에게도 같은 국을 돌렸다."
+          }
+        },
+        {
+          "at": 43,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "태사자는 남쪽으로 떠났다. 그리고 며칠 뒤, 또 한 사람이 급히 유비의 진영을 찾았다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 4
+  },
+  "s05_xuzhou_relief": {
+    "pre": {
+      "length": 88,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "흥평 원년. 조조의 대군은 서주 곳곳을 휩쓸며 아버지의 원수를 갚고 있었다."
+          }
+        },
+        {
+          "at": 29,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "유비는 서주의 도겸을 찾았다. 늙은 주인은 병색이 짙었다."
+          }
+        },
+        {
+          "at": 59,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "같은 밤, 조조의 본진. 조조는 유비의 편지를 두 번 읽었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 84,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그때 조조의 본진에 급보가 닿았다. 여포가 연주를 들이쳐 조조의 근거지를 빼앗은 것이다."
+          }
+        },
+        {
+          "at": 12,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "militia_leader",
+            "text": "어른, 탁현에서부터 함께 온 사냥꾼 둘이 돌아오지 못했습니다."
+          }
+        },
+        {
+          "at": 26,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "militia_leader",
+            "text": "주공, 아니 어른. 단양병과의 내기 말입니다. 단양병 대장이 먼저 와서 고기 한 근을 내밀었습니다."
+          }
+        },
+        {
+          "at": 44,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "조조가 물러간 그해 겨울, 도겸의 병은 깊어졌다. 그는 유비를 병상으로 불렀다."
+          }
+        },
+        {
+          "at": 63,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "liubei",
+            "text": "알겠네. 서주는 내 것이 아니라 맡은 것이네. 그 마음으로 받겠네."
+          }
+        }
+      ]
+    },
+    "defeatLength": 4
+  },
+  "s06_xuzhou_fall": {
+    "pre": {
+      "length": 99,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "서주의 주인이 된 지 반년. 유비의 하루는 칼보다 붓을 드는 시간이 길어졌다."
+          }
+        },
+        {
+          "at": 10,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "서주를 맡은 이듬해, 조조에게 연주를 빼앗긴 여포가 갈 곳을 잃고 서주로 왔다."
+          }
+        },
+        {
+          "at": 84,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "원술과의 싸움에서 돌아온 밤, 하비성의 문이 안에서 열렸다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 72,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "새벽, 하비에서 멀리 떨어진 들판. 불길은 보이지 않았지만 연기는 아직 하늘에 걸려 있었다."
+          }
+        },
+        {
+          "at": 40,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "jianyong",
+            "text": "자, 현덕. 이제 갈 곳을 정해야 하오. 남쪽엔 원술, 서주엔 여포. 둘 다 우리 원수요."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s07_xiapi": {
+    "pre": {
+      "length": 91,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "196년 겨울, 허도. 서주를 잃은 유비 일행이 조조의 성문 앞에 섰다. 짐은 수레 세 대뿐이었다."
+          }
+        },
+        {
+          "at": 47,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "198년, 여포는 다시 칼을 들었다. 부장 고순이 소패를 덮쳤고, 유비는 또 성을 버리고 달아났다."
+          }
+        },
+        {
+          "at": 58,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "198년 겨울, 하비성 남쪽 사수 강가. 조조의 진영에 유비의 형제들이 모였다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 70,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "하비성은 무너졌다. 여포는 성 남문의 누각, 백문루에서 꽁꽁 묶인 채 조조 앞에 끌려 나왔다."
+          }
+        },
+        {
+          "at": 33,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤, 하비성에 붙잡혀 있던 사람들이 풀려났다. 그 행렬 끝에 두 부인이 있었다."
+          }
+        },
+        {
+          "at": 49,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "이튿날 아침, 장비와 의병 대장은 사수 강가를 거슬러 올라갔다. 활 두 자루가 꽂힌 작은 무덤이 있었다."
+          }
+        },
+        {
+          "at": 55,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "caocao",
+            "text": "여포는 끝났소. 현덕공, 당분간 허도에서 내 곁에 머무시오."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s08_xiaopei": {
+    "pre": {
+      "length": 82,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "허도에서 한 해가 지났다. 좌장군 유비는 날마다 객관 뒤뜰에서 채소를 가꾸었다."
+          }
+        },
+        {
+          "at": 41,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "허도의 성문을 나서자 유비는 말에 채찍을 더했다. 형제들은 그런 유비를 처음 보았다."
+          }
+        },
+        {
+          "at": 54,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "200년 정월. 동승의 계획이 드러났다. 동승의 일족은 모두 죽었고, 띠에 적힌 이름이 조조 앞에 놓였다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 50,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "소패를 빠져나온 새벽. 세 갈래 길 앞에서 세 형제가 말을 세웠다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s09_baima": {
+    "pre": {
+      "length": 77,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "형님과 흩어진 관우는 조조의 객장이 되어 허도에 머물고 있었다."
+          }
+        },
+        {
+          "at": 43,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "200년 봄. 원소는 대군을 남쪽으로 보냈다. 선봉은 하북의 명장 안량이었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 40,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "백마의 포위는 풀렸다. 안량이 쓰러지자 원소군은 썰물처럼 물러났다."
+          }
+        },
+        {
+          "at": 12,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "백마의 패전 소식이 업성에 닿았다. 원소는 칼을 뽑아 들고 유비를 불렀다."
+          }
+        },
+        {
+          "at": 28,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤 허도. 관우는 여느 때처럼 형수들의 문 앞에서 춘추를 읽고 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s10_thousand_li": {
+    "pre": {
+      "length": 50,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "관우는 조조에게 받은 재물을 모두 두고, 형수의 수레를 모시고 북으로 떠났다."
+          }
+        },
+        {
+          "at": 32,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "조조는 추격대를 보내지 않았다. 그러나 관문의 장수들은 그 명을 받지 못했다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 67,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "guanyu",
+            "text": "관문을 모두 지났다. 형님, 곧 찾아뵙겠습니다."
+          }
+        },
+        {
+          "at": 15,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤, 고성이라는 작은 성에 이르렀다. 성주는 산에서 내려온 장비라고 했다."
+          }
+        },
+        {
+          "at": 26,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhangfei",
+            "text": "그 말이 참말이었구려. 둘째 형님, 내가 사람을 못 알아봤소!"
+          }
+        },
+        {
+          "at": 42,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "한 달 뒤. 원소를 떠난 유비가 손건과 함께 고성 문 앞에 닿았다. 간옹과 미축, 진도도 뒤를 따랐다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s11_bowang": {
+    "pre": {
+      "length": 52,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "고성에서 다시 모인 형제는 여남으로 내려가 군사를 모았다. 그러나 원소를 꺾은 조조가 곧 남쪽으로 칼을 돌렸다."
+          }
+        },
+        {
+          "at": 18,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "양양의 연회. 누군가 유비의 귀에 속삭였다. 채모가 성문마다 군사를 숨겨 두었다고."
+          }
+        },
+        {
+          "at": 23,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "젖은 옷으로 숲길을 헤매던 유비는 해 질 녘 한 초당에 이르렀다. 거문고 소리가 들렸다."
+          }
+        },
+        {
+          "at": 38,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "202년. 조조가 원소와 싸우는 틈을 노려 유비가 북쪽을 넘보자, 조조는 하후돈을 남쪽으로 보냈다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 63,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "하후돈은 물러갔다. 연기가 걷힌 골짜기에서 흰 말의 장수가 유비 앞에 무릎을 꿇었다."
+          }
+        },
+        {
+          "at": 30,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "xushu",
+            "text": "주공, 저보다 몇 배 뛰어난 사람이 융중에 있습니다. 와룡 제갈공명입니다."
+          }
+        },
+        {
+          "at": 57,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "그 뜻이라면 이 몸을 바치겠습니다. 오늘부터 주공으로 모시겠습니다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s12_xinye": {
+    "pre": {
+      "length": 68,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "제갈량이 신야에 온 뒤로, 유비는 밥을 먹을 때도 잠을 잘 때도 그와 함께였다."
+          }
+        },
+        {
+          "at": 18,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "유표의 맏아들 유기는 계모의 미움을 받고 있었다. 그는 제갈량을 누각으로 불러 올렸다. 그리고 사다리를 치웠다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 37,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "여섯 번째 북이 울렸다. 백하 나루의 마지막 배가 강을 건넜다. 조인의 군사는 물에 막혀 멈춰 섰다."
+          }
+        },
+        {
+          "at": 9,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "신야의 백성 수만 명이 유비를 따라 강을 건넜다. 행렬은 하루에 십여 리밖에 가지 못했다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s13_changban": {
+    "pre": {
+      "length": 57,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장판파. 조조의 정예 기병이 마침내 피난 행렬을 따라잡았다."
+          }
+        },
+        {
+          "at": 46,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "무너진 담장 너머, 마른 우물가에 미부인이 앉아 있었다. 다리에 화살이 박혀 있었다. 품에 아두가 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 54,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "조운의 흰 말이 마침내 다리를 건넜다. 갑옷은 피로 붉었고, 말은 다리를 절었다."
+          }
+        },
+        {
+          "at": 16,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 저녁, 조운은 미축 앞에 무릎을 꿇고 우물가의 일을 전했다. 미축은 끝까지 다 들었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s14_jiangxia": {
+    "pre": {
+      "length": 60,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장판을 빠져나온 유비 일행은 한수 나루를 향해 달렸다. 조조의 추격대가 바로 뒤에 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 56,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤, 마지막 배가 하구에 닿았다. 강하의 유기가 횃불을 들고 나루에 서 있었다."
+          }
+        },
+        {
+          "at": 29,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤, 강동의 궁정. 제갈량은 손권과 그 신하들 앞에 홀로 섰다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s15_chibi": {
+    "pre": {
+      "length": 84,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "208년 겨울, 적벽. 첫 싸움에서 밀린 조조군은 강 북쪽 오림에 배를 모아 진을 쳤다."
+          }
+        },
+        {
+          "at": 53,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "유비군의 배들은 오군의 배 사이에 끼어 닻을 내렸다. 장비는 아침부터 뱃전을 붙잡고 있었다."
+          }
+        },
+        {
+          "at": 65,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "사흘 뒤 밤, 강 남쪽 남병산. 제갈량은 흙으로 쌓은 제단 위에서 머리를 풀고 서 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 65,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤 장강은 불길로 붉게 물들었다. 조조의 대군은 강 위에서 무너졌다."
+          }
+        },
+        {
+          "at": 14,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "강 북쪽 오림. 조조는 남은 군사를 모아 뭍으로 올랐다. 등 뒤로 배들이 계속 타고 있었다."
+          }
+        },
+        {
+          "at": 23,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "새벽녘, 조운의 작은 배가 강동 진영을 빠져나왔다. 노숙이 뱃전까지 나와 배웅했다."
+          }
+        },
+        {
+          "at": 35,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "liubei",
+            "text": "공명 선생, 무사히 돌아왔구려. 바람보다 선생이 돌아온 것이 더 반갑네."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s16_huarong": {
+    "pre": {
+      "length": 59,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "적벽의 불이 사그라든 새벽. 유비의 진영에서 군의가 열렸다. 장수들이 차례로 이름을 불렸다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 61,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "후위가 무너졌다. 진흙 속에서 조조와 남은 병사 수십 명이 관우 앞에 섰다. 모두 흙투성이였다."
+          }
+        },
+        {
+          "at": 38,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "모두가 물러간 뒤, 유비는 관우의 젖은 전포를 손수 벗겨 화롯가에 널었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s17_jingnan": {
+    "pre": {
+      "length": 49,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "209년 봄. 유비는 강 남쪽 유강구에 진을 쳤다. 사람들은 그곳을 공안이라 부르기 시작했다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 41,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "영릉과 계양이 차례로 문을 열었다. 유비는 처음으로 자기 땅을 얻었다."
+          }
+        },
+        {
+          "at": 30,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "주공, 남은 곳은 장사입니다. 태수 한현은 옹졸하지만, 그 아래 예순이 넘은 노장 황충이 있습니다."
+          }
+        },
+        {
+          "at": 35,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그 밤, 진도는 여느 때처럼 유비의 막사 문 앞에 섰다. 옆 막사에서 기침 소리가 오래 들렸다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s18_changsha": {
+    "pre": {
+      "length": 58,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "209년 여름. 유비와 관우는 군사를 이끌고 형주 남쪽의 마지막 성, 장사로 향했다."
+          }
+        },
+        {
+          "at": 17,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장사성. 태수 한현은 성루 위에서 다가오는 깃발을 보며 손톱을 깨물었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 57,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장사의 성문이 안에서 열렸다. 위연이 피 묻은 칼을 땅에 꽂고 유비 앞에 섰다."
+          }
+        },
+        {
+          "at": 33,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장사에서 돌아온 날 밤, 공안. 감부인의 막사에 등불이 오래 켜져 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s19_jiangling": {
+    "pre": {
+      "length": 49,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "감부인의 장례가 끝난 지 열흘. 공안의 진영에는 아직 흰 천이 걸려 있었다."
+          }
+        },
+        {
+          "at": 8,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "주유가 조인과 강릉을 두고 싸우고 있습니다. 그 틈에 성문을 차지해야 합니다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 38,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "강릉의 성문을 먼저 지난 것은 유비의 군사였다. 주유는 말 위에서 옆구리를 누른 채 성루를 올려다보았다."
+          }
+        },
+        {
+          "at": 23,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그 무렵 강하의 유기가 병으로 세상을 떠났다. 형주 사람들은 유비를 형주목으로 받들었다."
+          }
+        },
+        {
+          "at": 26,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "lusu",
+            "text": "현덕공, 손 장군께서 누이를 공께 보내고자 하오. 두 집안이 한집안이 되면 동맹도 오래갈 것이오."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s20_adou_river": {
+    "pre": {
+      "length": 62,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "209년 겨울, 공안. 강동에서 온 신부가 붉은 비단을 걷고 배에서 내렸다. 뒤로 칼 찬 시녀들이 줄지어 섰다."
+          }
+        },
+        {
+          "at": 28,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "210년 봄. 유비는 남군을 맡게 해 달라 청하러 몸소 강동의 경구로 가겠다고 했다."
+          }
+        },
+        {
+          "at": 48,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "유비가 형주를 비운 사이, 강동에서 온 부인이 아두를 데리고 몰래 배에 올랐다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 52,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "조운은 창을 장비에게 맡기고 빈손으로 손부인의 배에 올랐다. 시녀들의 칼이 일제히 그를 향했다."
+          }
+        },
+        {
+          "at": 45,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "lady_sun",
+            "text": "오라버니, 어머님은 정원에서 꽃을 보고 계시더군. 위독하시다는 편지는 누가 썼소?"
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s21_jingzhou_hold": {
+    "pre": {
+      "length": 56,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "210년 가을, 강동의 파구. 익주로 떠날 배들이 강가에 모여 있었다. 배의 주인은 병상에 누워 있었다."
+          }
+        },
+        {
+          "at": 11,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "같은 해 가을, 강릉. 아두는 나무 활을 메고 조운의 뒤를 졸졸 따라다녔다."
+          }
+        },
+        {
+          "at": 37,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "wei_commander",
+            "text": "적벽에서 불에 쫓겨 온 지 두 해다. 승상께서는 형주를 유비에게 그냥 두지 말라 하셨다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 60,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "해 질 녘, 강을 건너온 위군은 하나도 돌아가지 못했다. 강 건너의 깃발들이 북쪽으로 물러났다."
+          }
+        },
+        {
+          "at": 18,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "사람들이 물러간 뒤, 노숙이 소매의 흰 끈을 풀었다."
+          }
+        },
+        {
+          "at": 25,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "편지를 다 읽기도 전에 관청 문이 열렸다. 술 냄새를 풍기는 볼품없는 사내가 장비에게 끌려 들어왔다."
+          }
+        },
+        {
+          "at": 46,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤, 성루 위. 유비와 제갈량, 방통이 나란히 서서 서쪽 하늘을 바라보았다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s22_jiameng": {
+    "pre": {
+      "length": 9,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "211년, 유비는 장로를 막아 달라는 유장의 요청을 받아 가맹관으로 향했다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장로의 수비대가 물러나고, 가맹관 아래 두 고개에 유비군의 깃발이 올랐다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s23_fucheng": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "212년, 부성의 잔치가 끝난 뒤 장송이 유비와 통했다는 이유로 처형되었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "부성 수비 대장이 물러나자 성문 위 깃발이 내려가고 성 안의 길이 열렸다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s24_luofengpo": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "214년, 방통의 선발대가 낙성 서쪽 산길에 들어서자 양쪽 언덕에서 화살이 쏟아졌다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "방통이 안전 고개를 넘었다. 유비가 어깨를 붙잡자 살아남은 봉추가 고개를 들었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s25_luocheng": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "방통이 살아 돌아온 뒤 유비군은 낙성의 성벽 앞에서 다시 진형을 나누었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장임의 수비선이 무너지고 낙성의 두 성문에 유비군의 깃발이 함께 올랐다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s26_machao": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "214년, 장로에게 몸을 의탁하던 마초가 서량 기병을 이끌고 가맹관에 나타났다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "긴 대치 끝에 마초가 창을 거두었다. 유비는 적장의 재능보다 그의 처지를 먼저 물었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s27_chengdu": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "214년, 낙성에서 이어진 길 끝에 성도가 보였다. 유비군은 성벽 양쪽으로 진형을 펼쳤다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "성도의 두 문이 열리자 유장이 항복을 청했다. 유비는 성 안 백성을 해치지 말라 명했다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s28_dangqu": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "215년, 위군의 장합이 탕거 산길로 들어왔다. 유비군은 갈라진 두 고개를 먼저 살폈다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장합의 군사가 물러나고 두 고개의 깃발이 함께 올랐다. 탕거 산길이 유비군의 것이 되었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s29_dingjun": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "219년, 유비군은 정군산 아래에 닿았다. 하후연의 위군이 산 위의 길목을 지키고 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "하후연의 수비대가 무너지고 정군산에 유비군 깃발이 올랐다. 한중의 서쪽 길이 열렸다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s30_hanshui": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "219년, 한수의 강둑에 조운의 영채가 섰다. 강 건너 위군이 여러 다리로 접근하고 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "위군의 한수 수비대가 흩어지고 세 다리에는 유비군만 남았다. 조운이 영채 문을 닫았다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s31_hanzhong": {
+    "pre": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "219년, 한중의 마지막 수비선 앞에서 유비와 조조의 깃발이 강을 사이에 두고 마주 섰다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 8,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "세 길의 깃발이 함께 올랐다. 조조는 한중을 버리기 아깝지만 얻을 것이 없는 땅이라 여겼다."
+          }
+        },
+        {
+          "at": 6,
+          "bedId": "dialogPositive",
+          "introId": "sceneRoyal",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "219년, 유비가 한중왕에 올랐다. 방통의 생환과 여러 장수의 성장이 군단 기록에 함께 남았다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s32_fancheng": {
+    "pre": {
+      "length": 69,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "219년, 형주 강릉. 관청 뒤뜰에는 새벽마다 등불 하나가 먼저 켜졌다."
+          }
+        },
+        {
+          "at": 8,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그해 봄, 강동의 손권이 강릉에 사자를 보낸 일이 있었다. 혼담이었다."
+          }
+        },
+        {
+          "at": 36,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "guanyu",
+            "text": "형님의 뜻이라면 따르겠다. 계상, 내가 좁았구나."
+          }
+        },
+        {
+          "at": 54,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "한수 북쪽의 번성. 조조의 일족 조인이 성문을 닫고 성벽 위를 걸었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 50,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "관우는 번성의 외곽을 손에 넣었다. 그러나 비는 며칠째 그치지 않았다."
+          }
+        },
+        {
+          "at": 34,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그 무렵 낙양. 위왕 조조는 번성에서 온 급보를 읽고 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s33_flood": {
+    "pre": {
+      "length": 59,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "한수가 넘쳐 들판이 바다가 되었다. 위군 일곱 군이 물에 갇혔다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 57,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "우금은 항복했고, 방덕은 끝내 무릎을 꿇지 않았다."
+          }
+        },
+        {
+          "at": 30,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "villager",
+            "text": "관 장군 나리, 지붕에서 건져 주신 아이들 어미입니다. 마른 생선 한 꾸러미 받아 주십시오."
+          }
+        },
+        {
+          "at": 41,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "낙양. 칠군이 물에 잠겼다는 소식에 위의 조정이 술렁였다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s34_xuhuang": {
+    "pre": {
+      "length": 49,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "번성 포위가 길어지던 어느 밤. 관우는 지난 싸움에서 맞은 화살 자리가 덧나 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 40,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "guanyu",
+            "text": "동맹이라던 오가 감히 등 뒤를 찔렀단 말이냐."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s35_white_robes": {
+    "pre": {
+      "length": 62,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "흰 옷을 입은 상인들이 강을 건넜다. 그들은 상인이 아니라 여몽의 군사였다."
+          }
+        },
+        {
+          "at": 25,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그 무렵 관우의 군은 남쪽으로 내려오고 있었다. 강가에서 공안의 패잔병 하나를 만났다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 56,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "형주의 성들이 하나둘 오의 손에 넘어갔다. 관우는 작은 성 맥성으로 몰렸다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s36_maicheng": {
+    "pre": {
+      "length": 80,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "맥성. 달빛 아래 작은 성을 오군이 겹겹이 에워쌌다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 72,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "guanyu",
+            "text": "포위를 뚫었다. 평아, 다친 데는 없느냐."
+          }
+        },
+        {
+          "at": 7,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "산길 끝에서 한 무리의 기병이 달려왔다. 앞장선 사람은 유비였다."
+          }
+        },
+        {
+          "at": 54,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "같은 새벽, 맥성. 여몽은 텅 빈 성벽 위에서 녹색 전포를 걸친 허수아비 앞에 서 있었다."
+          }
+        },
+        {
+          "at": 67,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "liubei",
+            "text": "익덕과 자룡, 공명도 뒤따라오고 있네. 이번에는 모두 함께 가세."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s37_jiangling_retake": {
+    "pre": {
+      "length": 59,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "220년 봄. 강릉 서쪽 들판에 유비의 본진이 진을 쳤다. 형주편의 사람들이 처음으로 다시 모였다."
+          }
+        },
+        {
+          "at": 45,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "lvmeng",
+            "text": "관우가 살아서 돌아왔다고? 성문을 굳게 지켜라!"
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 59,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "강릉의 성문이 열렸다. 관우는 성루에 올라 오의 깃발을 내리고, 촉의 깃발을 다시 걸었다."
+          }
+        },
+        {
+          "at": 15,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "강동으로 돌아간 여몽은 얼마 뒤 병으로 세상을 떠났다."
+          }
+        },
+        {
+          "at": 18,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "liufeng",
+            "text": "관평, 그대가 부럽소. 숙부님께 칭찬을 들었다 들었소. 형주보다 낫다고."
+          }
+        },
+        {
+          "at": 46,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그 무렵, 북쪽에서 전령이 달려왔다. 강릉 관청에 모인 사람들이 말을 멈추었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s38_langzhong": {
+    "pre": {
+      "length": 79,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "220년, 조조가 세상을 떠났다. 맏아들 조비가 위왕의 자리를 이었다."
+          }
+        },
+        {
+          "at": 4,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "221년 봄, 성도. 한중왕은 제갈량을 승상으로 삼고, 오를 치는 출정을 의논했다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 69,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "동이 텄다. 장비의 막사 앞에 세 장수가 주저앉았다."
+          }
+        },
+        {
+          "at": 28,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "militia_leader",
+            "text": "장 장군, 어제는 서른까지 세셨지요. 오늘은 몇까지 세셨습니까?"
+          }
+        },
+        {
+          "at": 63,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "주공, 무협의 오군이 협곡에 진을 쳤습니다. 출정은 지금이 좋습니다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s39_wuxia": {
+    "pre": {
+      "length": 63,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "221년 가을, 촉군이 강주를 떠나 장강을 따라 동쪽으로 내려갔다. 세 형제가 한 군에 있었다."
+          }
+        },
+        {
+          "at": 50,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "협곡 아래, 오군의 수채. 오의 장수들은 촉군의 깃발을 세며 얼굴을 굳혔다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 51,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhangbao",
+            "text": "흥, 오늘은 네가 한 발 빨랐다. 다음엔 내가 이긴다."
+          }
+        },
+        {
+          "at": 24,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "liubei",
+            "text": "형주의 국경은 지켰네. 여기서 더 들어가지는 않겠네."
+          }
+        },
+        {
+          "at": 41,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "오의 대도독은 육손이었다. 그는 촉군이 숲으로 들어오기를 기다리고 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s40_yiling": {
+    "pre": {
+      "length": 80,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "222년, 이릉. 촉군은 더위를 피해 숲속에 칠백 리에 걸쳐 영채를 늘어놓았다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 70,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "luxun",
+            "text": "불을 놓았는데도 촉군이 버텨 냈다고? 유비 곁에 제갈량이 있었구나."
+          }
+        },
+        {
+          "at": 9,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "밤이 되어서야 불길이 잦아들었다. 숲의 절반이 검게 그을려 있었다."
+          }
+        },
+        {
+          "at": 62,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "messenger",
+            "text": "급보입니다! 위의 조비가 대군을 일으켜 강동의 유수로 향하고 있습니다!"
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s41_ruxu": {
+    "pre": {
+      "length": 62,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "222년 가을, 위의 조비가 대군을 이끌고 남쪽으로 내려왔다. 목표는 강동이었다."
+          }
+        },
+        {
+          "at": 11,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "주공, 위가 오를 삼키면 다음은 우리입니다. 지금은 오를 도와야 합니다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 51,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "위군이 물러간 저녁, 손권이 강가로 나왔다. 두 사람 사이에 작은 탁자와 잔 하나가 놓였다."
+          }
+        },
+        {
+          "at": 21,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "caopi",
+            "text": "유비와 손권이 강가에서 한 잔을 나눴다고. 아버지가 보셨다면 웃으셨겠지."
+          }
+        },
+        {
+          "at": 27,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "사절은 말솜씨와 담력이 함께 있어야 합니다. 적임자를 고르겠습니다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s42_alliance": {
+    "pre": {
+      "length": 48,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "223년 봄, 건업. 손권은 촉의 사절을 칼 든 병사들 사이로 걸어 들어오게 했다."
+          }
+        },
+        {
+          "at": 13,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "몇 달 뒤, 강릉 북쪽 강가. 위군이 다시 강을 건너려 한다는 소식이 왔다."
+          }
+        },
+        {
+          "at": 37,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "강 건너 위군 진영. 도하 부대의 장수가 나루에 모인 배를 세고 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 38,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "dengzhi",
+            "text": "오군도 이번 싸움으로 우리를 믿기 시작했습니다."
+          }
+        },
+        {
+          "at": 20,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "mizhu",
+            "text": "등 사절, 강동에서 혹시 제 아우 미방을 보셨습니까."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s43_lushui": {
+    "pre": {
+      "length": 61,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "225년 봄, 성도 남문. 한중왕 유비가 몸소 나와 남쪽으로 떠나는 승상을 배웅했다."
+          }
+        },
+        {
+          "at": 14,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "남중 깊은 숲. 여러 부족의 우두머리들이 맹획의 화톳불 앞에 모였다."
+          }
+        },
+        {
+          "at": 36,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhangni",
+            "text": "장의라 하오. 남쪽 길을 잘 아니 길잡이가 되겠소."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 51,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "날이 밝았다. 맹획이 밧줄에 묶인 채 제갈량의 막사 앞에 섰다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s44_menghuo": {
+    "pre": {
+      "length": 63,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "제갈량은 맹획을 잡을 때마다 풀어 주었다. 맹획은 그때마다 다시 일어섰다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 49,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "일곱 번 잡고 일곱 번 놓아주었다. 이번에는 맹획이 떠나지 않았다."
+          }
+        },
+        {
+          "at": 35,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhangni",
+            "text": "마 장군, 남쪽에 와서 이렇게 싸움이 끝나는 걸 보긴 처음이오."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s45_rattan": {
+    "pre": {
+      "length": 62,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhurong",
+            "text": "승상, 오과국은 남쪽에서도 가장 먼 나라요. 그들은 숲이 아니라 갑옷을 믿소."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 50,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "madai",
+            "text": "불이 번질 길을 끝까지 지켜보았습니다. 제 판단이 틀리지 않았습니다."
+          }
+        },
+        {
+          "at": 11,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "제갈량은 연기 오르는 골짜기를 오래 내려다보았다. 깃털 부채가 천천히 내려갔다."
+          }
+        },
+        {
+          "at": 28,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "menghuo",
+            "text": "승상이 북쪽에서 싸울 때 남쪽은 등이 되겠소. 소금과 말을 보내겠소."
+          }
+        }
+      ]
+    },
+    "defeatLength": 3
+  },
+  "s46_tianshui": {
+    "pre": {
+      "length": 66,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": "scenePalace",
+          "anchor": {
+            "speaker": "narrator",
+            "text": "228년, 성도. 남쪽을 안정시킨 제갈량이 한중왕 앞에 표문을 올렸다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 54,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "강유가 성 아래로 돌아왔을 때, 천수의 성문은 닫혀 있었다. 성벽 위에서는 아무도 대답하지 않았다."
+          }
+        },
+        {
+          "at": 7,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 저녁, 강유는 창을 땅에 꽂고 제갈량의 막사 앞에 섰다."
+          }
+        },
+        {
+          "at": 42,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤, 위의 대군이 서쪽으로 온다는 소식이 들어왔다. 장합이 이끄는 오만이었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s47_jieting": {
+    "pre": {
+      "length": 75,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "228년 봄, 기산의 촉군 진영. 마속의 군이 동쪽 가정으로 떠날 채비를 하고 있었다."
+          }
+        },
+        {
+          "at": 6,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "사흘 전, 가정. 길목에 이른 마속은 남쪽 산을 올려다보았다. 물길은 산 아래를 돌아 흘렀다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 76,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "wangping",
+            "text": "가정은 지켰습니다. 북벌의 길이 아직 열려 있습니다."
+          }
+        },
+        {
+          "at": 32,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "유상, 이제 둘뿐이니 편히 말하겠다. 네가 산 위에 있다는 말을 들었을 때 나는 붓을 떨어뜨렸다."
+          }
+        },
+        {
+          "at": 67,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "가정이 버티자 기산의 군은 흔들리지 않았다. 위의 눈은 다시 동쪽, 기곡으로 향했다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s48_jigu": {
+    "pre": {
+      "length": 57,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "기곡의 조운군은 조진의 주력을 붙잡아 두는 미끼였다. 임무는 끝나 가고 있었다."
+          }
+        },
+        {
+          "at": 52,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "해 질 녘, 기곡의 협곡. 수레가 하나씩 어둠 속으로 들어갔다. 조운은 말머리를 뒤로 돌렸다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 59,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "협곡 끝, 마지막 수레가 빠져나갔다. 그 뒤로 강유가, 그리고 맨 끝에 조운이 나왔다."
+          }
+        },
+        {
+          "at": 15,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "진영에 닿자 조운은 말에서 내렸다. 그리고 한동안 일어서지 못했다."
+          }
+        },
+        {
+          "at": 52,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "겨울이 오기 전에 진창을 넘어야 합니다. 다음 싸움을 준비하십시오."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s49_chencang": {
+    "pre": {
+      "length": 49,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그해 겨울, 눈 내린 진창성. 성을 지키는 학소는 물러설 생각이 없었다."
+          }
+        },
+        {
+          "at": 13,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "진창 아래 촉군 진영. 기곡에서 가져온 비단이 병사들의 겨울옷이 되어 나뉘었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 40,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "진창의 성문이 마침내 안쪽으로 밀려 열렸다. 눈 위에 발자국이 어지럽게 찍혔다."
+          }
+        },
+        {
+          "at": 21,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "villager",
+            "text": "나리들, 성 안에 갇혀 겨울을 날 줄 알았습니다. 문이 열려서 장작을 구하러 나갈 수 있습니다."
+          }
+        },
+        {
+          "at": 33,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "진창에 닿기 직전, 장합의 원군은 성이 떨어졌다는 소식을 듣고 말을 멈추었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s50_yinping": {
+    "pre": {
+      "length": 51,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "229년 봄, 한중. 진창에서 겨울을 넘긴 승상이 한중으로 돌아오자, 한중왕도 성도에서 올라와 있었다."
+          }
+        },
+        {
+          "at": 31,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤, 음평과 무도로 가는 산길. 봄눈이 녹은 길은 진흙과 바위뿐이었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 39,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "음평과 무도가 촉의 땅이 되었다. 정사에서도 촉이 이긴 몇 안 되는 싸움이었다."
+          }
+        },
+        {
+          "at": 22,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "같은 무렵, 낙양. 서쪽에서 올라온 보고서를 한 사람이 밤늦도록 넘기고 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s51_wheat": {
+    "pre": {
+      "length": 50,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "음평과 무도를 얻은 이듬해, 위의 조진이 세 길로 한중을 쳐 왔다. 그러나 한 달 넘게 비가 내렸다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 41,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "해 질 무렵, 촉군은 상규의 창고를 차지했다. 낫을 든 병사들이 들판에 흩어져 보리를 베었다."
+          }
+        },
+        {
+          "at": 12,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "simayi",
+            "text": "보리를 빼앗겼지만 서두를 것 없다. 제갈량의 군량은 오래 못 간다."
+          }
+        },
+        {
+          "at": 32,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "며칠 뒤 큰비가 내렸다. 한중의 군량길이 무너지고, 군사 몫으로 쌓아 둔 상규 보리도 물에 잠겼다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s52_mumen": {
+    "pre": {
+      "length": 60,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "상규의 창고에서 실어 낸 보리 수레가 산길에 길게 늘어섰다. 붉게 표시한 가마니는 그대로 창고에 남았다."
+          }
+        },
+        {
+          "at": 17,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "simayi",
+            "text": "촉군이 물러난다. 장합, 기병을 이끌고 뒤를 쫓아라."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 53,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "목문도의 골짜기에 화살 소리가 그쳤다. 위군의 깃발은 바위틈에 꺾여 있었다."
+          }
+        },
+        {
+          "at": 13,
+          "bedId": "dialogSad",
+          "introId": "sceneSad",
+          "anchor": {
+            "speaker": "wangping",
+            "text": "승상, 장합의 시신을 찾았습니다. 끝까지 앞으로 나아가다 쓰러졌습니다."
+          }
+        },
+        {
+          "at": 24,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤, 모닥불 곁에 마속과 왕평이 나란히 앉았다. 왕평이 나뭇가지로 땅에 무언가를 그리고 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s53_wuzhangyuan": {
+    "pre": {
+      "length": 61,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "234년, 오장원. 위수 남쪽 고원에서 두 진영이 텅 빈 들판을 사이에 두고 마주했다."
+          }
+        },
+        {
+          "at": 24,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "승상의 막사에는 밤늦도록 등불이 켜져 있었다. 탁자 위에는 군령 문서가 쌓여 있었다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 61,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "촉의 사자가 돌아가기 전, 사마의는 그를 불러 앉혔다. 여인의 옷이 든 상자는 탁자 위에 그대로 있었다."
+          }
+        },
+        {
+          "at": 16,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "사자가 돌아간 밤, 제갈량은 강유를 막사로 불렀다. 탁자 위에 묶은 죽간 한 꾸러미가 놓여 있었다."
+          }
+        },
+        {
+          "at": 57,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "위수 건너편 위군 진영에서도 그 불빛이 보였다. 사마의는 밤마다 그 불빛을 세었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s54_seven_lamps": {
+    "pre": {
+      "length": 78,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogSad",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "오장원. 승상의 막사 안에서 일곱 개의 등불이 엿새째 타오르고 있었다."
+          }
+        },
+        {
+          "at": 38,
+          "bedId": "dialogDrama",
+          "introId": null,
+          "anchor": {
+            "speaker": "wei_commander",
+            "text": "도독, 촉 진영의 등불이 엿새째 꺼지지 않습니다. 오늘이 이레째 밤입니다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 74,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "jiangwei",
+            "text": "동이 텄습니다! 칠 일째 아침까지 칠성등이 하나도 꺼지지 않았습니다."
+          }
+        },
+        {
+          "at": 38,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "wei_commander",
+            "text": "도독, 야습은 실패했습니다. 막사 문 앞에서 한 장수가 끝내 비키지 않았다 합니다."
+          }
+        },
+        {
+          "at": 51,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "messenger",
+            "text": "주공! 오장원에서 왔습니다! 칠 일째 아침, 등불은 하나도 꺼지지 않았습니다!"
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s55_weishui": {
+    "pre": {
+      "length": 65,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "234년 가을, 오장원. 한중왕의 깃발이 고원으로 올라왔다. 제갈량은 진 밖까지 걸어 나가 그 깃발을 맞았다."
+          }
+        },
+        {
+          "at": 31,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "위수를 건너면 장안입니다. 사마의가 강가에 모든 군을 모았습니다."
+          }
+        },
+        {
+          "at": 40,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 강가에는 촉의 모든 장수가 모였다. 성도에서 온 원군도 함께였다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 49,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "simayi",
+            "text": "강을 내주고 말았다. 장안으로 물러나 마지막 싸움을 준비하라."
+          }
+        },
+        {
+          "at": 14,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "그날 밤, 위수 북쪽 강가에 모닥불이 줄지어 피었다. 한 모닥불 곁에 사람들이 둥글게 모여 있었다."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  },
+  "s56_changan": {
+    "pre": {
+      "length": 78,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogGeneral",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "장안. 한나라의 옛 도읍이 저녁노을 속에 서 있었다."
+          }
+        },
+        {
+          "at": 41,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "narrator",
+            "text": "싸움 전날 밤, 세 형제는 한 막사에 모였다. 장비 앞에는 빈 잔이 하나 놓여 있었다."
+          }
+        },
+        {
+          "at": 70,
+          "bedId": "dialogPositive",
+          "introId": null,
+          "anchor": {
+            "speaker": "zhugeliang",
+            "text": "성문이 열리면 사마의가 나올 것입니다. 그때가 마지막 한 수입니다."
+          }
+        }
+      ]
+    },
+    "post": {
+      "length": 85,
+      "cues": [
+        {
+          "at": 0,
+          "bedId": "dialogPeace",
+          "introId": null,
+          "anchor": {
+            "speaker": "simayi",
+            "text": "천하의 기재란 그대를 두고 한 말이었소. 장안은 그대들의 것이오."
+          }
+        }
+      ]
+    },
+    "defeatLength": 2
+  }
+});
+
+// The caller owns gesture unlock, epoch cancellation and intro-once playback.
+// Querying another line in the same segment never creates another entry key.
+// Returning the same bed across segment boundaries does not request a restart.
+export function dialogueMusicAt(options={}){
+  if(!options||typeof options!=='object'||Array.isArray(options))return null;
+  const {chapterId,phase,lineIndex=0}=options;
+  if(typeof chapterId!=='string'||!Object.hasOwn(DIALOGUE_MUSIC_CUES,chapterId)||!Number.isInteger(lineIndex)||lineIndex<0)return null;
+  const chapter=DIALOGUE_MUSIC_CUES[chapterId];
+  if(phase==='defeat'){
+    if(lineIndex>=chapter.defeatLength)return null;
+    return Object.freeze({bedId:'dialogSad',introId:null,entryKey:chapterId+':defeat:0',segmentStart:0});
+  }
+  if(phase!=='pre'&&phase!=='post')return null;
+  const sequence=chapter[phase];if(lineIndex>=sequence.length)return null;
+  let cue=sequence.cues[0];
+  for(let i=1;i<sequence.cues.length&&sequence.cues[i].at<=lineIndex;i++)cue=sequence.cues[i];
+  return Object.freeze({bedId:cue.bedId,introId:lineIndex===cue.at?cue.introId:null,entryKey:chapterId+':'+phase+':'+cue.at,segmentStart:cue.at});
+}

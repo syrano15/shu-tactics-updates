@@ -1,0 +1,34 @@
+// Presentation event selection only. Callers resolve/commit game actions first.
+// No battle state, RNG, storage, timers or reusable playback queue live here.
+export function createPreparationEntrySoundTracker(){
+ let lastEntry=null;
+ return ({epoch,chapter,stage,visible}={})=>{
+  if(visible!==true||stage!=='intermission'||!Number.isInteger(epoch)||epoch<0||typeof chapter!=='string'||!chapter)return null;
+  const entry=JSON.stringify([epoch,chapter,stage]);
+  if(entry===lastEntry)return null;
+  lastEntry=entry;return 'preparationEnter';
+ };
+}
+
+/** Invoke after applyPreparation succeeded, never for its preview candidate. */
+export function preparationAppliedSoundId(action,result){
+ if(action?.kind!=='promote'||!result||result.reason||result.error)return null;
+ const before=result.before,after=result.after;
+ if(!before||!after||typeof before.id!=='string'||before.id!==after.id)return null;
+ const from=before.promotion??before.rank,to=after.promotion??after.rank;
+ return Number.isInteger(from)&&from>=0&&from<2&&to===from+1?'promotion':null;
+}
+
+/** Invoke once for an already committed area presentation, never per target. */
+export function areaCastSoundId(meta){
+ if(!meta||typeof meta!=='object')return null;
+ if(meta.id==='tactic-area-fire'&&meta.actionKind==='tactic')return 'areaFireCast';
+ return meta.actionKind==='tactic'?'fireCast':'swordSwing';
+}
+
+/** At result settlement one secondary notice may accompany the verdict cue. */
+export function outcomeNoticeSoundId({growth=[],victory=false,freshReceipt=false,receipt=null}={}){
+ if(Array.isArray(growth)&&growth.some(event=>event&&Number.isFinite(event.from)&&Number.isFinite(event.to)&&event.to>event.from))return 'levelUp';
+ if(victory===true&&freshReceipt===true&&receipt&&!receipt.alreadyClaimed&&(Number.isFinite(receipt.gold)&&receipt.gold>0||Array.isArray(receipt.items)&&receipt.items.length>0))return 'itemGet';
+ return null;
+}
