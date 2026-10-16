@@ -1,0 +1,117 @@
+// Skill feedback is built from committed outcomes, never from a second attack or RNG draw.
+import {LEGENDARY_SKILLS} from './legendary-skills.js';
+import {reactSpiritEffects,clearSpiritReaction} from './spirit-effects.js';
+const active=new WeakMap();
+export const SKILL_EFFECTS=Object.freeze({
+ 'guanyu-cleave':{style:'dragon',glyph:'龍',detail:'청룡의 일격'},
+ 'zhangfei-roar':{style:'storm',glyph:'破',detail:'주변 동시 충격'},
+ 'liubei-oath':{style:'oath',glyph:'義',detail:'공격 +15% · 사기 상승'},
+ 'jianyong-relief':{style:'relief',glyph:'援',detail:'군심 회복'},
+ 'zhaoyun-breakthrough':{style:'spear',glyph:'突',detail:'용담 돌파'},
+ 'zhugeliang-fire':{style:'fire',glyph:'炎',detail:'팔진 화계'},
+ 'tactic-area-fire':{style:'fire',glyph:'火',detail:'범위 화공'},
+ 'supply':{style:'supply',glyph:'補',detail:'보급'},
+ ...Object.fromEntries(Object.values(LEGENDARY_SKILLS).map(skill=>[skill.id,{style:skill.kind==='support'?skill.effects?.sp||skill.persistent?.phaseSP?'supply':skill.effects?.cleanse?'relief':'oath':skill.kind==='tactic'?'fire':skill.area?'storm':skill.pierce?'spear':'dragon',glyph:skill.kind==='support'?'援':skill.kind==='tactic'?'陣':'極',detail:skill.description}]))
+});
+const clone=unit=>unit?structuredClone(unit):null;
+const count=n=>Math.max(0,Math.round(Number.isFinite(n)?n:0)).toLocaleString('ko-KR');
+const point=unit=>unit&&Number.isInteger(unit.x)&&Number.isInteger(unit.y);
+export const usesAreaMapPresentation=skill=>['surround','cross'].includes(skill?.area)||!!skill?.legendary&&(!!skill.area&&skill.area!=='self'||!!skill.effects?.cooperation||!!skill.effects?.frontHeal||!!skill.effects?.push||!!skill.effects?.pull||!!skill.effects?.reposition||skill.allyAura!==undefined);
+/** Copy only actual recipients and actual strikes. A cancelled later exchange has no impact. */
+export function createCombatSkillPresentation(skill,actorBefore,targetBefore,result,beforeState){
+ const id=result?.skillId??skill?.id,effect=SKILL_EFFECTS[id];
+ if(!effect||!actorBefore||!result||result.reason)return null;
+ const source=Array.isArray(beforeState?.units)?beforeState.units:[],support=result.kind==='support',targets=[];
+ if(support){
+  const heals=result.heals??[],buffs=result.buffs??[],spHeals=result.spHeals??[];
+  for(const unitId of new Set([...heals,...buffs,...spHeals].map(row=>row.id))){
+   const unit=source.find(unit=>unit.id===unitId)??(actorBefore.id===unitId?actorBefore:targetBefore?.id===unitId?targetBefore:null);
+   if(!point(unit))continue;
+   const heal=heals.find(row=>row.id===unitId),buff=buffs.find(row=>row.id===unitId),sp=spHeals.find(row=>row.id===unitId);
+   if(actorBefore.team==='ally'&&!(heal?.amount>0)&&!(sp?.amount>0)&&!buff)continue;
+   const labels=[heal?.amount>0?'병력 +'+count(heal.amount):'',sp?.amount>0?'SP +'+count(sp.amount):'',buff?.type==='oath'?'공격 ↑':buff?.type==='relief'?'군심 회복':buff?.type==='legendary'?(buff.renewed?'재행동':buff.cleared?'정화':buff.fresh?'진법 적용':''):'',buff?.morale?'사기 '+(buff.morale>0?'+':'−')+count(Math.abs(buff.morale)):''].filter(Boolean);
+   targets.push({unit:clone(unit),landed:true,damage:0,label:labels.join(' · ')||effect.detail});
+  }
+ }else{
+  const exchanges=result.exchanges?.length?result.exchanges:[{actor:actorBefore,target:targetBefore,result}];
+  for(const exchange of exchanges){
+   const unit=exchange.target,strike=exchange.result;
+   if(!point(unit)||!strike||strike.skipped)continue;
+   const landed=strike.landed===true||strike.success===true;
+   const extra=(result.buffs??[]).filter(row=>row.id===unit.id).map(row=>row.morale?'사기 '+(row.morale>0?'+':'−')+count(Math.abs(row.morale)):row.fresh?'진법 약화':row.detail==='혼란'?'혼란':'').filter(Boolean),moved=result.moves?.some(row=>row.id===unit.id);
+   targets.push({unit:clone(unit),landed,damage:landed?Math.max(0,strike.hit??0):0,label:(landed?(strike.critical?'치명타 ':'')+'−'+count(strike.hit):'회피')+(extra.length?' · '+extra.join(' · '):'')+(moved?' · 위치 이동':'')});
+  }
+  for(const row of [...(result.heals??[]),...(result.buffs??[])]){
+   const unit=source.find(value=>value.id===row.id);if(!point(unit)||targets.some(value=>value.unit.id===unit.id))continue;
+   targets.push({unit:clone(unit),landed:true,damage:0,label:row.amount>0?'병력 +'+count(row.amount):row.detail??effect.detail});
+  }
+ }
+ const counterDamage=(result.exchanges??[]).reduce((sum,exchange)=>sum+(exchange.result?.counterLanded?Math.max(0,exchange.result.returnHit??0):0),0);
+ return {id,name:result.skillName??skill.name,actor:clone(actorBefore),style:effect.style,glyph:effect.glyph,detail:effect.detail,support,area:!!skill.area,targets,...(counterDamage>0?{counterDamage}:{})};
+}
+const node=(tag,className,text)=>{const el=document.createElement(tag);el.className=className;if(text!==undefined)el.textContent=text;return el;};
+function finish(host,entry,completed=false){
+ if(active.get(host)!==entry)return;
+ clearTimeout(entry.timer);entry.cleanup.forEach(clean=>clean());entry.nodes.forEach(el=>el.remove());active.delete(host);entry.resolve(completed);
+}
+export function clearCombatSkillPresentation(host){const entry=host&&active.get(host);if(entry)finish(host,entry,false);}
+/** Ordering is preserved even when motion is reduced or the player selects fast playback. */
+export function skillPresentationTiming({fast=false,reducedMotion=false,area=false}={}){
+ return fast?{windup:120,hold:330}:reducedMotion?{windup:80,hold:570}:{windup:380,hold:area?770:620};
+}
+/** A pointer-transparent layer, clipped to the map viewport and following its real cell positions. */
+export function playCombatSkillPresentation(host,model,{isCurrent=()=>true,fast=false,reducedMotion=!!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches,onImpact=()=>{}}={}){
+ clearCombatSkillPresentation(host);
+ if(!host||!model||!isCurrent()||typeof document==='undefined')return Promise.resolve(false);
+ return new Promise(resolve=>{
+  const entry={nodes:[],cleanup:[],timer:null,resolve};active.set(host,entry);
+  const playerSkill=model.actor.team==='ally';
+  const layer=node('div','skill-map-layer is-'+model.style+' is-preparing'+(playerSkill?' is-player-skill':'')+(reducedMotion?' is-reduced-motion':''));layer.dataset.skillId=model.id;layer.dataset.phase='prepare';layer.setAttribute('aria-hidden','true');host.append(layer);entry.nodes.push(layer);
+  const title=node('aside','skill-map-title');title.setAttribute('role','status');title.setAttribute('aria-live','polite');title.append(node('strong','',model.name),node('small','',model.support?model.detail:model.targets.length+'부대 공격'));host.append(title);entry.nodes.push(title);
+  const viewport=host.querySelector?.('.board-viewport')??host,marks=[];
+  const addMark=(unit,className,label,glyph)=>{
+   if(!point(unit))return;
+   if(!host.querySelector?.('[data-x="'+unit.x+'"][data-y="'+unit.y+'"]'))return;
+   const mark=node('span',className);mark.dataset.unitId=String(unit.id);mark.dataset.cellX=String(unit.x);mark.dataset.cellY=String(unit.y);
+   mark.append(node('i','skill-map-core'),node('i','skill-map-ray ray-one'),node('i','skill-map-ray ray-two'),node('i','skill-map-ray ray-three'),node('b','skill-map-glyph',glyph));
+   if(playerSkill&&className.includes('skill-map-impact')&&!className.includes('is-miss')&&(model.support||model.style==='fire'))for(let index=0;index<4;index++){const mote=node('i',model.support?'skill-support-mote':'skill-fire-ember');mote.style.setProperty('--mote-index',String(index));mark.append(mote);}
+   if(label)mark.append(node('strong','skill-map-value',label));layer.append(mark);marks.push({mark,unit});
+  };
+  addMark(model.actor,'skill-map-caster',null,model.glyph);
+  // React only on the original allied token; onImpact renders its actual consumed/current flags.
+  const actorToken=model.actor.team==='ally'?host.querySelector?.('[data-x="'+model.actor.x+'"][data-y="'+model.actor.y+'"]')?.querySelector?.('[data-unit-id]'):null;
+  if(actorToken?.dataset.unitId===String(model.actor.id)&&!model.support){reactSpiritEffects(actorToken,model.style==='fire'?['wisdom']:['focus','strike','fury'],model.style==='fire'?'tactic':'attack');entry.cleanup.push(()=>clearSpiritReaction(actorToken));}
+  const reposition=()=>{
+   if(active.get(host)!==entry)return;
+   if(!isCurrent()){finish(host,entry,false);return;}
+   const frame=host.getBoundingClientRect?.(),view=viewport.getBoundingClientRect?.();if(!frame||!view)return;
+   const width=view.width??view.right-view.left,height=view.height??view.bottom-view.top;
+   layer.style.left=(view.left-frame.left)+'px';layer.style.top=(view.top-frame.top)+'px';layer.style.width=width+'px';layer.style.height=height+'px';
+   title.style.left=(view.left-frame.left+width/2)+'px';title.style.top=(view.top-frame.top+8)+'px';
+   for(const {mark,unit} of marks){const cell=host.querySelector?.('[data-x="'+unit.x+'"][data-y="'+unit.y+'"]'),rect=cell?.getBoundingClientRect?.();if(!rect)continue;
+    mark.style.left=(rect.left-view.left+rect.width/2)+'px';mark.style.top=(rect.top-view.top+rect.height/2)+'px';mark.style.width=Math.max(12,rect.width)+'px';mark.style.height=Math.max(12,rect.height)+'px';
+    mark.style.setProperty('--skill-label-size',Math.max(10,Math.min(17,rect.width*.28))+'px');
+   }
+  };
+  reposition();viewport.addEventListener?.('scroll',reposition,{passive:true});entry.cleanup.push(()=>viewport.removeEventListener?.('scroll',reposition));
+  if(globalThis.addEventListener){globalThis.addEventListener('resize',reposition);entry.cleanup.push(()=>globalThis.removeEventListener('resize',reposition));}
+  if(globalThis.ResizeObserver){const observer=new ResizeObserver(reposition);for(const observed of [host,viewport,host.querySelector?.('#board')].filter(Boolean))observer.observe(observed);entry.cleanup.push(()=>observer.disconnect());}
+  const timing=skillPresentationTiming({fast,reducedMotion,area:model.area});
+  // Do not even put damage/miss/counter text in the DOM until the resolved impact.
+  entry.timer=setTimeout(()=>{
+   if(active.get(host)!==entry)return;
+   if(!isCurrent()){finish(host,entry,false);return;}
+   try{
+    onImpact();
+    if(active.get(host)!==entry)return;
+    if(!isCurrent()){finish(host,entry,false);return;}
+    layer.className=layer.className.replace(' is-preparing','')+' is-impact';layer.dataset.phase='impact';
+    // Every executed recipient starts together. Re-query cells after the map HP render.
+    for(const target of model.targets)addMark(target.unit,'skill-map-impact'+(!target.landed?' is-miss':'')+(model.support?' is-support':''),target.label,model.support?model.glyph:'');
+    if(model.counterDamage>0)addMark(model.actor,'skill-map-counter','반격 −'+count(model.counterDamage),'');
+    reposition();
+    entry.timer=setTimeout(()=>finish(host,entry,isCurrent()),timing.hold);
+   }catch{finish(host,entry,false);}
+  },timing.windup);
+ });
+}

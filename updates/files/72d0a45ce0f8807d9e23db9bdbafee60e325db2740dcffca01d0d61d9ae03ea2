@@ -1,0 +1,42 @@
+import {expNeeded,levelCap,growthType} from './growth.js';
+import {HERO_DATA} from './heroes.js';
+import {SPIRITS} from './spirits.js';
+import {legendaryOwnerSkill,LEGENDARY_LEVEL} from './legendary-skills.js';
+import {FOURTH_SPIRIT_LEVEL} from './fourth-spirit.js';
+
+const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const count=value=>Number(value).toLocaleString('ko-KR');
+
+// All growth screens read the same rules; weapon/troop/defense upgrades remain separate.
+export function growthProgress(unit){
+ const cap=levelCap(growthType(unit.id)),done=unit.level>=cap,required=done?0:expNeeded(unit.level),exp=done?0:unit.exp??0;
+ return {level:unit.level,cap,done,exp,required,remaining:done?0:required-exp,nextLevel:done?null:unit.level+1,percent:done?100:Math.floor(exp/required*100)};
+}
+export function growthProgressLabel(unit,{showCap=true}={}){
+ const p=growthProgress(unit);
+ return p.done?'Lv'+p.cap+' · 성장 완료':'EXP '+count(p.exp)+' / '+count(p.required)+' · 다음 Lv'+p.nextLevel+'까지 '+count(p.remaining)+' EXP'+(showCap?' · Lv'+p.cap+'까지 성장':'');
+}
+export function growthProgressHTML(unit){
+ const p=growthProgress(unit);
+ return '<div class="growth-progress'+(p.done?' is-complete':'')+'"><p><b>Lv'+p.level+' / '+p.cap+' · '+(p.done?'성장 완료':'성장 중')+'</b><span>'+esc(p.done?'최대 레벨 달성 · 경험치 성장 완료':growthProgressLabel(unit))+'</span></p>'+(p.done?'':'<div class="growth-exp-track" role="progressbar" aria-label="다음 레벨 경험치" aria-valuemin="0" aria-valuemax="'+p.required+'" aria-valuenow="'+p.exp+'" aria-valuetext="'+esc(growthProgressLabel(unit))+'"><i style="width:'+p.percent+'%"></i></div>')+'</div>';
+}
+export function growthMilestones(unit){
+ const rows=[],guest=HERO_DATA[unit.id]?.guest===true,legendary=legendaryOwnerSkill(unit.id),choice=SPIRITS[unit.fourthSpirit],p=growthProgress(unit);
+ if(!guest)rows.push({level:FOURTH_SPIRIT_LEVEL,name:'네 번째 정신기',achieved:unit.level>=FOURTH_SPIRIT_LEVEL,detail:unit.level<FOURTH_SPIRIT_LEVEL?'정비에서 무료 선택·교체':choice?'선택 중 · '+choice.name:'정비에서 선택 가능 · 무료'});
+ if(legendary)rows.push({level:LEGENDARY_LEVEL,name:'고유 필살기 · '+legendary.name,achieved:unit.level>=LEGENDARY_LEVEL,detail:unit.level<LEGENDARY_LEVEL?'해금 예정 · 전투당 1회':'해금 완료 · 전투당 1회'});
+ rows.push({level:p.cap,name:'최대 레벨',achieved:p.done,detail:p.done?'성장 완료':'능력치와 SP 성장 계속'});
+ return rows;
+}
+export function growthMilestonesHTML(unit){
+ return '<div class="growth-milestones" aria-label="주요 성장 목표">'+growthMilestones(unit).map(row=>'<p class="'+(row.achieved?'is-reached':'is-locked')+'"><b>Lv'+row.level+' · '+esc(row.name)+'</b><span>'+esc(row.detail)+'</span></p>').join('')+'</div>';
+}
+export function growthUnlockLabels(id,from,to){
+ const labels=[];
+ if(!HERO_DATA[id]?.guest&&from<FOURTH_SPIRIT_LEVEL&&to>=FOURTH_SPIRIT_LEVEL)labels.push('정비에서 네 번째 정신기 선택 가능');
+ const legendary=legendaryOwnerSkill(id);if(legendary&&from<LEGENDARY_LEVEL&&to>=LEGENDARY_LEVEL)labels.push('고유 필살기 · '+legendary.name+' 해금');
+ const cap=levelCap(growthType(id));if(from<cap&&to>=cap)labels.push('Lv'+cap+' · 성장 완료');
+ return labels;
+}
+export function growthHelpHTML(){
+ return '<p class="growth-help">장수는 노장 포함 Lv'+levelCap('balanced')+'까지 경험치로 성장합니다. Lv30에 네 번째 정신기를 정비에서 무료로 선택하고, 정규 장수는 Lv50에 고유 필살기를 해금합니다. 이후에도 장수별 성장형에 따른 능력치와 SP가 계속 증가합니다. 장수 레벨과 무기·지력 / 병력 / 방어 강화는 별도이며 강화는 각각 15단계까지입니다. 기존 레벨과 경험치는 유지하고, 이전 최대 레벨 Lv60 장수도 새로 얻은 경험치로 성장을 이어갑니다.</p>';
+}

@@ -1,0 +1,82 @@
+// Read-only player presentation. These nodes never own a spirit's lifetime or game state.
+const displays=new WeakMap();
+export const SPIRIT_EFFECT_IDS=Object.freeze(['wall','accel','focus','strike','fury','wisdom','flash']);
+export const SPIRIT_CAST_IDS=Object.freeze([...SPIRIT_EFFECT_IDS,'spirit']);
+const pieces={wall:3,accel:2,focus:4,strike:3,fury:3,wisdom:2,flash:1,spirit:3};
+const element=(tag,name)=>{const node=document.createElement(tag);node.className=name;return node;};
+export function spiritEffectIds(unit){
+ if(unit?.team!=='ally'||unit.hp<=0||unit.withdrawn||unit.escaped)return [];
+ return SPIRIT_EFFECT_IDS.filter(id=>id==='flash'?!!(unit.spirits?.flash||unit.spirits?.alert):!!unit.spirits?.[id]);
+}
+function shape(id,{casting=false,expiring=false}={}){
+ const effect=element('span','spirit-effect spirit-effect-'+id+(casting?' is-casting':'')+(expiring?' is-expiring':''));
+ effect.dataset[expiring?'spiritExpired':'spiritEffect']=id;effect.setAttribute('aria-hidden','true');
+ for(let index=0;index<pieces[id];index++){const part=element('i','spirit-shape part-'+index);effect.append(part);}
+ return effect;
+}
+/** Only called for successful casts; restore/render never calls this entry point. */
+export function appendSpiritCastShape(host,unit,id){
+ if(unit?.team!=='ally'||!SPIRIT_CAST_IDS.includes(id)||!host)return null;
+ const effect=shape(id,{casting:true});host.append(effect);return effect;
+}
+/** Shapes share their unit's actual display transform, including zoom and travellers. */
+export function attachSpiritEffects(host,unit,{ids=spiritEffectIds(unit),context='board'}={}){
+ if(!host||typeof document==='undefined')return null;
+ host.querySelectorAll?.('.spirit-fx-layer').forEach(node=>node.remove());
+ const visible=unit?.team==='ally'?ids.filter(id=>SPIRIT_EFFECT_IDS.includes(id)):[];
+ if(!visible.length)return null;
+ const layer=element('span','spirit-fx-layer is-'+context);layer.setAttribute('aria-hidden','true');
+ for(const id of visible)layer.append(shape(id));host.append(layer);return layer;
+}
+export function clearSpiritEffects(host){
+ const previous=host&&displays.get(host);if(previous)for(const timer of previous.timers)clearTimeout(timer);
+ host?.querySelectorAll?.('.spirit-fx-layer').forEach(node=>node.remove());if(host)displays.delete(host);
+}
+/** Synchronize after map HTML render; only display flags are retained, never unit references. */
+export function syncSpiritEffects(host,units,{session='battle'}={}){
+ if(!host||typeof document==='undefined')return;
+ const prior=displays.get(host);if(prior)for(const timer of prior.timers)clearTimeout(timer);
+ const current={session,units:new Map(),timers:new Set()};displays.set(host,current);
+ const tokens=new Map([...(host.querySelectorAll?.('[data-unit-id]')??[])].map(token=>[String(token.dataset.unitId),token]));
+ for(const unit of Array.isArray(units)?units:[]){
+  const ids=spiritEffectIds(unit);current.units.set(String(unit.id),ids);
+  const token=tokens.get(String(unit.id));if(!token||unit.team!=='ally')continue;
+  let layer=attachSpiritEffects(token,unit,{ids});
+  // Expired contours have no active title/state. A new render or session clears their timers.
+  const expired=prior?.session===session?(prior.units.get(String(unit.id))??[]).filter(id=>!ids.includes(id)):[];
+  if(expired.length&&unit.hp>0&&!unit.withdrawn&&!unit.escaped){
+   if(!layer){layer=element('span','spirit-fx-layer is-board');layer.setAttribute('aria-hidden','true');token.append(layer);}
+   for(const id of expired){const fading=shape(id,{expiring:true});layer.append(fading);const timer=setTimeout(()=>{current.timers.delete(timer);fading.remove();if(!layer.children.length)layer.remove();},220);current.timers.add(timer);}
+  }
+ }
+}
+export function reactSpiritEffects(host,ids,reaction='react'){
+ if(!host)return;
+ for(const effect of host.querySelectorAll?.('.spirit-effect')??[])if(ids.includes(effect.dataset.spiritEffect)){effect.classList?.add('is-reacting');effect.dataset.reaction=reaction;}
+}
+export function clearSpiritReaction(host){
+ for(const effect of host?.querySelectorAll?.('.spirit-effect')??[]){effect.classList?.remove('is-reacting');delete effect.dataset.reaction;}
+}
+/** Read only the already-resolved step and its pre-action snapshots. No new hit/consume rule. */
+export function combatSpiritReactions(source,target,step){
+ const sourceIds=spiritEffectIds(source),targetIds=spiritEffectIds(target),physical=!['fire','confusion','deception'].includes(step?.kind);
+ const attack=sourceIds.filter(id=>physical?['focus','strike'].includes(id)||id==='fury'&&!step?.counter:id==='wisdom');
+ const defense=targetIds.filter(id=>physical&&(id==='wall'&&step?.landed===true||id==='focus'&&step?.landed===false||id==='flash'&&step?.landed===false));
+ return {attack,defense,consumeSource:sourceIds.filter(id=>physical?id==='fury'&&!step?.counter:id==='wisdom'),consumeTarget:targetIds.filter(id=>physical&&step?.landed===false&&id==='flash')};
+}
+/** End the display copy only. The map later rebuilds from current engine flags. */
+export function retireSpiritEffects(host,ids){
+ for(const effect of host?.querySelectorAll?.('.spirit-effect')??[])if(ids.includes(effect.dataset.spiritEffect)){
+  effect.dataset.spiritExpired=effect.dataset.spiritEffect;delete effect.dataset.spiritEffect;effect.classList?.remove('is-reacting');effect.classList?.add('is-expiring');
+ }
+}
+/** Cosmetic afterimages use the pre-move flag, even though the engine has already consumed it. */
+export function attachSpiritMovement(ghost,unitBefore){
+ if(!ghost||!spiritEffectIds(unitBefore).includes('accel'))return ()=>{};
+ attachSpiritEffects(ghost,unitBefore);ghost.classList?.add('has-spirit-accel-motion');
+ const source=ghost.querySelector?.('.battle-sprite'),images=[];
+ if(source)for(let index=0;index<2;index++){
+  const image=source.cloneNode(true);image.classList.add('spirit-movement-echo','echo-'+index);image.setAttribute('aria-hidden','true');image.alt='';image.removeAttribute?.('data-unit-id');ghost.append(image);images.push(image);
+ }
+ return ()=>{images.forEach(image=>image.remove());ghost.classList?.remove('has-spirit-accel-motion');};
+}

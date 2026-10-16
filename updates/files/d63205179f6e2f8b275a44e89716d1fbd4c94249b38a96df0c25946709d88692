@@ -1,0 +1,86 @@
+// Presentation preferences are deliberately separate from campaign save data.
+export const BATTLE_UI_SETTINGS_KEY='shu-battle-ui-settings-v1';
+const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const number=value=>Math.round(value??0).toLocaleString('ko-KR');
+const percent=value=>Number.isInteger((value??0)*100)?(value??0)*100+'%':Math.round((value??0)*1000)/10+'%';
+const valueCard=(label,value,note='')=>'<span><small>'+escape(label)+'</small><strong>'+escape(value)+'</strong>'+(note?'<small>'+escape(note)+'</small>':'')+'</span>';
+export function attackPreviewSummary(p,actor,target){
+ const hit=p.kind?'성공':'명중',counter=p.counter?p.returnHit:p.counterIfMiss?p.returnHitIfMiss:0;
+ const damage=p.kind&&p.kind!=='fire'?(p.kind==='confusion'?'혼란':'위보'):number(p.hit);
+ const critical=p.criticalChance>0?'치명 '+percent(p.criticalChance)+' · '+number(p.criticalHit):'';
+ const counterCritical=p.counter?p.returnCriticalChance>0?'치명 '+percent(p.returnCriticalChance)+' · '+number(p.returnCriticalHit):'':p.returnCriticalChanceIfMiss>0?'치명 '+percent(p.returnCriticalChanceIfMiss)+' · '+number(p.returnCriticalHitIfMiss):'';
+ let note=p.kind?p.rain?'비 · 화공 실패':p.kind==='fire'?'성공 시 병력 '+number(target.hp)+' → '+number(p.targetHp):p.kind==='confusion'?'행동·반격 불가 · 방어 50% · 물리 피격 치명타 · 자기 턴 1회':'가까운 부대 자동 공격 · 자기 턴 1회':'명중 시 적 병력 '+number(target.hp)+' → '+number(p.targetHp);
+ if(!p.kind&&p.counterIfMiss&&p.chance<1)note+=' · 빗나갈 때 반격 '+number(p.returnHitIfMiss);
+ if(p.bossCounterWarning)note+=' · S급 적장 반격 주의';
+ const counterLabel=p.kind?'반격':!p.counter&&p.counterIfMiss?'빗나갈 때 반격':'명중 후 반격';
+ return '<div class="prediction compact-prediction"><b>'+escape(target.name)+'</b><button type="button" data-action="prediction-details" class="quiet prediction-details-open">예측 상세</button><div class="prediction-values">'+valueCard(hit,percent(p.chance))+valueCard(p.kind&&p.kind!=='fire'?'상태':'피해',damage,critical)+valueCard(counterLabel,number(counter),[counter?('명중 '+percent(p.counterChance)):'',counterCritical].filter(Boolean).join(' · '))+'</div><p class="prediction-subline">'+escape(note)+'</p></div>';
+}
+export function skillPreviewSummary(meta,p,target){
+ const rows=(p.results??p.exchanges??[]).map(row=>row.result??row).filter(row=>!row.skipped),hits=rows.filter(row=>row.hit!==undefined);
+ const amounts=[...rows.map(row=>row.amount??row.heal??0),...(p.heals??[]).map(row=>row.amount??0)],heal=amounts.reduce((sum,n)=>sum+n,0);
+ const spHeal=rows.reduce((sum,row)=>sum+(row.spAmount??0),0)+(p.spHeals??[]).reduce((sum,row)=>sum+(row.amount??0),0);
+ const counter=hits.reduce((sum,row)=>sum+(row.counterChance===0?0:Math.max(row.counter?row.returnHit??0:0,row.counterIfMiss?row.returnHitIfMiss??0:0)),0);
+ const damage=hits.map(row=>row.chance===0?0:row.hit),chances=hits.map(row=>row.chance??1),chance=hits.length?(meta.actionKind==='tactic'?'성공 ':'명중 ')+percent(Math.min(...chances))+(chances.some(n=>n!==chances[0])?'–'+percent(Math.max(...chances)):''):'';
+ let value=heal?'+'+number(heal):hits.length?number(Math.min(...damage))+(damage.some(n=>n!==damage[0])?'–'+number(Math.max(...damage)):''):number(p.buffs?.length??rows.length)+'명';
+ const cost=meta.legendary?'전투당 1회 · 사기 −'+meta.cost.morale+' · SP '+meta.cost.sp+' · 2턴 휴식':meta.gate?'사기 −'+meta.cost.morale+' · '+(meta.gate.cooldown-1)+'턴 휴식 후 재사용':'SP '+meta.cost.sp;
+ const note=p.reason||cost+' · 행동 종료'+(p.bossCounterWarning||hits.some(row=>row.bossCounterWarning)?' · S급 적장 반격 주의':'');
+ return '<div class="prediction compact-prediction skill-prediction"><b>'+escape(meta.name)+(target?' · '+escape(target.name):'')+'</b><button type="button" data-action="prediction-details" class="quiet prediction-details-open">예측 상세</button><div class="prediction-values skill-summary-values">'+valueCard(heal?'회복 합계':hits.length>1?'대상별 피해 범위':hits.length?'피해':'지원',value,chance)+(meta.actionKind==='support'?valueCard('SP 회복',spHeal?'+'+number(spHeal):'0'):valueCard('반격 명중 가정 합계',number(counter)))+'</div><p class="prediction-subline">'+escape(note)+'</p></div>';
+}
+export function normalizeBattleUISettings(value){
+ return {commandPlacement:['popup','right','bottom'].includes(value?.commandPlacement)?value.commandPlacement:'popup'};
+}
+export function readBattleUISettings(storage){
+ try{const value=JSON.parse((storage??globalThis.localStorage)?.getItem(BATTLE_UI_SETTINGS_KEY)??'null');
+  // The old right-hand dock was the former default, not an explicit request to
+  // remove the unit's speech-bubble menu. Preserve future deliberate choices.
+  if(value?.commandPlacement==='right'&&value?.layoutVersion!==2)return normalizeBattleUISettings(null);
+  return normalizeBattleUISettings(value);
+ }catch{return normalizeBattleUISettings(null);}
+}
+export function writeBattleUISettings(value,storage){
+ const settings=normalizeBattleUISettings(value);
+ try{(storage??globalThis.localStorage)?.setItem(BATTLE_UI_SETTINGS_KEY,JSON.stringify({...settings,layoutVersion:2}));}catch{}
+ return settings;
+}
+export function popupMenuGeometry({anchor,bounds,width,height,avoid=[],gap=12,inset=8}){
+ const clamp=(value,min,max)=>Math.max(min,Math.min(Math.max(min,max),value)),available=bounds.right-bounds.left-2*inset;
+ width=Math.min(width,available);height=Math.min(height,bounds.bottom-bounds.top-2*inset);
+ const right=bounds.right-inset-anchor.right-gap,left=anchor.left-bounds.left-inset-gap;
+ const side=right>=width||right>=left?'right':'left',center=(anchor.top+anchor.bottom)/2,centerX=(anchor.left+anchor.right)/2;
+ const place=(side,x,y)=>({left:clamp(x,bounds.left+inset,bounds.right-inset-width),top:clamp(y,bounds.top+inset,bounds.bottom-inset-height),side});
+ const sides={right:place('right',anchor.right+gap,center-height/2),left:place('left',anchor.left-gap-width,center-height/2)};
+ let position=sides[side];
+ if(avoid.length){
+  const choices=[position,sides[side==='right'?'left':'right'],place('above',centerX-width/2,anchor.top-gap-height),place('below',centerX-width/2,anchor.bottom+gap),place('above',bounds.left+inset,bounds.top+inset),place('above',bounds.right-inset-width,bounds.top+inset),place('below',bounds.left+inset,bounds.bottom-inset-height),place('below',bounds.right-inset-width,bounds.bottom-inset-height)];
+  const covered=p=>avoid.reduce((sum,rect)=>sum+Math.max(0,Math.min(p.left+width,rect.right)-Math.max(p.left,rect.left))*Math.max(0,Math.min(p.top+height,rect.bottom)-Math.max(p.top,rect.top)),0);
+  let score=covered(position);for(const choice of choices){const next=covered(choice);if(next<score){position=choice;score=next;}if(score===0)break;}
+ }
+ return {...position,pointerY:clamp(center-position.top,18,height-18),pointerX:clamp(centerX-position.left,18,width-18),maxHeight:Math.max(1,bounds.bottom-bounds.top-2*inset)};
+}
+export function installBattleUI(scene,{onLayout=()=>{},canOpenMenu=()=>true}={}){
+ const doc=scene.ownerDocument,stage=doc.getElementById('board-stage'),panel=doc.getElementById('unit-ui');
+ const side=doc.createElement('div'),bottom=doc.createElement('div'),popup=doc.createElement('div');
+ side.className='battle-unit-side';bottom.className='battle-unit-bottom';popup.className='battle-unit-popup';bottom.hidden=true;popup.hidden=true;
+ stage.append(side);side.append(panel);
+ // Preferences stay stored. This screen uses one contextual dock without rewriting them.
+ const settings=readBattleUISettings();
+ const end=doc.getElementById('end-turn'),finish=doc.getElementById('cleanup-finish');stage.append(end);if(finish)stage.append(finish);
+ const details=doc.createElement('dialog');details.className='battle-detail-dialog';details.setAttribute('aria-label','전투 목표');doc.body.append(details);
+ const menu=doc.createElement('dialog');menu.className='battlefield-menu';menu.setAttribute('aria-label','전장 메뉴');
+ menu.innerHTML='<div class="dialog-heading"><h3>전장 메뉴</h3><button type="button" data-field-close>닫기</button></div><div class="battlefield-menu-actions"><button type="button" data-field-goals>전투 목표</button><button type="button" data-field-save>저장·불러오기</button><button type="button" data-field-settings>설정</button><button type="button" data-field-end>턴 종료</button></div>';doc.body.append(menu);
+ const open=doc.createElement('button');open.id='battle-menu-open';open.type='button';open.textContent='메뉴';open.setAttribute('aria-haspopup','dialog');scene.querySelector('.field-top').append(open);
+ function openMenu(){if(scene.hidden||!canOpenMenu()||doc.querySelector('dialog[open]'))return;menu.querySelector('[data-field-end]').disabled=end.disabled;menu.showModal();}
+ function openGoals(){
+  const host=doc.getElementById('battle-conditions-host'),conditions=host.querySelector('.battle-conditions');
+  details.innerHTML='<div class="dialog-heading"><h3>전투 목표</h3><button type="button" data-battle-detail-close>닫기</button></div><div class="battle-detail-content">'+(conditions?.battleDetailsHTML??'')+[...host.querySelectorAll('.act2-brief,.terrain-battle-note')].map(node=>node.outerHTML).join('')+'</div><div class="dialog-actions"><button type="button" data-battle-log>전투 기록</button><button type="button" data-battle-detail-close>닫기</button></div>';details.showModal();
+ }
+ open.addEventListener('click',openMenu);
+ menu.addEventListener('click',event=>{const b=event.target.closest('button');if(!b||b.disabled)return;menu.close();if(b.hasAttribute('data-field-goals'))openGoals();if(b.hasAttribute('data-field-save'))doc.getElementById('save-open').click();if(b.hasAttribute('data-field-settings'))doc.getElementById('settings-open').click();if(b.hasAttribute('data-field-end')&&!end.disabled)end.click();});
+ details.addEventListener('click',event=>{if(event.target.closest('[data-battle-detail-close]'))details.close();if(event.target.closest('[data-battle-log]')){details.close();doc.getElementById('log-open').click();}});
+ function positionMenu(){for(const name of ['left','top','max-height','--popup-pointer-y','--popup-pointer-x'])panel.style.removeProperty(name);}
+ function layout(){scene.dataset.commandPlacement='context';side.hidden=panel.hidden;open.disabled=scene.hidden||!canOpenMenu();positionMenu();}
+ function syncVisibility(){doc.body.classList.toggle('battle-screen',!scene.hidden);if(scene.hidden){menu.close();details.close();}}
+ if(globalThis.MutationObserver){new MutationObserver(syncVisibility).observe(scene,{attributes:true,attributeFilter:['hidden']});new MutationObserver(layout).observe(panel,{attributes:true,attributeFilter:['hidden']});}
+ layout();syncVisibility();
+ return {update(){layout();syncVisibility();},positionMenu,openMenu,openGoals,setPlacement(value){settings.commandPlacement=normalizeBattleUISettings({commandPlacement:value}).commandPlacement;layout();},openSettings(){doc.getElementById('settings-open').click();},get settings(){return {...settings};},side,bottom,popup};
+}
