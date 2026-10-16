@@ -1,0 +1,124 @@
+// Background music is presentation only. It never reads a game save or changes
+// battle state. Two reusable streaming media elements are the complete pool.
+export const BGM_TRACKS=Object.freeze({
+  battle:Object.freeze({src:'./audio/bgm-v0725/battle-chariots.mp3',duration:29.538,loop:true,gain:1}),
+  defeat:Object.freeze({src:'./audio/bgm-v0725/defeat-hopeless.mp3',duration:16,loop:true,gain:1}),
+});
+export const BGM_SETTINGS_KEY='shu-bgm-v1';
+const clamp=value=>Math.max(0,Math.min(1,value));
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+export function bgmSettings(raw){
+  let value=raw;try{if(typeof raw==='string')value=JSON.parse(raw);}catch{value=null;}
+  return {enabled:object(value)&&typeof value.enabled==='boolean'?value.enabled:true,volume:object(value)&&Number.isFinite(value.volume)?clamp(value.volume):.35};
+}
+
+export function createBgmManager({tracks=BGM_TRACKS,createAudio=()=>new globalThis.Audio(),storage=null,hidden=()=>globalThis.document?.hidden===true,baseURL=import.meta.url,now=()=>globalThis.performance?.now?.()??Date.now(),setTimer=(fn,ms)=>setTimeout(fn,ms),clearTimer=id=>clearTimeout(id),fadeMs=300,onplay=()=>{}}={}){
+  let settings;try{settings=bgmSettings(storage?.getItem(BGM_SETTINGS_KEY));}catch{settings=bgmSettings();}
+  const catalog={};
+  for(const id of ['battle','defeat']){
+    const track=tracks?.[id];
+    if(object(track)&&/^\.\/audio\/[a-z0-9_-]+\/[a-z0-9_.-]+\.(?:mp3|ogg|m4a|wav)$/i.test(track.src??'')&&Number.isFinite(track.duration)&&track.duration>0){
+      catalog[id]={...track,url:new URL(track.src,baseURL).href,gain:Number.isFinite(track.gain)?clamp(track.gain):1,loop:track.loop!==false};
+    }
+  }
+  const slots=[],suspended=new Set(),failedTracks=new Set();
+  let desired=null,current=null,unlocked=false,destroyed=false,generation=0,restartDesired=false,reloadDesired=false,gestureRetryUsed=false,failures=0;
+  const duration=Number.isFinite(fadeMs)?Math.max(0,Math.min(1500,fadeMs)):300;
+  const persist=()=>{try{storage?.setItem(BGM_SETTINGS_KEY,JSON.stringify(settings));}catch{}};
+  const allowed=()=>!destroyed&&unlocked&&settings.enabled&&settings.volume>0&&!hidden()&&suspended.size===0;
+  const setLevel=(slot,value)=>{try{slot.audio.volume=clamp(value);}catch{}};
+  const clearFade=slot=>{if(slot.timer!==null)clearTimer(slot.timer);slot.timer=null;slot.fadeToken++;};
+  const pause=slot=>{clearFade(slot);slot.token++;slot.pending=null;try{slot.audio.pause();}catch{}slot.state='paused';};
+  const pauseAll=()=>{for(const slot of slots)pause(slot);current=null;};
+  function fade(slot,target,complete){
+    clearFade(slot);const token=slot.fadeToken,start=Number.isFinite(slot.audio.volume)?slot.audio.volume:0,at=now();
+    if(duration===0||Math.abs(start-target)<.001){setLevel(slot,target);complete?.();return;}
+    const tick=()=>{slot.timer=null;if(destroyed||slot.fadeToken!==token)return;const progress=Math.max(0,Math.min(1,(now()-at)/duration));setLevel(slot,start+(target-start)*progress);if(progress>=1)complete?.();else slot.timer=setTimer(tick,32);};
+    slot.timer=setTimer(tick,32);
+  }
+  function fadeOut(slot){
+    if(slot.state!=='playing'){pause(slot);return;}
+    slot.token++;slot.pending=null;fade(slot,0,()=>pause(slot));
+  }
+  function fail(slot,token,error){
+    if(slot.token!==token)return false;
+    failures++;if(error?.name==='NotAllowedError')unlocked=false;else if(slot.id)failedTracks.add(slot.id);
+    pause(slot);if(current===slot)current=null;return false;
+  }
+  function makeSlot(){
+    if(slots.length>=2)return null;
+    let audio;try{audio=createAudio();}catch{failures++;return null;}
+    if(!audio||typeof audio.play!=='function'||typeof audio.pause!=='function'){failures++;return null;}
+    audio.preload='metadata';audio.autoplay=false;
+    const slot={audio,id:null,state:'paused',ended:false,token:0,fadeToken:0,timer:null,pending:null};
+    slot.error=()=>{if(current===slot&&desired===slot.id&&['pending','playing'].includes(slot.state))fail(slot,slot.token,audio.error);};
+    slot.end=()=>{if(audio.loop)return;clearFade(slot);slot.state='ended';slot.ended=true;};
+    audio.addEventListener?.('error',slot.error);audio.addEventListener?.('ended',slot.end);setLevel(slot,0);slots.push(slot);return slot;
+  }
+  function start(slot){
+    const token=++slot.token,atGeneration=generation;slot.state='pending';setLevel(slot,0);
+    const valid=()=>slot.token===token&&generation===atGeneration&&current===slot&&desired===slot.id&&allowed();
+    let request;try{request=slot.audio.play();}catch(error){return Promise.resolve(fail(slot,token,error));}
+    const pending=Promise.resolve(request).then(()=>{
+      if(!valid()){
+        // An old promise must never pause a newer request using the same pool
+        // element. An unused cancelled element is kept paused.
+        if(slot.token===token||current!==slot&&slot.state!=='playing')pause(slot);
+        return false;
+      }
+      slot.pending=null;slot.state='playing';fade(slot,catalog[slot.id].gain*settings.volume);try{onplay({id:slot.id});}catch{}return true;
+    },error=>valid()?fail(slot,token,error):false);
+    slot.pending=pending;return pending;
+  }
+  function reconcile(){
+    if(destroyed)return Promise.resolve(false);
+    if(!desired){const previous=current;current=null;for(const slot of slots)if(slot===previous||slot.state==='playing'||slot.state==='pending')fadeOut(slot);return Promise.resolve(false);}
+    if(!allowed()){pauseAll();return Promise.resolve(false);}
+    if(failedTracks.has(desired))return Promise.resolve(false);
+    if(current?.id===desired&&!restartDesired&&!reloadDesired){
+      if(current.state==='pending')return current.pending??Promise.resolve(false);
+      if(current.state==='ended')return Promise.resolve(false);
+      if(current.state==='playing'&&current.audio.paused!==true)return Promise.resolve(true);
+    }
+    const previous=current;
+    let next=slots.find(slot=>slot.id===desired)??slots.find(slot=>slot!==previous&&slot.state!=='playing')??(slots.length<2?makeSlot():slots.find(slot=>slot!==previous));
+    if(!next){failedTracks.add(desired);return Promise.resolve(false);}
+    if(previous&&previous!==next)fadeOut(previous);
+    clearFade(next);current=next;
+    try{
+      const track=catalog[desired],changed=next.id!==desired;
+      if(changed||reloadDesired){pause(next);next.id=desired;next.audio.loop=track.loop;next.audio.src=track.url;next.audio.load?.();reloadDesired=false;}
+      if(restartDesired||next.ended){try{next.audio.currentTime=0;}catch{}next.ended=false;}
+      restartDesired=false;return start(next);
+    }catch(error){fail(next,next.token,error);return Promise.resolve(false);}
+  }
+  const setScene=scene=>{
+    const next=Object.hasOwn(catalog,scene)?scene:null;
+    if(destroyed||next===desired)return status();
+    desired=next;restartDesired=!!next;reloadDesired=!!next&&failedTracks.has(next);if(next)failedTracks.delete(next);gestureRetryUsed=false;generation++;void reconcile();return status();
+  };
+  const unlock=()=>{if(destroyed)return Promise.resolve(false);unlocked=true;if(!desired)return Promise.resolve(false);
+    // A transient load error gets one gesture retry per scene. Renders and
+    // subsequent clicks cannot turn a missing file into a request storm.
+    if(desired&&failedTracks.has(desired)&&!gestureRetryUsed){gestureRetryUsed=true;failedTracks.delete(desired);reloadDesired=true;restartDesired=true;generation++;}
+    return reconcile();};
+  const setEnabled=enabled=>{if(destroyed)return status();const next=!!enabled;if(next===settings.enabled)return status();settings.enabled=next;generation++;if(settings.enabled){reloadDesired=!!desired&&failedTracks.has(desired);if(reloadDesired)restartDesired=true;failedTracks.clear();gestureRetryUsed=false;}else pauseAll();persist();void reconcile();return status();};
+  const setVolume=volume=>{if(destroyed)return status();if(Number.isFinite(volume))settings.volume=clamp(volume);if(settings.volume===0){generation++;pauseAll();}else if(current?.state==='playing')fade(current,catalog[current.id].gain*settings.volume);else void reconcile();persist();return status();};
+  const setSuspended=(reason,value)=>{if(destroyed)return;const before=suspended.has(reason);if(value)suspended.add(reason);else suspended.delete(reason);if(before===!!value)return;generation++;if(value)pauseAll();else void reconcile();};
+  function status(){return {...settings,unlocked,desired,current:current?.id??null,playing:slots.filter(slot=>slot.state==='playing'&&slot.audio.paused!==true).length,pending:slots.filter(slot=>slot.state==='pending').length,elements:slots.length,failures,suspended:suspended.size>0||hidden(),failedTracks:[...failedTracks]};}
+  const destroy=()=>{if(destroyed)return;generation++;destroyed=true;pauseAll();desired=null;for(const slot of slots){slot.audio.removeEventListener?.('error',slot.error);slot.audio.removeEventListener?.('ended',slot.end);try{slot.audio.removeAttribute?.('src');slot.audio.load?.();}catch{}}};
+  return Object.freeze({setScene,unlock,setEnabled,setVolume,setSuspended,status,destroy});
+}
+
+let storage=null;try{storage=globalThis.localStorage??null;}catch{}
+const music=createBgmManager({storage});
+export const setBgmScene=scene=>music.setScene(scene);
+export const bgmStatus=()=>music.status();
+export function installBgmControls({toggle,volume,value,doc=globalThis.document,win=globalThis.window,manager=music}={}){
+  if(!doc)return ()=>{};
+  const update=()=>{const settings=manager.status();if(toggle){toggle.textContent='배경음악 · '+(settings.enabled?'켬':'끔');toggle.setAttribute('aria-pressed',String(settings.enabled));}if(volume)volume.value=String(Math.round(settings.volume*100));if(value)value.textContent=Math.round(settings.volume*100)+'%';};
+  const unlock=()=>{void manager.unlock();},keydown=event=>{if(!event.repeat)unlock();},visibility=()=>manager.setSuspended('visibility',doc.hidden===true),pagehide=()=>manager.setSuspended('page',true),pageshow=()=>{manager.setSuspended('page',false);visibility();};
+  const click=()=>{manager.setEnabled(!manager.status().enabled);update();},input=()=>{manager.setVolume(Number(volume.value)/100);update();};
+  doc.addEventListener?.('pointerdown',unlock,{capture:true});doc.addEventListener?.('keydown',keydown,{capture:true});doc.addEventListener?.('visibilitychange',visibility);win?.addEventListener?.('pagehide',pagehide);win?.addEventListener?.('pageshow',pageshow);toggle?.addEventListener?.('click',click);volume?.addEventListener?.('input',input);visibility();update();
+  return ()=>{doc.removeEventListener?.('pointerdown',unlock,{capture:true});doc.removeEventListener?.('keydown',keydown,{capture:true});doc.removeEventListener?.('visibilitychange',visibility);win?.removeEventListener?.('pagehide',pagehide);win?.removeEventListener?.('pageshow',pageshow);toggle?.removeEventListener?.('click',click);volume?.removeEventListener?.('input',input);};
+}
