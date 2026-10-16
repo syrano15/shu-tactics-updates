@@ -1,0 +1,37 @@
+// Display-only timber extensions compiled once from an approved ship-deck crop.
+// Tactical cells, bridges, deployment and saved coordinates stay unchanged.
+export const CHIBI_DECK_TERRAIN_KEY=".........#############\n.........#############\n.........##...........\n.........##...........\n......FF.##FF.........\n.........##...........\n......................\n......................\n......................\n.........##...........\n.........##...........\n.........##...........\n......FF.##FF.........\n.........##...........\n.........##...........\n.........#############";
+export const CHIBI_DECK_SOURCE='art/act3/maps/s15_chibi-v039.webp';
+export const CHIBI_DECK_ART='art/act3/maps/s15_chibi-v0728.webp';
+export const CHIBI_DECK_EXTENSIONS=Object.freeze([
+ [0,0,90,1600],[810,0,90,1600],[0,0,900,80],[0,1400,900,200],[900,600,200,300],
+ [1100,200,70,1300],[2130,200,70,1300],[1100,200,1100,80],[1100,1300,1100,200]
+].map(rect=>Object.freeze(rect)));
+export function chibiDeckModel(chapter){
+ if(chapter?.id!=='s15_chibi'||chapter.campaignLayoutVersion!==1||chapter.terrain.length!==16||chapter.terrain.some(row=>row.length!==22)||chapter.terrain.join('\n')!==CHIBI_DECK_TERRAIN_KEY)return null;
+ const cells=[];for(let y=0;y<16;y++)for(let x=0;x<22;x++)if(chapter.terrain[y][x]!=='#')cells.push([x,y]);
+ return {id:chapter.id,columns:22,rows:16,width:2200,height:1600,terrainKey:chapter.terrain.join('\n'),passable:cells,extensions:CHIBI_DECK_EXTENSIONS};
+}
+export function paintChibiDeckExtensions(canvas,chapter,image){
+ const model=chibiDeckModel(chapter);if(!model)throw new Error('적벽 갑판 표시 지형이 다릅니다.');
+ canvas.width=model.width;canvas.height=model.height;const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0,model.width,model.height);
+ const scaleX=image.naturalWidth/model.width,scaleY=image.naturalHeight/model.height;
+ const plank=canvas.ownerDocument.createElement('canvas');plank.width=150;plank.height=130;
+ // Quiet, empty approved timber between the mast and cargo. No new art fetch.
+ plank.getContext('2d').drawImage(image,1210*scaleX,670*scaleY,150*scaleX,130*scaleY,0,0,150,130);
+ ctx.save();ctx.beginPath();for(const [x,y] of model.passable)ctx.rect(x*100,y*100,100,100);ctx.clip();
+ for(const [x,y,w,h] of model.extensions){
+  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();ctx.fillStyle=ctx.createPattern(plank,'repeat');ctx.fillRect(x,y,w,h);
+  const glaze=ctx.createLinearGradient(x,y,x+w,y+h);glaze.addColorStop(0,'#dcc39b18');glaze.addColorStop(.6,'#6b4e2a08');glaze.addColorStop(1,'#261a1433');ctx.fillStyle=glaze;ctx.fillRect(x,y,w,h);ctx.restore();
+ }
+ // Heavy beams and rope rails explain the widened floating fighting deck.
+ const beams=[[82,0,82,1600],[818,0,818,1600],[0,1412,900,1412],[0,1590,900,1590],[1110,210,1110,1490],[2190,210,2190,1490],[1110,210,2190,210],[1110,1488,2190,1488],[1110,1310,2190,1310],[905,608,1095,608],[905,892,1095,892]];
+ ctx.lineCap='round';for(const [x1,y1,x2,y2] of beams){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle='#322820b3';ctx.lineWidth=14;ctx.stroke();ctx.strokeStyle='#b89b6f';ctx.lineWidth=5;ctx.stroke();}
+ for(const [x,y,w,h] of [[0,1400,900,200],[1100,1300,1100,200]])for(let n=0;n<=w;n+=90){const xx=x+Math.min(w-12,n+12);ctx.fillStyle='#30281e';ctx.fillRect(xx-5,y+7,10,19);ctx.fillRect(xx-5,y+h-25,10,19);ctx.fillStyle='#bca178';ctx.fillRect(xx-3,y+5,6,13);ctx.fillRect(xx-3,y+h-27,6,13);}
+ ctx.restore();plank.width=plank.height=1;return model;
+}
+export function installChibiDeckPresentation(chapters,register){
+ const chapter=chapters.find(ch=>ch.id==='s15_chibi'),model=chibiDeckModel(chapter);if(!model)return null;
+ const art={id:model.id,src:CHIBI_DECK_ART,width:model.width,height:model.height,columns:model.columns,rows:model.rows,terrainKey:model.terrainKey,blockedKind:'water',coverKind:'woodenCargo'};register(art);return art;
+}
+

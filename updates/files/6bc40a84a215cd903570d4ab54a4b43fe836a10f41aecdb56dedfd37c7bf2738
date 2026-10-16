@@ -1,0 +1,74 @@
+import {act3StageEnemyOrders} from './act3-stage-revision.js';
+import {xiapiScenario} from './xiapi-routes.js';
+import {act2ReliefEnemyOrders} from './act2-relief-save.js';
+import {baimaLimitedEnemyOrders} from './baima-reinforcement-limit.js';
+import {thousandLiLimitedEnemyOrders} from './thousand-li-reinforcement-limit.js';
+import {act2EnemyLimitedOrders} from './act2-enemy-wave-limit.js';
+import {act3LimitedEnemyOrders} from './act3-reinforcement-limit.js';
+import {campaignEnemyOrder} from './campaign-events.js';
+import {createUnit} from './engine.js';
+import {validateReinforcementRecord} from './reinforcements.js';
+import {CHIBI_FORMATION_VERSION,enemyFormationOrders} from './enemy-progression.js';
+// Formation versions preserve exact active historical rosters, including their old classes.
+const ensure=(ok,message)=>{if(!ok)throw new Error('적 편성 저장 오류: '+message);};
+const oldIds=(count,leaders)=>[...leaders,...Array.from({length:count},(_,i)=>'e'+String(i+1).padStart(2,'0'))];
+const ORIGINAL_ENEMIES=Object.freeze({
+ s07_xiapi:oldIds(12,['e_boss']),s08_xiaopei:oldIds(12,['e_boss']),s09_baima:oldIds(8,['e_boss']),s10_thousand_li:oldIds(6,['e_gate1','e_gate2','e_gate3']),s11_bowang:oldIds(11,['e_boss']),s12_xinye:oldIds(12,['e_boss']),s13_changban:oldIds(12,['e_boss','e_tiger']),
+});
+const OLD_CLASSES=Object.freeze({s07_xiapi:{e07:'act2_lu_troop_infantry'},s11_bowang:{e11:'act2_cao_troop_infantry'},s13_changban:{e05:'act2_cao_troop_infantry'}});
+const sameIds=(a,b)=>a.length===b.length&&new Set(a).size===a.length&&a.every(id=>b.includes(id));
+export function enemyTemplateForSave(chapter,id,version,campaignVersion=0){
+ return version!==3&&version!==4&&OLD_CLASSES[chapter.id]?.[id]||campaignEnemyOrder(chapter,chapter.enemies.find(e=>e.id===id),campaignVersion)?.templateId;
+}
+function formations(chapter,state){
+ chapter=xiapiScenario(chapter,state?.xiapiRoutesVersion??0);
+ const original=ORIGINAL_ENEMIES[chapter?.id];if(!original||chapter?.act!==2&&chapter?.combatProfile!=='act2')return null;
+ const previous=[...original,'e_mage1'],current=act2EnemyLimitedOrders(state,chapter,thousandLiLimitedEnemyOrders(state,chapter,baimaLimitedEnemyOrders(state,chapter,act2ReliefEnemyOrders(state,chapter)))).map(enemy=>enemy.id);
+ const cancelledWenChou=chapter.id==='s09_baima'&&state?.act2EnemyWaveLimitVersion===1&&state.act2EnemyWaveLimitRemovedIds?.includes('e06');
+ ensure(new Set(current).size===current.length&&original.filter(id=>!cancelledWenChou||id!=='e06').every(id=>current.includes(id)),'현재 전장의 원래 적 부대가 누락되었습니다.');
+ return {original,previous,current};
+}
+function activeIds(state,sets){
+ const pending=(state.reinforcements?.pending??[]).flatMap(wave=>wave.units.map(u=>u.id));
+ return sets.current.filter(id=>!pending.includes(id));
+}
+export function validateEnemyFormationMarker(value){
+ ensure(value.enemyFormationVersion===undefined||[1,2,3,4].includes(value.enemyFormationVersion),'지원하지 않는 적 편성 버전입니다.');
+ ensure(value.state?.enemyFormationVersion===undefined||value.state.enemyFormationVersion===4,'전투의 적 편성 버전입니다.');
+ ensure(value.state?.enemyFormationVersion===undefined||value.enemyFormationVersion===4,'전투와 저장의 적 편성 버전이 다릅니다.');
+}
+export function enemyFormationStamp(state,chapter){
+ if(chapter.id==='s15_chibi'&&state.enemyFormationVersion===CHIBI_FORMATION_VERSION)return {enemyFormationVersion:4};
+ const sets=formations(chapter,state);if(!sets)return {};
+ const ids=state.units.filter(unit=>unit.team==='enemy').map(unit=>unit.id);
+ if(state.battleEventsVersion===1){validateReinforcementRecord(state,chapter);ensure(sameIds(ids,activeIds(state,sets)),'새 전장의 적 부대가 누락되거나 추가되었습니다.');return {enemyFormationVersion:3};}
+ if(sameIds(ids,sets.original))return {enemyFormationVersion:1};
+ ensure(sameIds(ids,sets.previous),'전장의 적 편성이 일부만 포함되거나 변경되었습니다.');return {enemyFormationVersion:2};
+}
+export function enemyFormationRefs(value,chapter,refs){
+ validateEnemyFormationMarker(value);const sets=formations(chapter,value.state);
+ if(chapter.id==='s15_chibi'){
+  const version=value.enemyFormationVersion??null;
+  ensure(version===null||version===4,'적벽 명단 버전이 올바르지 않습니다.');
+  ensure((version===4)===(value.state.enemyFormationVersion===4),'적벽 전투의 명단 버전이 다릅니다.');
+  if(version===4)ensure(value.state.enemyProgressionVersion===3,'적벽 새 명단의 성장 버전이 다릅니다.');
+  validateReinforcementRecord(value.state,chapter,refs);
+  const pending=new Set((value.state.reinforcements?.pending??[]).flatMap(w=>w.units.map(u=>u.id)));
+  const expected=act3StageEnemyOrders(value.state,chapter,act3LimitedEnemyOrders(value.state,chapter,enemyFormationOrders(chapter,version))).map(e=>e.id).filter(id=>!pending.has(id));
+  ensure(sameIds(value.state.units.filter(u=>u.team==='enemy').map(u=>u.id),expected),'적벽 저장 버전에 맞는 적 부대가 누락되거나 추가되었습니다.');
+  return refs.filter(u=>!pending.has(u.id)&&(u.team!=='enemy'||expected.includes(u.id)));
+ }
+ if(!sets){ensure(value.enemyFormationVersion===undefined,'이 전장은 적 편성 이행 대상이 아닙니다.');validateReinforcementRecord(value.state,chapter,refs);const pending=new Set((value.state.reinforcements?.pending??[]).flatMap(w=>w.units.map(u=>u.id)));return refs.filter(u=>!pending.has(u.id));}
+ const version=value.enemyFormationVersion??1;
+ if(version===3)ensure(value.state.battleEventsVersion===1,'새 편성의 전투 버전이 누락되었습니다.');
+ else ensure(value.state.battleEventsVersion===undefined&&value.state.reinforcements===undefined,'구 전투에 증원 버전을 추가할 수 없습니다.');
+ validateReinforcementRecord(value.state,chapter,refs);
+ const expected=version===1?sets.original:version===2?sets.previous:activeIds(value.state,sets),ids=value.state.units.filter(unit=>unit.team==='enemy').map(unit=>unit.id);
+ ensure(sameIds(ids,expected),'저장 버전에 맞는 적 부대가 누락되거나 추가되었습니다.');value.enemyFormationVersion=version;
+ const pendingIds=new Set((value.state.reinforcements?.pending??[]).flatMap(wave=>wave.units.map(u=>u.id)));
+ return refs.filter(unit=>!pendingIds.has(unit.id)&&(unit.team!=='enemy'||expected.includes(unit.id))).map(ref=>{
+  const templateId=version!==3&&OLD_CLASSES[chapter.id]?.[ref.id];if(!templateId)return ref;
+  const old=createUnit(value.balance,ref.id,'enemy',null,templateId,ref.level,ref.promotion,ref.combatTier);
+  return {...ref,...old,x:ref.x,y:ref.y,faction:ref.faction};
+ });
+}

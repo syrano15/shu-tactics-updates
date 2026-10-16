@@ -1,0 +1,109 @@
+import {UNIT_TEMPLATES} from './roster.js';
+import {getPromotionBonuses} from './promotion.js';
+
+// Fixed chapter progression: no party level, investment or live save is read.
+export const ENEMY_PROGRESSION_VERSION=3;
+export const ENEMY_HP_CAP=40000;
+export const ACT2_ENEMY_HEALTH_VERSION=1;
+export const ACT2_ENEMY_HEALTH_RATIO=.9;
+export const ACT2_ENEMY_DIFFICULTY_VERSION=2;
+export const CHIBI_FORMATION_VERSION=4;
+export const CHIBI_ENEMY_FIRE_RATIO=.75;
+export const ENEMY_CHAPTER_PROGRESSION=Object.freeze({
+ s07_xiapi:[6000,9000,14000,16000,15,8],
+ s08_xiaopei:[6500,9500,15000,16500,18,9],
+ s09_baima:[7000,10000,16000,17000,20,10],
+ s10_thousand_li:[7500,11000,16000,18000,22,11],
+ s11_bowang:[8000,12000,17000,18500,25,12],
+ s12_xinye:[9000,13000,18000,19000,28,14],
+ s13_changban:[10000,14000,19000,20000,30,15],
+ s14_jiangxia:[12000,18000,26000,28000,35,18],
+ s15_chibi:[13000,19000,27000,29000,37,19],
+ // Huarong is a routed army. Its separate pursuit rules keep the old templates.
+ s17_jingnan:[14000,20500,29000,31000,40,20],
+ s18_changsha:[15000,21500,30000,32000,42,21],
+ s19_jiangling:[16000,22500,32000,34000,45,22],
+ s20_adou_river:[17000,23500,33000,35000,48,24],
+ s21_jingzhou_hold:[18000,24000,35000,36000,50,25],
+});
+const eliteTemplateId=(prefix,faction,cls)=>`${prefix}_${faction}_progression_elite_${cls}`;
+export function installEnemyProgressionTemplates(templates){
+ for(const [id,troop] of Object.entries({...templates})){
+  const match=/^(act[23])_([^_]+)_(?:troop|elite)_/.exec(id);if(!match||!['troop','elite'].includes(troop.combatTier))continue;
+  const [,prefix,faction]=match;
+  // Some factions originally fielded only an elite of a given class. Supply
+  // their normal calibration before a live Act 2 downgrade needs that class.
+  const normalId=`${prefix}_${faction}_troop_${troop.cls}`;
+  if(prefix==='act2'&&!templates[normalId]){
+   const normal=Object.entries(templates).find(([key,t])=>key.startsWith('act2_')&&t.combatTier==='troop'&&t.cls===troop.cls)?.[1];
+   if(!normal)throw new Error('2막 일반 병과 원본이 없습니다: '+troop.cls);
+   templates[normalId]={...normal,name:troop.name.replace('정예 ',''),faction};
+  }
+  const elite=Object.values(templates).find(t=>t.combatTier==='elite'&&t.cls===troop.cls);
+  // A strategist has no old elite template; use the troop's identity and an
+  // explicit elite calibration, then apply the same real rank-2 bonuses.
+  const basis=elite??{...troop,baseStats:{...troop.baseStats,hp:(troop.baseStats?.hp??2000)+1200,int:(troop.baseStats?.int??55)+10}};
+  templates[eliteTemplateId(prefix,faction,troop.cls)]={...basis,generic:true,combatTier:'elite',name:troop.name.replace(/(?:정예 )?([^ ]+)$/,'정예 $1')};
+ }
+}
+export function enemyFormationOrders(chapter,version=null){
+ return chapter.enemies.filter(e=>e.introducedFormationVersion===undefined||version>=e.introducedFormationVersion);
+}
+function historicalProgressionEnemyOrder(chapter,order,version){
+ if(order.introducedAct3StageVersion===1)return {...order,combatTier:'troop',rank:0};
+ if(version!==3||!ENEMY_CHAPTER_PROGRESSION[chapter?.id])return order;
+ if(order.introducedXiapiRouteVersion===1)return {...order,combatTier:'troop',rank:0};
+ const template=UNIT_TEMPLATES[order.templateId];if(!template)return order;
+ if(!['troop','elite'].includes(order.combatTier))return {...order,rank:2};
+ const generics=chapter.enemies.filter(e=>!e.introducedXiapiRouteVersion&&['troop','elite'].includes(e.combatTier)),existing=generics.filter(e=>e.combatTier==='elite');
+ const ratio=chapter.act===3?2/3:chapter.id==='s07_xiapi'||chapter.id==='s08_xiaopei'?1/4:1/3;
+ const target=chapter.id==='s15_chibi'?generics.length:Math.ceil(generics.length*ratio);
+ const candidates=[...existing,...generics.filter((e,i)=>e.combatTier!=='elite'&&i%3===0),...generics.filter(e=>e.combatTier!=='elite')];
+ const eliteIds=new Set([...new Set(candidates.map(e=>e.id))].slice(0,Math.max(target,existing.length)));
+ if(!eliteIds.has(order.id))return {...order,rank:1};
+ const prefix=chapter.act===3?'act3':'act2',templateId=eliteTemplateId(prefix,order.faction,template.cls);
+ if(!UNIT_TEMPLATES[templateId])throw new Error('정예 적 원본이 없습니다: '+templateId);
+ return {...order,templateId,combatTier:'elite',rank:2};
+}
+// Historical orders stay available for validation of saves produced before v0.39.7.
+export function progressionEnemyOrder(chapter,order,version=ENEMY_PROGRESSION_VERSION,act2EnemyDifficultyVersion=0){
+ const original=historicalProgressionEnemyOrder(chapter,order,version);
+ if(chapter?.act!==2||version!==3||act2EnemyDifficultyVersion!==1)return original;
+ const rank=Math.max(0,(original.rank??original.promotion??0)-1);
+ if(original.combatTier!=='elite')return {...original,rank};
+ const template=UNIT_TEMPLATES[original.templateId],templateId=`act2_${original.faction}_troop_${template.cls}`;
+ if(!UNIT_TEMPLATES[templateId])throw new Error('2막 일반 적 원본이 없습니다: '+templateId);
+ return {...original,templateId,combatTier:'troop',rank};
+}
+export function applyEnemyProgression(unit,chapter,version=ENEMY_PROGRESSION_VERSION,act2EnemyHealthVersion=ACT2_ENEMY_HEALTH_VERSION,act2EnemyDifficultyVersion=0){
+ const profile=version===3&&ENEMY_CHAPTER_PROGRESSION[chapter?.id];if(!profile||unit.team!=='enemy')return unit;
+ const [troop,elite,officer,boss,attack,defense]=profile;
+ const tier=unit.combatTier,hp=({troop,elite,officer,boss})[tier];
+ if(!Number.isInteger(hp))throw new Error('적 성장 등급이 없습니다.');
+ // Fixed HP profiles originally included the old promotion capacity. Remove the
+ // lost promotion capacity as well as replacing elite templates with troops.
+ let capacity=chapter.act===2&&act2EnemyHealthVersion===1?Math.floor(hp*ACT2_ENEMY_HEALTH_RATIO):hp;
+ if(chapter.act===2&&act2EnemyDifficultyVersion===1){
+  const priorRank=unit.rank+1;
+  capacity-=getPromotionBonuses(unit.cls,priorRank).hp-getPromotionBonuses(unit.cls,unit.rank).hp;
+  // A former elite now uses the historical enhanced troop capacity directly.
+  if(tier==='troop'&&unit.rank===1)capacity+=getPromotionBonuses(unit.cls,2).hp-getPromotionBonuses(unit.cls,1).hp;
+ }
+ // v0.39.8 restores the historical rank/template while keeping exactly the
+ // reduced capacity that the same soldier had in v0.39.7. Health must not
+ // silently climb back to the old elite profile when offensive grades return.
+ if(chapter.act===2&&act2EnemyDifficultyVersion===2){
+  const reduced=base=>Math.floor(base*ACT2_ENEMY_HEALTH_RATIO);
+  if(tier==='elite')capacity=reduced(troop);
+  else if(tier==='troop')capacity=reduced(troop)-getPromotionBonuses(unit.cls,1).hp;
+  else capacity=reduced(hp)-(getPromotionBonuses(unit.cls,2).hp-getPromotionBonuses(unit.cls,1).hp);
+ }
+ unit.maxHp=unit.hp=Math.min(ENEMY_HP_CAP,Math.max(1,capacity));
+ unit.baseAtk+=attack;unit.atk+=attack;unit.def+=defense;
+ if(unit.cls==='strategist')unit.int+=attack;
+ return unit;
+}
+export function enemyHealthCapacity(state,unit){
+ if(unit.team==='ally'&&state.allyHpVersion===1)return 40000; // Validation bound, not a gameplay clamp.
+ return unit.team==='enemy'&&state.enemyProgressionVersion===3&&state.enemyHpCap===ENEMY_HP_CAP?ENEMY_HP_CAP:10000;
+}

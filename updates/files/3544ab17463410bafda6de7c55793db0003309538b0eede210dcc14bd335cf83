@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "version": "0.72.8",
+  "displayOnly": true,
+  "totalBytes": 1564502,
+  "assets": [
+    {
+      "id": "s03_hulao",
+      "src": "art/maps/rock-v0728/s03_hulao.webp",
+      "bytes": 415896,
+      "sha256": "52756573cf751f945a70e3fc2ce865f39aa217a951efd61ab3bdfea839dd0471",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "id": "s16_huarong",
+      "src": "art/maps/rock-v0728/s16_huarong.webp",
+      "bytes": 786832,
+      "sha256": "baefd79e6ba5b431497fcadb27555ff6a429385a74b6b5a2f36062f39079b92a",
+      "width": 2200,
+      "height": 1600
+    },
+    {
+      "id": "material",
+      "src": "art/maps/rock-v0728/material-v0728.webp",
+      "bytes": 189752,
+      "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d",
+      "width": 768,
+      "height": 768,
+      "hasAlpha": false
+    },
+    {
+      "id": "outcrop",
+      "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+      "bytes": 172022,
+      "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99",
+      "width": 540,
+      "height": 900,
+      "hasAlpha": true
+    }
+  ]
+}

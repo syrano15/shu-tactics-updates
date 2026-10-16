@@ -1,0 +1,182 @@
+// Display-only continuous maps. The original terrain, deployment and rules are
+// never written. Every photograph/texture remains an unchanged source asset.
+import {paintRockMass,rockMapSource} from './rock-map-art.js';
+const palettes={
+ s02_yellow_camp:['#a29362','#8c764c'],s03_hulao:['#a08b65','#685d48'],s04_beihai:['#9b9868','#6c855c'],
+ s05_xuzhou_relief:['#a99b71','#857653'],s06_xuzhou_fall:['#979083','#68675d'],s07_xiapi:['#89957c','#687d66'],
+ s08_xiaopei:['#aca071','#807348'],s09_baima:['#b8aa78','#849471'],s10_thousand_li:['#a18b64','#675e4c'],
+ s11_bowang:['#879b65','#3f694a'],s12_xinye:['#aea077','#777b5e'],s13_changban:['#a29469','#71845d'],
+ s14_jiangxia:['#8d9e76','#597e67'],s16_huarong:['#8b8c62','#4c684b'],s17_jingnan:['#a99a71','#758567'],
+ s18_changsha:['#a59a81','#746d60'],s19_jiangling:['#a2947a','#727c69'],s20_adou_river:['#8d9c7a','#65896c'],s21_jingzhou_hold:['#949574','#657b5a']
+};
+const hash=(x,y,seed)=>{let n=Math.imul(x+117,374761393)^Math.imul(y+79,668265263)^seed;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;};
+const seedFor=id=>[...id].reduce((n,c)=>Math.imul(n^c.charCodeAt(0),16777619)>>>0,2166136261);
+export const mapBlockedKind=chapter=>[4,5,6].includes(chapter.act)&&['rock','water','wall'].includes(chapter.blockedKind)?chapter.blockedKind:chapter.id==='s03_hulao'?'rock':chapter.id==='s06_xuzhou_fall'||chapter.blockedLabel==='성벽'?'wall':['s10_thousand_li','s16_huarong'].includes(chapter.id)?'rock':'water';
+export const mapBlockedLabel=id=>id==='s03_hulao'?'관문·산벽':null;
+export function mapPresentationSpec(chapter){
+ const width=chapter.terrain[0].length,height=chapter.terrain.length;
+ return {id:chapter.id,columns:width,rows:height,width:width*100,height:height*100,terrainKey:chapter.terrain.join('\n'),blockedKind:mapBlockedKind(chapter),...(chapter.id==='s20_adou_river'?{coverKind:'woodenCargo'}:{}),preserve:chapter.id==='s01_zhuoxian'||chapter.id==='s15_chibi',palette:palettes[chapter.id]??['#9a9872','#687857']};
+}
+function ellipse(ctx,x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
+function pathCells(ctx,terrain,code){ctx.beginPath();for(let y=0;y<terrain.length;y++)for(let x=0;x<terrain[0].length;x++)if(terrain[y][x]===code)ctx.rect(x*100,y*100,100,100);}
+function texture(ctx,image,width,height,scale=1.5){ctx.save();ctx.scale(scale,scale);ctx.fillStyle=ctx.createPattern(image,'repeat');ctx.fillRect(0,0,width/scale,height/scale);ctx.restore();}
+function ground(ctx,ch,spec,images,seed){
+ if(ch.id==='s20_adou_river'){
+  const plank=ctx.canvas.ownerDocument.createElement('canvas');plank.width=490;plank.height=200;plank.getContext('2d').drawImage(images.deck,0,400,490,200,0,0,490,200);texture(ctx,plank,spec.width,spec.height,1);plank.width=plank.height=1;return;
+ }
+ texture(ctx,images[ch.id==='s06_xuzhou_fall'?'city':'ground'],spec.width,spec.height,1.7);
+ ctx.globalAlpha=.2;ctx.fillStyle=spec.palette[0];ctx.fillRect(0,0,spec.width,spec.height);ctx.globalAlpha=1;
+ // Broad washes cross cell boundaries, so terrain is not a repeated tile grid.
+ for(let i=0;i<62;i++){
+  const x=hash(i,1,seed)*spec.width,y=hash(i,2,seed)*spec.height,r=65+hash(i,3,seed)*210;
+  const wash=ctx.createRadialGradient(x,y,0,x,y,r);wash.addColorStop(0,i%2?'#e3c08d35':'#405c403c');wash.addColorStop(1,'#0000');ctx.fillStyle=wash;ctx.fillRect(x-r,y-r,r*2,r*2);
+ }
+ const ys=Array.from({length:7},(_,i)=>spec.height*(.48+Math.sin(i*.8+hash(i,4,seed))*.09));
+ const road=shift=>{ctx.beginPath();ctx.moveTo(0,ys[0]+shift);for(let i=1;i<ys.length;i++){const x=i*spec.width/6;if(i<ys.length-1)ctx.quadraticCurveTo(x,ys[i]+shift,x+spec.width/12,(ys[i]+ys[i+1])/2+shift);else ctx.lineTo(x,ys[i]+shift);}};
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ // Soft worn soil, rather than a flat outlined ribbon across the photograph.
+ for(const [width,color] of [[90,'#514c3620'],[76,'#74634728'],[65,'#b5a07925'],[53,'#c4ad8028'],[40,'#d3bb9120']]){road(0);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();}
+ for(const shift of [-11,11]){road(shift);ctx.strokeStyle='#786c5138';ctx.lineWidth=1.7;ctx.stroke();}ctx.restore();
+ for(let i=0;i<1800;i++){
+  const x=hash(i,11,seed)*spec.width,y=hash(i,12,seed)*spec.height;if(ch.terrain[Math.floor(y/100)]?.[Math.floor(x/100)]!=='.')continue;
+  ctx.strokeStyle=i%3?'#52604355':'#ccb99666';ctx.lineWidth=.7+hash(i,13,seed);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+hash(i,14,seed)*6,y-2-hash(i,15,seed)*6);ctx.stroke();
+ }
+}
+function riverColumns(ch,spec){
+ const columns=new Map();if(!['s07_xiapi','s09_baima','s12_xinye','s13_changban','s21_jingzhou_hold'].includes(ch.id))return columns;
+ for(let x=0;x<spec.columns;x++){const ys=[];for(let y=0;y<spec.rows;y++)if(ch.terrain[y][x]==='#')ys.push(y);if(ys.length>=3&&ys.at(-1)-ys[0]>=4)columns.set(x,[ys[0],ys.at(-1)]);}
+ return columns;
+}
+function riverFords(ctx,ch,spec,seed){
+ // Existing open gaps in a river are still traversable. A shallow, muddy ford
+ // joins the water visually; deeper blocked water remains much darker. The
+ // original bridge coordinates receive their wooden decks afterwards.
+ for(const [x,[first,last]] of riverColumns(ch,spec))for(let y=first;y<=last;y++)if(ch.terrain[y][x]==='.'){
+  const px=x*100,py=y*100,g=ctx.createLinearGradient(px,py,px+100,py);g.addColorStop(0,'#777b5738');g.addColorStop(.2,'#6577654c');g.addColorStop(.5,'#8e95745c');g.addColorStop(.8,'#6577654c');g.addColorStop(1,'#777b5738');ctx.fillStyle=g;ctx.fillRect(px,py,100,100);
+  for(let i=0;i<23;i++){const xx=px+hash(i+x*23,y,seed)*100,yy=py+hash(i,y+44,seed)*100;ellipse(ctx,xx,yy,2+hash(i,y+47,seed)*7,1,'#c4c8a942');}
+  ctx.strokeStyle='#b7af8559';ctx.lineWidth=4;for(const xx of [px+3,px+97]){ctx.beginPath();ctx.moveTo(xx,py);ctx.lineTo(xx,py+100);ctx.stroke();}
+ }
+}
+function water(ctx,ch,spec,seed){
+ ctx.save();pathCells(ctx,ch.terrain,'#');ctx.clip();
+ const wash=ctx.createLinearGradient(0,0,spec.width,spec.height);wash.addColorStop(0,'#426c68');wash.addColorStop(.5,'#2b555a');wash.addColorStop(1,'#46716a');ctx.fillStyle=wash;ctx.fillRect(0,0,spec.width,spec.height);
+ for(let y=12;y<spec.height;y+=12){ctx.beginPath();for(let x=0;x<=spec.width;x+=14){const yy=y+Math.sin(x*.025+y*.016)*2.6;x?ctx.lineTo(x,yy):ctx.moveTo(x,yy);}ctx.strokeStyle=y%24?'#afc4ad16':'#accdbe30';ctx.lineWidth=y%24?1:1.7;ctx.stroke();}
+ for(let i=0;i<500;i++){const x=hash(i,20,seed)*spec.width,y=hash(i,21,seed)*spec.height;ellipse(ctx,x,y,3+hash(i,22,seed)*18,.7,'#d6e2c62e');}
+ ctx.restore();
+ // Draw only outer shores; neighbouring blocked water cells have no seams.
+ const isWater=(x,y)=>ch.terrain[y]?.[x]==='#',rivers=riverColumns(ch,spec);
+ for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++)if(isWater(x,y)){
+  for(const [dx,dy,line] of [[0,-1,[x*100,y*100,(x+1)*100,y*100]],[0,1,[x*100,(y+1)*100,(x+1)*100,(y+1)*100]],[-1,0,[x*100,y*100,x*100,(y+1)*100]],[1,0,[(x+1)*100,y*100,(x+1)*100,(y+1)*100]]]){
+   if(x+dx<0||y+dy<0||x+dx>=spec.columns||y+dy>=spec.rows||isWater(x+dx,y+dy)||(dy&&rivers.has(x)&&ch.terrain[y+dy]?.[x]==='.'))continue;
+   ctx.save();pathCells(ctx,ch.terrain,'#');ctx.clip();ctx.beginPath();ctx.moveTo(line[0],line[1]);ctx.lineTo(line[2],line[3]);ctx.strokeStyle='#333e2c';ctx.lineWidth=17;ctx.stroke();ctx.strokeStyle='#b3ad7b';ctx.lineWidth=10;ctx.stroke();ctx.strokeStyle='#dfd7a869';ctx.lineWidth=3;ctx.stroke();ctx.restore();
+  }
+ }
+}
+function cliffs(ctx,ch,spec,images,seed){
+ paintRockMass(ctx,ch,spec,images.rock,images.outcrop);
+ if(ch.id==='s03_hulao'){
+  // A connected stone parapet follows the existing mountain opening. It never
+  // extends onto the passable road or introduces an additional obstacle.
+  ctx.save();ctx.beginPath();
+  for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++)if(ch.terrain[y][x]==='#'&&(ch.terrain[y-1]?.[x]==='.'||ch.terrain[y+1]?.[x]==='.'))ctx.rect(x*100,y*100,100,100);
+  ctx.clip();texture(ctx,images.wall,spec.width,spec.height,.4);ctx.restore();
+  for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++)if(ch.terrain[y][x]==='#'){
+   const top=ch.terrain[y-1]?.[x]==='.',bottom=ch.terrain[y+1]?.[x]==='.';if(!top&&!bottom)continue;
+   const px=x*100,py=y*100,edge=top?py:py+100;ctx.strokeStyle='#292e28aa';ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(px,edge+(top?5:-5));ctx.lineTo(px+100,edge+(top?5:-5));ctx.stroke();ctx.strokeStyle='#b3aa8b';ctx.lineWidth=3;ctx.stroke();
+   // Two watch posts at the outer corners mark the opening without rows of
+   // repeated small buildings. Posts and banners are inside blocked cells.
+   if(ch.terrain[y]?.[x-1]!=='#'){
+    ctx.fillStyle='#28332a9c';ctx.fillRect(px+6,py+8,40,80);ctx.drawImage(images.wall,px+9,py+6,33,73);ctx.strokeStyle='#bdb295';ctx.lineWidth=2;ctx.strokeRect(px+9,py+6,33,73);
+    ctx.fillStyle='#454a3c';ctx.fillRect(px+6,py+3,40,10);for(let i=0;i<4;i++)ctx.fillRect(px+8+i*10,py,6,7);
+    ctx.strokeStyle='#49372a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px+26,py+6);ctx.lineTo(px+26,py+25);ctx.stroke();ctx.fillStyle='#683d2c';ctx.beginPath();ctx.moveTo(px+26,py+6);ctx.lineTo(px+42,py+11);ctx.lineTo(px+26,py+17);ctx.fill();
+   }
+  }
+ }
+}
+function walls(ctx,ch,spec,images){
+ ctx.save();pathCells(ctx,ch.terrain,'#');ctx.clip();texture(ctx,images.wall,spec.width,spec.height,.42);
+ for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++)if(ch.terrain[y][x]==='#'){
+  const px=x*100,py=y*100;const sides=[[-1,0,[px,py,px,py+100]],[1,0,[px+100,py,px+100,py+100]],[0,-1,[px,py,px+100,py]],[0,1,[px,py+100,px+100,py+100]]];
+  for(const [dx,dy,line] of sides)if(ch.terrain[y+dy]?.[x+dx]!=='#'){
+   ctx.beginPath();ctx.moveTo(line[0],line[1]);ctx.lineTo(line[2],line[3]);ctx.strokeStyle='#20271fcc';ctx.lineWidth=18;ctx.stroke();ctx.strokeStyle='#d9c9a4';ctx.lineWidth=6;ctx.stroke();
+   for(let j=10;j<100;j+=20){const cx=dx?line[0]:px+j,cy=dy?line[1]:py+j;ctx.fillStyle='#6a6c58';ctx.fillRect(cx-6,cy-6,12,12);ctx.strokeStyle='#d4c69e';ctx.lineWidth=1;ctx.strokeRect(cx-6,cy-6,12,12);}
+  }
+ }ctx.restore();
+}
+function forests(ctx,ch,spec,images,seed){
+ const doc=ctx.canvas.ownerDocument,layer=doc.createElement('canvas');layer.width=spec.width;layer.height=spec.height;const forest=layer.getContext('2d');
+ const stamp=doc.createElement('canvas');stamp.width=stamp.height=256;const tree=stamp.getContext('2d');tree.drawImage(images.forest,0,0,256,256);
+ // Alpha is composed at render time. Source photography remains unchanged.
+ const feather=tree.createRadialGradient(128,128,44,128,128,132);feather.addColorStop(0,'#fff');feather.addColorStop(.6,'#fffffff0');feather.addColorStop(1,'#fff0');tree.globalCompositeOperation='destination-in';tree.fillStyle=feather;tree.fillRect(0,0,256,256);
+ for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++)if(ch.terrain[y][x]==='F'){
+  if(ch.id==='s20_adou_river'){
+   forest.drawImage(images.deck,300,300,100,100,x*100,y*100,100,100);continue;
+  }
+  // Deterministic orientation and scale keep groves distinct while retaining
+  // their photographic art tone. Soft stamps never paint square soil patches.
+  forest.save();forest.translate(x*100+50,y*100+50);forest.rotate(Math.floor(hash(x,y,seed)*4)*Math.PI/2);if(hash(x,y+17,seed)>.5)forest.scale(-1,1);
+  const size=115+hash(x+3,y+7,seed)*18;forest.drawImage(stamp,-size/2,-size/2,size,size);forest.restore();
+ }
+ const mask=doc.createElement('canvas');mask.width=spec.width;mask.height=spec.height;const maskContext=mask.getContext('2d'),pixels=maskContext.createImageData(spec.width,spec.height);
+ for(let y=0;y<spec.rows;y++)for(let x=0;x<spec.columns;x++)if(ch.terrain[y][x]==='F'){
+  const edges=[ch.terrain[y]?.[x-1]!=='F',ch.terrain[y]?.[x+1]!=='F',ch.terrain[y-1]?.[x]!=='F',ch.terrain[y+1]?.[x]!=='F'];
+  for(let yy=0;yy<100;yy++)for(let xx=0;xx<100;xx++){
+   const distance=Math.min(edges[0]?xx+1:100,edges[1]?100-xx:100,edges[2]?yy+1:100,edges[3]?100-yy:100),fade=Math.min(1,distance/14),alpha=Math.round(255*fade*fade*(3-2*fade)),i=((y*100+yy)*spec.width+x*100+xx)*4;
+   pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=255;pixels.data[i+3]=alpha;
+  }
+ }
+ maskContext.putImageData(pixels,0,0);forest.globalCompositeOperation='destination-in';forest.drawImage(mask,0,0);ctx.drawImage(layer,0,0);
+ layer.width=layer.height=stamp.width=stamp.height=mask.width=mask.height=1;
+}
+function bridges(ctx,ch){
+ for(const [x,y] of ch.bridgeCells??[]){
+  if(ch.terrain[y]?.[x]!=='.')continue;const px=x*100,py=y*100;
+  // A deck is strictly inside the original passable bridge coordinate.
+  ctx.fillStyle='#352f22aa';ctx.fillRect(px,py+20,100,65);ctx.fillStyle='#a9966d';ctx.fillRect(px,py+15,100,58);
+  for(let i=0;i<12;i++){ctx.strokeStyle=i%2?'#554934':'#c0ae87';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px+i*9,py+18);ctx.lineTo(px+i*9,py+69);ctx.stroke();}
+  ctx.strokeStyle='#574a32';ctx.lineWidth=5;for(const yy of [py+15,py+73]){ctx.beginPath();ctx.moveTo(px,yy);ctx.lineTo(px+100,yy);ctx.stroke();}
+  for(const xx of [px+5,px+50,px+95]){ctx.fillStyle='#6b5c3d';ctx.fillRect(xx-2,py+8,5,13);ctx.fillRect(xx-2,py+67,5,13);}
+ }
+}
+function traces(ctx,ch,spec,seed){
+ // Small stakes, abandoned provisions and wheel ruts are decorative ground
+ // traces, never buildings or newly blocked tactical coordinates.
+ for(let i=0;i<26;i++){
+  const x=Math.floor(hash(i,50,seed)*spec.columns),y=Math.floor(hash(i,51,seed)*spec.rows);if(ch.terrain[y][x]!=='.'||(ch.bridgeCells??[]).some(p=>p[0]===x&&p[1]===y))continue;
+  const px=x*100+15,py=y*100+28;ctx.strokeStyle='#725e3a80';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+16,py+6);ctx.moveTo(px+3,py-8);ctx.lineTo(px+19,py-2);ctx.stroke();ellipse(ctx,px+32,py+11,6,3,'#544c3480');ellipse(ctx,px+34,py+9,4,2,'#c0a77c80');
+ }
+}
+export function paintCampaignMap(canvas,chapter,images){
+ const spec=mapPresentationSpec(chapter),seed=seedFor(chapter.id),ctx=canvas.getContext('2d');canvas.width=spec.width;canvas.height=spec.height;
+ ground(ctx,chapter,spec,images,seed);
+ if(spec.blockedKind==='water'){riverFords(ctx,chapter,spec,seed);water(ctx,chapter,spec,seed);}else if(spec.blockedKind==='rock')cliffs(ctx,chapter,spec,images,seed);else walls(ctx,chapter,spec,images);
+ forests(ctx,chapter,spec,images,seed);bridges(ctx,chapter);traces(ctx,chapter,spec,seed);return spec;
+}
+async function loadImage(src,ImageType){return new Promise(resolve=>{const image=new ImageType();image.onload=()=>resolve(image);image.onerror=()=>resolve(null);image.src=src;});}
+export async function buildCampaignMapPresentation(chapters,register,{document=globalThis.document,ImageType=globalThis.Image}={}){
+ if(!document?.createElement||!ImageType)return [];
+ const sources={deck:'art/act3/maps/s20_adou_river-v036.webp',forest:'art/terrain/forest-v020.webp',ground:'art/terrain/ground-v020.webp',city:'art/terrain/city-ground-v020.webp',rock:'art/maps/rock-v0728/material-v0728.webp',outcrop:'art/maps/rock-v0728/outcrop-v0728.webp',wall:'art/terrain/wall-stone-v0384.webp'},images=Object.fromEntries(await Promise.all(Object.entries(sources).map(async([kind,src])=>[kind,await loadImage(src,ImageType)])));
+ if(Object.values(images).some(image=>!image))return [];
+ const results=[],urls=[];
+ for(const chapter of chapters){
+  const spec=mapPresentationSpec(chapter);if(chapter.campaignLayoutVersion!==1||spec.preserve)continue;
+  const canvas=document.createElement('canvas');paintCampaignMap(canvas,chapter,images);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',.92));if(!blob)continue;
+  const src=URL.createObjectURL(blob);urls.push(src);register({...spec,src});results.push({id:chapter.id,src,...spec});
+  canvas.width=canvas.height=1;
+ }
+ globalThis.addEventListener?.('pagehide',event=>{if(!event.persisted)for(const url of urls)URL.revokeObjectURL(url);},{once:true});
+ return results;
+}
+
+// Packaged maps are compiled once by the display-only canvas generator above.
+// Runtime registration is immediate and never delays the title screen with
+// nineteen image encodes. A missing/corrupt file retains the existing fallback.
+export function installCampaignMapPresentation(chapters,register){
+ const results=[];
+ for(const chapter of chapters){
+  const spec=mapPresentationSpec(chapter);if(chapter.campaignLayoutVersion!==1||spec.preserve)continue;
+  const art={...spec,src:rockMapSource(chapter,spec)??'art/maps/'+(chapter.id==='s07_xiapi'&&chapter.xiapiRoutesVersion===1?'v0398':'v0395')+'/'+chapter.id+'.webp'};register(art);results.push(art);
+ }
+ return results;
+}

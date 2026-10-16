@@ -1,0 +1,1208 @@
+{
+  "version": "0.72.8",
+  "count": 49,
+  "bytes": 6175564,
+  "records": [
+    {
+      "id": "huanggai",
+      "src": "art/units-v0728/huanggai.webp",
+      "originalSrc": "art/act3/sd/huanggai.png",
+      "kind": "foot",
+      "width": 512,
+      "height": 768,
+      "bytes": 372720,
+      "sha256": "73e948d9cd2ba320b4a6b7d4478eb72a0b922067ae0cddefb5e69ae0876ca421",
+      "originalSHA256": "8394dbc78d78486509f7062aba32a5d50d37e2ca328e255f3cac66961bd8aa6a",
+      "metrics": {
+        "width": 512,
+        "height": 768,
+        "visibleBounds": [
+          0.021484375,
+          0.0234375,
+          0.982421875,
+          0.9375
+        ],
+        "bodyTop": 0.12369791666666667,
+        "bodyBottom": 0.9375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "wenpin",
+      "src": "art/units-v0728/wenpin.webp",
+      "originalSrc": "art/act3/sd/wenpin.png",
+      "kind": "foot",
+      "width": 554,
+      "height": 768,
+      "bytes": 407120,
+      "sha256": "10d8d1c354ee5ad56756ee6d33c91184a3d725a0dc35d8e31f49af6c25db7c52",
+      "originalSHA256": "7d2ea0f19d6fac961438a9a503ca1bcefc08095165a14dd8c406bf03f594d974",
+      "metrics": {
+        "width": 554,
+        "height": 768,
+        "visibleBounds": [
+          0.018050541516245487,
+          0.02734375,
+          0.9891696750902527,
+          0.9765625
+        ],
+        "bodyTop": 0.13151041666666666,
+        "bodyBottom": 0.9765625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "chendao",
+      "src": "art/units-v0728/chendao.webp",
+      "originalSrc": "art/v033/sd/chendao.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 129122,
+      "sha256": "af676c79942c0e9901ea3dc98c18230db1544c13a799d25eb4d2cc61eddb6e37",
+      "originalSHA256": "455323d2fccb82da7d50e5c117a80c1cddaa3edd0300e24ea047f3c1aff47e0f",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.12239583333333333,
+          0.15625,
+          0.8828125,
+          0.845703125
+        ],
+        "bodyTop": 0.232421875,
+        "bodyBottom": 0.845703125
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "kongxiu",
+      "src": "art/units-v0728/kongxiu.webp",
+      "originalSrc": "art/v033/sd/kongxiu.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 125168,
+      "sha256": "a0db68ec4b6028b3f251c468795ee73a683210b846290ec4d9c0efcbe51d4df4",
+      "originalSHA256": "d4aeba3bb2ad7c37bcf57655399560d92302ddd2531058933c042115fa9da597",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.16145833333333334,
+          0.16015625,
+          0.8515625,
+          0.84765625
+        ],
+        "bodyTop": 0.236328125,
+        "bodyBottom": 0.84765625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "hanfu",
+      "src": "art/units-v0728/hanfu.webp",
+      "originalSrc": "art/v033/sd/hanfu.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 132124,
+      "sha256": "61559d560eb863addcda3ddd5a7ea81fe7fc7995575d2aa6a1726cedc0d6de4a",
+      "originalSHA256": "934f20878998c9a716847c95353d287ce02c89584836bb0ca956b4cb8afd7141",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.125,
+          0.13671875,
+          0.9166666666666666,
+          0.849609375
+        ],
+        "bodyTop": 0.21484375,
+        "bodyBottom": 0.849609375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "caoren",
+      "src": "art/units-v0728/caoren.webp",
+      "originalSrc": "art/v033/sd/caoren.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 134888,
+      "sha256": "8bbf87778e91ae0e3f9d1aa31376b17062d92943fe0dcf6f6b61d473657726f9",
+      "originalSHA256": "20745d546752076c65b52c0800fbbbd5eae7751db75009de3f1bf1b07aa506a8",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.12760416666666666,
+          0.16015625,
+          0.8645833333333334,
+          0.849609375
+        ],
+        "bodyTop": 0.16015625,
+        "bodyBottom": 0.849609375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "xiahouen",
+      "src": "art/units-v0728/xiahouen.webp",
+      "originalSrc": "art/v033/sd/xiahouen.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 128372,
+      "sha256": "dfbab621fb20856283ae7b89e62b6bfb436130cb3077c1b0d268c843b6f1721d",
+      "originalSHA256": "906ee6dcd876ab89454c16161c3b45223163e4a090fec9e66da259c87bdf1187",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.1171875,
+          0.126953125,
+          0.859375,
+          0.837890625
+        ],
+        "bodyTop": 0.205078125,
+        "bodyBottom": 0.837890625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "guanping",
+      "src": "art/units-v0728/guanping.webp",
+      "originalSrc": "art/act3/sd/guanping.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 141420,
+      "sha256": "6bd4fd574b202767ef4cc537b66ea53f6dee7712336085be02373cce0829aa14",
+      "originalSHA256": "eab3fcd23be343e877695ee06625ad2235eaad22e02431356e6634371b244145",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.057291666666666664,
+          0.11328125,
+          0.9791666666666666,
+          0.8359375
+        ],
+        "bodyTop": 0.11328125,
+        "bodyBottom": 0.8359375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "masu",
+      "src": "art/units-v0728/masu.webp",
+      "originalSrc": "art/act3/sd/masu.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 152094,
+      "sha256": "63544ea8ecb712eeb67267142ddb3cc94d127699f74e19f0556300570129112e",
+      "originalSHA256": "0f7798243526bfa2d57e8a541bede33716374618fd895665c595709ac347f501",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.15625,
+          0.107421875,
+          0.8958333333333334,
+          0.83984375
+        ],
+        "bodyTop": 0.107421875,
+        "bodyBottom": 0.83984375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "liaohua",
+      "src": "art/units-v0728/liaohua.webp",
+      "originalSrc": "art/act3/sd/liaohua.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 134048,
+      "sha256": "03ddf43c3934e95bbf9ba48d1fac2afe50ae5ff2008030ce64db3111008997e8",
+      "originalSHA256": "ddfcc1d6e2bdc45016a28ea6538e242e8e60b22c54adeb8f01b30cc58e4f68f8",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.1484375,
+          0.115234375,
+          0.8776041666666666,
+          0.837890625
+        ],
+        "bodyTop": 0.115234375,
+        "bodyBottom": 0.837890625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "maliang",
+      "src": "art/units-v0728/maliang.webp",
+      "originalSrc": "art/act3/sd/maliang.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 127688,
+      "sha256": "c98a10632d49f5306e504646d4873501efb50ff1cfc7d56158642574c383eaa8",
+      "originalSHA256": "18812f29eb3f90125c4c0b33ceae343bef23da21e7758d058322349e53779822",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.16145833333333334,
+          0.146484375,
+          0.8984375,
+          0.8359375
+        ],
+        "bodyTop": 0.146484375,
+        "bodyBottom": 0.8359375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "liufeng",
+      "src": "art/units-v0728/liufeng.webp",
+      "originalSrc": "art/act3/sd/liufeng.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 125844,
+      "sha256": "fb8a3ba717d4b9012dd2d51134ef97c7aa7de1a1633c62bf9bb533b4bc9928e2",
+      "originalSHA256": "c484e11e6424d13ef040ea9be8e79794eafc864ea0b7f170f2f0c74310b77e2f",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.1015625,
+          0.1484375,
+          0.8515625,
+          0.837890625
+        ],
+        "bodyTop": 0.1484375,
+        "bodyBottom": 0.837890625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "pangtong",
+      "src": "art/units-v0728/pangtong.webp",
+      "originalSrc": "art/act3/sd/pangtong.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 110844,
+      "sha256": "e6c4081f42cb7c1d01318d0f443b37ece8bdd99dd31b6e24d18f26cb2c688c70",
+      "originalSHA256": "fa9fd4060c47f650125f74b0e2b8e5583a459bcf7b3358145bfa1deef80c961f",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.13802083333333334,
+          0.15234375,
+          0.8072916666666666,
+          0.833984375
+        ],
+        "bodyTop": 0.15234375,
+        "bodyBottom": 0.833984375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "hanxuan",
+      "src": "art/units-v0728/hanxuan.webp",
+      "originalSrc": "art/act3/sd/hanxuan.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 119702,
+      "sha256": "60f7da24c422f3d794ceac1b275b2cbbf662c99a0099107c3e641d8a25d95a9c",
+      "originalSHA256": "65815486c6495096c293dc1a71cfd8e387f825b6d855acca88e77a02611bf37f",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.14322916666666666,
+          0.140625,
+          0.8151041666666666,
+          0.833984375
+        ],
+        "bodyTop": 0.140625,
+        "bodyBottom": 0.833984375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "flagship_commander",
+      "src": "art/units-v0728/flagship_commander.webp",
+      "originalSrc": "art/act3/sd/wei_commander.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 145492,
+      "sha256": "e6f3a6d51301a5b2d80c09ce30190da73d0528657122f8a36124b59c06b8dace",
+      "originalSHA256": "2d28b121615bb978c0a4792589c496a970d7dabe8536d8de8d9d17a3319b5202",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.15625,
+          0.111328125,
+          0.90625,
+          0.8359375
+        ],
+        "bodyTop": 0.19140625,
+        "bodyBottom": 0.8359375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "wu_officer",
+      "src": "art/units-v0728/wu_officer.webp",
+      "originalSrc": "art/act3/sd/wu_officer-v0361.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 152806,
+      "sha256": "9298b19fd66fd49e09531026b612ddc7c86922367123654843ca576848f1586d",
+      "originalSHA256": "b2f50c2eb523d7e0eff028dd4884f69fcf9195c4646006fd723804ae58c496be",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.07552083333333333,
+          0.107421875,
+          0.9635416666666666,
+          0.83984375
+        ],
+        "bodyTop": 0.1875,
+        "bodyBottom": 0.83984375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "sunqian",
+      "src": "art/units-v0728/sunqian.webp",
+      "originalSrc": "art/units/sunqian-v020.webp",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 97498,
+      "sha256": "9e738c313d65079c2ade9ed933f5c6670f6fff2076568b559648c92b0405f5a5",
+      "originalSHA256": "c3610bbd30dd540e36ccd53207bbe92318a12197e6ead55c8da2ac4aceea578e",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.2109375,
+          0.12109375,
+          0.7864583333333334,
+          0.8359375
+        ],
+        "bodyTop": 0.12109375,
+        "bodyBottom": 0.8359375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "mizhu",
+      "src": "art/units-v0728/mizhu.webp",
+      "originalSrc": "art/units/mizhu-v020.webp",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 105616,
+      "sha256": "fecb2d759a059511ad3d7d78e3f5b60072f749e67e0061546129e363a86ec181",
+      "originalSHA256": "236d9dc44b4880024abf44a675ff30b85239b2fba003f46a4f3f2a9de7a7cb1d",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.17447916666666666,
+          0.125,
+          0.8072916666666666,
+          0.83984375
+        ],
+        "bodyTop": 0.125,
+        "bodyBottom": 0.83984375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "infantry",
+      "src": "art/units-v0728/infantry.webp",
+      "originalSrc": "art/units/infantry-v08.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 101658,
+      "sha256": "7f4e0360d69c4fec7b5e12a4778f2cfb6800a83e10d4037c261c68a236552419",
+      "originalSHA256": "f8dba7734ca81addc1667c595cac7439bcc33c8e59bf38d89bfce9489fadb2d2",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.140625,
+          0.19140625,
+          0.8697916666666666,
+          0.8671875
+        ],
+        "bodyTop": 0.265625,
+        "bodyBottom": 0.8671875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "spear",
+      "src": "art/units-v0728/spear.webp",
+      "originalSrc": "art/units/spear-v09.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 103194,
+      "sha256": "231a801ba149ce3c1de879082b600f1f16fa2a08437f84761b46d1622af1a065",
+      "originalSHA256": "d470d82502ebb23a4ee0247ab964f43baec1a12236df252dd2d0a3e121bc5d5f",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.22916666666666666,
+          0.111328125,
+          0.8385416666666666,
+          0.869140625
+        ],
+        "bodyTop": 0.24609375,
+        "bodyBottom": 0.869140625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "archer",
+      "src": "art/units-v0728/archer.webp",
+      "originalSrc": "art/units/archer-v09.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 107546,
+      "sha256": "592c200a8693d46aad85efec8ee7934c06263ce05459abadaea78af5fd3c63b7",
+      "originalSHA256": "6b969ae552d0a9cf4ac5d5815472542d593e190ec5ed56723dc2c1c184d16460",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.13541666666666666,
+          0.166015625,
+          0.8333333333333334,
+          0.8671875
+        ],
+        "bodyTop": 0.259765625,
+        "bodyBottom": 0.8671875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "crossbow",
+      "src": "art/units-v0728/crossbow.webp",
+      "originalSrc": "art/units/crossbow-v09.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 96532,
+      "sha256": "30c355a1281ba5fd25ba6ed902f12bce7d6670a9bcb22cd803b95426d527c6a2",
+      "originalSHA256": "6664c13b7478538c97210e6b4fc4e850a566c6559e19111bf90c56a2184d6374",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.1484375,
+          0.220703125,
+          0.8385416666666666,
+          0.865234375
+        ],
+        "bodyTop": 0.251953125,
+        "bodyBottom": 0.865234375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "cavalry",
+      "src": "art/units-v0728/cavalry.webp",
+      "originalSrc": "art/units/cavalry-v020.webp",
+      "kind": "mounted",
+      "width": 384,
+      "height": 512,
+      "bytes": 123214,
+      "sha256": "c48e582714d912c156ed452dd9db09004595c9d95461bb31dc7684177d9f3aa0",
+      "originalSHA256": "3c46bbcfbcd50ccd5228618d644c5748536743b39fc9ae8c20bb1ad7fc0762de",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.16666666666666666,
+          0.125,
+          0.953125,
+          0.84375
+        ],
+        "bodyTop": 0.20703125,
+        "bodyBottom": 0.84375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "strategist",
+      "src": "art/units-v0728/strategist.webp",
+      "originalSrc": "art/v038/strategist.png",
+      "kind": "foot",
+      "width": 384,
+      "height": 512,
+      "bytes": 94164,
+      "sha256": "98d9edda7424c8db5fd879a03588ab8ad329c3040068f2586adb8d3fd1247625",
+      "originalSHA256": "53497495db9637ca98964aff304ad724794411df6bbb2e85512cac2e5ca2b5cc",
+      "metrics": {
+        "width": 384,
+        "height": 512,
+        "visibleBounds": [
+          0.1796875,
+          0.189453125,
+          0.8671875,
+          0.826171875
+        ],
+        "bodyTop": 0.189453125,
+        "bodyBottom": 0.826171875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "machao",
+      "src": "art/units-v0728/later-machao.webp",
+      "originalSrc": "art/act4/units/machao-cavalry-r0.svg",
+      "kind": "mounted",
+      "width": 512,
+      "height": 512,
+      "bytes": 124598,
+      "sha256": "9b13686d58412f74d5b42a7b355fc6e75fed1ddf5a6e8fc68c4199c5bca8077b",
+      "originalSHA256": "45e1157a823b1bb3f20f152a9de4e0dd0c8b38a5f81f409aa7e56bbadfcb6e09",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.154296875,
+          0.158203125,
+          0.84765625,
+          0.84375
+        ],
+        "bodyTop": 0.19921875,
+        "bodyBottom": 0.84375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "fazheng",
+      "src": "art/units-v0728/later-fazheng.webp",
+      "originalSrc": "art/act4/units/fazheng-strategist-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 46932,
+      "sha256": "6155805e5a9b37f313475b0602bd42a32c2e3ff230e39cc6b8aa6f8707ac65fd",
+      "originalSHA256": "6f197cae21cfcffbf25a0129db033fee5afd521bf01ecb9e10c4e35e0d41c41b",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.361328125,
+          0.24609375,
+          0.638671875,
+          0.751953125
+        ],
+        "bodyTop": 0.24609375,
+        "bodyBottom": 0.751953125
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "yanyan",
+      "src": "art/units-v0728/later-yanyan.webp",
+      "originalSrc": "art/act4/units/yanyan-archer-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 150550,
+      "sha256": "0208381751e96e9122094ec53cd07e5c4311a6204442cb60d19364f87160e2ba",
+      "originalSHA256": "0ad189c4452de19d35d3c9c4589bac4af14ca17fccb9ba78d81b623de899d075",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.17578125,
+          0.09765625,
+          0.822265625,
+          0.90234375
+        ],
+        "bodyTop": 0.16015625,
+        "bodyBottom": 0.90234375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "huangquan",
+      "src": "art/units-v0728/later-huangquan.webp",
+      "originalSrc": "art/act4/units/huangquan-strategist-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 75596,
+      "sha256": "f3bf62917610e3d1f4262eba353e55a2d38296530b325c361bf12596d2f74ed7",
+      "originalSHA256": "ad63e328bc388490c2012725312110dd9ed7cf1d5923bbfeb05339a8b15714ea",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.33984375,
+          0.09765625,
+          0.662109375,
+          0.90234375
+        ],
+        "bodyTop": 0.099609375,
+        "bodyBottom": 0.90234375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "wangping",
+      "src": "art/units-v0728/later-wangping.webp",
+      "originalSrc": "art/act4/units/wangping-crossbow-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 50762,
+      "sha256": "5b67935bd775520e996317be16e9db45d1a373ac89977877c36d2c5732b69b2d",
+      "originalSHA256": "efa385408c694f6695cd1c60f82be620260b892939463bf51e09f8311c6f45ec",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.326171875,
+          0.2578125,
+          0.673828125,
+          0.744140625
+        ],
+        "bodyTop": 0.29296875,
+        "bodyBottom": 0.744140625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "liyan",
+      "src": "art/units-v0728/later-liyan.webp",
+      "originalSrc": "art/act4/units/liyan-infantry-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 150380,
+      "sha256": "374913250be01b7729825a8ea40c1df4848bbb5d2da54570abf27f908591713a",
+      "originalSHA256": "951446b216a64da383476f223b1ae14e19a634a551cff0cbc748b43b777de6b5",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.140625,
+          0.1171875,
+          0.859375,
+          0.880859375
+        ],
+        "bodyTop": 0.123046875,
+        "bodyBottom": 0.880859375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "wuban",
+      "src": "art/units-v0728/later-wuban.webp",
+      "originalSrc": "art/act4/units/wuban-cavalry-r0.svg",
+      "kind": "mounted",
+      "width": 512,
+      "height": 512,
+      "bytes": 143360,
+      "sha256": "44d6147b9563235e9b26d1ec2da8f151056691c30b04d0c0818a01775ddf90be",
+      "originalSHA256": "2b1e1c1ce5952000b93b5e77dfba6d5839c835c88e5f234fcbd9b4874d5097cb",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.107421875,
+          0.13671875,
+          0.89453125,
+          0.86328125
+        ],
+        "bodyTop": 0.16015625,
+        "bodyBottom": 0.86328125
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "wuyi",
+      "src": "art/units-v0728/later-wuyi.webp",
+      "originalSrc": "art/act4/units/wuyi-spear-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 134348,
+      "sha256": "597a0086cd8c304493bd41d8fe4adfb0463d087accbec555d7ab44b7e5eba742",
+      "originalSHA256": "9b52ce53f320aa215461148b57748cc324c3d1579c8d34c1dd692eff946df23c",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.1484375,
+          0.123046875,
+          0.8515625,
+          0.875
+        ],
+        "bodyTop": 0.197265625,
+        "bodyBottom": 0.875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "zhangyi",
+      "src": "art/units-v0728/later-zhangyi.webp",
+      "originalSrc": "art/act4/units/zhangyi-crossbow-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 129526,
+      "sha256": "ebba4c5c3a2052c8361309b871adbdac942110d7a1b9102c4368347005193a1b",
+      "originalSHA256": "4be933acf6f1f43192194a67b2e9b08d28f2e0c88913faec242e99217a0fa78a",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.154296875,
+          0.134765625,
+          0.845703125,
+          0.865234375
+        ],
+        "bodyTop": 0.15625,
+        "bodyBottom": 0.865234375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "zhanghe",
+      "src": "art/units-v0728/later-zhanghe.webp",
+      "originalSrc": "art/act4/units/zhanghe-cavalry-r0.svg",
+      "kind": "mounted",
+      "width": 512,
+      "height": 512,
+      "bytes": 176588,
+      "sha256": "fffcd6928206fb0ef80665d969f6aa0310b614a19ee5cd051ecfed15c4f06479",
+      "originalSHA256": "81450582d449007a1f19582cdb7a31f4fc0833e9d1755926cc506edea2c1e9bd",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.1015625,
+          0.115234375,
+          0.8984375,
+          0.880859375
+        ],
+        "bodyTop": 0.177734375,
+        "bodyBottom": 0.880859375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "xiahouyuan",
+      "src": "art/units-v0728/later-xiahouyuan.webp",
+      "originalSrc": "art/act4/units/xiahouyuan-cavalry-r0.svg",
+      "kind": "mounted",
+      "width": 512,
+      "height": 512,
+      "bytes": 132644,
+      "sha256": "562b87bc7d4698d90cccf20c56c25800e15264b7fb06e89718240b711ab4ec67",
+      "originalSHA256": "fb3c17c3adfc8f72b71641e4f0f5038530b938b52b1cdf042fc43317c6ca10c4",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.1015625,
+          0.166015625,
+          0.900390625,
+          0.833984375
+        ],
+        "bodyTop": 0.2109375,
+        "bodyBottom": 0.833984375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "zhangren",
+      "src": "art/units-v0728/later-zhangren.webp",
+      "originalSrc": "art/act4/units/zhangren-archer-r0.svg",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 158944,
+      "sha256": "ca0dabd342279d6f7f4c682bd87f2ca58aa0c0d78ce9e21f1dbef763f2e24c91",
+      "originalSHA256": "36b0f99e6b0490f57dff97499251588699a9870c2cc646cef28d90a6199cc57e",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.16015625,
+          0.107421875,
+          0.841796875,
+          0.890625
+        ],
+        "bodyTop": 0.166015625,
+        "bodyBottom": 0.890625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "guanxing",
+      "src": "art/units-v0728/later-guanxing.webp",
+      "originalSrc": null,
+      "kind": "mounted",
+      "width": 512,
+      "height": 512,
+      "bytes": 116000,
+      "sha256": "57d6fd8cdae345326b75107cd9dfedf4e7f89115c61bcc55bf397331832ef1b5",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.15234375,
+          0.142578125,
+          0.84765625,
+          0.857421875
+        ],
+        "bodyTop": 0.15234375,
+        "bodyBottom": 0.857421875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "zhangbao",
+      "src": "art/units-v0728/later-zhangbao.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 61758,
+      "sha256": "ec7a99473d4aafe0f6ff5fab3f76c98c85cffac63b90679209598b99ac98702a",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.251953125,
+          0.26171875,
+          0.74609375,
+          0.736328125
+        ],
+        "bodyTop": 0.265625,
+        "bodyBottom": 0.736328125
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "fengxi",
+      "src": "art/units-v0728/later-fengxi.webp",
+      "originalSrc": null,
+      "kind": "mounted",
+      "width": 512,
+      "height": 512,
+      "bytes": 121270,
+      "sha256": "90ad13f2f40d1c188c0d75b4d28aaac0c03ca739a07886d7f258515853ffe7eb",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.1484375,
+          0.138671875,
+          0.8515625,
+          0.861328125
+        ],
+        "bodyTop": 0.193359375,
+        "bodyBottom": 0.861328125
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "fudong",
+      "src": "art/units-v0728/later-fudong.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 100400,
+      "sha256": "a534e111200aaf3b5f694096e287da8a05bbcc1e6ea32dac050c01e2d37d76a5",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.201171875,
+          0.154296875,
+          0.796875,
+          0.84765625
+        ],
+        "bodyTop": 0.203125,
+        "bodyBottom": 0.84765625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "dengzhi",
+      "src": "art/units-v0728/later-dengzhi.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 48016,
+      "sha256": "ba73df15bedf019d4521a9c8140f55bf683d9bc416258f6e519360e7bb540463",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.33203125,
+          0.28125,
+          0.669921875,
+          0.720703125
+        ],
+        "bodyTop": 0.28125,
+        "bodyBottom": 0.720703125
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "zhangni",
+      "src": "art/units-v0728/later-zhangni.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 95262,
+      "sha256": "fc0972960efffdbda6a3577046cb632db3cf76558983ccd60d14d6ad69b962e1",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.2265625,
+          0.142578125,
+          0.7734375,
+          0.857421875
+        ],
+        "bodyTop": 0.20703125,
+        "bodyBottom": 0.857421875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "mazhong",
+      "src": "art/units-v0728/later-mazhong.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 32726,
+      "sha256": "a97f86f4b13a76a4d4d98b32b1ffd520dc66f9372f3ae1b587fa39f663032ff2",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.359375,
+          0.333984375,
+          0.640625,
+          0.666015625
+        ],
+        "bodyTop": 0.361328125,
+        "bodyBottom": 0.666015625
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "jiangwei",
+      "src": "art/units-v0728/later-jiangwei.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 38808,
+      "sha256": "d83a32c0454e2c8a6ac3ae48a439bb83eb8769ee070ea0e519c984f95940c63c",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.333984375,
+          0.33203125,
+          0.666015625,
+          0.66796875
+        ],
+        "bodyTop": 0.341796875,
+        "bodyBottom": 0.66796875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "gaoxiang",
+      "src": "art/units-v0728/later-gaoxiang.webp",
+      "originalSrc": null,
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 41560,
+      "sha256": "0070db21973359a8a9a44d14b8e99d8e1785bab1be8659870a0214481f9c9ca4",
+      "originalSHA256": null,
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.34375,
+          0.306640625,
+          0.658203125,
+          0.693359375
+        ],
+        "bodyTop": 0.33984375,
+        "bodyBottom": 0.693359375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "zhugeliang",
+      "src": "art/units-v0728/extra-zhugeliang.webp",
+      "originalSrc": "art/v034/identity/zhugeliang.png",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 97896,
+      "sha256": "2f5a6b0fdd8990ad19a996615d2f24da3ffcb5e175d67b7ec352e89d48711710",
+      "originalSHA256": "2040d631b385fbd32b3941cd6979f402c103c51fff7124e3aca5b880f9e6ce02",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.2734375,
+          0.16015625,
+          0.7265625,
+          0.841796875
+        ],
+        "bodyTop": 0.16015625,
+        "bodyBottom": 0.841796875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "jianyong",
+      "src": "art/units-v0728/extra-jianyong.webp",
+      "originalSrc": "art/v034/identity/jianyong.png",
+      "kind": "foot",
+      "width": 512,
+      "height": 512,
+      "bytes": 105476,
+      "sha256": "48c322bd751fb51d9df22421711b2873f1e7b8fcb9da2f750eba35d8d88b4110",
+      "originalSHA256": "644e6f4a63b3924a4c42e9b74f413ac668b759cce9fb58f51b03637d89b5e4cd",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.2734375,
+          0.103515625,
+          0.724609375,
+          0.896484375
+        ],
+        "bodyTop": 0.10546875,
+        "bodyBottom": 0.896484375
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "lady-sun",
+      "src": "art/units-v0728/extra-lady-sun.webp",
+      "originalSrc": "art/act3/sd/lady_sun.png",
+      "kind": "boat",
+      "boatCalibration": {
+        "mapScale": 0.88,
+        "overallBottom": 0.9296875,
+        "hullBottom": 0.9280489932216907,
+        "hullBottomSourceY": 1168,
+        "hullMethod": "visual full-image inspection, lower hull keel excluding the ferry oar blade",
+        "humanHeadTop": 0.13671875,
+        "mapFeetLine": 0.22,
+        "mapBottomFromOverall": 15.8125,
+        "mapBottomFromHull": 15.668311
+      },
+      "width": 512,
+      "height": 512,
+      "bytes": 210630,
+      "sha256": "b901ec6bc57c7056825d795d6db3100e0ba089c57e8cf4f3443e559241584b57",
+      "originalSHA256": "116af2735d29b9397654762d51af5e878ecf61475fdcf62792d2fe7f42957d4f",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.021484375,
+          0.134765625,
+          0.98828125,
+          0.9296875
+        ],
+        "bodyTop": 0.13671875,
+        "bodyBottom": 0.9296875
+      },
+      "mapAndCombatBound": true
+    },
+    {
+      "id": "ferry",
+      "src": "art/units-v0728/extra-ferry.webp",
+      "originalSrc": "art/act3/sd/ferry.png",
+      "kind": "boat",
+      "boatCalibration": {
+        "mapScale": 0.88,
+        "overallBottom": 0.8359375,
+        "hullBottom": 0.7930377650176678,
+        "hullBottomSourceY": 975,
+        "hullMethod": "visual full-image inspection, lower hull keel excluding the ferry oar blade",
+        "humanHeadTop": 0.337890625,
+        "mapFeetLine": 0.22,
+        "mapBottomFromOverall": 7.5625,
+        "mapBottomFromHull": 3.787323
+      },
+      "width": 512,
+      "height": 512,
+      "bytes": 162660,
+      "sha256": "100a25f59e35c6bd12ab224b842b1450865156540e20956744e3dd32ddaef887",
+      "originalSHA256": "9fac4e9187b447176834fd9ef92c2d098937dbf788c1a900f7ac86c027cbebd5",
+      "metrics": {
+        "width": 512,
+        "height": 512,
+        "visibleBounds": [
+          0.025390625,
+          0.21484375,
+          0.98828125,
+          0.8359375
+        ],
+        "bodyTop": 0.337890625,
+        "bodyBottom": 0.8359375
+      },
+      "mapAndCombatBound": true
+    }
+  ],
+  "preservedCombatManifestSHA256": "a12d879c6620922e155dc6c47650c66c7066943761205c8e55739376017817ae",
+  "oldOriginalsPreserved": true,
+  "mapAndCombatBound": true
+}

@@ -1,0 +1,65 @@
+import {historicalCampaignEnemyCapacity} from './campaign-enemy-balance.js';
+
+export const ACT3_REINFORCEMENT_VERSION=1;
+const fail=message=>{throw new Error('3막 증원 제한 기록 오류: '+message);};
+const ensure=(ok,message)=>{if(!ok)fail(message);};
+const unique=ids=>Array.isArray(ids)&&new Set(ids).size===ids.length;
+const same=(a,b)=>a===b||a&&b&&typeof a==='object'&&typeof b==='object'&&Array.isArray(a)===Array.isArray(b)&&Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>Object.hasOwn(b,k)&&same(a[k],b[k]));
+const enemyWave=wave=>wave.team!=='ally';
+export const act3ReinforcementApplies=chapter=>chapter?.act===3&&chapter.rosterMode==='story'&&chapter.campaignLayoutVersion===1&&chapter.battleEventsVersion===1;
+const rawWaves=chapter=>act3ReinforcementApplies(chapter)?(chapter.reinforcements??[]).filter(enemyWave):[];
+const reserveIds=chapter=>rawWaves(chapter).flatMap(w=>w.unitIds);
+export const act3ReinforcementReserveIds=reserveIds;
+function historyShape(value,chapter){
+ ensure(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===2&&Object.hasOwn(value,'spawned')&&Object.hasOwn(value,'units'),'원천 기록 형식');
+ const waves=rawWaves(chapter);ensure(unique(value.spawned)&&value.spawned.every(id=>waves.some(w=>w.id===id))&&Array.isArray(value.units)&&value.units.length<=reserveIds(chapter).length&&unique(value.units.map(u=>u?.id)),'원천 도착/부대');
+}
+export function act3DefaultRemovedIds(chapter,legacySpawned=[],stageRevisionVersion=0,stageSpawnedWaves=[]){
+ if(!act3ReinforcementApplies(chapter))return [];
+ const waves=rawWaves(chapter);if(stageRevisionVersion===1&&['s15_chibi','s16_huarong'].includes(chapter.id))return waves.flatMap(w=>stageSpawnedWaves.includes(w.id)?legacySpawned.includes(w.id)?[]:w.unitIds.slice(5):w.unitIds);
+ const pending=waves.filter(w=>!legacySpawned.includes(w.id)),priority=[...pending.filter(w=>!w.id.startsWith('layout_')),...pending.filter(w=>w.id.startsWith('layout_'))];
+ const keep=new Set(priority.slice(0,Math.max(0,2-legacySpawned.length)).map(w=>w.id));
+ return pending.flatMap(w=>keep.has(w.id)?w.unitIds.slice(5):w.unitIds);
+}
+export function act3LimitedWaves(state,chapter,waves){
+ if(state?.act3ReinforcementVersion!==1||!act3ReinforcementApplies(chapter))return waves;
+ const removed=new Set(state.act3ReinforcementRemovedIds??[]);
+ return waves.map(w=>enemyWave(w)?{...w,unitIds:w.unitIds.filter(id=>!removed.has(id))}:w).filter(w=>w.unitIds.length);
+}
+export function act3LimitedEnemyOrders(state,chapter,orders){
+ if(state?.act3ReinforcementVersion!==1||!act3ReinforcementApplies(chapter))return orders;
+ const removed=new Set(state.act3ReinforcementRemovedIds??[]);return orders.filter(e=>!removed.has(e.id));
+}
+export function initializeAct3ReinforcementLimit(state,chapter,{act3ReinforcementVersion=1,act3ReinforcementRemovedIds=null,act3ReinforcementHistory=null}={}){
+ ensure([0,1].includes(act3ReinforcementVersion),'지원하지 않는 버전');if(!act3ReinforcementApplies(chapter)||act3ReinforcementVersion===0)return;
+ const history=act3ReinforcementHistory===null?{spawned:[],units:[]}:structuredClone(act3ReinforcementHistory);historyShape(history,chapter);
+ const removed=act3ReinforcementRemovedIds===null?act3DefaultRemovedIds(chapter,history.spawned,state.act3StageRevisionVersion??0,state.act3StageSpawnedWaves??[]):[...act3ReinforcementRemovedIds];
+ ensure(unique(removed)&&same(removed,act3DefaultRemovedIds(chapter,history.spawned,state.act3StageRevisionVersion??0,state.act3StageSpawnedWaves??[])),'제외 명단 원본/순서');
+ // History may differ only in the one environmental HP/morale change. Every
+ // identity/statistic/position field is checked against a fresh historical ref.
+ for(const unit of history.units){const ref=state.units.find(u=>u.id===unit.id);ensure(removed.includes(unit.id)&&ref?.team==='enemy','역사 예비대 원본');ensure(same(Object.keys(unit).sort(),Object.keys(ref).sort())&&Object.keys(ref).every(k=>['hp','morale'].includes(k)||same(unit[k],ref[k])),'역사 예비대 능력치');}
+ state.act3ReinforcementVersion=1;state.act3ReinforcementRemovedIds=removed;state.act3ReinforcementHistory=history;state.units=state.units.filter(u=>!removed.includes(u.id));
+}
+export function act3FireHistoryUnits(state){return state?.act3ReinforcementVersion===1?state.act3ReinforcementHistory?.units??[]:[];}
+export function validateAct3ReinforcementLimit(state,chapter){
+ const marker=state.act3ReinforcementVersion,removed=state.act3ReinforcementRemovedIds,history=state.act3ReinforcementHistory;
+ if(marker===undefined){ensure(removed===undefined&&history===undefined&&state.act3ReinforcementVictoryPending===undefined,'구 전투의 새 표식');return;}
+ ensure(marker===1&&act3ReinforcementApplies(chapter)&&state.battleEventsVersion===1,'버전/전장');historyShape(history,chapter);
+ ensure(unique(removed)&&same(removed,act3DefaultRemovedIds(chapter,history.spawned,state.act3StageRevisionVersion??0,state.act3StageSpawnedWaves??[])),'제외 명단 원본/순서');
+ const record=state.reinforcements,spawned=(record?.spawned??[]).filter(id=>rawWaves(chapter).some(w=>w.id===id));
+ ensure(history.spawned.every(id=>spawned.includes(id)),'역사 도착 기록 누락');ensure(spawned.length<=Math.max(2,history.spawned.length),'새 증원 횟수');
+ const all=[...state.units,...(record?.pending??[]).flatMap(w=>w.units)];ensure(removed.every(id=>!all.some(u=>u.id===id)),'취소 예비대의 재등장');
+ const kept=act3LimitedWaves(state,chapter,rawWaves(chapter));
+ for(const w of kept)if(!history.spawned.includes(w.id))ensure(w.unitIds.length<=5,'새 파동 부대 수');
+ const historicalHits=(state.shipFire?.hits??[]).filter(h=>removed.includes(h.unitId));
+ ensure(history.units.length===historicalHits.length&&history.units.every(u=>historicalHits.some(h=>h.unitId===u.id)),'화공 역사 참조 목록');
+ for(const unit of history.units){const hit=historicalHits.find(h=>h.unitId===unit.id);ensure(chapter.id==='s15_chibi'&&state.enemyProgressionVersion===3&&unit.team==='enemy'&&unit.hp>0&&unit.morale===60&&hit.beforeHp===hit.maxHp,'화공 역사 예비대 상태');const hp=historicalCampaignEnemyCapacity(state,chapter,unit,hit.maxHp)?Math.max(1,Math.min(unit.maxHp,Math.round(hit.afterHp/hit.maxHp*unit.maxHp))):hit.afterHp;ensure(unit.hp===hp,'화공 역사 예비대 병력');}
+}
+export function upgradeValidatedAct3ReinforcementLimit(value,chapter){
+ const state=value.state;if(!act3ReinforcementApplies(chapter)||state.act3ReinforcementVersion!==undefined||state.battleEventsVersion!==1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const enemyIds=new Set(rawWaves(chapter).map(w=>w.id)),spawned=(state.reinforcements?.spawned??[]).filter(id=>enemyIds.has(id)),removed=act3DefaultRemovedIds(chapter,spawned),removedSet=new Set(removed),history=[];
+ for(const wave of state.reinforcements?.pending??[]){if(!enemyIds.has(wave.id))continue;for(const unit of wave.units)if(removedSet.has(unit.id)&&state.shipFire?.hits.some(h=>h.unitId===unit.id))history.push(structuredClone(unit));wave.units=wave.units.filter(u=>!removedSet.has(u.id));}
+ if(state.reinforcements){state.reinforcements.pending=state.reinforcements.pending.filter(w=>w.units.length);if(!state.reinforcements.pending.length&&!state.reinforcements.spawned.length)delete state.reinforcements;}
+ state.act3ReinforcementVersion=1;state.act3ReinforcementRemovedIds=removed;state.act3ReinforcementHistory={spawned:[...spawned],units:history};validateAct3ReinforcementLimit(state,chapter);
+ return {removedIds:removed,preservedSpawned:[...spawned]};
+}

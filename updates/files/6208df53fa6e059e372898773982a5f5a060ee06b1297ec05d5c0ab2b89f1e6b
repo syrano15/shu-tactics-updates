@@ -1,0 +1,90 @@
+import {canTarget, disabled, inside, key, reachable,tacticReason} from './engine.js';
+import {maxRange} from './spirits.js';
+import {WATER_TACTIC} from './tactics.js';
+import {legendaryStatModifiers} from './legendary-skills.js';
+
+const blocked = reason => ({
+  cells: new Set(), targets: new Set(), kind: 'blocked', reason, origin: null,
+});
+
+function actionReason(state, unit) {
+  if (!state || !unit || !Array.isArray(state.terrain) || !state.terrain.length || !Array.isArray(state.units)) {
+    return '공격 범위를 확인할 부대가 없습니다.';
+  }
+  if (state.result) return '전투가 끝나 공격 범위를 표시하지 않습니다.';
+  if (unit.hp <= 0) return '퇴각한 부대는 공격할 수 없습니다.';
+  if (state.phase !== unit.team) return '이 부대의 행동 차례가 아닙니다.';
+  if (disabled(unit)) return '혼란·위보 상태에서는 행동할 수 없습니다.';
+  if (unit.done) return '이미 행동을 마친 부대입니다.';
+  if (!inside(unit.x, unit.y, state) || state.terrain[unit.y][unit.x] === '#') {
+    return '부대가 전장 밖에 있어 공격 범위를 표시할 수 없습니다.';
+  }
+  return '';
+}
+
+// A prospective landing follows moveUnit's moved/accel rules without moving the real unit.
+function atLanding(unit, x, y) {
+  const moved = x !== unit.x || y !== unit.y;
+  const ghost = {...unit, x, y, moved: moved ? true : unit.moved, spirits: {...unit.spirits}};
+  if (moved) {
+    ghost.moveOrigin = {x: unit.x, y: unit.y, accel: !!unit.spirits?.accel};
+    delete ghost.spirits.accel;
+  }
+  return ghost;
+}
+
+function addOrigin(state, actor, cells, targets, skill='fire') {
+  if (actor.moved && !actor.attackAfterMove) return;
+  const radius = skill==='water'?maxRange({...actor,max:WATER_TACTIC.range[1]})+legendaryStatModifiers(actor).rangeBonus:maxRange(actor);
+  const probe = {id: '__attack_range_probe__', hp: 1, team: actor.team === 'ally' ? 'enemy' : 'ally'};
+  const top = Math.max(0, actor.y - radius), bottom = Math.min(state.terrain.length - 1, actor.y + radius);
+  for (let y = top; y <= bottom; y++) {
+    const left = Math.max(0, actor.x - radius), right = Math.min(state.terrain[y].length - 1, actor.x + radius);
+    for (let x = left; x <= right; x++) {
+      if (state.terrain[y][x] !== '#' && canTarget(actor, {...probe, x, y},state,skill)) cells.add(key(x, y));
+    }
+  }
+  for (const target of state.units) {
+    if (target.id !== actor.id && target.hp > 0 && target.team !== actor.team &&
+        cells.has(key(target.x, target.y)) && canTarget(actor, target,state,skill)) targets.add(target.id);
+  }
+}
+
+/**
+ * Pure display projection of legal attacks. Empty cells are shown by probing canTarget
+ * with an opposing unit. Occupancy only limits actual movement and targets, not range.
+ * move-union has no single origin; blocked always has empty sets and a null origin.
+ */
+export function attackRangePreview(state, unit, {mode = 'current', destination = null, skill='fire'} = {}) {
+  const reason = actionReason(state, unit)||(skill==='water'?tacticReason(state,unit,skill):'');
+  if (reason) return blocked(reason);
+  if (!['current', 'move-union', 'destination'].includes(mode)) return blocked('공격 범위 표시 방식을 확인할 수 없습니다.');
+  if (mode === 'current') {
+    if (unit.moved && !unit.attackAfterMove) return blocked('이 부대는 이동 후 공격할 수 없습니다.');
+    const cells = new Set(), targets = new Set();
+    addOrigin(state, unit, cells, targets,skill);
+    return {cells, targets, kind: 'current', reason: '', origin: {x: unit.x, y: unit.y}};
+  }
+  if (unit.moved) return blocked('이미 이동을 마쳤습니다. 현재 자리의 공격 범위를 확인하세요.');
+  const landings = reachable(state, unit);
+  if (mode === 'destination') {
+    if (!destination || !Number.isInteger(destination.x) || !Number.isInteger(destination.y) ||
+        !landings.has(key(destination.x, destination.y))) {
+      return blocked('이동할 수 없는 칸입니다. 초록색 이동 가능 칸을 선택하세요.');
+    }
+    const actor = atLanding(unit, destination.x, destination.y);
+    if (actor.moved && !actor.attackAfterMove) return blocked('이 부대는 이동 후 공격할 수 없습니다.');
+    const cells = new Set(), targets = new Set();
+    addOrigin(state, actor, cells, targets,skill);
+    return {cells, targets, kind: 'destination', reason: '', origin: {x: actor.x, y: actor.y}};
+  }
+  const cells = new Set(), targets = new Set();
+  for (const position of landings.keys()) {
+    const [x, y] = position.split(',').map(Number);
+    addOrigin(state, atLanding(unit, x, y), cells, targets,skill);
+  }
+  return {
+    cells, targets, kind: 'move-union', origin: null,
+    reason: unit.attackAfterMove ? '' : '이 부대는 이동 후 공격할 수 없습니다. 빨강은 제자리 공격 사거리입니다.',
+  };
+}

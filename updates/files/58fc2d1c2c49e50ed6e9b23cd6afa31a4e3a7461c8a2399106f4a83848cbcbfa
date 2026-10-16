@@ -1,0 +1,28 @@
+// Commander panic overlays paid control effects; it never replaces or consumes them.
+export const commanderPanicActive=unit=>Number.isInteger(unit?.commanderPanicRound);
+// The revised Chibi fire shares that one enemy phase, independently of paid control.
+export const chibiFireConfusionActive=unit=>Number.isInteger(unit?.chibiFireConfusionRound);
+export const confused=unit=>unit?.status?.type==='confusion'||commanderPanicActive(unit)||chibiFireConfusionActive(unit);
+export function applyCommanderPanic(state){
+ const ids=[];
+ for(const unit of state.units.filter(u=>u.team==='enemy'&&u.hp>0&&!u.escaped&&!u.withdrawn)){
+  unit.commanderPanicRound=state.round;
+  if(state.phase==='enemy'){unit.done=true;unit.moveOrigin=null;}
+  ids.push(unit.id);
+ }
+ return ids;
+}
+export function expireCommanderPanic(state){
+ if(state.phase!=='enemy')return;
+ for(const unit of state.units){delete unit.commanderPanicRound;delete unit.chibiFireConfusionRound;}
+}
+export function validateCommanderPanicSave(state){
+ for(const unit of state.units){
+  if(unit.commanderPanicRound===undefined)continue;
+  const commander=(state.battleRecords?.defeats??[]).some(record=>{
+   const fallen=state.units.find(u=>u.id===record.targetId);
+   return record.round===unit.commanderPanicRound&&fallen?.team==='enemy'&&fallen.hp===0&&!fallen.generic&&!fallen.escaped&&!['troop','elite'].includes(fallen.combatTier);
+  });
+  if(unit.team!=='enemy'||!Number.isInteger(unit.commanderPanicRound)||unit.commanderPanicRound!==state.round||unit.escaped||!commander)throw new Error('적장 격파 혼란 기록이 올바르지 않습니다.');
+ }
+}

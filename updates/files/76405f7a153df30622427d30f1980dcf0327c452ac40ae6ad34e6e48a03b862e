@@ -1,0 +1,61 @@
+import {combatBodyTop,COMBAT_BODY_HEIGHT} from './unit-body-metrics.js';
+// v0.25: measure visible artwork, not the atlas cell's transparent padding.
+// Coordinates remain presentation-only; the source PNG and combat result are untouched.
+const FRAME_WINDOW_WIDTH=1.34,FEET_LINE=.92,MAX_VISIBLE_HEIGHT=.90;
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const number=value=>Number.isFinite(value);
+const rounded=value=>Math.round(value*1e8)/1e8;
+
+export function sanitizeCombatVisibleBounds(value){
+ if(!Array.isArray(value)||value.length!==4||!value.every(number))return null;
+ const [left,top,right,bottom]=value;
+ if(left<0||top<0||right>1||bottom>1||right-left<.05||bottom-top<.05)return null;
+ return [...value];
+}
+export function sanitizeCombatDisplayHeight(value){
+ return number(value)&&value>=.5&&value<=.92?value:null;
+}
+export const sanitizeCombatBodyHeight=value=>number(value)&&value>=.5&&value<=.8?value:null;
+function frameFor(record,pose){
+ const frame=record.frames[pose]??record.frames.idle??record.frames.ready??0;
+ const rect=object(frame)?frame.rect:[frame%record.columns/record.columns,Math.floor(frame/record.columns)/record.rows,1/record.columns,1/record.rows];
+ return {frame,rect};
+}
+function frameDimensions(rect){
+ return {width:Math.min(1,rect[2]/rect[3]),height:Math.min(1,rect[3]/rect[2])};
+}
+function clipFor([x,y,w,h]){
+ // The selected atlas cell remains clipped even when its visible art is enlarged.
+ return 'inset('+y*100+'% '+Math.max(0,1-x-w)*100+'% '+Math.max(0,1-y-h)*100+'% '+x*100+'%)';
+}
+
+/** A fixed scene window with a calibrated silhouette height and an unchanged feet line. */
+export function combatSpriteLayout(record,pose){
+ const {frame,rect}=frameFor(record,pose),[x,y,w,h]=rect,dimensions=frameDimensions(rect);
+ const bounds=sanitizeCombatVisibleBounds(object(frame)?frame.visibleBounds:null);
+ const ready=frameFor(record,'ready'),readyBounds=sanitizeCombatVisibleBounds(object(ready.frame)?ready.frame.visibleBounds:null);
+ const displayHeight=sanitizeCombatDisplayHeight(record.displayHeight);
+ if(!bounds||!readyBounds||displayHeight===null){
+  const [offsetX,offsetY]=object(frame)?frame.offset??[0,0]:[0,0];
+  return {cropWidth:dimensions.width,cropHeight:dimensions.height,imageWidth:100/w,imageHeight:100/h,imageLeft:(-x/w+offsetX)*100,imageTop:(-y/h+offsetY)*100,clipPath:clipFor(rect)};
+ }
+ // Keep body size across poses: an attacking crouch stays lower than a ready pose.
+ // A raised weapon may extend upward, but never escapes the fixed sprite window.
+ const bodyTop=combatBodyTop(record),hasBody=bodyTop!==null&&bodyTop>=readyBounds[1]&&bodyTop<readyBounds[3]-.05;
+ const readyHeight=(readyBounds[3]-(hasBody?bodyTop:readyBounds[1]))*frameDimensions(ready.rect).height;
+ // Fix the body scale for all calibrated poses; raised weapons must not shrink a later pose.
+ const maxHeight=hasBody?Math.max(...Object.keys(record.frames).map(key=>{
+  const other=frameFor(record,key),otherBounds=sanitizeCombatVisibleBounds(object(other.frame)?other.frame.visibleBounds:null);
+  return otherBounds?(otherBounds[3]-otherBounds[1])*frameDimensions(other.rect).height:0;
+ })):(bounds[3]-bounds[1])*dimensions.height;
+ const scale=Math.min((hasBody?sanitizeCombatBodyHeight(record.bodyHeight)??COMBAT_BODY_HEIGHT:displayHeight)/readyHeight,MAX_VISIBLE_HEIGHT/maxHeight);
+ const width=dimensions.width*scale,height=dimensions.height*scale;
+ const originX=FRAME_WINDOW_WIDTH/2-(bounds[0]+bounds[2])/2*width;
+ const originY=FEET_LINE-bounds[3]*height;
+ return {
+  cropWidth:FRAME_WINDOW_WIDTH,cropHeight:1,
+  imageWidth:rounded(100*width/w/FRAME_WINDOW_WIDTH),imageHeight:rounded(100*height/h),
+  imageLeft:rounded(100*(originX-x/w*width)/FRAME_WINDOW_WIDTH),imageTop:rounded(100*(originY-y/h*height)),
+  clipPath:clipFor(rect),
+ };
+}

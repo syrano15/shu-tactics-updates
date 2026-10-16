@@ -1,0 +1,52 @@
+import {terrainHitAdjustment,modernTerrain,TERRAIN_RULES} from './terrain-effects.js';
+export * from './spirits-system.js';
+import {ACT2_COMBAT_BALANCE as RULES} from './balance.js';
+import {CHAPTERS} from './campaign.js';
+import {applyCommanderPanic} from './commander-panic.js';
+import {MORALE,changeMorale,hitChance as systemHitChance,hasFlash} from './spirits-system.js';
+import {inheritedGuest} from './guest-allies.js';
+export function hitChance(a,b,state=null,skillBonus=0){
+ const act2=state?.combatProfile==='act2'||CHAPTERS[state?.chapter]?.act===2;
+ if(act2){
+  if(hasFlash(b))return 0;if(a.spirits?.strike)return 1;
+  const levelGap=a.extra&&!inheritedGuest(a)||b.extra&&!inheritedGuest(b)?0:Math.max(-RULES.levelHitCap,Math.min(RULES.levelHitCap,((a.level??1)-(b.level??1))*RULES.levelHitRate));
+  const tierEvasion=b.combatTier==='boss'?RULES.bossEvasion:b.combatTier==='officer'?RULES.officerEvasion:0;
+  const chance=RULES.physicalBaseHit+levelGap+skillBonus+(a.spirits?.focus?30:0)-(b.spirits?.focus?30:0)-(b.evasionBonus??0)-tierEvasion+terrainHitAdjustment(state,b);
+  return Math.max(0,Math.min(100,chance))/100;
+ }
+ // Preserve Act 1 and callers without a battle context, including old saves.
+
+ if(hasFlash(b)||a.spirits?.strike)return systemHitChance(a,b);
+ if(modernTerrain(state))return Math.max(0,Math.min(100,90+(a.spirits?.focus?30:0)-(b.spirits?.focus?30:0)-(b.evasionBonus??0)+terrainHitAdjustment(state,b)))/100;
+ return Math.min(1,Math.max(0,systemHitChance(a,b)-(b.evasionBonus??0)/100+terrainHitAdjustment(state,b)/100));
+}
+export function battleMorale(s, a, b, result) {
+  const hit = (attacker, defender, landed, killed) => {
+    if (!landed) { if (defender.hp > 0) changeMorale(defender, MORALE.dodge); return; }
+    if (attacker.team !== defender.team && attacker.hp > 0) changeMorale(attacker, MORALE.hit);
+    if (defender.hp > 0) changeMorale(defender, MORALE.damaged);
+    if (killed) {
+      for (const u of s.units.filter(v => v.hp > 0)) {
+        if (u.team === defender.team) changeMorale(u, MORALE.allyRetreat);
+        else if (attacker.team !== defender.team && u.team === attacker.team) changeMorale(u, u.id === attacker.id ? (modernTerrain(s)?TERRAIN_RULES.killMorale:MORALE.kill) : (modernTerrain(s)?TERRAIN_RULES.allyKillMorale:MORALE.allyKill));
+      }
+      // A named enemy falling shakes its army and encourages every surviving
+      // ally. Attack legality and the defeat ledger prevent repeated awards.
+      if(defender.team==='enemy'&&!defender.generic&&!['troop','elite'].includes(defender.combatTier)&&!defender.escaped&&!s.battleRecords?.defeats?.some(d=>d.targetId===defender.id)&&!result.officerMoraleEvents?.some(event=>event.officerId===defender.id)){
+        const changes=[];
+        for(const unit of s.units.filter(u=>u.hp>0&&!u.escaped&&!u.withdrawn)){
+          const before=unit.morale??MORALE.start;changeMorale(unit,unit.team==='enemy'?-20:15);
+          if(unit.morale!==before)changes.push({unitId:unit.id,name:unit.name,team:unit.team,x:unit.x,y:unit.y,before,after:unit.morale,delta:unit.morale-before});
+        }
+        const confusedIds=applyCommanderPanic(s);
+        (result.officerMoraleEvents??=[]).push({officerId:defender.id,officerName:defender.name,enemyPenalty:20,allyBonus:15,changes,confusedIds,panicRound:s.round});
+      }
+    }
+  };
+  if (!result.kind) { hit(a,b,result.landed,b.hp===0); if(result.counter)hit(b,a,result.counterLanded,a.hp===0); }
+  else if (['fire','water'].includes(result.kind) && result.success) hit(a,b,true,b.hp===0);
+  if(s.balance.critical?.enabled&&s.balance.critical.morale&&!result.kind){
+   const critical=(actor,target,landed)=>{if(!landed)return;if(actor.hp>0)changeMorale(actor,2);if(target.hp>0)changeMorale(target,-2);};
+   critical(a,b,result.critical);critical(b,a,result.counterCritical);
+  }
+}

@@ -1,0 +1,60 @@
+import {UNIT_TEMPLATES} from './roster.js';
+export const ACT3_STAGE_REVISION_VERSION=1;
+export const act3StageRevisionApplies=chapter=>chapter?.campaignLayoutVersion===1&&['s15_chibi','s16_huarong'].includes(chapter.id);
+const ensure=(ok,message)=>{if(!ok)throw new Error('3막 전장 개정 기록 오류: '+message);};
+const key=p=>p.join(',');
+export function installAct3StageRevision(chapter){
+ if(!act3StageRevisionApplies(chapter))return;
+ const count=chapter.id==='s15_chibi'?12:4;
+ const occupied=new Set([...chapter.allyPositions,...chapter.extraAllies.map(e=>e.position),...chapter.enemies.map(e=>e.position)].map(key));
+ const sources=chapter.enemies.filter(e=>['troop','elite'].includes(e.combatTier)&&UNIT_TEMPLATES[e.templateId]);
+ for(let i=0;i<count;i++){
+  const source=sources[i%sources.length],cls=UNIT_TEMPLATES[source.templateId].cls,normalId='act3_'+source.faction+'_troop_'+cls,templateId='act3_v728_'+source.faction+'_troop_'+cls;
+  ensure(UNIT_TEMPLATES[normalId],'일반 병과 원본');UNIT_TEMPLATES[templateId]={...UNIT_TEMPLATES[normalId],generic:true};
+  ensure(UNIT_TEMPLATES[templateId],'일반 병과 원본');
+  const origin=chapter.id==='s15_chibi'?[12+(i%5)*2,3+Math.floor(i/5)*4]:[8+i,8+i%3],candidates=[];
+  for(let y=0;y<chapter.terrain.length;y++)for(let x=chapter.id==='s15_chibi'?11:7;x<chapter.terrain[0].length;x++)if(chapter.terrain[y][x]!=='#'&&!occupied.has(key([x,y]))&&(chapter.id!=='s16_huarong'||x<=14))candidates.push([x,y]);
+  candidates.sort((a,b)=>(a[0]-origin[0])**2+(a[1]-origin[1])**2-((b[0]-origin[0])**2+(b[1]-origin[1])**2)||a[1]-b[1]||a[0]-b[0]);
+  const position=candidates[0];ensure(position,'일반 병력 배치');occupied.add(key(position));
+  chapter.enemies.push({id:'act3_v728_e'+String(i+1).padStart(2,'0'),templateId,position,level:source.level,combatTier:'troop',rank:0,faction:source.faction,aiMode:'charge',introducedAct3StageVersion:1});
+ }
+}
+export function act3StageEnemyOrders(state,chapter,orders){return act3StageRevisionApplies(chapter)?orders.filter(e=>!e.introducedAct3StageVersion||state?.act3StageRosterVersion===1):orders;}
+export function initializeAct3StageRevision(state,chapter,version=1,rosterVersion=version,spawnedWaves=[]){
+ ensure([0,1].includes(version)&&[0,1].includes(rosterVersion)&&(!rosterVersion||version),'지원하지 않는 버전');
+ if(!version||!act3StageRevisionApplies(chapter))return;
+ state.act3StageRevisionVersion=1;state.act3StageSpawnedWaves=[...spawnedWaves];if(rosterVersion)state.act3StageRosterVersion=1;
+}
+export function validateAct3StageRevision(state,chapter){
+ for(const unit of state.units??[])if(unit.moraleFloor!==undefined)ensure(unit.moraleFloor===30&&unit.team==='enemy'&&chapter?.id==='s16_huarong'&&state.act3StageRevisionVersion===1,'패잔병 사기 하한');
+ const version=state.act3StageRevisionVersion,roster=state.act3StageRosterVersion;
+ if(version===undefined){ensure(roster===undefined&&state.act3StageSpawnedWaves===undefined,'버전 없는 신규 명단');return;}
+ ensure(version===1&&act3StageRevisionApplies(chapter)&&state.act3ReinforcementVersion===1,'전장/버전');
+ if(chapter.id==='s16_huarong')ensure(state.units.filter(u=>u.team==='enemy').every(u=>u.moraleFloor===30),'패잔병 사기 하한 누락');
+ ensure(roster===undefined||roster===1,'명단 버전');
+ ensure(Array.isArray(state.act3StageSpawnedWaves)&&new Set(state.act3StageSpawnedWaves).size===state.act3StageSpawnedWaves.length&&JSON.stringify(state.act3StageSpawnedWaves)===JSON.stringify(state.reinforcements?.spawned??[]),'과거 증원 명단');
+ const added=chapter.enemies.filter(e=>e.introducedAct3StageVersion===1).map(e=>e.id);
+ ensure(added.length===(chapter.id==='s15_chibi'?12:4)&&added.every(id=>state.units.some(u=>u.id===id)===(roster===1)),'신규 초기 병력');
+}
+// Only a fully validated live checkpoint reaches this migration. Existing
+// units and past fire results remain snapshots; additions are initial troops,
+// so an already started battle never receives them as a surprise wave.
+export function upgradeValidatedAct3StageRevision(value,chapter,defaultRemovedIds){
+ const s=value.state;if(!act3StageRevisionApplies(chapter)||s.act3StageRevisionVersion!==undefined||s.result!==null||s.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const legacySpawned=[...(s.act3ReinforcementHistory?.spawned??[])],spawned=[];
+ for(const id of s.reinforcements?.spawned??[])if(chapter.reinforcements?.some(w=>w.id===id&&w.team!=='ally')&&!spawned.includes(id))spawned.push(id);
+ const removed=defaultRemovedIds(chapter,legacySpawned,1,spawned),history=[...(s.act3ReinforcementHistory?.units??[])];
+ for(const wave of s.reinforcements?.pending??[]){for(const unit of wave.units)if(removed.includes(unit.id)&&s.shipFire?.hits.some(h=>h.unitId===unit.id)&&!history.some(u=>u.id===unit.id))history.push(structuredClone(unit));wave.units=wave.units.filter(u=>!removed.includes(u.id));}
+ if(s.reinforcements){s.reinforcements.pending=s.reinforcements.pending.filter(w=>w.units.length);if(!s.reinforcements.pending.length&&!s.reinforcements.spawned.length)delete s.reinforcements;}
+ s.act3StageRevisionVersion=1;s.act3ReinforcementVersion=1;s.act3ReinforcementRemovedIds=removed;s.act3ReinforcementHistory={spawned:legacySpawned,units:history};s.act3StageSpawnedWaves=spawned;
+ if(chapter.id==='s15_chibi'&&!s.shipFire){const fireIndex=chapter.events.findIndex(e=>e.terrainEffect?.type==='fire'&&e.terrainEffect.source==='huanggai');s.storyEvents.fired=s.storyEvents.fired.filter(index=>index!==fireIndex);}
+ const addInitials=['preDialogue','deployment'].includes(value.campaign.stage);if(addInitials){s.act3StageRosterVersion=1;if(s.enemyStrategistHealthVersion===1)for(const order of chapter.enemies.filter(e=>e.introducedAct3StageVersion===1&&UNIT_TEMPLATES[e.templateId]?.cls==='strategist'))if(!s.enemyStrategistHealthAdjustedIds.includes(order.id))s.enemyStrategistHealthAdjustedIds.push(order.id);}
+ return {removedIds:removed,addInitials};
+}
+export function appendAct3StageInitials(state,chapter,refs){
+ if(state.act3StageRosterVersion!==1)return;
+ const ids=new Set(chapter.enemies.filter(e=>e.introducedAct3StageVersion===1).map(e=>e.id));
+ const occupied=new Set(state.units.filter(u=>u.hp>0).map(u=>key([u.x,u.y])));
+ for(const ref of refs.filter(u=>ids.has(u.id))){ensure(!state.units.some(u=>u.id===ref.id)&&!occupied.has(key([ref.x,ref.y])),'신규 초기 병력 중복');const unit=structuredClone(ref);state.units.push(unit);occupied.add(key([unit.x,unit.y]));if(state.battleRecords?.minHpRatios)state.battleRecords.minHpRatios[unit.id]=unit.hp/unit.maxHp;}
+}
+

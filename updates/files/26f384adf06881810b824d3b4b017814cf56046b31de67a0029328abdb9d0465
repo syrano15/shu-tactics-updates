@@ -1,0 +1,192 @@
+// Measurements only: approved new painted bodies; no units or saves are changed.
+export const LATER_UNIT_BODY_METRICS={
+ "art/units-v0728/later-machao.webp": [
+  512,
+  512,
+  79,
+  81,
+  434,
+  432,
+  102
+ ],
+ "art/units-v0728/later-fazheng.webp": [
+  512,
+  512,
+  185,
+  126,
+  327,
+  385,
+  126
+ ],
+ "art/units-v0728/later-yanyan.webp": [
+  512,
+  512,
+  90,
+  50,
+  421,
+  462,
+  82
+ ],
+ "art/units-v0728/later-huangquan.webp": [
+  512,
+  512,
+  174,
+  50,
+  339,
+  462,
+  51
+ ],
+ "art/units-v0728/later-wangping.webp": [
+  512,
+  512,
+  167,
+  132,
+  345,
+  381,
+  150
+ ],
+ "art/units-v0728/later-liyan.webp": [
+  512,
+  512,
+  72,
+  60,
+  440,
+  451,
+  63
+ ],
+ "art/units-v0728/later-wuban.webp": [
+  512,
+  512,
+  55,
+  70,
+  458,
+  442,
+  82
+ ],
+ "art/units-v0728/later-wuyi.webp": [
+  512,
+  512,
+  76,
+  63,
+  436,
+  448,
+  101
+ ],
+ "art/units-v0728/later-zhangyi.webp": [
+  512,
+  512,
+  79,
+  69,
+  433,
+  443,
+  80
+ ],
+ "art/units-v0728/later-zhanghe.webp": [
+  512,
+  512,
+  52,
+  59,
+  460,
+  451,
+  91
+ ],
+ "art/units-v0728/later-xiahouyuan.webp": [
+  512,
+  512,
+  52,
+  85,
+  461,
+  427,
+  108
+ ],
+ "art/units-v0728/later-zhangren.webp": [
+  512,
+  512,
+  82,
+  55,
+  431,
+  456,
+  85
+ ],
+ "art/units-v0728/later-guanxing.webp": [
+  512,
+  512,
+  78,
+  73,
+  434,
+  439,
+  78
+ ],
+ "art/units-v0728/later-zhangbao.webp": [
+  512,
+  512,
+  129,
+  134,
+  382,
+  377,
+  136
+ ],
+ "art/units-v0728/later-fengxi.webp": [
+  512,
+  512,
+  76,
+  71,
+  436,
+  441,
+  99
+ ],
+ "art/units-v0728/later-fudong.webp": [
+  512,
+  512,
+  103,
+  79,
+  408,
+  434,
+  104
+ ],
+ "art/units-v0728/later-dengzhi.webp": [
+  512,
+  512,
+  170,
+  144,
+  343,
+  369,
+  144
+ ],
+ "art/units-v0728/later-zhangni.webp": [
+  512,
+  512,
+  116,
+  73,
+  396,
+  439,
+  106
+ ],
+ "art/units-v0728/later-mazhong.webp": [
+  512,
+  512,
+  184,
+  171,
+  328,
+  341,
+  185
+ ],
+ "art/units-v0728/later-jiangwei.webp": [
+  512,
+  512,
+  171,
+  170,
+  341,
+  342,
+  175
+ ],
+ "art/units-v0728/later-gaoxiang.webp": [
+  512,
+  512,
+  176,
+  157,
+  337,
+  355,
+  174
+ ]
+};

@@ -1,0 +1,7 @@
+import {CHAPTERS} from './campaign.js';
+
+// The revised Chibi scenario guarantees only allied fire after the fleet ignites.
+// Ordinary weather, enemies and historical battle snapshots keep their rules.
+export function chibiAlliedFireGuaranteed(state,actor){
+ return state?.act3StageRevisionVersion===1&&CHAPTERS[state.chapter]?.id==='s15_chibi'&&!!state.shipFire&&actor?.team==='ally';
+}

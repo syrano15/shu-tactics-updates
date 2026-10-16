@@ -1,0 +1,116 @@
+import {terrainMovementCost} from './terrain-effects.js';
+
+export const HUARONG_CHASE_VERSION=1;
+export const HUARONG_EXITS=Object.freeze([[11,3],[11,4],[11,5],[11,6]].map(p=>Object.freeze(p)));
+const chapterExits=chapter=>chapter?.campaignLayoutVersion===1?chapter.huarongExits:HUARONG_EXITS;
+const key=(x,y)=>x+','+y;
+const directions=[[0,-1],[-1,0],[1,0],[0,1]];
+const inside=(s,x,y)=>Number.isInteger(x)&&Number.isInteger(y)&&y>=0&&y<s.terrain.length&&x>=0&&x<s.terrain[0].length;
+const occupant=(s,x,y)=>s.units.find(u=>u.hp>0&&u.x===x&&u.y===y);
+const fail=text=>{throw new Error('화용도 추격 기록 오류: '+text);};
+const ensure=(value,text)=>{if(!value)fail(text);};
+const exact=(value,keys)=>value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===keys.length&&Object.keys(value).every(k=>keys.includes(k));
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+export const huarongChaseActive=state=>state?.huarongChaseVersion===HUARONG_CHASE_VERSION;
+export const huarongChaser=(state,unit)=>huarongChaseActive(state)&&unit?.team==='enemy';
+export const huarongExit=(state,x,y)=>huarongChaseActive(state)&&state.huarongChase.exits.some(p=>p[0]===x&&p[1]===y);
+
+// The escape line and staggered starting positions belong only to a new sortie.
+// Old in-progress battles pass version 0 and retain their original statistics.
+export function initHuarongChase(state,chapter,version=HUARONG_CHASE_VERSION){
+ if(![0,1].includes(version))fail('지원하지 않는 버전');
+ if(version!==1||chapter?.id!=='s16_huarong')return state;
+ state.huarongChaseVersion=1;
+ const exits=chapterExits(chapter);
+ ensure(Array.isArray(exits)&&exits.length>0&&new Set(exits.map(p=>JSON.stringify(p))).size===exits.length&&exits.every(p=>Array.isArray(p)&&p.length===2&&inside(state,...p)&&state.terrain[p[1]][p[0]]!=='#'),'출구 설정');
+ state.huarongChase={exits:exits.map(p=>[...p]),escapes:[]};
+ const positions=chapter?.campaignLayoutVersion===1?{}:{e_boss:[7,5],e05:[6,3],e06:[6,6],e07:[7,4]};
+ for(const unit of state.units.filter(u=>u.team==='enemy')){
+  unit.hp=Math.max(1,Math.floor(unit.maxHp*.4));unit.morale=state.act3StageRevisionVersion===1?30:50;if(state.act3StageRevisionVersion===1)unit.moraleFloor=30;
+  unit.move=unit.cls==='cavalry'?2:1;
+  if(positions[unit.id])[unit.x,unit.y]=positions[unit.id];
+ }
+ return state;
+}
+
+const passable=(s,u,x,y)=>inside(s,x,y)&&s.terrain[y][x]!=='#'&&(!occupant(s,x,y)||occupant(s,x,y).id===u.id);
+function pathsFromUnit(s,u,limit){
+ const costs=new Map([[key(u.x,u.y),0]]),prev=new Map(),queue=[{x:u.x,y:u.y,cost:0}];
+ while(queue.length){
+  queue.sort((a,b)=>a.cost-b.cost||a.y-b.y||a.x-b.x);const p=queue.shift();
+  if(p.cost!==costs.get(key(p.x,p.y)))continue;
+  for(const [dx,dy] of directions){
+   const x=p.x+dx,y=p.y+dy;if(!passable(s,u,x,y))continue;
+   const cost=p.cost+terrainMovementCost(s,u,x,y),at=key(x,y);
+   if(cost>limit||cost>=(costs.get(at)??Infinity))continue;
+   costs.set(at,cost);prev.set(at,key(p.x,p.y));queue.push({x,y,cost});
+  }
+ }
+ return {costs,prev};
+}
+export function huarongReachable(s,u,limit=u.move){return pathsFromUnit(s,u,Math.min(limit,u.move)).costs;}
+export function huarongMovementPath(s,u,x,y){
+ const goal=key(x,y),{costs,prev}=pathsFromUnit(s,u,u.move);if(!costs.has(goal))return [];
+ const path=[];let cursor=goal;while(cursor){const [px,py]=cursor.split(',').map(Number);path.unshift({x:px,y:py});cursor=prev.get(cursor);}return path;
+}
+
+// Reverse Dijkstra counts the forward cost of entering each destination cell.
+// Every living ally or fellow fugitive blocks transit as well as landing.
+function distancesToExits(s,u){
+ const costs=new Map(),queue=[];
+ for(const [x,y] of s.huarongChase.exits)if(passable(s,u,x,y)){costs.set(key(x,y),0);queue.push({x,y,cost:0});}
+ while(queue.length){
+  queue.sort((a,b)=>a.cost-b.cost||a.y-b.y||a.x-b.x);const p=queue.shift();if(p.cost!==costs.get(key(p.x,p.y)))continue;
+  const enter=terrainMovementCost(s,u,p.x,p.y);
+  for(const [dx,dy] of directions){
+   const x=p.x+dx,y=p.y+dy;if(!passable(s,u,x,y))continue;
+   const cost=p.cost+enter,at=key(x,y);if(cost>=(costs.get(at)??Infinity))continue;
+   costs.set(at,cost);queue.push({x,y,cost});
+  }
+ }
+ return costs;
+}
+export function decideHuarongEscape(s,u){
+ const idle={x:u.x,y:u.y,targetId:null};if(!huarongChaser(s,u)||u.hp<=0||u.done||u.moved)return idle;
+ const distances=distancesToExits(s,u),before=distances.get(key(u.x,u.y))??Infinity;
+ const choices=[...huarongReachable(s,u)].map(([cell,cost])=>{const [x,y]=cell.split(',').map(Number);return {x,y,cost,remaining:distances.get(cell)??Infinity};})
+  .filter(p=>Number.isFinite(p.remaining)&&p.remaining<before)
+  .sort((a,b)=>a.remaining-b.remaining||a.cost-b.cost||a.y-b.y||a.x-b.x);
+ return choices.length?{x:choices[0].x,y:choices[0].y,targetId:null}:idle;
+}
+export function escapeHuarongUnit(s,u){
+ if(!huarongChaser(s,u)||u.hp<=0||!huarongExit(s,u.x,u.y))return null;
+ const record={unitId:u.id,round:s.round,exit:[u.x,u.y],hp:u.hp};
+ s.huarongChase.escapes.push(record);u.escaped=true;u.hp=0;u.done=true;u.moveOrigin=null;u.status=null;u.spirits={};u.confusionLost=false;
+ if(s.battleRecords?.minHpRatios)s.battleRecords.minHpRatios[u.id]=0;
+ return record;
+}
+export function validateHuarongChase(state,chapter){
+ const version=state?.huarongChaseVersion,record=state?.huarongChase;
+ if(version===undefined||version===0){ensure(record===undefined,'버전 없는 탈출 기록');if(chapter?.id==='s16_huarong')ensure(!state.units.some(u=>u.escaped!==undefined),'구 전투의 탈출 표식');return state;}
+ ensure(version===1&&chapter?.id==='s16_huarong','전장과 버전이 다름');
+ ensure(exact(record,['exits','escapes'])&&same(record.exits,chapterExits(chapter)),'출구 항목');
+ ensure(record.exits.every(([x,y])=>inside(state,x,y)&&state.terrain[y][x]!=='#'),'출구 지형');
+ ensure(Array.isArray(record.escapes)&&record.escapes.length<=chapter.enemies.length,'탈출 부대 수');
+ const seen=new Set();
+ for(const e of record.escapes){
+  const u=state.units.find(u=>u.id===e?.unitId);
+  ensure(exact(e,['unitId','round','exit','hp'])&&u?.team==='enemy'&&!seen.has(e.unitId),'탈출 부대');seen.add(e.unitId);
+  ensure(Number.isInteger(e.round)&&e.round>=1&&e.round<=state.round&&Array.isArray(e.exit)&&e.exit.length===2&&huarongExit(state,...e.exit),'탈출 시점과 위치');
+  ensure(u.escaped===true&&u.hp===0&&u.done===true&&u.x===e.exit[0]&&u.y===e.exit[1]&&Number.isInteger(e.hp)&&e.hp>0&&e.hp<=Math.max(1,Math.floor(u.maxHp*.4)),'탈출 병력 상태');
+  ensure(!state.battleRecords?.defeats.some(d=>d.targetId===u.id)&&!state.pendingLoot?.sourceUnitIds.includes(u.id),'탈출을 격파 보상으로 기록');
+ }
+ ensure(state.units.every(u=>u.escaped===undefined||u.escaped===true&&seen.has(u.id)),'탈출 표식과 원장이 다름');
+ for(const u of state.units.filter(u=>u.team==='enemy')){
+  ensure(u.move===(u.cls==='cavalry'?2:1),'도주 이동력');
+  ensure(u.hp<=Math.max(1,Math.floor(u.maxHp*.4)),'패잔병 병력');
+  ensure(u.hp<=0||!huarongExit(state,u.x,u.y),'출구에 남은 적');
+ }
+ return state;
+}
+export function huarongChaseBrief(state){
+ if(!huarongChaseActive(state))return null;
+ const cells=state.huarongChase.exits,labels=cells.map(([x,y])=>String.fromCharCode(65+x)+(y+1));
+ const exits=cells.length>1&&cells.every(([x,y],i)=>x===cells[0][0]&&y===cells[0][1]+i)?labels[0]+'~'+labels.at(-1):labels.join('·');
+ return `적벽에서 패주한 후위대는 사기 ${state.act3StageRevisionVersion===1?30:50}·병력 40%로 시작합니다. 적은 선공하지 않고 동쪽 ${exits}로 도주합니다. 탈출 전에 격파한 부대만 경험치와 전리품을 줍니다. 관우·주창으로 빠르게 추격하세요.`;
+}

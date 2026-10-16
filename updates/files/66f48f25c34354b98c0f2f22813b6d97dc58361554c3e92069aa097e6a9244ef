@@ -1,0 +1,24 @@
+// Presentation order is independent from campaign saves, deployment and battle actions.
+export const PREPARATION_ORDER_KEY='shu-roster-order-v1';
+const validId=id=>typeof id==='string'&&/^[a-z][a-z0-9_]{0,63}$/.test(id);
+export function normalizePreparationOrder(value,knownIds){
+ const known=new Set(knownIds),seen=new Set();
+ return (Array.isArray(value)?value:[]).filter(id=>validId(id)&&known.has(id)&&!seen.has(id)&&(seen.add(id),true));
+}
+export function readPreparationOrder(knownIds,storage){
+ try{return normalizePreparationOrder(JSON.parse((storage??globalThis.localStorage)?.getItem(PREPARATION_ORDER_KEY)??'null'),knownIds);}catch{return [];}
+}
+export function orderedPreparationIds(ids,order){
+ const preferred=normalizePreparationOrder(order,ids),seen=new Set(preferred);
+ return [...preferred,...ids.filter(id=>!seen.has(id))];
+}
+export function movePreparationOrder(order,visibleIds,id,delta,knownIds,storage){
+ const current=orderedPreparationIds(visibleIds,order),from=current.indexOf(id),to=from+delta;
+ if(![-1,1].includes(delta)||from<0||to<0||to>=current.length)return normalizePreparationOrder(order,knownIds);
+ // Swap only the two visible neighbours in the complete preference. Hidden
+ // and temporarily departed heroes retain their relative preference slots.
+ const saved=normalizePreparationOrder(order,knownIds),savedIds=new Set(saved),all=[...saved,...current.filter(id=>!savedIds.has(id))],first=all.indexOf(id),second=all.indexOf(current[to]);
+ [all[first],all[second]]=[all[second],all[first]];
+ try{(storage??globalThis.localStorage)?.setItem(PREPARATION_ORDER_KEY,JSON.stringify(all));}catch{}
+ return all;
+}

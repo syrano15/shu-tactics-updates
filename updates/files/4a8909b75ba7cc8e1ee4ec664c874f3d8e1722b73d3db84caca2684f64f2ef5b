@@ -1,0 +1,29 @@
+// Visual motion only. All contact times, damage, map coordinates and RNG remain
+// owned by the existing resolved exchange and combat-contact modules.
+export function distinctAttackPose(record){
+ const ready=record?.frames?.ready??record?.frames?.idle,attack=record?.frames?.attack;
+ if(ready===undefined||attack===undefined)return false;
+ const frame=value=>Number.isInteger(value)?[value%(record.columns??1)/(record.columns??1),Math.floor(value/(record.columns??1))/(record.rows??1),1/(record.columns??1),1/(record.rows??1)]:value?.rect;
+ return JSON.stringify(frame(ready))!==JSON.stringify(frame(attack));
+}
+export function combatAttackMotion(style,{animatedPose=false}={}){
+ const motion=({slash:'blade',glaive:'ride',thrust:'thrust',charge:'ride','mounted-slash':'ride','mounted-thrust':'ride',halberd:'ride',arrow:'bow',bolts:'crossbow',fire:'cast',water:'cast',confusion:'cast',deception:'cast'})[style]??'blade';
+ const weapon=({glaive:'glaive',halberd:'halberd','mounted-slash':'blade'})[style]??({blade:'blade',thrust:'spear',ride:'lance',bow:'bow',crossbow:'crossbow',cast:'rune'})[motion];
+ return {style,motion,source:animatedPose?'atlas':'procedural',weapon};
+}
+
+// A static picture cannot bend at the waist. Its feet make a short approach and
+// the separate weapon closes the remaining distance to the existing contact.
+// Dedicated drawn attack poses retain their calibrated weapon-tip geometry.
+export function combatMotionLayout(motion,contact){
+ const size=Number.isFinite(contact.spriteSize)?contact.spriteSize:240;
+ const travel=Math.max(0,Number.isFinite(contact.travel)?contact.travel:0);
+ const ranged=['bow','crossbow','cast'].includes(motion.motion);
+ const reserve=motion.source==='procedural'&&!ranged?Math.min(travel,size*.18):0;
+ const bodyTravel=travel-reserve,direction=contact.direction===-1?-1:1;
+ const handOffset=size*.1;
+ const handX=contact.sourceCenter+direction*(bodyTravel+handOffset);
+ return {bodyTravel,weaponReach:Math.max(size*.22,Math.abs(contact.impactX-handX)),
+  weaponTop:contact.impactY-contact.sourceFoot+size*.92,
+  handOffset,recoilDistance:Math.min(18,size*.065)};
+}

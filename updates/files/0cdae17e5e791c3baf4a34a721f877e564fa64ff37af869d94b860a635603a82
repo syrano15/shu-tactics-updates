@@ -1,0 +1,55 @@
+// Painted identity bodies; original assets, unit coordinates and rules stay intact.
+export const EXTRA_SPRITE_REVISIONS={
+ "art/v034/identity/zhugeliang.png": {
+  "src": "art/units-v0728/extra-zhugeliang.webp"
+ },
+ "art/v034/identity/jianyong.png": {
+  "src": "art/units-v0728/extra-jianyong.webp"
+ },
+ "art/act3/sd/lady_sun.png": {
+  "src": "art/units-v0728/extra-lady-sun.webp",
+  "mapBottom": 15.668311
+ },
+ "art/act3/sd/ferry.png": {
+  "src": "art/units-v0728/extra-ferry.webp",
+  "mapBottom": 3.787323
+ }
+};
+export const EXTRA_BODY_METRICS={
+ "art/units-v0728/extra-zhugeliang.webp": [
+  512,
+  512,
+  140,
+  82,
+  372,
+  431,
+  82
+ ],
+ "art/units-v0728/extra-jianyong.webp": [
+  512,
+  512,
+  140,
+  53,
+  371,
+  459,
+  54
+ ],
+ "art/units-v0728/extra-lady-sun.webp": [
+  512,
+  512,
+  11,
+  69,
+  506,
+  476,
+  70
+ ],
+ "art/units-v0728/extra-ferry.webp": [
+  512,
+  512,
+  13,
+  110,
+  506,
+  428,
+  173
+ ]
+};

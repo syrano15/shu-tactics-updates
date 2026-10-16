@@ -1,0 +1,99 @@
+import {ROCK_ART_CATALOG} from './rock-art-catalog.js';
+
+const CELL=100,number=n=>Number(n.toFixed(2));
+const seedFor=id=>[...id].reduce((n,c)=>Math.imul(n^c.charCodeAt(0),16777619)>>>0,2166136261);
+const hash=(x,y,seed)=>{let n=Math.imul(x+117,374761393)^Math.imul(y+79,668265263)^seed;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;};
+export function rockMapSource(chapter,spec){
+ const art=ROCK_ART_CATALOG[chapter?.id];
+ return chapter?.campaignLayoutVersion===1&&art?.columns===spec.columns&&art.rows===spec.rows&&art.terrainKey===spec.terrainKey?art.src:null;
+}
+
+// Only exposed edges receive a contour. Neighbouring mountain cells share one
+// continuous mass, and the original blocked mask clips every decorative pixel.
+export function rockMapGeometry(chapter){
+ const terrain=chapter?.terrain,width=terrain?.[0]?.length,height=terrain?.length;
+ if(!Array.isArray(terrain)||!width||terrain.some(row=>typeof row!=='string'||row.length!==width||!/^[.F#]+$/.test(row)))throw new Error('암벽 그림 지형이 올바르지 않습니다.');
+ const seed=seedFor(chapter.id),cells=[],edges=[],has=(x,y)=>terrain[y]?.[x]==='#';
+ const add=(x,y,ex,ey,nx,ny)=>edges.push({start:[x*CELL,y*CELL],end:[ex*CELL,ey*CELL],normal:[nx,ny]});
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(has(x,y)){
+  cells.push([x,y]);
+  if(!has(x,y-1))add(x,y,x+1,y,0,1);
+  if(!has(x+1,y))add(x+1,y,x+1,y+1,-1,0);
+  if(!has(x,y+1))add(x+1,y+1,x,y+1,0,-1);
+  if(!has(x-1,y))add(x,y+1,x,y,1,0);
+ }
+ const byStart=new Map();for(const [i,edge]of edges.entries()){const k=edge.start.join(',');if(!byStart.has(k))byStart.set(k,[]);byStart.get(k).push(i);}
+ const seen=new Set(),contours=[];
+ for(let i=0;i<edges.length;i++){
+  if(seen.has(i))continue;const chain=[];let at=i;
+  while(!seen.has(at)){
+   seen.add(at);const edge=edges[at];chain.push(edge);const choices=(byStart.get(edge.end.join(','))??[]).filter(index=>!seen.has(index));
+   if(!choices.length)break;
+   // At a diagonal contact, keep each four-connected region's interior on its
+   // right rather than joining two rocks through a single shared vertex.
+   const dx=edge.end[0]-edge.start[0],dy=edge.end[1]-edge.start[1];
+   choices.sort((a,b)=>{const turn=index=>{const e=edges[index],vx=e.end[0]-e.start[0],vy=e.end[1]-e.start[1],cross=dx*vy-dy*vx,dot=dx*vx+dy*vy;return cross>0?0:dot>0?1:cross<0?2:3;};return turn(a)-turn(b);});at=choices[0];
+  }
+  const points=[];
+  for(let j=0;j<chain.length;j++){
+   const edge=chain[j],previous=chain[(j+chain.length-1)%chain.length],base=8+hash(edge.start[0],edge.start[1],seed)*6;
+   points.push([number(edge.start[0]+(previous.normal[0]+edge.normal[0])*base),number(edge.start[1]+(previous.normal[1]+edge.normal[1])*base)]);
+   for(const t of [.25,.5,.75]){const inset=6+hash(edge.start[0]+t*100,edge.start[1]+j,seed)*15;points.push([number(edge.start[0]+(edge.end[0]-edge.start[0])*t+edge.normal[0]*inset),number(edge.start[1]+(edge.end[1]-edge.start[1])*t+edge.normal[1]*inset)]);}
+  }
+  if(points.length)contours.push(points);
+ }
+ const blocks=[];
+ for(const [x,y]of cells){
+  // Subordinate slabs share the continuous texture; offsets, size and strata
+  // vary by coordinate so the elevation does not reveal a repeated tile stamp.
+  for(let i=0;i<2;i++){
+   const cx=x*CELL+18+hash(x*2+i,y,seed+4)*64,cy=y*CELL+20+hash(x,y*2+i,seed+5)*60,rx=27+hash(x+i,y,seed+6)*42,ry=18+hash(x,y+i,seed+7)*23;
+   const outline=Array.from({length:7},(_,j)=>{const a=j*Math.PI*2/7,r=.76+hash(x*14+i*7+j,y,seed+8)*.3;return[number(cx+Math.cos(a)*rx*r),number(cy+Math.sin(a)*ry*r)];});
+   blocks.push({outline,peak:[number(cx-rx*.1),number(cy-ry*.3)],tone:hash(x+i,y,seed+9)});
+  }
+ }
+ return {id:chapter.id,columns:width,rows:height,width:width*CELL,height:height*CELL,cells,edges,contours,blocks};
+}
+function trace(ctx,contours){
+ ctx.beginPath();for(const points of contours){const first=points[0],last=points.at(-1);ctx.moveTo((last[0]+first[0])/2,(last[1]+first[1])/2);for(let i=0;i<points.length;i++){const p=points[i],next=points[(i+1)%points.length];ctx.quadraticCurveTo(p[0],p[1],(p[0]+next[0])/2,(p[1]+next[1])/2);}ctx.closePath();}
+}
+export function rockGeometryPath(contours){
+ return contours.map(points=>{const first=points[0],last=points.at(-1);let d='M'+number((last[0]+first[0])/2)+' '+number((last[1]+first[1])/2);for(let i=0;i<points.length;i++){const p=points[i],next=points[(i+1)%points.length];d+='Q'+p.join(' ')+' '+number((p[0]+next[0])/2)+' '+number((p[1]+next[1])/2);}return d+'z';}).join('');
+}
+export function renderRockMaskSVG(chapter){
+ const g=rockMapGeometry(chapter),mask=g.cells.map(([x,y])=>'<rect x="'+x*CELL+'" y="'+y*CELL+'" width="100" height="100"/>').join('');
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+g.width+'" height="'+g.height+'"><defs><clipPath id="blocked">'+mask+'</clipPath></defs><g clip-path="url(#blocked)"><path d="'+rockGeometryPath(g.contours)+'" fill="white" fill-rule="evenodd"/></g></svg>';
+}
+export function paintRockMass(ctx,chapter,spec,image,outcrop=null){
+ const g=rockMapGeometry(chapter);ctx.save();ctx.beginPath();for(const [x,y]of g.cells)ctx.rect(x*CELL,y*CELL,CELL,CELL);ctx.clip();
+ if(outcrop){
+  const canvas=ctx.canvas.ownerDocument.createElement('canvas');canvas.width=spec.width;canvas.height=spec.height;const layer=canvas.getContext('2d'),all=new Set(g.cells.map(p=>p.join(','))),seen=new Set(),components=[];
+  for(const start of g.cells){if(seen.has(start.join(',')))continue;const region=[start];seen.add(start.join(','));for(let i=0;i<region.length;i++)for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){const p=[region[i][0]+dx,region[i][1]+dy],key=p.join(',');if(all.has(key)&&!seen.has(key)){seen.add(key);region.push(p);}}components.push(region);}
+  // A painted, raised outcrop spans each complete mountain mass. It is not a
+  // texture rectangle; the alpha silhouette supplies actual broken rock faces.
+  for(const region of components){const left=Math.min(...region.map(p=>p[0]))*CELL,top=Math.min(...region.map(p=>p[1]))*CELL,right=(Math.max(...region.map(p=>p[0]))+1)*CELL,bottom=(Math.max(...region.map(p=>p[1]))+1)*CELL;layer.drawImage(outcrop,left+4,top+3,right-left-8,bottom-top-6);}
+  // A thin mountain arm still needs a visible rock at every blocked cell
+  // centre. Fill only an uncovered centre with a subordinate painted boulder.
+  for(const [x,y]of g.cells){if(layer.getImageData(x*CELL+50,y*CELL+50,1,1).data[3]>=250)continue;layer.save();layer.translate(x*CELL+50,y*CELL+50);if(hash(x,y,seedFor(chapter.id))>.5)layer.scale(-1,1);layer.drawImage(outcrop,-48,-48,96,96);layer.restore();}
+  const pixels=layer.getImageData(0,0,spec.width,spec.height).data;g.coveredCentres=g.cells.filter(([x,y])=>pixels[((y*CELL+50)*spec.width+x*CELL+50)*4+3]>=250).length;g.components=components.length;
+  ctx.shadowColor='#272e2455';ctx.shadowBlur=8;ctx.shadowOffsetY=5;ctx.drawImage(canvas,0,0);ctx.shadowBlur=0;ctx.shadowOffsetY=0;ctx.drawImage(canvas,0,0);ctx.restore();canvas.width=canvas.height=1;return g;
+ }
+ // The dark root lies within blocked cells; no shadow obscures a route/exit.
+ trace(ctx,g.contours);ctx.fillStyle='#55564a';ctx.fill('evenodd');ctx.strokeStyle='#41473555';ctx.lineWidth=5;ctx.lineJoin='round';ctx.stroke();
+ trace(ctx,g.contours);ctx.clip('evenodd');
+ const pattern=ctx.createPattern(image,'repeat');ctx.fillStyle=pattern;ctx.fillRect(0,0,spec.width,spec.height);
+ const wash=ctx.createLinearGradient(0,0,spec.width,spec.height);wash.addColorStop(0,'#dfc9a51c');wash.addColorStop(1,'#24392d24');ctx.fillStyle=wash;ctx.fillRect(0,0,spec.width,spec.height);
+ for(const block of g.blocks){
+  const p=block.outline;ctx.beginPath();ctx.moveTo(...p[0]);for(const point of p.slice(1))ctx.lineTo(...point);ctx.closePath();ctx.fillStyle=block.tone>.5?'#c3b79212':'#27372b17';ctx.fill();
+  ctx.beginPath();ctx.moveTo(...p[1]);ctx.lineTo(...p[2]);ctx.lineTo(...p[3]);ctx.strokeStyle='#ddd0b228';ctx.lineWidth=1.6;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(...p[4]);ctx.lineTo(...p[5]);ctx.lineTo(...p[6]);ctx.strokeStyle='#27342933';ctx.lineWidth=3.5;ctx.stroke();
+ }
+ // A broad shaded face and narrow upper lip make height readable without a
+ // hard rectangular cutout. Strokes are clipped by the connected silhouette.
+ trace(ctx,g.contours);ctx.strokeStyle='#4c4d414d';ctx.lineWidth=9;ctx.stroke();ctx.strokeStyle='#b2a58233';ctx.lineWidth=1.5;ctx.stroke();
+ for(const edge of g.edges){
+  if(edge.normal[1]!==-1&&edge.normal[0]!==-1)continue;
+  ctx.beginPath();ctx.moveTo(edge.start[0]+edge.normal[0]*14,edge.start[1]+edge.normal[1]*14);ctx.lineTo(edge.end[0]+edge.normal[0]*14,edge.end[1]+edge.normal[1]*14);ctx.strokeStyle=edge.normal[1]===-1?'#26362d5c':'#26362d36';ctx.lineWidth=edge.normal[1]===-1?22:13;ctx.stroke();
+ }
+ ctx.restore();return g;
+}
