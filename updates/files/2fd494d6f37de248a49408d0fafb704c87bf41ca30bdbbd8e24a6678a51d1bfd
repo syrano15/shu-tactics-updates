@@ -1,0 +1,34 @@
+import {stageMapDisplayFor,observeStageMapArt} from './terrain-art.js';
+
+const imageURL=source=>"url('"+source.replace(/'/g,'%27').replace(/\\/g,'%5C').replace(/\n/g,'%0A').replace(/\r/g,'%0D')+"')";
+
+// The board's pseudo-element is outside its tile DOM. Updating selected units,
+// ranges or menus therefore never replaces/repositions a full-map image.
+export function installBoardBackground(board){
+ if(!board)return {update(){return false;},clear(){},destroy(){}};
+ let current=null,paintKey='',destroyed=false;
+ function clearPaint(){
+  if(!paintKey)return;
+  delete board.dataset.boardBackground;delete board.dataset.boardBackgroundStage;
+  board.style.removeProperty('--board-map-image');paintKey='';
+ }
+ function paint(){
+  if(destroyed||!current)return false;
+  const {scenarioId,terrain,width=terrain?.[0]?.length,height=terrain?.length}=current;
+  const art=stageMapDisplayFor(scenarioId,{terrain,width,height});
+  // No full-map signature match means the original tile fallback stays intact.
+  const images=art?[art.overlaySrc,art.riverSrc,art.src].filter(Boolean):[];
+  if(!images.length){clearPaint();return false;}
+  const next=JSON.stringify([art.id,art.terrainKey,images]);
+  if(next===paintKey)return true;
+  board.style.setProperty('--board-map-image',images.map(imageURL).join(','));
+  board.dataset.boardBackground=art.src?'ready':'preview';
+  board.dataset.boardBackgroundStage=art.id;paintKey=next;return true;
+ }
+ const stop=observeStageMapArt(id=>{if(current&&(id===null||id===current.scenarioId))paint();});
+ return {
+  update(value){if(destroyed)return false;current=value??null;if(!current){clearPaint();return false;}return paint();},
+  clear(){current=null;clearPaint();},
+  destroy(){if(destroyed)return;destroyed=true;current=null;stop();clearPaint();}
+ };
+}

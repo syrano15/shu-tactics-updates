@@ -1,0 +1,81 @@
+{
+  "license": "SIL Open Font License 1.1; upstream TTF originals and full-glyph lossless WOFF2 format conversions; original license files included. Font family/name/copyright records are unchanged.",
+  "files": [
+    {
+      "file": "NotoSansKR-Variable.ttf",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+      "bytes": 10414588,
+      "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+    },
+    {
+      "file": "NotoSansKR-OFL.txt",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/OFL.txt",
+      "bytes": 4388,
+      "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+    },
+    {
+      "file": "NotoSerifKR-Variable.ttf",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notoserifkr/NotoSerifKR%5Bwght%5D.ttf",
+      "bytes": 23795420,
+      "sha256": "11f8d5de6f1b79195efba3828aaa2ec95c1178f5ae976fb23c8d53250a9938f3"
+    },
+    {
+      "file": "NotoSerifKR-OFL.txt",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notoserifkr/OFL.txt",
+      "bytes": 4350,
+      "sha256": "5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6"
+    },
+    {
+      "file": "NotoSansKR-Variable.woff2",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf",
+      "derivedFrom": "NotoSansKR-Variable.ttf",
+      "sourceSHA256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252",
+      "bytes": 3908716,
+      "sha256": "f484190a87503ac2af2cf9771ec35122128453fe0cd92f4368117562d99547e6",
+      "conversion": {
+        "format": "WOFF2",
+        "fonttools": "4.60.1",
+        "Brotli": "1.1.0",
+        "subset": false,
+        "glyphs": 24964,
+        "bestUnicodeMappings": 23174,
+        "axes": [
+          {
+            "tag": "wght",
+            "min": 100,
+            "default": 100,
+            "max": 900
+          }
+        ],
+        "fullGlyphOutlineAndCmapVerified": true,
+        "variableTablesAndNamesPreserved": true
+      }
+    },
+    {
+      "file": "NotoSerifKR-Variable.woff2",
+      "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/notoserifkr/NotoSerifKR%5Bwght%5D.ttf",
+      "derivedFrom": "NotoSerifKR-Variable.ttf",
+      "sourceSHA256": "11f8d5de6f1b79195efba3828aaa2ec95c1178f5ae976fb23c8d53250a9938f3",
+      "bytes": 5859208,
+      "sha256": "e873199ed8f2a76e32c7239e877c6d0e89ed06d0df73bc4d718e3ddd05c2fa00",
+      "conversion": {
+        "format": "WOFF2",
+        "fonttools": "4.60.1",
+        "Brotli": "1.1.0",
+        "subset": false,
+        "glyphs": 24910,
+        "bestUnicodeMappings": 23124,
+        "axes": [
+          {
+            "tag": "wght",
+            "min": 200,
+            "default": 200,
+            "max": 900
+          }
+        ],
+        "fullGlyphOutlineAndCmapVerified": true,
+        "variableTablesAndNamesPreserved": true
+      }
+    }
+  ]
+}

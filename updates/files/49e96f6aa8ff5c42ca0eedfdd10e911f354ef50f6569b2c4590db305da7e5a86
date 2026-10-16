@@ -1,0 +1,129 @@
+import {RIVER_ART_CATALOG} from './river-art-catalog.js';
+// Shared display-only river layer. The tactical mask and every saved coordinate
+// stay authoritative; even the timber landing below is ordinary passable ground.
+const CELL=100;
+const pointKey=([x,y])=>x+','+y;
+const number=n=>+n.toFixed(2);
+const safeText=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const rects=cells=>cells.map(([x,y])=>'<rect x="'+x*CELL+'" y="'+y*CELL+'" width="100" height="100"/>').join('');
+const random=(x,y)=>{let n=Math.imul(x+71,374761393)^Math.imul(y+53,668265263);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296;};
+const sources=new Map();
+globalThis.addEventListener?.('pagehide',event=>{if(!event.persisted){for(const source of sources.values())if(source.startsWith('blob:'))URL.revokeObjectURL(source);sources.clear();}},{once:true});
+
+// Each exposed edge shares its endpoints with its neighbours. Gentle curves and
+// round joins soften corners without making seams between adjacent water cells.
+function coastEdges(terrain,bridges){
+ const width=terrain[0].length,height=terrain.length,edges=[];
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(terrain[y][x]==='#'){
+  for(const [dx,dy,a,b] of [[0,-1,[x,y],[x+1,y]],[1,0,[x+1,y],[x+1,y+1]],[0,1,[x+1,y+1],[x,y+1]],[-1,0,[x,y+1],[x,y]]]){
+   const nx=x+dx,ny=y+dy;
+   if(nx<0||ny<0||nx>=width||ny>=height||terrain[ny][nx]==='#'||bridges.has(nx+','+ny))continue;
+   const [ax,ay]=a.map(n=>n*CELL),[bx,by]=b.map(n=>n*CELL),bend=4+random(x+dx,y+dy)*5;
+   edges.push({x,y,dx,dy,start:[ax,ay],end:[bx,by],path:'M'+ax+' '+ay+'Q'+number((ax+bx)/2-dx*bend)+' '+number((ay+by)/2-dy*bend)+' '+bx+' '+by});
+  }
+ }
+ return edges;
+}
+
+function roundedCoastPaths(edges){
+ const pending=new Set(edges),starts=new Map(),ends=new Set(edges.map(edge=>pointKey(edge.end)));
+ for(const edge of edges){const key=pointKey(edge.start);if(!starts.has(key))starts.set(key,[]);starts.get(key).push(edge);}
+ const paths=[];
+ while(pending.size){
+  let edge=[...pending].find(value=>!ends.has(pointKey(value.start)))??pending.values().next().value;
+  const points=[edge.start];
+  while(edge&&pending.has(edge)){pending.delete(edge);points.push(edge.end);edge=starts.get(pointKey(edge.end))?.find(next=>pending.has(next));}
+  const closed=points.length>2&&pointKey(points[0])===pointKey(points.at(-1));
+  if(closed)points.pop();
+  const corner=(a,b,c)=>{const ab=[b[0]-a[0],b[1]-a[1]],bc=[c[0]-b[0],c[1]-b[1]],al=Math.hypot(...ab),bl=Math.hypot(...bc),r=ab[0]*bc[1]===ab[1]*bc[0]?0:Math.min(32,al*.4,bl*.4);return{entry:[b[0]-ab[0]/al*r,b[1]-ab[1]/al*r],exit:[b[0]+bc[0]/bl*r,b[1]+bc[1]/bl*r],r};};
+  const first=closed?corner(points.at(-1),points[0],points[1]).entry:points[0];
+  let path='M'+first.join(' '),last=first;
+  const line=point=>{const dx=point[0]-last[0],dy=point[1]-last[1],length=Math.hypot(dx,dy);if(!length)return;const bend=length>30?Math.min(6,length*.08):0;path+='Q'+number((last[0]+point[0])/2-dy/length*bend)+' '+number((last[1]+point[1])/2+dx/length*bend)+' '+point.join(' ');last=point;};
+  for(let i=closed?0:1;i<(closed?points.length:points.length-1);i++){
+   const b=points[i],{entry,exit,r}=corner(points[(i+points.length-1)%points.length],b,points[(i+1)%points.length]);
+   line(entry);if(r){path+='Q'+b.join(' ')+' '+exit.join(' ');last=exit;}
+  }
+  line(closed?first:points.at(-1));paths.push(path+(closed?'Z':''));
+ }
+ return paths;
+}
+
+function waterContourPaths(model){
+ const terrain=model.terrainKey.split('\n'),cells=new Set(),edges=[];
+ // Continue only actual edge water one cell beyond the viewBox.
+ for(let y=-1;y<=model.rows;y++)for(let x=-1;x<=model.columns;x++)if(terrain[Math.max(0,Math.min(model.rows-1,y))][Math.max(0,Math.min(model.columns-1,x))]==='#')cells.add(x+','+y);
+ for(const key of cells){const [x,y]=key.split(',').map(Number);for(const [dx,dy,a,b] of [[0,-1,[x,y],[x+1,y]],[1,0,[x+1,y],[x+1,y+1]],[0,1,[x+1,y+1],[x,y+1]],[-1,0,[x,y+1],[x,y]]])if(!cells.has((x+dx)+','+(y+dy)))edges.push({start:a.map(n=>n*CELL),end:b.map(n=>n*CELL)});}
+ return roundedCoastPaths(edges);
+}
+
+export function riverPresentationModel(art,metadata={}){
+ if(art?.blockedKind!=='water'||typeof art.terrainKey!=='string')return null;
+ const terrain=art.terrainKey.split('\n');
+ if(terrain.length!==art.rows||terrain.some(row=>row.length!==art.columns||!/^[.F#]+$/.test(row)))return null;
+ const water=[];for(let y=0;y<art.rows;y++)for(let x=0;x<art.columns;x++)if(terrain[y][x]==='#')water.push([x,y]);
+ if(!water.length)return null;
+ const bridges=(metadata.bridgeCells??[]).filter(([x,y])=>terrain[y]?.[x]==='.').map(p=>[...p]);
+ // This historical protected unit starts on a land berth, two cells from deep
+ // water. A quay and launch rails explain that position, rather than moving it.
+ const ferry=(metadata.extraAllies??[]).find(unit=>unit.id==='x_ferry'),berth=ferry?.position;
+ let landing=[];
+ if(art.id==='s14_jiangxia'&&berth?.[0]===17&&berth?.[1]===5&&terrain[5]?.[19]==='#'){
+  const candidates=[[17,5],[18,5],[17,4],[16,4],[15,4]];
+  if(candidates.every(([x,y])=>terrain[y]?.[x]==='.'))landing=candidates;
+ }
+ return {id:art.id,columns:art.columns,rows:art.rows,width:art.columns*CELL,height:art.rows*CELL,terrainKey:art.terrainKey,water,bridges,landing,coast:coastEdges(terrain,new Set(bridges.map(pointKey)))};
+}
+
+function timber(model,cells,id,launch=false){
+ if(!cells.length)return '';
+ const clip=rects(cells);let grain='';
+ for(const [x,y] of cells){
+  for(let i=0;i<100;i+=12)grain+='<path d="M'+(x*CELL+i)+' '+y*CELL+'v100" stroke="#574735" stroke-width="2" opacity=".72"/><path d="M'+(x*CELL+i+3)+' '+y*CELL+'v100" stroke="#dac296" stroke-width="1" opacity=".4"/>';
+  for(const xx of [12,88])for(const yy of [12,88])grain+='<circle cx="'+(x*CELL+xx)+'" cy="'+(y*CELL+yy)+'" r="2" fill="#403b30"/>';
+ }
+ const footprint=new Set(cells.map(pointKey));let rim='';
+ for(const [x,y] of cells)for(const [dx,dy,a,b] of [[0,-1,[x,y],[x+1,y]],[1,0,[x+1,y],[x+1,y+1]],[0,1,[x+1,y+1],[x,y+1]],[-1,0,[x,y+1],[x,y]]])if(!footprint.has((x+dx)+','+(y+dy)))rim+='<path d="M'+a.map(n=>n*CELL).join(' ')+'L'+b.map(n=>n*CELL).join(' ')+'"/>';
+ const rails=launch?'<g data-ferry-launch-rails="true" fill="none" stroke-linecap="round"><path d="M1712 553H1897M1712 578H1897" stroke="#453b2a" stroke-width="10"/><path d="M1712 551H1897M1712 576H1897" stroke="#c3aa78" stroke-width="4"/><path d="M1830 504v-16m40 16v-16" stroke="#6d5b3b" stroke-width="7"/></g>':'';
+ return '<defs><clipPath id="'+id+'">'+clip+'</clipPath></defs><g data-river-connection="'+id+'" clip-path="url(#'+id+')"><rect width="100%" height="100%" fill="url(#timber)"/>'+grain+'<g fill="none" stroke="#4b4835" stroke-width="9">'+rim+'</g><g fill="none" stroke="#d4bd8a" stroke-width="2">'+rim+'</g>'+rails+'</g>';
+}
+
+export function renderRiverPresentationSVG(model,{existingCrossing=false}={}){
+ if(!model)return '';
+ const waterMask=rects(model.water),shore=roundedCoastPaths(model.coast).map(path=>'<path d="'+path+'"/>').join('');let ripples='',reeds='',stones='';
+ // Extend only existing edge water off-canvas, so smoothing never closes a river
+ // at the map border. Cell centres remain exact while corner banks are rounded.
+ const smoothMask='<path fill-rule="evenodd" d="'+waterContourPaths(model).join(' ')+'"/>';
+ // Whole-map coordinates keep direction, colour and phase continuous at crops.
+ for(let y=13;y<model.height;y+=19){
+  let d='';for(let x=0;x<=model.width;x+=32)d+=(x?'L':'M')+x+' '+number(y+Math.sin(x*.012+y*.017)*3.6);
+  ripples+='<path d="'+d+'" stroke="'+(y%2?'#a9cdc1':'#729f9d')+'" stroke-width="'+(y%2?1:1.6)+'" opacity=".22"/>';
+ }
+ for(const edge of model.coast){
+  const {x,y,dx,dy}=edge;
+  for(let i=15;i<100;i+=22){
+   const along=i+(random(x*9+i,y*11)-.5)*9,xx=x*CELL+(dx?(dx>0?100:0):along)-dx*4,yy=y*CELL+(dy?(dy>0?100:0):along)-dy*4;
+   stones+='<ellipse cx="'+number(xx)+'" cy="'+number(yy)+'" rx="'+number(3+random(x+i,y)*4)+'" ry="2.2" fill="#a7a47b" opacity=".65"/>';
+   if(random(x+i,y+3)>.55)reeds+='<path d="M'+number(xx)+' '+number(yy)+'l-2 -7m2 7l3 -10m-3 10l5 -5" stroke="#6b7f54" stroke-width="1.6" opacity=".8"/>';
+  }
+ }
+ const defs='<defs><clipPath id="water">'+waterMask+'</clipPath><mask id="surface" maskUnits="userSpaceOnUse" x="-100" y="-100" width="'+(model.width+200)+'" height="'+(model.height+200)+'"><g fill="#fff" fill-rule="evenodd">'+smoothMask+'</g></mask><linearGradient id="river" x2=".7" y2="1"><stop stop-color="#426f70"/><stop offset=".45" stop-color="#315b62"/><stop offset="1" stop-color="#4e7b77"/></linearGradient><linearGradient id="timber" x2=".1" y2="1"><stop stop-color="#ae9569"/><stop offset=".6" stop-color="#b5a078"/><stop offset="1" stop-color="#887650"/></linearGradient><filter id="soft-bank" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter></defs>';
+ const bank='<g data-river-shore-replacement="true" fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#788665" stroke-width="35" filter="url(#soft-bank)">'+shore+'</g><g stroke="#8b9170" stroke-width="20">'+shore+'</g></g>';
+ const surface='<g clip-path="url(#water)"><rect width="100%" height="100%" fill="#7e8b6a"/></g><g mask="url(#surface)"><rect width="100%" height="100%" fill="url(#river)"/><g fill="none">'+ripples+'</g><g fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#607b65" stroke-width="25" opacity=".8">'+shore+'</g><g stroke="#9ca684" stroke-width="12" opacity=".66">'+shore+'</g><g stroke="#c3c9a0" stroke-width="2" opacity=".5">'+shore+'</g></g>'+stones+reeds+'</g>';
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="'+model.width+'" height="'+model.height+'" viewBox="0 0 '+model.width+' '+model.height+'"><title>'+safeText(model.id)+' · 강과 나루</title><desc>Display-only connected water and shoreline. Tactical terrain, deployment, exits, objectives and protected units are unchanged. The timber ferry berth is passable land.</desc>'+defs+bank+surface+(!existingCrossing?timber(model,model.bridges,'bridge-deck'):'')+timber(model,model.landing,'ferry-berth',true)+'</svg>';
+}
+
+export function riverPresentationSource(art,metadata){
+ if(art?.blockedKind!=='water'||typeof art.terrainKey!=='string')return null;
+ // A cache hit must not scan the map or rebuild its coast. Include dimensions
+ // and raw display metadata so a different/restored shape cannot share a URL.
+ const ferry=(metadata?.extraAllies??[]).find(unit=>unit.id==='x_ferry');
+ const signature=JSON.stringify([art.id,art.columns,art.rows,art.terrainKey,!!art.overlaySrc,metadata?.bridgeCells??[],ferry?.position??null]);
+ const baked=RIVER_ART_CATALOG[art.id];
+ if(baked?.signature===signature)return baked.src;
+ if(sources.has(signature))return sources.get(signature);
+ const model=riverPresentationModel(art,metadata);if(!model)return null;
+ const svg=renderRiverPresentationSVG(model,{existingCrossing:!!art.overlaySrc});
+ // One URL per map, rather than copying a large SVG into every tile's style.
+ const source=typeof Blob==='function'&&typeof globalThis.URL?.createObjectURL==='function'?URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})):'data:image/svg+xml,'+encodeURIComponent(svg).replace(/'/g,'%27');
+ sources.set(signature,source);return source;
+}
