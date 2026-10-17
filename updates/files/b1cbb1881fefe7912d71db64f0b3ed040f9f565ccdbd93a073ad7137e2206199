@@ -1,0 +1,20 @@
+import {createImageSourceResolver,imageSource} from './image-source.js';
+import {MAP_SPRITES} from './map-sprite-catalog.js';
+
+// Only small map-style consumers opt in. Measurements, artFor identities and
+// combat atlases continue to refer to the complete approved source canvas.
+const resolver=createImageSourceResolver(MAP_SPRITES,import.meta.url),installed=new WeakSet();
+export function mapSpriteSource(source){
+ const derivative=resolver.source(source);
+ return derivative===source?imageSource(source):derivative;
+}
+export const retryMapSprite=image=>resolver.retry(image);
+export function installMapSpriteFallback(root=globalThis.document){
+ if(!root?.addEventListener||installed.has(root))return false;
+ installed.add(root);
+ root.addEventListener('error',event=>{
+  const image=event.target;
+  if(image?.tagName==='IMG'&&image.hasAttribute?.('data-map-sprite')&&retryMapSprite(image))event.stopImmediatePropagation?.();
+ },true);
+ return true;
+}
