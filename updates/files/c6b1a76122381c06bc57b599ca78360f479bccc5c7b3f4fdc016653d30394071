@@ -1,0 +1,38 @@
+// Stable display DOM only: tactical state and delegated input handlers stay with
+// app.js. A selection/highlight must not reattach every sprite and terrain image.
+export function installBoardRenderer(board){
+ const doc=board?.ownerDocument;if(!doc?.createElement||typeof board.replaceChildren!=='function')return null;
+ let context=null,records=[],overlay=null,overlayHTML='';
+ const stats={resets:0,parsedCells:0,reusedCells:0,replacedParts:0,patchedParts:0};
+ const template=doc.createElement('template');
+ const parse=html=>{template.innerHTML=html;return template.content.firstElementChild;};
+ const parts=node=>[...node.children].map(child=>({html:child.outerHTML,node:child}));
+ const attributes=(node,next)=>{for(const attr of [...node.attributes])if(!next.hasAttribute(attr.name))node.removeAttribute(attr.name);for(const attr of [...next.attributes])if(node.getAttribute(attr.name)!==attr.value)node.setAttribute(attr.name,attr.value);};
+ function reset(key,cells,decoration){
+  const fragment=doc.createDocumentFragment();records=cells.map(html=>{const node=parse(html);fragment.append(node);stats.parsedCells++;return {html,node,parts:parts(node)};});
+  overlayHTML=decoration;overlay=decoration?parse(decoration):null;if(overlay)fragment.append(overlay);board.replaceChildren(fragment);context=key;stats.resets++;
+ }
+ function updateCell(record,html){
+  if(record.html===html&&record.node.parentNode===board){stats.reusedCells++;return;}
+  const next=parse(html);stats.parsedCells++;
+  if(record.node.parentNode!==board){board.append(next);record.node=next;record.parts=parts(next);record.html=html;return;}
+  const node=record.node;
+  // Cell identity and focus remain even if selection, range, HP or labels change.
+  attributes(node,next);
+  delete node.dataset.rangeLabel;
+  const nextParts=parts(next),previous=record.parts;
+  for(let index=0;index<Math.max(previous.length,nextParts.length);index++){
+   const old=previous[index],fresh=nextParts[index];
+   if(!fresh){old.node.remove();continue;}
+   if(old?.html===fresh.html&&old.node.parentNode===node){fresh.node=old.node;continue;}
+   if(old?.node.parentNode===node&&old.node.tagName===fresh.node.tagName&&old.node.innerHTML===fresh.node.innerHTML){attributes(old.node,fresh.node);fresh.node=old.node;stats.patchedParts++;continue;}
+   if(old?.node.parentNode===node)old.node.replaceWith(fresh.node);else node.append(fresh.node);stats.replacedParts++;
+  }
+  record.html=html;record.parts=nextParts;
+ }
+ return {render({key,cells,overlayHTML:decoration=''}){
+  if(context!==key||records.length!==cells.length){reset(key,cells,decoration);return;}
+  cells.forEach((html,index)=>updateCell(records[index],html));
+  if(overlayHTML!==decoration||overlay&&overlay.parentNode!==board){overlay?.remove();overlay=decoration?parse(decoration):null;overlayHTML=decoration;if(overlay)board.append(overlay);}
+ },stats:()=>({...stats}),clear(){context=null;records=[];overlay=null;overlayHTML='';}};
+}

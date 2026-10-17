@@ -1,0 +1,118 @@
+import {CloudSaveError,createSupabaseCloudTransport,createCloudCoordinator,normalizeCloudConfig} from './save-cloud.js';
+import {createNativeCloudTransport} from './cloud-native.js';
+import {openCloudStateStorage} from './cloud-state-storage.js';
+import {installCloudSaveUI} from './save-cloud-ui.js';
+
+const ordinary=slot=>slot==='auto'||/^manual(?:-([2-9]|[1-4][0-9]|5[0-6]))?$/.test(slot);
+const fail=code=>{throw new CloudSaveError(code);};
+// A comparison stamp is never uploaded or used to merge a save. It only detects
+// game changes while the player is reviewing a conflict in the modal dialog.
+export function cloudGameStamp(raw){const value=JSON.parse(raw);delete value.savedAt;delete value.kind;delete value.migrationNotice;return JSON.stringify(value);}
+
+export async function createGameCloudIntegration({gameStorage,libraryKey,parseRaw,describeRaw,saveCurrent,applyRaw,readRuntime,acquireGameLock,entryHosts=[],eligible=true,config=null,fetcher=globalThis.fetch,bridge=globalThis.window?.shuCloud,platform=globalThis.window?.shuUpdates?'pc':'web',window=globalThis.window,document=globalThis.document,onNotice=()=>{},openStateStorage=openCloudStateStorage,installUI=installCloudSaveUI,transportFactory=null}={}){
+ for(const fn of [libraryKey,parseRaw,describeRaw,saveCurrent,applyRaw,readRuntime,acquireGameLock])if(typeof fn!=='function')fail('CLOUD_CONFIG');
+ let settings=config,configError=null;
+ if(settings===null){try{const response=await fetcher('./cloud-config.json',{cache:'no-store'});if(!response.ok)fail('CLOUD_CONFIG');const raw=await response.text();if(raw.length>20000)fail('CLOUD_CONFIG');settings=JSON.parse(raw);normalizeCloudConfig(settings);}catch{settings={enabled:false};configError=new CloudSaveError('CLOUD_CONFIG');}}
+ let storage=null,transport=null,coordinator=null,ui=null,disposed=false,deleting=false,metadataFault=false,backgroundSuppressed=false,preparedStamp=null,observerTail=Promise.resolve(),flushTimer=null;
+ const observed=new WeakMap();
+ const runtime=(captureSave=false)=>readRuntime({captureSave});
+ const writable=()=>!gameStorage.readOnly&&!runtime().saveConflict&&!runtime().savePending&&!deleting&&!disposed&&!metadataFault;
+ const validateRaw=raw=>{const value=parseRaw(raw);if(!value||value.version!==2||!['auto','manual'].includes(value.kind)||value.state?.replayChapterId!==undefined)fail('CLOUD_INVALID_SAVE');return value;};
+ const validatedReplay=raw=>{const value=parseRaw(raw);return value?.version===2&&['auto','manual'].includes(value.kind)&&value.state?.replayChapterId!==undefined;};
+ const checkMetadataCurrent=async()=>{if(disposed||deleting||metadataFault)fail('CLOUD_LOCAL');try{if((await storage.checkCurrent()).committed!==true)fail('CLOUD_LOCAL');}catch{metadataFault=true;clearTimeout(flushTimer);fail('CLOUD_LOCAL');}};
+ const getCurrent=async()=>{
+  if(disposed||deleting||metadataFault)fail('CLOUD_LOCAL');
+  await checkMetadataCurrent();
+  const pointer=await storage.loadProgressPointer();
+  if(pointer){const rawSave=gameStorage.getItem(pointer.key);if(typeof rawSave!=='string')fail('CLOUD_LOCAL');validateRaw(rawSave);return {rawSave,kind:pointer.kind,slotId:pointer.slotId,durable:true};}
+  // Existing installations have no pointer. Only ordinary saves are eligible;
+  // the first explicit save/load then records the player's actual choice.
+  const entries=['auto',...Array.from({length:56},(_,i)=>i?'manual-'+(i+1):'manual')].flatMap(slotId=>{
+   const rawSave=gameStorage.getItem(libraryKey(slotId));if(rawSave===null)return [];
+   try{const value=validateRaw(rawSave);return [{rawSave,kind:slotId==='auto'?'auto':'manual',slotId,durable:true,date:Date.parse(value.savedAt)}];}catch{return [];}
+  }).sort((a,b)=>b.date-a.date);
+  if(!entries.length)return null;const {date,...entry}=entries[0];return entry;
+ };
+ const savePointer=entry=>storage.saveProgressPointer({key:libraryKey(entry.slotId),kind:entry.kind,slotId:entry.slotId});
+ const currentStamp=async()=>{
+  const value=runtime(true);if(value.busy||value.savePending||value.saveConflict)fail('CLOUD_LOCAL_CHANGED');
+  return value.title?((await getCurrent())?.rawSave??null):value.rawSave;
+ };
+ const stamp=raw=>raw===null?null:cloudGameStamp(raw);
+ const guardPrepared=async()=>{if(!writable()||preparedStamp!==stamp(await currentStamp()))fail('CLOUD_LOCAL_CHANGED');};
+ const lock=()=>{if(disposed||deleting||runtime().busy||runtime().savePending)fail('CLOUD_LOCAL_CHANGED');const release=acquireGameLock();if(typeof release!=='function')fail('CLOUD_LOCAL');return release;};
+ const scheduleFlush=()=>{
+  clearTimeout(flushTimer);if(disposed||deleting||backgroundSuppressed||!coordinator?.status().authenticated)return;
+  flushTimer=setTimeout(()=>{if(disposed||deleting||ui?.dialog?.open||runtime().busy||runtime().savePending)return;void retryPending();},600);
+ };
+ const observeCommit=result=>{
+  if(!result||typeof result!=='object'||result.ok!==true||!ordinary(result.value?.slotId)||typeof result.value?.rawSave!=='string')return Promise.resolve({recorded:false});
+  if(observed.has(result))return observed.get(result);
+  const entry={...result.value,durable:true};
+  const task=observerTail.then(async()=>{
+   if(disposed||deleting||metadataFault)fail('CLOUD_LOCAL');
+   // A production-validated replay is a normal local-only save. Validate its
+   // complete game structure before classifying it; a forged replay marker or
+   // corrupt original still follows the existing metadata-fault protection.
+   if(validatedReplay(entry.rawSave))return {recorded:false,excluded:'replay'};
+   validateRaw(entry.rawSave);await savePointer(entry);
+   if(coordinator.status().authenticated)await coordinator.recordDurableSave(entry);backgroundSuppressed=false;
+   await ui?.refresh();scheduleFlush();return {recorded:true};
+  }).catch(()=>{metadataFault=true;clearTimeout(flushTimer);onNotice('이 기기의 저장은 완료했습니다. 클라우드 대기 기록을 확인하지 못했습니다. 다른 게임 창을 닫고 다시 실행해 주세요.');return {recorded:false};});
+  observerTail=task;observed.set(result,task);return task;
+ };
+ const beforeOpen=async()=>{
+  const release=lock();
+  try{
+   await observerTail;await gameStorage.whenIdle?.();
+   if(!writable())fail('CLOUD_LOCAL');
+   if(runtime().title){await gameStorage.reload();}
+   else{const result=await saveCurrent();if(result?.ok!==true||(await observeCommit(result)).recorded!==true)fail('CLOUD_LOCAL');}
+   preparedStamp=stamp(await currentStamp());return {committed:true};
+  }finally{release();}
+ };
+ const beforeAction=async()=>{const release=lock();try{await observerTail;await guardPrepared();return release;}catch(error){release();throw error;}};
+ async function retryPending(){
+  if(disposed||deleting||backgroundSuppressed||ui?.dialog?.open||!writable()||runtime().busy||!coordinator.status().authenticated||!coordinator.status().queued||coordinator.status().conflict)return {retried:false};
+  // Background uploads cannot apply a game state. Local play remains available
+  // during a slow network request; serial coordinator writes retain server CAS.
+  try{await observerTail;await coordinator.flush();await ui?.refresh();return {retried:true};}catch{return {retried:false};}
+ }
+ let initializationError=configError;
+ try{
+  storage=await openStateStorage();
+  transport=eligible!==true?createSupabaseCloudTransport({config:{enabled:false}}):transportFactory?transportFactory({settings,storage}):platform==='pc'?createNativeCloudTransport({bridge}):createSupabaseCloudTransport({config:settings,fetcher,sessionStore:storage.sessionStore});
+  coordinator=createCloudCoordinator({transport,state:await storage.loadState(),validateRaw,readCurrentLocal:getCurrent,persistState:value=>storage.saveState(value),
+   backupLocal:entry=>storage.saveBackup({projectURL:entry.projectURL,userId:entry.userId,source:entry.kind?'local':'remote',reason:entry.reason,rawSave:entry.rawSave,sha256:entry.sha256}),
+   commitRemote:async entry=>{
+    await guardPrepared();await checkMetadataCurrent();validateRaw(entry.rawSave);
+    await gameStorage.transaction(draft=>{const current=runtime(true);if(!writable()||stamp(current.title?null:current.rawSave)!==(current.title?null:preparedStamp))fail('CLOUD_LOCAL_CHANGED');draft.setItem(libraryKey('auto'),entry.rawSave);});
+    await savePointer({slotId:'auto',kind:'auto'});return {committed:true};
+   },
+   applyRemote:async entry=>{if(disposed||deleting)fail('CLOUD_LOCAL');validateRaw(entry.rawSave);await applyRaw(entry.rawSave);preparedStamp=stamp(runtime(true).rawSave);}
+  });
+  await coordinator.ready();
+ }catch(error){initializationError=error instanceof CloudSaveError?error:new CloudSaveError('CLOUD_LOCAL');}
+ if(initializationError){
+  // A failed cloud store/config does not turn a successful local write into a
+  // failed game save and never replaces either store with an empty database.
+  coordinator={status:()=>({enabled:false,authenticated:false,busy:false,phase:'waiting'}),ready:async()=>{throw initializationError;},conflictDetails:()=>null,subscribe:()=>()=>{}};
+ }
+ const readBackups=async()=>{if(!storage)fail('CLOUD_LOCAL');return (await storage.loadBackups()).map(row=>({...row,savedAt:row.createdAt}));};
+ const supported=platform!=='pc'||!!bridge;
+ ui=installUI({document,window,coordinator,platform,supported,entryHosts,describeRaw,readBackups,
+  readLocalSummary:async()=>{if(!storage)return null;const entry=await getCurrent();return entry?describeRaw(entry.rawSave):null;},
+  getAvailability:()=>({localWritable:writable(),canApply:writable()&&!runtime().busy}),beforeOpen,beforeAction});
+ const online=()=>{void retryPending();};window?.addEventListener?.('online',online);
+ return {
+  ui,coordinator,observeCommit,async markCurrent(slotId){if(!ordinary(slotId)||disposed||deleting||metadataFault)return false;backgroundSuppressed=true;clearTimeout(flushTimer);await observerTail;const rawSave=gameStorage.getItem(libraryKey(slotId));if(typeof rawSave!=='string')return false;try{if(validatedReplay(rawSave))return false;validateRaw(rawSave);await savePointer({slotId,kind:slotId==='auto'?'auto':'manual'});preparedStamp=null;return true;}catch(error){metadataFault=true;clearTimeout(flushTimer);throw error;}},
+  get pendingWrites(){return storage?.pendingWrites??0;},
+  async clearBeforeGameDelete(){
+   if(disposed||deleting||!storage)fail('CLOUD_LOCAL');deleting=true;clearTimeout(flushTimer);await observerTail;
+   try{if(transport?.status().authenticated)await coordinator.logout();await storage.whenIdle();await storage.clearLocalCloudCopies();disposed=true;window?.removeEventListener?.('online',online);ui?.destroy();storage.close();return {cleared:true};}
+   catch(error){disposed=true;window?.removeEventListener?.('online',online);ui?.destroy();storage.close();throw error;}
+  },
+  retryPending,
+  async close(){disposed=true;clearTimeout(flushTimer);window?.removeEventListener?.('online',online);await observerTail;await storage?.whenIdle();ui?.destroy();storage?.close();}
+ };
+}

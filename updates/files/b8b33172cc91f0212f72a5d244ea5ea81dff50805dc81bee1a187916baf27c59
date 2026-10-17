@@ -1,0 +1,909 @@
+{
+  "version": "0.72.9",
+  "maxEdge": 192,
+  "role": "small preparation roster/draft only",
+  "count": 40,
+  "bytes": 1423182,
+  "sourceBytes": 62318655,
+  "sourceRGBABytes": 246491408,
+  "thumbnailRGBABytes": 4578816,
+  "originalsPreserved": true,
+  "records": [
+    {
+      "src": "art/preparation-v0729/d4af2b667c7a8ebc81302e79-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 38048,
+      "sha256": "f4ff67e1c899436cc97498050d5c48dd5d481369f7fb00225a97dd70611c8a0e",
+      "source": "art/optimized-v0722/d4af2b667c7a8ebc81302e79d29e5984be55c3c21226b9824c7ca41693d6a1ac.png",
+      "originals": [
+        "assets/portrait/v031/liubei/normal.png"
+      ],
+      "sourceSHA256": "d4af2b667c7a8ebc81302e79d29e5984be55c3c21226b9824c7ca41693d6a1ac",
+      "sourceBytes": 2102605,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "liubei"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/40f7d565ea51efc0c1f87181-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 42242,
+      "sha256": "700e1229182082e3da188d25d21a42c11f4f3944549b156ed18079d81cbb5fa4",
+      "source": "art/optimized-v0722/40f7d565ea51efc0c1f871819d689bcbdd3b56ec963f8b0c1b77b66c17179346.png",
+      "originals": [
+        "assets/portrait/v031/guanyu/normal.png"
+      ],
+      "sourceSHA256": "40f7d565ea51efc0c1f871819d689bcbdd3b56ec963f8b0c1b77b66c17179346",
+      "sourceBytes": 2476460,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "guanyu"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/e4d7d7fe7486385f743f9942-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 41078,
+      "sha256": "bfb1288aacebb99af2a6a790b31bcaad601be4c0ace8dacce1913c8a693b6649",
+      "source": "art/optimized-v0722/e4d7d7fe7486385f743f99428bd6f9e31617daf5adb97c5eed85c1f4e2f0f6cf.png",
+      "originals": [
+        "assets/portrait/v033/zhangfei/normal.png"
+      ],
+      "sourceSHA256": "e4d7d7fe7486385f743f99428bd6f9e31617daf5adb97c5eed85c1f4e2f0f6cf",
+      "sourceBytes": 2225155,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhangfei"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/fd9c397b13c4b6d34ace54f8-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 42616,
+      "sha256": "d73f645f8c050acd2cff0cfa8f659a096fc0d252531eefe24a6b4985edb5c806",
+      "source": "art/optimized-v0722/fd9c397b13c4b6d34ace54f88cbcbaee560721a9188f81f5e78684be6bab3bb0.png",
+      "originals": [
+        "assets/portrait/v031/zhaoyun/normal.png"
+      ],
+      "sourceSHA256": "fd9c397b13c4b6d34ace54f88cbcbaee560721a9188f81f5e78684be6bab3bb0",
+      "sourceBytes": 2749331,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhaoyun"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/b349eba2b552472c4b085d02-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 38656,
+      "sha256": "9327150d385aaea85f2820d145d463b91868f6107738e0829a3a21a4e07744ac",
+      "source": "art/optimized-v0722/b349eba2b552472c4b085d026b128f6625542c62624debadae4f4be53767cf84.png",
+      "originals": [
+        "assets/portrait/v031/zhugeliang/normal.png"
+      ],
+      "sourceSHA256": "b349eba2b552472c4b085d026b128f6625542c62624debadae4f4be53767cf84",
+      "sourceBytes": 2287511,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhugeliang"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/b71dea281f3ab88e3f48bb0b-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 22854,
+      "sha256": "f338616e6f91828aea9dafe6df96982f0a1244e56e8d64a31d3585cfe814d38d",
+      "source": "assets/portrait/sil_shu.webp",
+      "originals": [
+        "assets/portrait/sil_shu.webp"
+      ],
+      "sourceSHA256": "b71dea281f3ab88e3f48bb0b89f78ac09fb695e7b39d563363282c8b4d126371",
+      "sourceBytes": 174788,
+      "sourceWidth": 1000,
+      "sourceHeight": 1250,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "huangzhong",
+        "weiyan",
+        "machao",
+        "guanping",
+        "masu",
+        "liaohua",
+        "fazheng",
+        "madai",
+        "yanyan",
+        "huangquan",
+        "wangping",
+        "maliang",
+        "liufeng",
+        "wuyi",
+        "liyan",
+        "zhangyi",
+        "wuban"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/8736f02688ae1d410cd5e7c4-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 42196,
+      "sha256": "7d6ab3772b8eae4b1fa68aa24e0483c4b09d61ecda43375b696995185d346c79",
+      "source": "art/optimized-v0722/8736f02688ae1d410cd5e7c462598bd93c6c948811aef28073b7eafb6d51537b.png",
+      "originals": [
+        "assets/portrait/v036/huangzhong.png"
+      ],
+      "sourceSHA256": "8736f02688ae1d410cd5e7c462598bd93c6c948811aef28073b7eafb6d51537b",
+      "sourceBytes": 2566328,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "huangzhong"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/11aba17735d971fc6ddd811e-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 41052,
+      "sha256": "a63827669c65d998bff9dd88d9c76e632da5a2b5a84a5afd51cf92e9b9203077",
+      "source": "art/optimized-v0722/11aba17735d971fc6ddd811e29c2b3ca57f090a97d9db510a2111ac2884b8b5d.png",
+      "originals": [
+        "assets/portrait/v036/weiyan.png"
+      ],
+      "sourceSHA256": "11aba17735d971fc6ddd811e29c2b3ca57f090a97d9db510a2111ac2884b8b5d",
+      "sourceBytes": 2485772,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "weiyan"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/395f64e8796615acbb99c9ba-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 33142,
+      "sha256": "20c3ec20eb735111806deee3b76a28c14024f46b0959d30583f419ce719f2668",
+      "source": "art/optimized-v0722/395f64e8796615acbb99c9ba75024ea2943516c198e17fe9c8cfc578e494a681.webp",
+      "originals": [
+        "assets/portrait/adopted-20261007/pangtong/normal.png"
+      ],
+      "sourceSHA256": "395f64e8796615acbb99c9ba75024ea2943516c198e17fe9c8cfc578e494a681",
+      "sourceBytes": 1675570,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": false,
+      "hasAlpha": false,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "pangtong"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/c8881fd314403ed7edde0d32-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 38146,
+      "sha256": "e86aba9a3d31f7ad6bbb34898eb93e81107587c5f51a94e317ff0d56300cbc5c",
+      "source": "assets/portrait/v036/pangtong.png",
+      "originals": [
+        "assets/portrait/v036/pangtong.png"
+      ],
+      "sourceSHA256": "c8881fd314403ed7edde0d32c0b6e15fe2a6c3691bf96ff57ec5f77c6c57e936",
+      "sourceBytes": 2394241,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "pangtong"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/e49d0e0ad1812a1edda7c3f2-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 40370,
+      "sha256": "5a9179739fd23f2c055e5ff457f6b64a4a863027e654e9abcd53f028742447e7",
+      "source": "art/act4/portraits/machao-v040.webp",
+      "originals": [
+        "art/act4/portraits/machao-v040.webp"
+      ],
+      "sourceSHA256": "e49d0e0ad1812a1edda7c3f29974a642eeb1e21f901f0bd79f2676f2a81b7526",
+      "sourceBytes": 1875336,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "machao"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/2ce25c74a48b65ccf24feb67-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 37834,
+      "sha256": "100bd22f9038fb750fa74090a961a8ee1b654ffe209b37673ea96eeebcbb5b6f",
+      "source": "art/act5/portraits/jiangwei-v050.webp",
+      "originals": [
+        "art/act5/portraits/jiangwei-v050.webp"
+      ],
+      "sourceSHA256": "2ce25c74a48b65ccf24feb67efe48ad3f45241c683d20558bc666cbbe1286f9e",
+      "sourceBytes": 704212,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "jiangwei"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/e33f5dd232d5c830c8f88f21-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 38100,
+      "sha256": "cdc86e90ee2e829acc66f83ee187adf2646f582548d902edbbeceda5a2cd11ea",
+      "source": "art/optimized-v0722/e33f5dd232d5c830c8f88f2132ccbe6d814aa1cb77479e2c7148a5aea5a59774.png",
+      "originals": [
+        "assets/portrait/v031/chendao/normal.png"
+      ],
+      "sourceSHA256": "e33f5dd232d5c830c8f88f2132ccbe6d814aa1cb77479e2c7148a5aea5a59774",
+      "sourceBytes": 2260208,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "chendao"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/930002f09a8eb6cf6adf5704-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 35176,
+      "sha256": "4e0874058b737c1d017b49b5f1896f8c7ddb69605ad9941b3e6175172be128c9",
+      "source": "assets/portrait/v031/xushu/normal.png",
+      "originals": [
+        "assets/portrait/v031/xushu/normal.png"
+      ],
+      "sourceSHA256": "930002f09a8eb6cf6adf5704be5fb24a1d6cbd483882102cc1e93774738d5913",
+      "sourceBytes": 2119730,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "xushu"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/28ac0700440768dd6ea56c22-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 39156,
+      "sha256": "11769a3d38a01b2d4ebec57550666892aeac5b5534dd52cef3db1a643f036e5f",
+      "source": "art/optimized-v0722/28ac0700440768dd6ea56c22996337db262ed0e7639e279795a7f67a8ed8ad82.png",
+      "originals": [
+        "assets/portrait/v036/guanping.png"
+      ],
+      "sourceSHA256": "28ac0700440768dd6ea56c22996337db262ed0e7639e279795a7f67a8ed8ad82",
+      "sourceBytes": 2254121,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "guanping"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/d3877ddce17e99384049daf4-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 36730,
+      "sha256": "8f34c37ab0540a1db1ae72d900579f858a92003f70b8c6bd695e8db11d710fa0",
+      "source": "art/optimized-v0722/d3877ddce17e99384049daf4fbcb37d8119c275abb8452360b85d00be3830a76.png",
+      "originals": [
+        "assets/portrait/v036/masu.png"
+      ],
+      "sourceSHA256": "d3877ddce17e99384049daf4fbcb37d8119c275abb8452360b85d00be3830a76",
+      "sourceBytes": 2244095,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "masu"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/99be550e3ca3de236f9d3549-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 38536,
+      "sha256": "1ba3dd20c4f09622a1ca897064ac62b5645a32db047d240a7ce5008ce45c9b81",
+      "source": "art/optimized-v0722/99be550e3ca3de236f9d35499761dba6d355a950fac69828a4a1f376ec31181a.png",
+      "originals": [
+        "assets/portrait/v036/liaohua.png"
+      ],
+      "sourceSHA256": "99be550e3ca3de236f9d35499761dba6d355a950fac69828a4a1f376ec31181a",
+      "sourceBytes": 2311936,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "liaohua"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/e57597ea5dfa348229e1b369-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 28252,
+      "sha256": "eaf2f954e6379c8cb636f57596877041cef896df42829f6050515f887c2c527c",
+      "source": "art/act4/portraits/fazheng-v040.webp",
+      "originals": [
+        "art/act4/portraits/fazheng-v040.webp"
+      ],
+      "sourceSHA256": "e57597ea5dfa348229e1b369a7b9014dbd6299140aa3b97e187fa6f189295f52",
+      "sourceBytes": 1366926,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "fazheng"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/7df790be87d06575bd8ff74d-192.webp",
+      "width": 128,
+      "height": 192,
+      "bytes": 34396,
+      "sha256": "56207f1459a307a8d1e3981e005133fee56276d06a30bc5952d7416304df3e2d",
+      "source": "art/act4/portraits/madai-v040.webp",
+      "originals": [
+        "art/act4/portraits/madai-v040.webp"
+      ],
+      "sourceSHA256": "7df790be87d06575bd8ff74d0e58cd3269e9643c4c8f822f36111016d16b0a5d",
+      "sourceBytes": 1621420,
+      "sourceWidth": 1024,
+      "sourceHeight": 1536,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "madai"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/5efaea81f859f588be7ba4c0-192.webp",
+      "width": 128,
+      "height": 192,
+      "bytes": 33042,
+      "sha256": "02af1f3d0dd7c4671e19a8103c31b7910be81e9eac6347d93275ea6e8500bc7b",
+      "source": "art/act4/portraits/yanyan-v040.webp",
+      "originals": [
+        "art/act4/portraits/yanyan-v040.webp"
+      ],
+      "sourceSHA256": "5efaea81f859f588be7ba4c0e2e39b770f9aa66d812aa863d3662ac4d2d1badb",
+      "sourceBytes": 1746454,
+      "sourceWidth": 1024,
+      "sourceHeight": 1536,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "yanyan"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/7090c42c3e3e511a401ec06f-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 28160,
+      "sha256": "5e39345e4ea7f333c60d79f8b2407fae36f9c7339ad6f1cf4a25b13feb95ffdb",
+      "source": "art/act4/portraits/huangquan-v040.webp",
+      "originals": [
+        "art/act4/portraits/huangquan-v040.webp"
+      ],
+      "sourceSHA256": "7090c42c3e3e511a401ec06fef2a1fa6c48a6768f23b281d0919967d4100a487",
+      "sourceBytes": 1435228,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "huangquan"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/edf24e118885543abc4af040-192.webp",
+      "width": 128,
+      "height": 192,
+      "bytes": 32384,
+      "sha256": "308743c256133b68ce5dd8971e9ccd6f0275f16c53d9f9b898ac771a383409b6",
+      "source": "art/act4/portraits/wangping-v040.webp",
+      "originals": [
+        "art/act4/portraits/wangping-v040.webp"
+      ],
+      "sourceSHA256": "edf24e118885543abc4af04074a35d6d1f6f351482eabe19ffd632a11687683f",
+      "sourceBytes": 1589840,
+      "sourceWidth": 1024,
+      "sourceHeight": 1536,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "wangping"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/acdf32e8928ed8f19e92ea61-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 38354,
+      "sha256": "665bce45a25d483ff4fb5ab052a52a7405577f1f610a71304ca001ede9db1314",
+      "source": "art/act5/portraits/guanxing-v050.webp",
+      "originals": [
+        "art/act5/portraits/guanxing-v050.webp"
+      ],
+      "sourceSHA256": "acdf32e8928ed8f19e92ea6199ed12f52875cb974af524a9e29a424d048af9ba",
+      "sourceBytes": 690498,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "guanxing"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/69cfc8eb8cde39e42b1b39b2-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 37138,
+      "sha256": "dfade2c908c8ea50c3823a2b84efe48f2fc4769c41873c85ed96f0678d8fdaa0",
+      "source": "art/act5/portraits/zhangbao-v050.webp",
+      "originals": [
+        "art/act5/portraits/zhangbao-v050.webp"
+      ],
+      "sourceSHA256": "69cfc8eb8cde39e42b1b39b2fd629a4f1e8adb997e4ce184034d6ae91ad09933",
+      "sourceBytes": 667300,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhangbao"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/a0e1e0126831954560ca2218-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 25996,
+      "sha256": "854add2c4eb640841e6ba5ee4168ec18cd9567b2949de6e36e3fb19a9229e641",
+      "source": "assets/portrait/jianyong/main_normal.webp",
+      "originals": [
+        "assets/portrait/jianyong/main_normal.webp"
+      ],
+      "sourceSHA256": "a0e1e0126831954560ca22182cd49b510633fb5211cf62455a84dc3d1385703c",
+      "sourceBytes": 188080,
+      "sourceWidth": 1000,
+      "sourceHeight": 1250,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "jianyong"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/80bf794eecb8d5c73d3e0546-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 25514,
+      "sha256": "5e143ee01cf79955a004c7a867170de1c6807457872b3a222ec213491dcf1ce7",
+      "source": "assets/portrait/sunqian/main_normal.webp",
+      "originals": [
+        "assets/portrait/sunqian/main_normal.webp"
+      ],
+      "sourceSHA256": "80bf794eecb8d5c73d3e05462d74e6566700826f0802054a6824093b3ba99104",
+      "sourceBytes": 166652,
+      "sourceWidth": 1000,
+      "sourceHeight": 1250,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "sunqian"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/9c00b441f0251d06c6b70170-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 29720,
+      "sha256": "41a29e1bb8cb6bf56181dc1e5a003316378eb765e6393d058483733cccf9dd20",
+      "source": "assets/portrait/mizhu/main_normal.webp",
+      "originals": [
+        "assets/portrait/mizhu/main_normal.webp"
+      ],
+      "sourceSHA256": "9c00b441f0251d06c6b701707c03e8bed81a98d44707affe90e9bc3ae3fcbf21",
+      "sourceBytes": 279702,
+      "sourceWidth": 1000,
+      "sourceHeight": 1250,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "mizhu"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/7f01ff84eeadd2e188bc5b72-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 38292,
+      "sha256": "ec3c27222fd40becf597176813b5bd87c6d0f8a66552ea779b0efd6cf19c7aeb",
+      "source": "art/optimized-v0722/7f01ff84eeadd2e188bc5b72b59a5445f88dd1971680140c9f426b09945327bd.png",
+      "originals": [
+        "assets/portrait/v031/zhoucang/normal.png"
+      ],
+      "sourceSHA256": "7f01ff84eeadd2e188bc5b72b59a5445f88dd1971680140c9f426b09945327bd",
+      "sourceBytes": 2369034,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhoucang"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/076dc6a96f8c2a738fa35023-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 35272,
+      "sha256": "e544b638437bc49703b95e50e7b7a9ded042b87bf0aee8704f40f3f321d43644",
+      "source": "art/optimized-v0722/076dc6a96f8c2a738fa350231f7c626a63a1ab980e1e332fdaeec3e09484ded1.png",
+      "originals": [
+        "assets/portrait/v036/maliang.png"
+      ],
+      "sourceSHA256": "076dc6a96f8c2a738fa350231f7c626a63a1ab980e1e332fdaeec3e09484ded1",
+      "sourceBytes": 2193249,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "maliang"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/c65e2ff5e13173c344a9ace3-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 40612,
+      "sha256": "51d172002308a86123af5963019b0c4babadc113fced47ebc71129e7041f97dd",
+      "source": "assets/portrait/v036/liufeng.png",
+      "originals": [
+        "assets/portrait/v036/liufeng.png"
+      ],
+      "sourceSHA256": "c65e2ff5e13173c344a9ace302038408b06f23b7b72cb265528a637c00ea5771",
+      "sourceBytes": 2373939,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "liufeng"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/49a2bfa83915bf313ae7d885-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 33378,
+      "sha256": "f4556434c181c1466682d3c1d19c63b4e929bd3df18e0a46841dbec5bb7c68e7",
+      "source": "art/act4/portraits/wuyi-v040.webp",
+      "originals": [
+        "art/act4/portraits/wuyi-v040.webp"
+      ],
+      "sourceSHA256": "49a2bfa83915bf313ae7d8857da7b32bd6b44f9160e4e7294cf83f0a06ea9241",
+      "sourceBytes": 1678462,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "wuyi"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/85f30a203b0a391c934ee034-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 33860,
+      "sha256": "3eeb1706381553e5099d03a91a08f747e97eed67339d0c860e2a0d0556650d27",
+      "source": "art/act4/portraits/liyan-v040.webp",
+      "originals": [
+        "art/act4/portraits/liyan-v040.webp"
+      ],
+      "sourceSHA256": "85f30a203b0a391c934ee034aaec7bbdbdccdf4120a6f260d86a750918b872ce",
+      "sourceBytes": 1706380,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "liyan"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/474817e45f1cbd22a91b5cfb-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 33996,
+      "sha256": "e9c8ba46ffaafd67dcc4d241fb147680d3af976a1ca81241598b77f6ff3b8255",
+      "source": "art/act4/portraits/zhangyi-v040.webp",
+      "originals": [
+        "art/act4/portraits/zhangyi-v040.webp"
+      ],
+      "sourceSHA256": "474817e45f1cbd22a91b5cfb512b8a830b6418acd08d6af4bed55c5c351b4b1f",
+      "sourceBytes": 1620160,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhangyi"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/5617c746becfdffcd39f80c2-192.webp",
+      "width": 144,
+      "height": 192,
+      "bytes": 36912,
+      "sha256": "c52d88da70c0e0b832563e833eea57cb6d4a7ff7e5d84d1bf736ce191b8a1006",
+      "source": "art/act4/portraits/wuban-v040.webp",
+      "originals": [
+        "art/act4/portraits/wuban-v040.webp"
+      ],
+      "sourceSHA256": "5617c746becfdffcd39f80c270f0a5f9e6c0f084287d6db9af04589e84106a63",
+      "sourceBytes": 1756712,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "wuban"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/d78591cf9dac9510686596b4-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 38902,
+      "sha256": "5af3f188d9546cc26be80d145b5d5ea1cdd6c97110386fa2f161590d16e8eec5",
+      "source": "art/act5/portraits/fengxi-v050.webp",
+      "originals": [
+        "art/act5/portraits/fengxi-v050.webp"
+      ],
+      "sourceSHA256": "d78591cf9dac9510686596b4cef7a03b40227c2ffddf36398ed578078423cc87",
+      "sourceBytes": 745576,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "fengxi"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/0e18a1f5294bd4e0d1d11c07-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 35060,
+      "sha256": "05e8ba1c6c8be25fda8186f112e1ed6cdd30413247c3eb870dd440761a546b35",
+      "source": "art/act5/portraits/fudong-v050.webp",
+      "originals": [
+        "art/act5/portraits/fudong-v050.webp"
+      ],
+      "sourceSHA256": "0e18a1f5294bd4e0d1d11c07bbc8257d4a3ecb23e97fcba852e13be76e13c4ee",
+      "sourceBytes": 628302,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "fudong"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/66a357eac874e395d9a250c3-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 30220,
+      "sha256": "4b0fce3619cf4fd47099c732fe820fa0ce18e1da716fe63aa6493846e6b7535d",
+      "source": "art/act5/portraits/dengzhi-v050.webp",
+      "originals": [
+        "art/act5/portraits/dengzhi-v050.webp"
+      ],
+      "sourceSHA256": "66a357eac874e395d9a250c31e1e16cfd02902fc224ecc95f72992d188ad8b1e",
+      "sourceBytes": 506776,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "dengzhi"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/80da212723af1f7dd253144f-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 36970,
+      "sha256": "ad0829ae387cd9a5946d82a27207dc0a3b2b1e86c0cf513ca164350714cf80d1",
+      "source": "art/act5/portraits/zhangni-v050.webp",
+      "originals": [
+        "art/act5/portraits/zhangni-v050.webp"
+      ],
+      "sourceSHA256": "80da212723af1f7dd253144fa8b3d1d571f6103dbdf60ecd159c689681e1b935",
+      "sourceBytes": 738892,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "zhangni"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/b762982f316409950f8d1291-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 36312,
+      "sha256": "59da0029e4cbc3fa2093de8fd8f8034682527468460c9d98068c7184924bc9ff",
+      "source": "art/act5/portraits/mazhong-v050.webp",
+      "originals": [
+        "art/act5/portraits/mazhong-v050.webp"
+      ],
+      "sourceSHA256": "b762982f316409950f8d12914c5c6a0d4c704dcdb56e3e52338972a7433559d4",
+      "sourceBytes": 700230,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "mazhong"
+      ]
+    },
+    {
+      "src": "art/preparation-v0729/e38d22e596e56ac35761c2fc-192.webp",
+      "width": 154,
+      "height": 192,
+      "bytes": 34508,
+      "sha256": "678b4f33bb8b1cd179d41e19012ce9bf0b703fee6467865e3003f7e8d06cfc0a",
+      "source": "art/act5/portraits/gaoxiang-v050.webp",
+      "originals": [
+        "art/act5/portraits/gaoxiang-v050.webp"
+      ],
+      "sourceSHA256": "e38d22e596e56ac35761c2fca8ed3ceb9c6ed85bf60839e195549d1536a3bd44",
+      "sourceBytes": 641444,
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "sourceHasICC": false,
+      "sourceHasAlpha": true,
+      "hasAlpha": true,
+      "transformation": "Sharp Lanczos3 proportional resize inside 192×192; sRGB; lossless WebP; no crop, repaint, palette change or original-file write",
+      "heroes": [
+        "gaoxiang"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+import {createImageSourceResolver} from './image-source.js';
+import {PREPARATION_THUMBNAILS} from './preparation-thumbnail-catalog.js';
+
+// Keep original portrait identity/crops and the general resolver untouched.
+// Only callers explicitly displaying a small preparation avatar use this URL.
+const resolver=createImageSourceResolver(PREPARATION_THUMBNAILS,import.meta.url);
+const installed=new WeakSet();
+export const preparationThumbnailSource=source=>resolver.source(source);
+export const retryPreparationThumbnail=image=>resolver.retry(image);
+export function installPreparationThumbnailFallback(root=globalThis.document){
+ if(!root?.addEventListener||installed.has(root))return;
+ installed.add(root);
+ // Capture before the existing per-avatar missing-portrait listener. A missing
+ // thumbnail first retries its selected original; that original retains the
+ // general image-source resolver's own approved-source fallback.
+ root.addEventListener('error',event=>{
+  const image=event.target;
+  if(image?.tagName==='IMG'&&image.hasAttribute?.('data-prep-thumbnail')&&retryPreparationThumbnail(image))event.stopImmediatePropagation?.();
+ },true);
+}

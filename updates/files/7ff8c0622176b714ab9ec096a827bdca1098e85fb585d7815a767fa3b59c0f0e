@@ -1,0 +1,199 @@
+export {isGameSaveKey,listGameSaveKeys,deleteGameSaveRecords} from './save-record-deletion.js';
+import {isReplayState,restoreReplayGuests} from './replay-mode.js';
+import {SAVE_KEYS,readSlot,writeSlot,makeSave,parseSave,restoreSave,saveLabel} from './saves.js';
+import {Campaign,CHAPTERS,resolveChapterId} from './campaign.js';
+import {createBattle} from './engine.js';
+import {HERO_DATA} from './heroes.js';
+import {ACT1_MERITS,ACT2_MERITS,ACT3_MERITS} from './battle-rewards.js';
+export const MANUAL_SLOT_COUNT=56;
+export const MANUAL_SLOTS=Array.from({length:MANUAL_SLOT_COUNT},(_,i)=>i===0?'manual':'manual-'+(i+1));
+const prefix=SAVE_KEYS.manual.replace(/-save-v1-manual$/,'');
+const ensure=(ok,message)=>{if(!ok)throw new Error(message);};
+export function libraryKey(id){
+ if(Object.hasOwn(SAVE_KEYS,id))return SAVE_KEYS[id];
+ if(MANUAL_SLOTS.includes(id))return prefix+'-save-v1-'+id;
+ if(id==='complete')return prefix+'-checkpoint-v1-complete';
+ if(typeof id==='string'&&/^act-complete:[1-7]$/.test(id)&&actEndChapters().some(ch=>(ch.act??1)===Number(id.slice(13))))return prefix+'-checkpoint-v1-act-complete-'+id.slice(13);
+ if(typeof id==='string'&&id.startsWith('start:'))return prefix+'-checkpoint-v1-start-'+resolveChapterId(id.slice(6)).id;
+ if(typeof id==='string'&&id.startsWith('clear:'))return prefix+'-checkpoint-v1-clear-'+resolveChapterId(id.slice(6)).id;
+ throw new Error('알 수 없는 저장 칸입니다.');
+}
+export function librarySlotLabel(id){
+ if(id==='manual')return '수동 저장 1';
+ if(MANUAL_SLOTS.includes(id))return '수동 저장 '+id.slice(7);
+ if(id==='auto')return '자동 저장';
+ if(id==='complete')return CHAPTERS.at(-1)?.act?CHAPTERS.at(-1).act+'막 완료 기록':'여정 완료 기록';
+ if(id.startsWith('act-complete:'))return id.slice(13)+'막 완료 기록';
+ const chapter=resolveChapterId(id.slice(6));
+ return (CHAPTERS.indexOf(chapter)+1)+(id.startsWith('clear:')?'장 클리어 · ':'장 시작 · ')+chapter.title;
+}
+// Every chapter gets its own immutable record; there is no chapter-count cap.
+export function actEndChapters(){return CHAPTERS.filter((ch,i)=>!CHAPTERS[i+1]||(CHAPTERS[i+1].act??1)!==(ch.act??1));}
+export function actCompletionSlots(){return CHAPTERS.some(ch=>ch.act===3)?actEndChapters().map(ch=>'act-complete:'+(ch.act??1)):[];}
+export function chapterClearSlots(){return CHAPTERS.map(ch=>'clear:'+ch.id);}
+export function librarySlotMetadata(id){
+ const storageKey=libraryKey(id),recordType=MANUAL_SLOTS.includes(id)?'manual':id==='auto'?'auto':id==='complete'?'complete':id.startsWith('act-complete:')?'act-complete':id.startsWith('clear:')?'clear':'start';
+ return {key:id,storageKey,label:librarySlotLabel(id),category:recordType==='manual'?'manual':'automatic',recordType,chapterId:['clear','start'].includes(recordType)?resolveChapterId(id.slice(6)).id:recordType==='complete'?CHAPTERS.at(-1).id:recordType==='act-complete'?actEndChapters().find(ch=>(ch.act??1)===Number(id.slice(13))).id:null,locked:!['manual','auto'].includes(recordType)};
+}
+function validateChapterClear(value,chapterId){
+ ensure(value.kind==='auto'&&value.campaign.chapterId===chapterId&&value.campaign.stage==='result'&&value.campaign.result==='victory'&&value.state.result==='victory','실제 장 클리어 직후의 자동 기록이 아닙니다.');
+ ensure(!isReplayState(value.state)&&value.victoryReward>0&&value.state.rewardSummary?.alreadyClaimed!==true,'재도전은 최초 장 클리어 기록을 만들거나 대체할 수 없습니다.');
+ ensure(value.state.growthSettled&&value.state.rewardsSettled&&value.army.claimed.includes(chapterId),'성장·군단·보상 정산이 끝난 클리어 기록을 보관하세요.');
+ return value;
+}
+export function readLibrarySlot(storage,id){
+ const metadata=librarySlotMetadata(id);let raw=null;
+ try{
+  raw=storage.getItem(metadata.storageKey);
+  if(raw!==null&&!raw)parseSave(raw);
+  if(Object.hasOwn(SAVE_KEYS,id))return {...metadata,raw,...readSlot(storage,id)};
+  const value=raw===null?null:parseSave(raw);
+  if(value&&metadata.recordType==='clear')validateChapterClear(value,metadata.chapterId);
+  if(value&&metadata.recordType==='act-complete')validateActCompletion(value,Number(id.slice(13)));
+  if(value&&metadata.recordType==='complete'){metadata.chapterId=value.campaign.chapterId;metadata.label=(resolveChapterId(value.campaign.chapterId).act??1)+'막 완료 기록';}
+  return {...metadata,raw,value,error:''};
+ }catch(error){return {...metadata,raw,value:null,error:'저장 읽기 실패: '+error.message};}
+}
+export function readSaveLibrary(storage){
+ return [...MANUAL_SLOTS,'auto',...chapterClearSlots(),...CHAPTERS.map(ch=>'start:'+ch.id),...actCompletionSlots(),'complete'].map(id=>readLibrarySlot(storage,id));
+}
+// Listing keeps only small display summaries. Every changed original is fully
+// validated; selecting/importing/loading still uses readLibrarySlot/parseSave.
+// Never retain a mutable restored campaign or use this index as a save proof.
+export function createSaveLibraryIndex(storage,{maxEntries=180,maxRawCharacters=4*1024*1024,readSlot=readLibrarySlot}={}){
+ ensure(storage&&typeof storage.getItem==='function','저장 목록을 확인하세요.');
+ ensure(Number.isSafeInteger(maxEntries)&&maxEntries>0&&Number.isSafeInteger(maxRawCharacters)&&maxRawCharacters>0&&typeof readSlot==='function','저장 목록 한도를 확인하세요.');
+ const ids=[...MANUAL_SLOTS,'auto',...chapterClearSlots(),...CHAPTERS.map(ch=>'start:'+ch.id),...actCompletionSlots(),'complete'],cache=new Map();let characters=0,validated=0,hits=0;
+ const forget=id=>{const old=cache.get(id);if(old){characters-=old.characters;cache.delete(id);}};
+ function summary(id){
+  const metadata=librarySlotMetadata(id);let raw;
+  try{raw=storage.getItem(metadata.storageKey);}catch(error){forget(id);const message='저장 읽기 실패: '+error.message;return {...metadata,valid:false,savedAt:null,description:message,error:message};}
+  const prior=cache.get(id);if(prior&&prior.raw===raw){hits++;return {...prior.summary};}
+  forget(id);const slot=readSlot({getItem:key=>key===metadata.storageKey?raw:storage.getItem(key)},id);validated++;
+  const {value,raw:unusedRaw,...fields}=slot,result={...fields,valid:!!value,hasOriginal:raw!==null,savedAt:value?.savedAt??null,description:librarySaveDescription(slot)},cost=typeof raw==='string'?raw.length:0;
+  // A scan does not evict earlier entries merely to admit its tail; this avoids
+  // a cyclic full-library cache miss when a large library exceeds the bound.
+  if(cache.size<maxEntries&&characters+cost<=maxRawCharacters){cache.set(id,{raw,summary:Object.freeze({...result}),characters:cost});characters+=cost;}
+  return {...result};
+ }
+ return Object.freeze({list:()=>ids.map(summary),read:id=>ids.includes(id)?readSlot(storage,id):null,clear(){cache.clear();characters=0;},stats:()=>({entries:cache.size,rawCharacters:characters,validated,hits,limits:{maxEntries,maxRawCharacters}})});
+}
+export function writeLibrarySlot(storage,id,value,importedOriginal=null){
+ ensure(MANUAL_SLOTS.includes(id)||id==='auto','장 시작·클리어·완료 기록은 덮어쓸 수 없습니다.');
+ if(Object.hasOwn(SAVE_KEYS,id)){writeSlot(storage,id,value,importedOriginal);return;}
+ const serialized=JSON.stringify(parseSave(JSON.stringify(value)));
+ try{storage.setItem(libraryKey(id),serialized);}catch{throw new Error('브라우저에 저장하지 못했습니다. 파일로 내보내어 보관하세요.');}
+}
+export function firstEmptyManualSlot(storage){
+ return MANUAL_SLOTS.find(id=>storage.getItem(libraryKey(id))===null)??null;
+}
+export function writeCheckpoint(storage,id,value){
+ const metadata=librarySlotMetadata(id);
+ ensure(metadata.locked,'고정 기록 칸을 선택하세요.');
+ // Even an unreadable old record is preserved; it never becomes an empty slot.
+ if(storage.getItem(metadata.storageKey)!==null)return false;
+ const verified=parseSave(JSON.stringify(value));
+ if(metadata.recordType==='complete')ensure(verified.campaign.stage==='complete'&&verified.campaign.chapterId===CHAPTERS.at(-1).id,'여정 완료 기록이 아닙니다.');
+ else if(metadata.recordType==='act-complete')validateActCompletion(verified,Number(id.slice(13)));
+ else if(metadata.recordType==='clear')validateChapterClear(verified,metadata.chapterId);
+ else ensure(verified.campaign.chapterId===metadata.chapterId&&verified.campaign.stage==='preDialogue'&&verified.campaign.line===0&&verified.state.result===null,'장 시작 기록이 아닙니다.');
+ try{storage.setItem(metadata.storageKey,JSON.stringify(verified));}catch{throw new Error((metadata.recordType==='clear'?'장 클리어':'장 시작·완료')+' 기록을 보관하지 못했습니다. 현재 진행을 파일로 내보내세요.');}
+ return true;
+}
+export function buildChapterClearRecord(data){
+ const record=makeSave(data,'auto');
+ return validateChapterClear(record,CHAPTERS[data.campaign.chapter].id);
+}
+export function preserveChapterClearRecord(storage,data){
+ if(isReplayState(data.state)||data.campaign.result!=='victory'||data.state.result!=='victory'||data.victoryReward<=0||data.state.rewardSummary?.alreadyClaimed===true)return false;
+ const id='clear:'+CHAPTERS[data.campaign.chapter].id;
+ if(storage.getItem(libraryKey(id))!==null)return false;
+ return writeCheckpoint(storage,id,buildChapterClearRecord(data));
+}
+export function buildChapterStart(data,index){
+ ensure(Number.isInteger(index)&&CHAPTERS[index],'재도전할 장을 확인하세요.');
+ const army=structuredClone(data.army),balance=structuredClone(data.balance),campaign=Object.assign(new Campaign(),{chapter:index,lastVictoryId:data.campaign.lastVictoryId??null});
+ const state=createBattle(balance,index,army);
+ return makeSave({campaign,state,army,balance,fast:!!data.fast,logs:['장 시작 기록 · '+CHAPTERS[index].title],victoryReward:0});
+}
+export function buildCompletionRecord(value){
+ const complete=parseSave(JSON.stringify(value));
+ ensure(!isReplayState(complete.state),'재도전은 원래 여정 완료 기록을 대체하지 않습니다.');
+ ensure(complete.campaign.chapterId===CHAPTERS.at(-1).id&&complete.campaign.result==='victory'&&complete.state.result==='victory','최종 장 승리 기록이 아닙니다.');
+ complete.campaign.stage='complete';complete.campaign.line=0;delete complete.campaign.draft;
+ complete.kind='auto';
+ return parseSave(JSON.stringify(complete));
+}
+export function preserveVictoryRecords(storage,data){
+ if(isReplayState(data.state)||data.campaign.result!=='victory'||data.state.result!=='victory')return [];
+ const next=data.campaign.chapter+1,written=[];
+ if(preserveChapterClearRecord(storage,data))written.push('clear:'+CHAPTERS[data.campaign.chapter].id);
+ const ch=CHAPTERS[data.campaign.chapter];
+ if(CHAPTERS.some(c=>c.act===3)&&actEndChapters().includes(ch)){const id='act-complete:'+(ch.act??1);if(writeCheckpoint(storage,id,buildActCompletionRecord(makeSave(data,'auto'))))written.push(id);}
+ if(next<CHAPTERS.length){const id='start:'+CHAPTERS[next].id;if(writeCheckpoint(storage,id,buildChapterStart(data,next)))written.push(id);}
+ else if(writeCheckpoint(storage,'complete',buildCompletionRecord(makeSave(data,'auto'))))written.push('complete');
+ return written;
+}
+export function preserveInitialRecord(storage,data){
+ if(data.campaign.chapter!==0||data.campaign.stage!=='preDialogue'||data.campaign.line!==0)return false;
+ return writeCheckpoint(storage,'start:'+CHAPTERS[0].id,makeSave(data,'auto'));
+}
+export function archiveSavedCompletion(storage,value){
+ if(isReplayState(value?.state)||value?.campaign?.stage!=='complete'||value.campaign.chapterId!==CHAPTERS.at(-1).id||value.campaign.result!=='victory')return false;
+ return writeCheckpoint(storage,'complete',buildCompletionRecord(value));
+}
+export function archiveExistingCompletion(storage){
+ const errors=[];
+ for(const id of [...MANUAL_SLOTS,'auto',...(CHAPTERS.some(ch=>ch.act===3)?['complete']:[])]){
+  // Only a completed original can produce a completion archive. This is a
+  // negative filter, never a proof: every possible completion/legacy/unknown
+  // still goes through the complete parser below before any write.
+  try{const raw=storage.getItem(libraryKey(id));if(typeof raw==='string'&&raw.length<=500000){const header=JSON.parse(raw);if(header?.version===2&&['preDialogue','deployment','battle','result','defeatDialogue','postDialogue','intermission'].includes(header.campaign?.stage))continue;}}catch{}
+  const slot=readLibrarySlot(storage,id);if(!slot.value)continue;
+  try{archiveSavedCompletion(storage,slot.value);if(CHAPTERS.some(ch=>ch.act===3)&&slot.raw){const original=JSON.parse(slot.raw);if(original.campaign?.stage==='complete'&&actEndChapters().some(ch=>ch.id===slot.value.campaign.chapterId)){const record=buildActCompletionRecord(slot.value);writeCheckpoint(storage,'act-complete:'+(resolveChapterId(record.campaign.chapterId).act??1),record);}}}catch(error){errors.push(error.message);}
+ }
+ return errors;
+}
+export function replayableChapters(data){
+ const current=data.campaign.chapter,won=data.campaign.result==='victory';
+ return CHAPTERS.filter((ch,index)=>data.army.claimed.includes(ch.id)||index<current||index===current&&won);
+}
+export function buildCurrentPowerReplay(data,chapterId){
+ const chapter=resolveChapterId(chapterId),index=CHAPTERS.indexOf(chapter);
+ ensure(replayableChapters(data).some(ch=>ch.id===chapter.id),'완료한 장만 재도전할 수 있습니다.');
+ const army=structuredClone(data.army),balance=structuredClone(data.balance),departedGuests=[];
+ for(const id of chapter.fixedGuests??[]){
+  ensure(army.heroes[id]&&army.joined.includes(id),'이 전투에 동행할 장수 기록이 없습니다.');
+  if(army.heroes[id].departed)departedGuests.push(id);
+  army.heroes[id].departed=false;
+ }
+ // Historical saves without a loot receipt also cannot grant replay rewards.
+ if(!army.claimed.includes(chapter.id))army.claimed.push(chapter.id);
+ const merit=ACT1_MERITS[chapter.id]??ACT2_MERITS[chapter.id]??ACT3_MERITS[chapter.id];
+ army.rewardReceipts??={};
+ army.rewardReceipts[chapter.id]??={lootGold:0,lootItems:[],sourceUnitIds:[],merit:merit?{id:merit.id,achieved:false,gold:merit.gold,items:[...merit.items]}:null};
+ const replay=buildChapterStart({...data,army,balance},index);
+ replay.state.replayChapterId=chapter.id;replay.state.replayDepartedGuests=departedGuests;
+ return parseSave(JSON.stringify(replay));
+}
+export function finishReplayGuests(army,chapterId,state=null){
+ if(isReplayState(state)){restoreReplayGuests(state,army);return;}
+ // A replay can temporarily reactivate a departed companion; completing that
+ // same departure chapter restores his historical departure without new receipts.
+ if(!army.rosterEvents?.includes(chapterId))return;
+ for(const id of army.joined)if(HERO_DATA[id]?.leaveAfterChapter===chapterId)army.heroes[id].departed=true;
+}
+export function librarySaveDescription(slot){
+ return slot.description??(slot.value?saveLabel(slot.value):slot.error||'비어 있는 저장 칸');
+}
+
+
+function validateActCompletion(value,act){
+ const chapter=actEndChapters().find(ch=>(ch.act??1)===act);
+ ensure(chapter&&value.kind==='auto'&&value.campaign.chapterId===chapter.id&&['result','postDialogue','intermission','complete'].includes(value.campaign.stage)&&value.campaign.result==='victory'&&value.state.result==='victory'&&value.state.growthSettled&&value.state.rewardsSettled&&value.army.claimed.includes(chapter.id)&&!isReplayState(value.state),'막 완료 정산 기록이 아닙니다.');return value;
+}
+export function buildActCompletionRecord(value){
+ const record=parseSave(JSON.stringify(value)),chapter=resolveChapterId(record.campaign.chapterId);
+ record.kind='auto';validateActCompletion(record,chapter.act??1);
+ return record;
+}

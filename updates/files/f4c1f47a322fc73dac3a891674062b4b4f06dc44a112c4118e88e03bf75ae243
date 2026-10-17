@@ -1,0 +1,328 @@
+// Mechanical small preparation avatars. Approved full portraits remain intact.
+const entries={
+  "art/optimized-v0722/d4af2b667c7a8ebc81302e79d29e5984be55c3c21226b9824c7ca41693d6a1ac.png": {
+    "src": "art/preparation-v0729/d4af2b667c7a8ebc81302e79-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38048
+  },
+  "assets/portrait/v031/liubei/normal.png": {
+    "src": "art/preparation-v0729/d4af2b667c7a8ebc81302e79-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38048
+  },
+  "art/optimized-v0722/40f7d565ea51efc0c1f871819d689bcbdd3b56ec963f8b0c1b77b66c17179346.png": {
+    "src": "art/preparation-v0729/40f7d565ea51efc0c1f87181-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 42242
+  },
+  "assets/portrait/v031/guanyu/normal.png": {
+    "src": "art/preparation-v0729/40f7d565ea51efc0c1f87181-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 42242
+  },
+  "art/optimized-v0722/e4d7d7fe7486385f743f99428bd6f9e31617daf5adb97c5eed85c1f4e2f0f6cf.png": {
+    "src": "art/preparation-v0729/e4d7d7fe7486385f743f9942-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 41078
+  },
+  "assets/portrait/v033/zhangfei/normal.png": {
+    "src": "art/preparation-v0729/e4d7d7fe7486385f743f9942-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 41078
+  },
+  "art/optimized-v0722/fd9c397b13c4b6d34ace54f88cbcbaee560721a9188f81f5e78684be6bab3bb0.png": {
+    "src": "art/preparation-v0729/fd9c397b13c4b6d34ace54f8-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 42616
+  },
+  "assets/portrait/v031/zhaoyun/normal.png": {
+    "src": "art/preparation-v0729/fd9c397b13c4b6d34ace54f8-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 42616
+  },
+  "art/optimized-v0722/b349eba2b552472c4b085d026b128f6625542c62624debadae4f4be53767cf84.png": {
+    "src": "art/preparation-v0729/b349eba2b552472c4b085d02-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 38656
+  },
+  "assets/portrait/v031/zhugeliang/normal.png": {
+    "src": "art/preparation-v0729/b349eba2b552472c4b085d02-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 38656
+  },
+  "assets/portrait/sil_shu.webp": {
+    "src": "art/preparation-v0729/b71dea281f3ab88e3f48bb0b-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 22854
+  },
+  "art/optimized-v0722/8736f02688ae1d410cd5e7c462598bd93c6c948811aef28073b7eafb6d51537b.png": {
+    "src": "art/preparation-v0729/8736f02688ae1d410cd5e7c4-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 42196
+  },
+  "assets/portrait/v036/huangzhong.png": {
+    "src": "art/preparation-v0729/8736f02688ae1d410cd5e7c4-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 42196
+  },
+  "art/optimized-v0722/11aba17735d971fc6ddd811e29c2b3ca57f090a97d9db510a2111ac2884b8b5d.png": {
+    "src": "art/preparation-v0729/11aba17735d971fc6ddd811e-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 41052
+  },
+  "assets/portrait/v036/weiyan.png": {
+    "src": "art/preparation-v0729/11aba17735d971fc6ddd811e-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 41052
+  },
+  "art/optimized-v0722/395f64e8796615acbb99c9ba75024ea2943516c198e17fe9c8cfc578e494a681.webp": {
+    "src": "art/preparation-v0729/395f64e8796615acbb99c9ba-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 33142
+  },
+  "assets/portrait/adopted-20261007/pangtong/normal.png": {
+    "src": "art/preparation-v0729/395f64e8796615acbb99c9ba-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 33142
+  },
+  "assets/portrait/v036/pangtong.png": {
+    "src": "art/preparation-v0729/c8881fd314403ed7edde0d32-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 38146
+  },
+  "art/act4/portraits/machao-v040.webp": {
+    "src": "art/preparation-v0729/e49d0e0ad1812a1edda7c3f2-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 40370
+  },
+  "art/act5/portraits/jiangwei-v050.webp": {
+    "src": "art/preparation-v0729/2ce25c74a48b65ccf24feb67-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 37834
+  },
+  "art/optimized-v0722/e33f5dd232d5c830c8f88f2132ccbe6d814aa1cb77479e2c7148a5aea5a59774.png": {
+    "src": "art/preparation-v0729/e33f5dd232d5c830c8f88f21-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38100
+  },
+  "assets/portrait/v031/chendao/normal.png": {
+    "src": "art/preparation-v0729/e33f5dd232d5c830c8f88f21-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38100
+  },
+  "assets/portrait/v031/xushu/normal.png": {
+    "src": "art/preparation-v0729/930002f09a8eb6cf6adf5704-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 35176
+  },
+  "art/optimized-v0722/28ac0700440768dd6ea56c22996337db262ed0e7639e279795a7f67a8ed8ad82.png": {
+    "src": "art/preparation-v0729/28ac0700440768dd6ea56c22-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 39156
+  },
+  "assets/portrait/v036/guanping.png": {
+    "src": "art/preparation-v0729/28ac0700440768dd6ea56c22-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 39156
+  },
+  "art/optimized-v0722/d3877ddce17e99384049daf4fbcb37d8119c275abb8452360b85d00be3830a76.png": {
+    "src": "art/preparation-v0729/d3877ddce17e99384049daf4-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 36730
+  },
+  "assets/portrait/v036/masu.png": {
+    "src": "art/preparation-v0729/d3877ddce17e99384049daf4-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 36730
+  },
+  "art/optimized-v0722/99be550e3ca3de236f9d35499761dba6d355a950fac69828a4a1f376ec31181a.png": {
+    "src": "art/preparation-v0729/99be550e3ca3de236f9d3549-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38536
+  },
+  "assets/portrait/v036/liaohua.png": {
+    "src": "art/preparation-v0729/99be550e3ca3de236f9d3549-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38536
+  },
+  "art/act4/portraits/fazheng-v040.webp": {
+    "src": "art/preparation-v0729/e57597ea5dfa348229e1b369-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 28252
+  },
+  "art/act4/portraits/madai-v040.webp": {
+    "src": "art/preparation-v0729/7df790be87d06575bd8ff74d-192.webp",
+    "width": 128,
+    "height": 192,
+    "bytes": 34396
+  },
+  "art/act4/portraits/yanyan-v040.webp": {
+    "src": "art/preparation-v0729/5efaea81f859f588be7ba4c0-192.webp",
+    "width": 128,
+    "height": 192,
+    "bytes": 33042
+  },
+  "art/act4/portraits/huangquan-v040.webp": {
+    "src": "art/preparation-v0729/7090c42c3e3e511a401ec06f-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 28160
+  },
+  "art/act4/portraits/wangping-v040.webp": {
+    "src": "art/preparation-v0729/edf24e118885543abc4af040-192.webp",
+    "width": 128,
+    "height": 192,
+    "bytes": 32384
+  },
+  "art/act5/portraits/guanxing-v050.webp": {
+    "src": "art/preparation-v0729/acdf32e8928ed8f19e92ea61-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38354
+  },
+  "art/act5/portraits/zhangbao-v050.webp": {
+    "src": "art/preparation-v0729/69cfc8eb8cde39e42b1b39b2-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 37138
+  },
+  "assets/portrait/jianyong/main_normal.webp": {
+    "src": "art/preparation-v0729/a0e1e0126831954560ca2218-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 25996
+  },
+  "assets/portrait/sunqian/main_normal.webp": {
+    "src": "art/preparation-v0729/80bf794eecb8d5c73d3e0546-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 25514
+  },
+  "assets/portrait/mizhu/main_normal.webp": {
+    "src": "art/preparation-v0729/9c00b441f0251d06c6b70170-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 29720
+  },
+  "art/optimized-v0722/7f01ff84eeadd2e188bc5b72b59a5445f88dd1971680140c9f426b09945327bd.png": {
+    "src": "art/preparation-v0729/7f01ff84eeadd2e188bc5b72-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38292
+  },
+  "assets/portrait/v031/zhoucang/normal.png": {
+    "src": "art/preparation-v0729/7f01ff84eeadd2e188bc5b72-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38292
+  },
+  "art/optimized-v0722/076dc6a96f8c2a738fa350231f7c626a63a1ab980e1e332fdaeec3e09484ded1.png": {
+    "src": "art/preparation-v0729/076dc6a96f8c2a738fa35023-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 35272
+  },
+  "assets/portrait/v036/maliang.png": {
+    "src": "art/preparation-v0729/076dc6a96f8c2a738fa35023-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 35272
+  },
+  "assets/portrait/v036/liufeng.png": {
+    "src": "art/preparation-v0729/c65e2ff5e13173c344a9ace3-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 40612
+  },
+  "art/act4/portraits/wuyi-v040.webp": {
+    "src": "art/preparation-v0729/49a2bfa83915bf313ae7d885-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 33378
+  },
+  "art/act4/portraits/liyan-v040.webp": {
+    "src": "art/preparation-v0729/85f30a203b0a391c934ee034-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 33860
+  },
+  "art/act4/portraits/zhangyi-v040.webp": {
+    "src": "art/preparation-v0729/474817e45f1cbd22a91b5cfb-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 33996
+  },
+  "art/act4/portraits/wuban-v040.webp": {
+    "src": "art/preparation-v0729/5617c746becfdffcd39f80c2-192.webp",
+    "width": 144,
+    "height": 192,
+    "bytes": 36912
+  },
+  "art/act5/portraits/fengxi-v050.webp": {
+    "src": "art/preparation-v0729/d78591cf9dac9510686596b4-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 38902
+  },
+  "art/act5/portraits/fudong-v050.webp": {
+    "src": "art/preparation-v0729/0e18a1f5294bd4e0d1d11c07-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 35060
+  },
+  "art/act5/portraits/dengzhi-v050.webp": {
+    "src": "art/preparation-v0729/66a357eac874e395d9a250c3-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 30220
+  },
+  "art/act5/portraits/zhangni-v050.webp": {
+    "src": "art/preparation-v0729/80da212723af1f7dd253144f-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 36970
+  },
+  "art/act5/portraits/mazhong-v050.webp": {
+    "src": "art/preparation-v0729/b762982f316409950f8d1291-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 36312
+  },
+  "art/act5/portraits/gaoxiang-v050.webp": {
+    "src": "art/preparation-v0729/e38d22e596e56ac35761c2fc-192.webp",
+    "width": 154,
+    "height": 192,
+    "bytes": 34508
+  }
+};
+export const PREPARATION_THUMBNAILS=Object.freeze(Object.fromEntries(Object.entries(entries).map(([source,record])=>[source,Object.freeze(record)])));
