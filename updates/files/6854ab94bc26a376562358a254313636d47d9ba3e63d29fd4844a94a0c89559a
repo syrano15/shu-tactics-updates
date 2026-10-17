@@ -1,0 +1,43 @@
+// UI drafts and presentation only. Actual movement and spirit use remain in app.
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const count=value=>Math.round(value??0).toLocaleString('ko-KR');
+export const mobileActionButton=(label,action,{disabled=false,primary=false}={})=>'<button type="button" data-action="'+esc(action)+'"'+(disabled?' disabled':'')+(primary?' class="primary"':'')+'>'+esc(label)+'</button>';
+export function mobileCommandFrameHTML({title,subtitle='',bodyHTML='',footerHTML='',backAction='mobile-command-back',detail=false,kind='command'}={}){
+ return '<div class="mobile-command-frame" data-command-kind="'+esc(kind)+'"><header class="mobile-command-header"><div><b>'+esc(title)+'</b>'+(subtitle?'<small>'+esc(subtitle)+'</small>':'')+'</div>'+(detail?mobileActionButton('상세','unit-details'):mobileActionButton('이전',backAction))+mobileActionButton('닫기','mobile-close')+'</header><div class="mobile-command-scroll" data-command-scroll>'+bodyHTML+'</div>'+(footerHTML?'<footer class="mobile-command-footer">'+footerHTML+'</footer>':'')+'</div>';
+}
+export function mobileVitalsHTML(unit,{personalAlly=false,stateLabel=''}={}){
+ return '<p class="mobile-vitals">병력 <b>'+count(unit.hp)+'</b> / '+count(unit.maxHp)+' · 사기 '+esc(unit.morale)+(personalAlly?' · SP '+esc(unit.sp)+' / '+esc(unit.maxSp):'')+'</p>'+(stateLabel?'<p class="mobile-state">'+esc(stateLabel)+'</p>':'');
+}
+export function mobileSpiritOptionsHTML(options,selectedId){
+ return '<div class="mobile-stable-options" role="group" aria-label="정신기 선택">'+options.map(row=>'<button type="button" data-action="mobile-spirit-pick-'+esc(row.id)+'" class="mobile-stable-option'+(row.id===selectedId?' is-selected':'')+(row.reason||row.locked?' is-unavailable':'')+'" aria-pressed="'+String(row.id===selectedId)+'"><b>'+esc(row.locked?'????':row.name)+'<span>SP '+esc(row.cost)+'</span></b><small>'+esc(row.locked?'Lv'+row.level+' 해금':row.description)+'</small>'+(row.reason?'<em>'+esc(row.reason)+'</em>':'')+'</button>').join('')+'</div>';
+}
+export function mobileSpiritFrameHTML({unit,options,selectedId,personalAlly=false,stateLabel=''}){
+ const choice=options.find(row=>row.id===selectedId),reason=choice?.locked?'Lv'+choice.level+' 해금':choice?.reason;
+ const selected=choice?'<p class="mobile-selection-note" role="status"><b>'+esc(choice.locked?'미해금 정신기':choice.name)+'</b> · SP '+choice.cost+'<br>'+esc(reason||choice.description)+'</p>':'<p class="mobile-selection-note">정신기를 선택한 뒤 아래에서 사용을 확정하세요.</p>';
+ const action=choice?.target?'mobile-spirit-target':'spirit-confirm',label=choice?(choice.target?'대상 선택':'사용 확정')+' · '+(choice.locked?'미해금':choice.name):'정신기 선택 필요';
+ return mobileCommandFrameHTML({title:'정신기 · '+unit.name,subtitle:'이동 전 사용 · 행동 유지',kind:'spirit',bodyHTML:mobileVitalsHTML(unit,{personalAlly,stateLabel})+mobileSpiritOptionsHTML(options,selectedId)+selected,footerHTML:mobileActionButton('취소','spirit-back')+mobileActionButton(label,action,{disabled:!choice||!!reason,primary:true})});
+}
+export function replaceMobileCommandHTML(panel,html,context){
+ const top=panel.dataset.commandContext===context?panel.querySelector?.('[data-command-scroll]')?.scrollTop??0:0;
+ if(panel.innerHTML!==html)panel.innerHTML=html;
+ panel.dataset.commandContext=context;const body=panel.querySelector?.('[data-command-scroll]');if(body)body.scrollTop=top;
+}
+export function createMobileMoveDraft(state,unit,x,y,epoch,reachable){
+ if(!unit||!Number.isInteger(x)||!Number.isInteger(y)||!reachable.has(x+','+y))return null;
+ return {battle:state,epoch,unitId:unit.id,round:state.round,phase:state.phase,fromX:unit.x,fromY:unit.y,x,y};
+}
+export function mobileMoveDraftValid(draft,state,unit,epoch,reachable){
+ return !!draft&&draft.battle===state&&draft.epoch===epoch&&draft.unitId===unit?.id&&draft.round===state.round&&draft.phase===state.phase&&draft.fromX===unit.x&&draft.fromY===unit.y&&reachable.has(draft.x+','+draft.y);
+}
+export function createMobileSpiritDraft(state,unit,id,epoch){
+ return {battle:state,epoch,unitId:unit.id,round:state.round,phase:state.phase,id};
+}
+export function mobileSpiritDraftValid(draft,state,unit,id,epoch){
+ return !!draft&&draft.battle===state&&draft.epoch===epoch&&draft.unitId===unit?.id&&draft.round===state.round&&draft.phase===state.phase&&draft.id===id;
+}
+export function installMobileRoster(doc,{onSelect=()=>{},canOpen=()=>true}={}){
+ let openedContext=null;
+ const dialog=doc.createElement('dialog');dialog.className='mobile-roster-dialog';dialog.setAttribute('aria-label','출전 장수');doc.body.append(dialog);
+ dialog.addEventListener('click',event=>{const button=event.target.closest('button');if(!button||button.disabled)return;if(button.hasAttribute('data-roster-close'))dialog.close();if(button.dataset.rosterSelect){const id=button.dataset.rosterSelect;const context=openedContext;dialog.close();openedContext=null;if(canOpen())onSelect(id,context);}});
+ return {open(units,{selectedId=null,rankName=()=>'',context=null}={}){if(!canOpen()||doc.querySelector('dialog[open]'))return;openedContext=context;dialog.innerHTML='<div class="mobile-roster-header"><h3>출전 장수</h3><button type="button" data-roster-close>닫기</button></div><div class="mobile-roster-scroll" data-roster-scroll>'+units.map(unit=>'<button type="button" data-roster-select="'+esc(unit.id)+'"'+(unit.hp<=0||unit.escaped||unit.withdrawn?' disabled':'')+' aria-pressed="'+String(unit.id===selectedId)+'"><b>'+esc(unit.name)+'</b><span>'+esc(rankName(unit))+' · 병력 '+count(unit.hp)+' / '+count(unit.maxHp)+'</span><small>'+esc(unit.withdrawn?'전장 이탈':unit.hp<=0?'퇴각':unit.done?'행동 완료':unit.status?'상태 이상':'행동 가능')+'</small></button>').join('')+'</div>';dialog.showModal();},close(){if(dialog.open)dialog.close();},get isOpen(){return dialog.open;}};
+}

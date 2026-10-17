@@ -1,0 +1,52 @@
+// Mobile chrome owns a stable map viewport. It never writes game state or camera coordinates.
+export function installMobileBattleShell(scene,{onRoster=()=>{},onGoals=()=>{}}={}){
+ const doc=scene.ownerDocument,win=doc.defaultView??globalThis;
+ if(!doc.querySelector('link[href$="mobile-battle-shell.css"]')){
+  const link=doc.createElement('link');link.rel='stylesheet';link.href=new URL('./mobile-battle-shell.css',import.meta.url).href;doc.head.append(link);
+ }
+ const top=scene.querySelector('.field-top'),stage=scene.querySelector('#board-stage');
+ const tools=doc.createElement('div');tools.className='mobile-battle-tools';
+ tools.innerHTML='<button type="button" data-mobile-goals aria-label="전투 목표 보기">목표</button><button type="button" data-mobile-roster aria-label="출전 장수 목록 열기">장수</button>';
+ top.querySelector('#battle-menu-open')?.before(tools);
+ if(!tools.parentElement)top.append(tools);
+ tools.querySelector('[data-mobile-goals]').addEventListener('click',onGoals);
+ tools.querySelector('[data-mobile-roster]').addEventListener('click',onRoster);
+ const help=doc.createElement('p');help.className='mobile-map-help';help.textContent='한 손가락 이동 · 두 손가락 지도 확대';help.setAttribute('aria-hidden','true');stage.append(help);
+ const modalContent=doc.getElementById('modal-content');
+ function prepareDetail(){
+  if(scene.hidden||scene.dataset.mobileUi!=='true'||!modalContent||modalContent.querySelector('.mobile-detail-topbar'))return;
+  const detail=modalContent.querySelector('.battle-unit-detail,.battle-prediction-detail');if(!detail)return;
+  const header=doc.createElement('div');header.className='mobile-detail-topbar';
+  const title=doc.createElement('strong');title.textContent=detail.classList.contains('battle-unit-detail')?'장수 상세':'예측 상세';
+  const close=doc.createElement('button');close.type='button';close.dataset.dialog='close';close.textContent='닫기';close.setAttribute('aria-label',title.textContent+' 닫기');header.append(title,close);
+  const content=doc.createElement('div');content.className='mobile-detail-content';
+  // Keep the real content and delegated dialog actions, including full predictions.
+  while(modalContent.firstChild)content.append(modalContent.firstChild);
+  modalContent.append(header,content);
+ }
+ function measure(){
+  if(scene.hidden||scene.dataset.mobileUi!=='true')return;
+  const landscape=win.matchMedia('(orientation:landscape) and (min-width:601px)').matches;
+  const available=Math.max(44,stage.clientHeight-(landscape?12:64));
+  const height=Math.floor(landscape?available:Math.min((win.visualViewport?.height??win.innerHeight)*.52,available));
+  const value=height+'px';if(scene.style.getPropertyValue('--mobile-command-max-height')!==value)scene.style.setProperty('--mobile-command-max-height',value);
+ }
+ function update(){
+  const active=!scene.hidden&&scene.dataset.mobileUi==='true';
+  doc.body.classList.toggle('mobile-battle-screen',active);
+  const panel=doc.getElementById('unit-ui'),skill=doc.getElementById('skill-targeting-panel');
+  const panelValue=String(active&&(!panel.hidden||skill&&!skill.hidden));if(scene.dataset.mobilePanel!==panelValue)scene.dataset.mobilePanel=panelValue;
+  const title=doc.getElementById('chapter-title');if(title)title.title=title.textContent;
+  // Read-only goals stay available; roster selection respects the real command lock.
+  tools.querySelector('[data-mobile-roster]').disabled=scene.dataset.mobileRosterBlocked==='true';
+  if(active)prepareDetail();
+ }
+ const observer=win.MutationObserver?new win.MutationObserver(update):null;
+ observer?.observe(scene,{attributes:true,attributeFilter:['hidden','data-mobile-ui','data-mobile-roster-blocked']});
+ for(const id of ['unit-ui','skill-targeting-panel','end-turn']){const node=doc.getElementById(id);if(node)observer?.observe(node,{attributes:true,attributeFilter:['hidden','disabled']});}
+ const detailObserver=win.MutationObserver?new win.MutationObserver(prepareDetail):null;if(modalContent)detailObserver?.observe(modalContent,{childList:true});
+ const sizeObserver=win.ResizeObserver?new win.ResizeObserver(measure):null;sizeObserver?.observe(stage);
+ win.addEventListener('resize',measure);win.visualViewport?.addEventListener('resize',measure);
+ update();measure();
+ return {update};
+}

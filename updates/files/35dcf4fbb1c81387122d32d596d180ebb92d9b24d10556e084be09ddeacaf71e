@@ -1,0 +1,26 @@
+/* A large map has its own camera; page width and the command popup stay fixed. */
+.board-navigation{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 14px;padding:8px 10px;background:#14231b;border:1px solid #4f5d42;border-bottom:0;font-size:12px}
+.board-navigation[hidden]{display:none}.board-navigation>div{display:flex;gap:4px;align-items:center}.board-navigation button{padding:5px 9px;min-height:34px;font-size:12px}.board-navigation button[aria-pressed=true]{border-color:#d7b779;background:#3a412c;color:#f3d691}.board-navigation output{min-width:42px;text-align:center;color:#d7b779}.board-navigation small{color:#adbea9}
+#battle-scene .expanded-board-stage{padding:0;overflow:visible;isolation:isolate}
+.board-viewport.expanded-viewport{height:clamp(280px,calc(100dvh - 370px),680px);width:100%;max-width:100%;overflow:auto;overscroll-behavior:contain;scrollbar-color:#718569 #15251b;scrollbar-width:thin;touch-action:pan-x pan-y;position:relative;border-bottom:1px solid #4f5d42}
+#battle-scene .expanded-viewport .board{max-width:none;min-width:0;margin:0;flex-shrink:0;gap:0}
+.expanded-viewport.is-panning,.expanded-viewport.is-panning *{cursor:grabbing!important;user-select:none}
+.expanded-viewport:not(.is-panning){cursor:grab}.expanded-viewport .cell{min-width:0;min-height:0;aspect-ratio:1}.expanded-viewport .unit-name{font-size:11px}.expanded-viewport .unit-class{font-size:8px}
+/* Overview labels stay in their own tile; normal 64px view keeps full names. */
+.expanded-viewport.board-overview .cell{overflow:hidden}
+.expanded-viewport.board-overview .terrain-mark{left:1px;right:1px;top:0;max-width:calc(100% - 2px);max-height:100%;font-size:7px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.expanded-viewport.board-overview .unit-name{max-width:100%;font-size:8px;line-height:10px;padding:0 1px;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.expanded-viewport.board-overview .unit-name .tier-badge,.expanded-viewport.board-overview .unit-class{display:none}
+.expanded-viewport.board-overview .mini-hp{bottom:0}
+.expanded-deployment .deploy-map-scroll{max-height:clamp(280px,calc(100dvh - 350px),620px);overscroll-behavior:contain}
+.expanded-deployment .deploy-map{width:calc(20px + var(--deploy-columns)*44px);min-width:calc(20px + var(--deploy-columns)*44px)}
+@media(max-width:620px){.board-navigation{align-items:flex-start}.board-navigation small{width:100%}.board-navigation button{min-height:38px}.board-viewport.expanded-viewport{height:clamp(280px,calc(100dvh - 310px),550px)}}
+
+/* The dedicated mobile map owns its gestures; page zoom outside it stays native. */
+#battle-scene .board-viewport.expanded-viewport[data-map-input=touch]{touch-action:none!important;overscroll-behavior:contain;scrollbar-width:none;padding:0!important;user-select:none;-webkit-user-select:none}
+#battle-scene .board-viewport[data-map-input=touch]::-webkit-scrollbar{display:none}
+#battle-scene .board-viewport[data-map-input=touch] .cell{touch-action:none;-webkit-touch-callout:none}
+#battle-scene .board-viewport[data-map-input=touch] #board{border:0}
+.board-camera-space{position:absolute;left:0;top:0;pointer-events:none}
+.board-camera-space[hidden]{display:none}
+#battle-scene .board-viewport.expanded-viewport.board-fit[data-map-input=touch]{display:block;place-items:normal;overflow:auto}

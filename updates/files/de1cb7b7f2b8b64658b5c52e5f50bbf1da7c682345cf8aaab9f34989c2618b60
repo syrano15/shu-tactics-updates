@@ -1,0 +1,175 @@
+import {createCombatPlan} from './combat-plan.js';
+import {MOBILE_COMMAND_QUERY} from './mobile-command-ui.js';
+
+// Use the real host document; reduced-motion-only test media is not a device signal.
+export const isMobilePresentation=host=>!!host?.ownerDocument?.defaultView?.matchMedia?.(MOBILE_COMMAND_QUERY)?.matches;
+
+// A display snapshot only. The engine and saves always retain the resolved live state.
+export function createCombatMapView(state,actorBefore=null,targetBefore=null){
+ const view=structuredClone(state),snapshots=new Map([actorBefore,targetBefore].filter(Boolean).map(unit=>[unit.id,structuredClone(unit)]));
+ view.units=view.units.map(unit=>snapshots.get(unit.id)??unit);return view;
+}
+const count=value=>Math.max(0,Math.round(Number.isFinite(value)?value:0)).toLocaleString('ko-KR');
+const tactics=new Set(['fire','confusion','deception','water']);
+const tacticNames={fire:'화공',confusion:'혼란',deception:'위보',water:'수계'};
+const statusDetail={confusion:'행동·반격 불가 · 방어 50% · 물리 피격 치명타 · 자기 진영 턴 1회',deception:'가까운 부대 자동 공격 · 자기 진영 턴 1회'};
+function strikeLabel(step){
+ if(tactics.has(step.kind))return tacticNames[step.kind]+' '+(step.landed?'성공':'실패');
+ return step.landed?(step.critical?'치명타':'명중'):'회피';
+}
+export function combatResultModel(actorBefore,targetBefore,result){
+ const plan=createCombatPlan(actorBefore,targetBefore,result),rows=[],marks=[],logs=[];
+ for(const step of plan.steps){
+  const attacker=plan[step.actor],defender=plan[step.target],name=defender.name??'부대',label=strikeLabel(step);
+  const status=step.landed&&Object.hasOwn(statusDetail,step.kind)?step.kind==='deception'&&defender.team==='enemy'?'다른 적군 공격·추격 · 우리 아군 표적 제외 · 자기 진영 턴 1회':statusDetail[step.kind]:'';
+  const change=step.hpBefore===step.hpAfter?'병력 '+count(step.hpAfter)+' 유지':'병력 '+count(step.hpBefore)+' → '+count(step.hpAfter);
+  rows.push({counter:step.counter,unitId:defender.id,name,text:(step.counter?'반격 · ':'')+name+' · '+label+' · '+change+(step.retreat?' · 퇴각':''),detail:status});
+  const mark=status?tacticNames[step.kind]:!step.landed?(tactics.has(step.kind)?'책략 실패':'회피'):(step.critical?'치명타 ':'')+'−'+count(step.damage);
+  marks.push({unitId:defender.id,x:defender.x,y:defender.y,text:mark+(step.retreat?' · 퇴각':''),kind:status?'status':!step.landed?'miss':step.critical?'critical':'hit',damage:step.damage,retreat:step.retreat});
+  const outcome=status?label+' · '+status:!step.landed?label:label+' · '+count(step.damage)+' 피해';
+  logs.push((step.counter?'반격 · ':'')+(attacker.name??'부대')+' → '+name+' · '+outcome+(step.retreat?' · '+name+' 퇴각':''));
+ }
+ return {title:(plan.actor.name??'부대')+' → '+(plan.target.name??'부대'),rows,marks,log:logs.join(' / ')};
+}
+const active=new WeakMap();
+const moraleActive=new WeakMap();
+function officerEvents(result){
+ const source=Array.isArray(result)?result:result?.officerMoraleEvents;
+ const seen=new Set();
+ return (Array.isArray(source)?source:[]).filter(event=>{
+  if(!event||typeof event.officerName!=='string'||!event.officerName.trim())return false;
+  const key=event.officerId??event.officerName;if(seen.has(key))return false;seen.add(key);return true;
+ }).map(event=>({...event,changes:(Array.isArray(event.changes)?event.changes:[]).filter(change=>change&&['ally','enemy'].includes(change.team)&&Number.isFinite(change.before)&&Number.isFinite(change.after)).map(change=>({...change,delta:change.after-change.before}))}));
+}
+/** Only resolved shock metadata is displayed. No combat outcomes or nominal bonuses are inferred. */
+export function officerMoraleModel(result,{units=null}={}){
+ const events=officerEvents(result);if(!events.length)return null;
+ const changes=new Map();
+ for(const event of events)for(const change of event.changes){
+  if(!change.delta)continue;const key=change.team+':'+change.unitId,previous=changes.get(key);
+  changes.set(key,previous?{...change,before:previous.before,delta:previous.delta+change.delta}:{...change});
+ }
+ const marks=[...changes.values()].filter(change=>change.delta).map(change=>({...change,text:(change.delta>0?'↑':'↓')+count(Math.abs(change.delta)),kind:change.delta>0?'up':'down'}));
+ const teams=['enemy','ally'].map(team=>{
+  const changed=marks.filter(mark=>mark.team===team),label=team==='enemy'?'적군':'아군',values=changed.map(change=>Math.abs(change.delta)),sign=team==='enemy'?'−':'+',direction=team==='enemy'?'하락':'상승';
+  if(values.length){const min=Math.min(...values),max=Math.max(...values);return {team,changed:changed.length,deltaMin:min,deltaMax:max,text:label+' 사기 '+sign+count(min)+(min===max?'':'~'+sign+count(max))+' · '+changed.length+'부대 '+direction};}
+  const living=Array.isArray(units)?units.filter(unit=>unit.team===team&&unit.hp>0&&!unit.escaped&&!unit.withdrawn):null;
+  const floors=team==='enemy'&&living?.length?[...new Set(living.map(unit=>unit.moraleFloor??50))].sort((a,b)=>a-b):[50],floorLabel=floors.length===1?String(floors[0]):floors[0]+'~'+floors.at(-1);
+  const text=living?.length===0?(team==='enemy'?'남은 적군 없음':'생존 아군 없음'):living?.every(unit=>team==='enemy'?unit.morale<=(unit.moraleFloor??50):unit.morale>=150)?label+' 사기 '+(team==='enemy'?'하한 '+floorLabel+' · 추가 하락 없음':'상한 150 · 추가 상승 없음'):label+' 사기 유지'+(!living?' · '+(team==='enemy'?'하한 적용':'상한 적용'):'');
+  return {team,changed:0,deltaMin:0,deltaMax:0,text};
+ });
+ const names=events.map(event=>event.officerName),title=(names.length<=2?names.join(' · '):names.slice(0,2).join(' · ')+' 외 '+(names.length-2)+'명')+' 격파!';
+ const panicIds=new Set(events.flatMap(event=>event.confusedIds??[]));
+ return {title,enemyText:teams[0].text+(panicIds.size?' · '+panicIds.size+'부대 이번 적군 턴 혼란':''),allyText:teams[1].text,events,teams,marks};
+}
+function clearOfficerMoraleResult(host){
+ const entry=moraleActive.get(host);if(!entry)return;
+ clearTimeout(entry.timer);entry.observer?.disconnect();entry.viewport?.removeEventListener?.('scroll',entry.reposition);globalThis.removeEventListener?.('resize',entry.reposition);
+ for(const token of entry.pulsed)token.classList?.remove('is-morale-up','is-morale-down');
+ entry.nodes.forEach(el=>el.remove());host.classList?.remove('has-officer-morale-result');moraleActive.delete(host);
+}
+function positionOfficerMoraleMarks(host,units=null){
+ const entry=moraleActive.get(host);if(!entry?.layer)return;
+ const frame=host.getBoundingClientRect?.(),view=entry.viewport?.getBoundingClientRect?.()??frame;if(!frame||!view)return;
+ const width=view.width??view.right-view.left,height=view.height??view.bottom-view.top;
+ entry.layer.style.left=(view.left-frame.left)+'px';entry.layer.style.top=(view.top-frame.top)+'px';entry.layer.style.width=width+'px';entry.layer.style.height=height+'px';
+ for(const mark of entry.layer.querySelectorAll?.('.battle-morale-mark,.battle-morale-ring')??[]){
+  const unit=Array.isArray(units)?units.find(unit=>String(unit.id)===mark.dataset.unitId):null;
+  if(Array.isArray(units)&&(!unit||unit.hp<=0||unit.escaped||unit.withdrawn||String(unit.x)!==mark.dataset.cellX||String(unit.y)!==mark.dataset.cellY)){mark.remove();continue;}
+  const cell=host.querySelector?.('[data-x="'+mark.dataset.cellX+'"][data-y="'+mark.dataset.cellY+'"]'),rect=cell?.getBoundingClientRect?.();
+  if(!rect){mark.remove();continue;}
+  const x=rect.left-view.left+rect.width/2,y=rect.top-view.top+rect.height/2,visible=x>=0&&x<=width&&y>=0&&y<=height;
+  mark.style.visibility=visible?'visible':'hidden';
+  if(mark.className.includes('battle-morale-ring')){
+   mark.style.left=x+'px';mark.style.top=y+'px';mark.style.width=Math.max(12,Math.min(76,rect.width*.9))+'px';mark.style.height=Math.max(12,Math.min(76,rect.height*.9))+'px';
+   const token=cell.querySelector?.('[data-unit-id]');if(token?.dataset.unitId===mark.dataset.unitId){token.classList?.add(mark.className.includes('is-up')?'is-morale-up':'is-morale-down');entry.pulsed.add(token);}
+  }
+  else{mark.style.left=Math.max(Math.min(46,width/2),Math.min(width-46,x))+'px';mark.style.top=Math.max(5,Math.min(height-30,rect.top-view.top+rect.height*.15))+'px';mark.style.fontSize=Math.max(10,Math.min(17,rect.width*.3))+'px';}
+ }
+}
+/** A separate, non-blocking morale notice lasts through shorter damage feedback and camera changes. */
+export function showOfficerMoraleResult(host,result,{isCurrent=()=>true,units=null,duration=3600}={}){
+ if(!host||typeof document==='undefined'||!isCurrent())return null;
+ const incoming=officerEvents(result);if(!incoming.length)return null;
+ const previous=moraleActive.get(host),model=officerMoraleModel([...(previous?.events??[]),...incoming],{units});
+ clearOfficerMoraleResult(host);
+ const reduced=!!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches,nodes=[],entry={nodes,events:model.events,timer:null,observer:null,viewport:host.querySelector?.('.board-viewport')??null,layer:null,pulsed:new Set(),reposition:null};
+ const banner=node('aside','battle-officer-morale-banner');banner.setAttribute('role','status');banner.setAttribute('aria-live','polite');banner.setAttribute('aria-label','적장 격파와 사기 변화');banner.append(node('strong','battle-officer-morale-title',model.title));
+ for(const team of model.teams)banner.append(node('p','battle-officer-morale-team is-'+team.team,team.text));
+ host.append(banner);nodes.push(banner);host.classList?.add('has-officer-morale-result');
+ if(model.marks.length){
+  const layer=node('div','battle-morale-layer');layer.setAttribute('aria-hidden','true');host.append(layer);nodes.push(layer);entry.layer=layer;
+  for(const mark of model.marks){
+   if(!Number.isInteger(mark.x)||!Number.isInteger(mark.y))continue;
+   const cell=host.querySelector?.('[data-x="'+mark.x+'"][data-y="'+mark.y+'"]');if(!cell)continue;
+   const label=node('span','battle-morale-mark is-'+mark.kind,mark.text);label.dataset.unitId=String(mark.unitId??'');label.dataset.cellX=String(mark.x);label.dataset.cellY=String(mark.y);layer.append(label);
+   if(!reduced){
+    const ring=node('span','battle-morale-ring is-'+mark.kind);ring.dataset.unitId=label.dataset.unitId;ring.dataset.cellX=label.dataset.cellX;ring.dataset.cellY=label.dataset.cellY;layer.append(ring);
+    const token=cell.querySelector?.('[data-unit-id]');if(token?.dataset.unitId===label.dataset.unitId){token.classList?.add('is-morale-'+mark.kind);entry.pulsed.add(token);}
+   }
+  }
+ }
+ moraleActive.set(host,entry);entry.reposition=()=>{if(moraleActive.get(host)===entry)positionOfficerMoraleMarks(host);};entry.reposition();
+ entry.viewport?.addEventListener?.('scroll',entry.reposition,{passive:true});globalThis.addEventListener?.('resize',entry.reposition);
+ if(globalThis.ResizeObserver){entry.observer=new ResizeObserver(entry.reposition);for(const observed of [host,entry.viewport,host.querySelector?.('#board')].filter(Boolean))entry.observer.observe(observed);}
+ entry.timer=setTimeout(()=>{if(moraleActive.get(host)===entry)clearOfficerMoraleResult(host);},Math.max(3000,Number.isFinite(duration)?duration:3600));
+ return model;
+}
+function clearTargetShakes(entry){
+ clearTimeout(entry.shakeTimer);entry.shakeTimer=null;
+ for(const token of entry.shaken)token.classList.remove('is-critical-shaken');
+ entry.shaken.clear();
+}
+const node=(tag,className,text)=>{const el=document.createElement(tag);el.className=className;if(text!==undefined)el.textContent=text;return el;};
+export function clearCombatResults(host,{preserveMorale=false}={}){
+ if(!host)return;const previous=active.get(host);if(previous){clearTimeout(previous.timer);clearTargetShakes(previous);previous.nodes.forEach(el=>el.remove());active.delete(host);}
+ host.querySelectorAll?.('.battle-result-summary,.battle-result-mark').forEach(el=>el.remove());
+ if(!preserveMorale)clearOfficerMoraleResult(host);
+}
+/** Non-blocking feedback. It creates no await, combat roll, state mutation or fixed action delay. */
+export function showCombatResult(host,actorBefore,targetBefore,result,{summary=true,fast=false,duration=fast?900:1400,isCurrent=()=>true,units=null}={}){
+ clearCombatResults(host,{preserveMorale:true});if(!host||typeof document==='undefined'||!isCurrent()){if(host&&!isCurrent())clearOfficerMoraleResult(host);return null;}
+ const model=combatResultModel(actorBefore,targetBefore,result),nodes=[],entry={nodes,timer:null,shakeTimer:null,shaken:new Set()},reduced=!!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+ // Mobile has already held the complete resolved result in its combat dialog.
+ // Keep local map marks without immediately covering the returning command dock.
+ if(summary&&!isMobilePresentation(host)){
+  const panel=node('aside','battle-result-summary');panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');panel.setAttribute('aria-label','교전 결과');
+  panel.append(node('strong','battle-result-title',model.title));
+  for(const row of model.rows){panel.append(node('p','battle-result-row',row.text));if(row.detail)panel.append(node('p','battle-result-detail',row.detail));}
+  host.append(panel);nodes.push(panel);
+ }
+ const frame=host.getBoundingClientRect?.();
+ for(const mark of model.marks){
+  if(!Number.isInteger(mark.x)||!Number.isInteger(mark.y))continue;
+  const cell=host.querySelector?.('[data-x="'+mark.x+'"][data-y="'+mark.y+'"]'),rect=cell?.getBoundingClientRect?.();if(!frame||!rect)continue;
+  const label=node('span','battle-result-mark is-'+mark.kind+(mark.retreat?' is-retreat':''),mark.text);label.setAttribute('aria-hidden','true');label.dataset.unitId=String(mark.unitId??'');label.dataset.cellX=String(mark.x);label.dataset.cellY=String(mark.y);
+  const width=frame.width??frame.right-frame.left,x=rect.left-frame.left+rect.width/2;
+  if(mark.kind==='critical'){
+   label.textContent='';label.append(node('span','battle-critical-label','치명타'),node('strong','battle-critical-number','−'+count(mark.damage)));
+   if(mark.retreat)label.append(node('span','battle-critical-retreat','퇴각'));
+   if(!reduced){const shock=node('span','battle-critical-shock');shock.setAttribute('aria-hidden','true');shock.style.left=x+'px';shock.style.top=rect.top-frame.top+rect.height/2+'px';host.append(shock);nodes.push(shock);}
+   const token=cell.querySelector?.('[data-unit-id]');
+   if(!reduced&&token?.classList&&token.dataset.unitId===String(mark.unitId??'')){token.classList.add('is-critical-shaken');entry.shaken.add(token);}
+  }
+  label.style.left=Math.max(36,Math.min(width-36,x))+'px';label.style.top=Math.max(3,rect.top-frame.top-14)+'px';host.append(label);nodes.push(label);
+ }
+ active.set(host,entry);
+ if(entry.shaken.size)entry.shakeTimer=setTimeout(()=>{if(active.get(host)===entry)clearTargetShakes(entry);},240);
+ entry.timer=setTimeout(()=>{if(active.get(host)===entry)clearCombatResults(host,{preserveMorale:true});},duration);
+ showOfficerMoraleResult(host,result,{isCurrent,units});
+ return model;
+}
+
+
+// Recent results survive unrelated movement. Only a mark whose unit moved becomes stale.
+export function syncCombatResultMarks(host,units){
+ if(!host)return;const frame=host.getBoundingClientRect?.();
+ positionOfficerMoraleMarks(host,units);
+ for(const label of host.querySelectorAll?.('.battle-result-mark')??[]){
+  const unit=units.find(unit=>unit.id===label.dataset.unitId);
+  if(!unit||String(unit.x)!==label.dataset.cellX||String(unit.y)!==label.dataset.cellY){label.remove();continue;}
+  const cell=host.querySelector?.('[data-x="'+unit.x+'"][data-y="'+unit.y+'"]'),rect=cell?.getBoundingClientRect?.();if(!frame||!rect){label.remove();continue;}
+  const width=frame.width??frame.right-frame.left;
+  label.style.left=Math.max(36,Math.min(width-36,rect.left-frame.left+rect.width/2))+'px';label.style.top=Math.max(3,rect.top-frame.top-14)+'px';
+ }
+}

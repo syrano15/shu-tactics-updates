@@ -1,0 +1,85 @@
+import {imageSource} from './image-source.js';
+import {SPIRITS,canonicalSpirit} from './spirits.js';
+import {portraitAsset,markAssetURLUnavailable} from './story-assets.js';
+import {appendSpiritCastShape} from './spirit-effects.js';
+import {isMobilePresentation} from './combat-result.js';
+
+const active=new WeakMap();
+const node=(tag,className,text)=>{const el=document.createElement(tag);el.className=className;if(text!==undefined)el.textContent=text;return el;};
+const snapshots=list=>(Array.isArray(list)?list:[]).filter(Boolean).map(unit=>structuredClone(unit));
+const support=new Set(['calm','rally','encourage','spirit']);
+const defense=new Set(['flash','wall','protect']);
+const strategy=new Set(['wisdom','chant']);
+const flavour=id=>strategy.has(id)?'strategy':defense.has(id)?'guard':support.has(id)?'support':id==='intimidate'?'pressure':'power';
+const difference=(before,after,id)=>{
+ if(id==='rally')return '재행동 가능';
+ if(id==='calm')return '상태 이상 해제';
+ if(id==='spirit'){const previous=before.morale??100,current=after.morale??100,delta=current-previous;return '사기 '+previous+' → '+current+' · '+(delta>0?'+':'')+delta;}
+ if(['encourage','intimidate'].includes(id))return '사기 '+(before.morale??100)+' → '+(after.morale??100);
+ return SPIRITS[id].description;
+};
+/** Build only from an already-successful useSpirit return value; no live-state reference survives. */
+export function createSpiritPresentation(event){
+ const id=canonicalSpirit(event?.id),command=SPIRITS[id];
+ if(!command||!event?.actorBefore||!event?.actorAfter)return null;
+ const before=structuredClone(event.actorBefore),actor=structuredClone(event.actorAfter),targetsBefore=snapshots(event.targetsBefore),targetsAfter=snapshots(event.targetsAfter);
+ if(before.id!==actor.id||before.sp-actor.sp!==command.cost)return null;
+ const targets=targetsAfter.map(after=>{const prior=targetsBefore.find(unit=>unit.id===after.id);return prior?{unit:after,detail:difference(prior,after,id)}:null;}).filter(Boolean);
+ return {id,name:command.name,cost:command.cost,flavour:flavour(id),actor,spBefore:before.sp,spAfter:actor.sp,description:command.description,targets};
+}
+function finish(host,entry,complete=false){
+ if(active.get(host)!==entry)return;
+ clearTimeout(entry.timer);entry.cleanup.forEach(clean=>clean());entry.nodes.forEach(el=>el.remove());active.delete(host);entry.resolve(complete);
+}
+export function clearSpiritPresentation(host){const entry=host&&active.get(host);if(entry)finish(host,entry,false);}
+function portrait(host,model,entry,chapter){
+ const frame=node('span','spirit-presentation-portrait'),asset=portraitAsset(model.actor.id,'normal',chapter,{faction:model.actor.faction});
+ if(!asset)return frame;
+ const image=node('img','');image.alt=model.actor.name??'장수';image.draggable=false;
+ const show=source=>{
+  image.src=imageSource(source.url);image.style.width='';image.style.height='';image.style.left='';image.style.top='';
+  if(source.crop){const [x,y,w,h]=source.crop;image.style.width=100/w+'%';image.style.height=100/h+'%';image.style.left=-x/w*100+'%';image.style.top=-y/h*100+'%';}
+ };
+ image.onerror=()=>{if(active.get(host)!==entry)return;markAssetURLUnavailable('portrait',image.src);const fallback=portraitAsset(model.actor.id,'normal',chapter,{faction:model.actor.faction});if(fallback?.url&&fallback.url!==image.src)show(fallback);else image.hidden=true;};
+ entry.cleanup.push(()=>{image.onerror=null;});frame.append(image);show(asset);return frame;
+}
+/** Non-blocking, cancellable feedback. This never casts a spirit, consumes SP, rolls RNG or changes a unit. */
+export function playSpiritPresentation(host,model,{isCurrent=()=>true,fast=false,reducedMotion=!!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches,chapter='s01_zhuoxian'}={}){
+ clearSpiritPresentation(host);
+ if(!host||!model||typeof document==='undefined'||!isCurrent())return Promise.resolve(false);
+ return new Promise(resolve=>{
+  const entry={nodes:[],cleanup:[],timer:null,resolve};active.set(host,entry);
+  const panel=node('aside','spirit-presentation is-'+model.flavour+(reducedMotion?' is-reduced-motion':''));panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');panel.dataset.spiritId=model.id;
+  const content=node('span','spirit-presentation-content');content.append(node('span','spirit-presentation-caster',model.actor.name??'장수'),node('strong','spirit-presentation-name',model.name),node('span','spirit-presentation-sp','SP '+model.spBefore+' → '+model.spAfter+' · −'+model.cost),node('span','spirit-presentation-detail',model.description));
+  const targetNames=model.targets.map(target=>target.unit.name??'부대');if(targetNames.length)content.append(node('span','spirit-presentation-targets','대상 · '+targetNames.join(' · ')));
+  panel.append(portrait(host,model,entry,chapter),content);
+  const viewportPanel=isMobilePresentation(host)&&host.ownerDocument?.body;
+  if(viewportPanel)panel.classList.add('is-mobile-presentation');
+  (viewportPanel||host).append(panel);entry.nodes.push(panel);
+  const rings=[];
+  const reposition=()=>{
+   if(active.get(host)!==entry)return;
+   for(const {ring,cell} of rings){
+    const rect=cell.getBoundingClientRect?.(),parent=ring.offsetParent??host,frame=parent.getBoundingClientRect?.();
+    if(!rect||!frame)continue;
+    // The centered board may be static: absolute rings use the viewport's
+    // padding origin and scroll position, rather than the board's origin.
+    ring.style.left=rect.left-frame.left-(parent.clientLeft??0)+(parent.scrollLeft??0)+rect.width/2+'px';
+    ring.style.top=rect.top-frame.top-(parent.clientTop??0)+(parent.scrollTop??0)+rect.height/2+'px';
+    ring.style.width=Math.max(24,rect.width*.9)+'px';ring.style.height=Math.max(24,rect.height*.9)+'px';
+   }
+  };
+  for(const target of model.targets){
+   const unit=target.unit;if(!Number.isInteger(unit.x)||!Number.isInteger(unit.y))continue;
+   const cell=host.querySelector?.('[data-x="'+unit.x+'"][data-y="'+unit.y+'"]'),token=cell?.querySelector?.('[data-unit-id]'),rect=cell?.getBoundingClientRect?.();
+   if(!rect||token?.dataset.unitId!==String(unit.id))continue;
+   const ring=node('span','spirit-presentation-ring is-'+model.flavour+(reducedMotion?' is-reduced-motion':''));ring.setAttribute('aria-hidden','true');ring.dataset.unitId=unit.id;appendSpiritCastShape(ring,unit,model.id);ring.append(node('span','spirit-target-detail',target.detail));host.append(ring);entry.nodes.push(ring);rings.push({ring,cell});
+  }
+  reposition();
+  if(rings.length){
+   if(globalThis.ResizeObserver){const observer=new ResizeObserver(reposition);observer.observe(host);entry.cleanup.push(()=>observer.disconnect());}
+   if(globalThis.addEventListener){globalThis.addEventListener('resize',reposition);entry.cleanup.push(()=>globalThis.removeEventListener('resize',reposition));}
+  }
+  entry.timer=setTimeout(()=>finish(host,entry,isCurrent()),reducedMotion?1050:fast?650:1100);
+ });
+}

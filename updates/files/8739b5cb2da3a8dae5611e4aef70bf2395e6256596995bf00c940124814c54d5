@@ -1,0 +1,107 @@
+// Camera-only math and gesture state. No tactical state, DOM or saved setting.
+export const MOBILE_MAP_PLAY_CELL=48;
+export const MOBILE_MAP_MAX_CELL=96;
+const clamp=(value,min,max)=>Math.max(min,Math.min(Math.max(min,max),value));
+export function mapCameraGeometry(camera){
+ const {columns,rows,width,height,cell}=camera;
+ if(![columns,rows,width,height,cell].every(value=>Number.isFinite(value)&&value>0))throw new RangeError('지도 카메라 크기 오류');
+ const boardWidth=columns*cell,boardHeight=rows*cell;
+ // Fixed viewport-based space lets every map edge move clear of an overlay.
+ // Its size ignores panel state, selection and zoom, so none can shift a camera.
+ const gutterX=camera.freePan?Math.max(0,width-MOBILE_MAP_PLAY_CELL):0,gutterY=camera.freePan?Math.max(0,height-MOBILE_MAP_PLAY_CELL):0;
+ const spanWidth=Math.max(width,boardWidth)+2*gutterX,spanHeight=Math.max(height,boardHeight)+2*gutterY;
+ return {boardWidth,boardHeight,gutterX,gutterY,spanWidth,spanHeight,marginLeft:gutterX+Math.max(0,(width-boardWidth)/2),marginTop:gutterY+Math.max(0,(height-boardHeight)/2),maxLeft:spanWidth-width,maxTop:spanHeight-height};
+}
+export function mapPointAt(camera,point){
+ const geometry=mapCameraGeometry(camera);
+ return {x:(camera.left+point.x-geometry.marginLeft)/camera.cell,y:(camera.top+point.y-geometry.marginTop)/camera.cell};
+}
+export function anchorMapCamera(camera,{cell=camera.cell,world,screen}){
+ const next={...camera,cell},geometry=mapCameraGeometry(next);
+ return {...next,left:clamp(world.x*cell+geometry.marginLeft-screen.x,0,geometry.maxLeft),top:clamp(world.y*cell+geometry.marginTop-screen.y,0,geometry.maxTop)};
+}
+export function panMapCamera(camera,dx,dy){
+ const geometry=mapCameraGeometry(camera);
+ return {...camera,left:clamp(camera.left+dx,0,geometry.maxLeft),top:clamp(camera.top+dy,0,geometry.maxTop)};
+}
+export function mapZoomLimits(camera){
+ return {min:Math.min(MOBILE_MAP_PLAY_CELL,Math.max(1,Math.min(camera.width/camera.columns,camera.height/camera.rows))),max:MOBILE_MAP_MAX_CELL};
+}
+
+/** Pointer samples and inertia write at most once per animation frame. */
+export function createMobileMapInput({readCamera,writeCamera,requestFrame,cancelFrame,now=()=>performance.now(),onInteraction=()=>{},onSuppressClick=()=>{},onCapture=()=>{},onReleaseCapture=()=>{},onPinchEnd=()=>{}}){
+ const pointers=new Map(),ignored=new Set(),captures=new Set();
+ let gesture=null,pending=null,frame=null,inertia=null,blocked=false,pinched=false,lastMove=null,velocity={x:0,y:0};
+ const time=event=>Number.isFinite(event?.timeStamp)?event.timeStamp:now();
+ const point=event=>({x:event.x,y:event.y});
+ const releaseCapture=id=>{if(captures.delete(id))onReleaseCapture(id);};
+ const capture=id=>{if(!captures.has(id)){captures.add(id);onCapture(id);}};
+ function flush(){if(frame!==null){cancelFrame(frame);frame=null;}if(pending){const camera=pending;pending=null;writeCamera(camera);}}
+ function queue(camera){pending=camera;if(frame===null)frame=requestFrame(()=>{frame=null;if(pending){const next=pending;pending=null;writeCamera(next);}});}
+ function stopInertia(){
+  const moving=!!inertia;if(inertia?.frame!==null&&inertia?.frame!==undefined)cancelFrame(inertia.frame);inertia=null;return moving;
+ }
+ function currentCamera(){return pending??readCamera();}
+ function beginPan(sample,camera=currentCamera()){gesture={kind:'pan',point:point(sample),camera,active:blocked};lastMove={point:point(sample),time:time(sample)};velocity={x:0,y:0};}
+ function beginPinch(){
+  flush();const [a,b]=[...pointers.values()],camera=readCamera(),center={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+  gesture={kind:'pinch',distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),cell:camera.cell,camera,world:mapPointAt(camera,center)};
+  blocked=pinched=true;onSuppressClick(true);for(const id of pointers.keys())capture(id);lastMove=null;velocity={x:0,y:0};
+ }
+ function cancel({waitForRelease=false}={}){
+  const wasPinching=gesture?.kind==='pinch';
+  stopInertia();if(frame!==null){cancelFrame(frame);frame=null;}pending=null;
+  if(waitForRelease)for(const id of pointers.keys())ignored.add(id);else ignored.clear();
+  pointers.clear();gesture=null;lastMove=null;velocity={x:0,y:0};blocked=true;pinched=false;
+  for(const id of [...captures])releaseCapture(id);if(wasPinching)onPinchEnd();onSuppressClick(true);onInteraction(false);
+ }
+ function down(event){
+  if(ignored.size){ignored.add(event.pointerId);onSuppressClick(true);return false;}
+  const wasMoving=stopInertia();flush();
+  if(!pointers.size){blocked=wasMoving;pinched=false;onSuppressClick(blocked);}
+  if(pointers.has(event.pointerId))return true;
+  const camera=currentCamera();pointers.set(event.pointerId,{...event});onInteraction(true);
+  if(pointers.size>2){cancel({waitForRelease:true});return true;}
+  if(pointers.size===2)beginPinch();else beginPan(event,camera);
+  return true;
+ }
+ function move(event){
+  if(!pointers.has(event.pointerId)||!gesture)return false;pointers.set(event.pointerId,{...event});
+  if(pointers.size===2){
+   if(gesture.kind!=='pinch')beginPinch();
+   const [a,b]=[...pointers.values()],center={x:(a.x+b.x)/2,y:(a.y+b.y)/2},limits=mapZoomLimits(gesture.camera),cell=clamp(gesture.cell*Math.hypot(a.x-b.x,a.y-b.y)/gesture.distance,limits.min,limits.max);
+   queue(anchorMapCamera(gesture.camera,{cell,world:gesture.world,screen:center}));return true;
+  }
+  if(gesture.kind!=='pan')beginPan(event);
+  const dx=event.x-gesture.point.x,dy=event.y-gesture.point.y;
+  if(!gesture.active&&Math.hypot(dx,dy)<=6)return true;
+  if(!gesture.active){gesture.active=true;blocked=true;onSuppressClick(true);capture(event.pointerId);}
+  const stamp=time(event),dt=stamp-(lastMove?.time??stamp);
+  if(lastMove&&dt>0&&dt<=100){velocity={x:clamp((lastMove.point.x-event.x)/dt,-2,2),y:clamp((lastMove.point.y-event.y)/dt,-2,2)};}
+  else velocity={x:0,y:0};
+  lastMove={point:point(event),time:stamp};queue(panMapCamera(gesture.camera,-dx,-dy));return true;
+ }
+ function coast(){
+  let camera=readCamera(),previous=now(),elapsed=0,v={...velocity};
+  inertia={frame:null};onInteraction(true);
+  const tick=stamp=>{
+   if(!inertia)return;const dt=Math.max(1,Math.min(32,stamp-previous));previous=stamp;elapsed+=dt;
+   const next=panMapCamera(camera,v.x*dt,v.y*dt);
+   if(Math.abs(next.left-camera.left)<.01)v.x=0;if(Math.abs(next.top-camera.top)<.01)v.y=0;
+   const decay=Math.exp(-dt/170);v.x*=decay;v.y*=decay;camera=next;writeCamera(camera);
+   if(elapsed>=500||Math.hypot(v.x,v.y)<.02){inertia=null;onInteraction(false);return;}
+   inertia.frame=requestFrame(tick);
+  };
+  inertia.frame=requestFrame(tick);
+ }
+ function up(event,{cancelled=false}={}){
+  if(ignored.delete(event.pointerId))return true;if(!pointers.has(event.pointerId))return false;
+  if(cancelled){cancel({waitForRelease:true});ignored.delete(event.pointerId);return true;}
+  flush();const active=gesture?.kind==='pan'&&gesture.active,wasPinching=gesture?.kind==='pinch';pointers.delete(event.pointerId);releaseCapture(event.pointerId);if(wasPinching)onPinchEnd();
+  if(pointers.size){blocked=true;onSuppressClick(true);beginPan([...pointers.values()][0]);return true;}
+  gesture=null;onSuppressClick(blocked);
+  if(active&&!pinched&&lastMove&&time(event)-lastMove.time<80&&Math.hypot(velocity.x,velocity.y)>.04)coast();else onInteraction(false);
+  return true;
+ }
+ return {down,move,up,cancel,flush,hasPointer:id=>pointers.has(id),isInteracting:()=>pointers.size>0||!!inertia,isCoasting:()=>!!inertia,pointerCount:()=>pointers.size};
+}
