@@ -1,0 +1,48 @@
+// Mobile presentation shares the existing action names and never changes rules.
+export const MOBILE_COMMAND_QUERY='(max-width: 640px), (max-width: 1000px) and (pointer: coarse)';
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const count=value=>Math.round(value??0).toLocaleString('ko-KR');
+const button=(label,action,extra='')=>'<button type="button" data-action="'+esc(action)+'" '+extra+'>'+esc(label)+'</button>';
+
+export function mobileCommandUIEnabled(scene){
+ if(scene?.dataset?.mobileUi!==undefined)return scene.dataset.mobileUi==='true';
+ return !!globalThis.matchMedia?.(MOBILE_COMMAND_QUERY).matches;
+}
+
+export function mobileUnitSummaryHTML(unit,{rank='',personalAlly=false,guestLabel='',stateLabel='',closeAction=null}={}){
+ const identity=[rank,unit.level?'Lv'+unit.level:'',guestLabel].filter(Boolean).join(' · ');
+ return '<div class="mobile-unit-summary"><div class="mobile-unit-identity"><b>'+esc(unit.name)+'</b><span>'+esc(identity)+'</span></div><div class="mobile-unit-tools">'+button('상세','unit-details','class="quiet"')+(closeAction?button('해제',closeAction,'class="quiet" aria-label="장수 선택 해제"'):'')+'</div><p class="mobile-unit-vitals">병력 <strong>'+count(unit.hp)+'</strong> / '+count(unit.maxHp)+' <span>사기 '+esc(unit.morale)+'</span>'+(personalAlly?' <span>SP '+esc(unit.sp)+' / '+esc(unit.maxSp)+'</span>':'')+'</p>'+(stateLabel?'<p class="mobile-unit-state">'+esc(stateLabel)+'</p>':'')+'</div>';
+}
+
+// These snippets are produced by app.command, not user HTML. Keeping their
+// complete buttons preserves disabled states and the original action handlers.
+const snippets=html=>String(html??'').match(/<button\b[\s\S]*?<\/button>/g)??[];
+const actionOf=html=>html.match(/data-action="([^"]+)"/)?.[1]??'';
+export function mobileMainCommandsHTML(html,{freshSelection=false}={}){
+ const all=snippets(html),tactics=all.filter(row=>actionOf(row).startsWith('tactic-'));
+ let grouped=false;
+ const commands=all.flatMap(row=>{
+  const action=actionOf(row);
+  if(freshSelection&&['cancel','dismiss'].includes(action))return [];
+  if(!action.startsWith('tactic-'))return [row];
+  if(grouped)return [];grouped=true;
+  return ['<details class="mobile-tactic-menu"><summary>책략 · '+tactics.length+'종</summary><div class="mobile-action-grid">'+tactics.join('')+'</div></details>'];
+ });
+ return commands.length?'<div class="unit-actions mobile-action-grid">'+commands.join('')+'</div>':'';
+}
+
+export function mobileCommandPanelHTML({summaryHTML='',contentHTML='',buttonsHTML='',mode='command',hasTarget=false,freshSelection=false,instruction='',targetButtonsHTML='',statusHTML=''}={}){
+ const choosing=['move','attack','heal','spirit-target'].includes(mode)&&!hasTarget;
+ if(choosing){
+  const back=mode==='spirit-target'?'spirit-target-back':'cancel';
+  return '<div class="mobile-target-prompt" aria-live="polite"><p>'+esc(instruction)+'</p>'+button('취소',back)+'</div>'+(targetButtonsHTML?'<details class="mobile-target-list"><summary>목록에서 대상 선택</summary><div class="mobile-action-grid">'+targetButtonsHTML+'</div></details>':'');
+ }
+ const content=statusHTML&&contentHTML.startsWith(statusHTML)?contentHTML.slice(statusHTML.length):contentHTML;
+ return summaryHTML+'<div class="unit-command-content">'+content+mobileMainCommandsHTML(buttonsHTML,{freshSelection})+'</div>';
+}
+
+export function mobileOptionListHTML(options,{kind='spirit',backAction='spirit-back'}={}){
+ const available=options.filter(row=>!row.reason&&!row.locked),unavailable=options.filter(row=>row.reason||row.locked);
+ const render=row=>'<button type="button" class="mobile-option '+(kind==='spirit'?'spirit-option':'skill-command')+'"'+(row.action?' data-action="'+esc(row.action)+'"':'')+(row.reason||row.locked?' disabled':'')+'><b>'+esc(row.locked?'????':row.name)+'<span>'+esc(row.costLabel??'')+'</span></b><small>'+esc(row.locked?'Lv'+row.level+' 해금':row.description)+'</small>'+(row.reason?'<em>'+esc(row.reason)+'</em>':'')+'</button>';
+ return '<div class="mobile-option-list"><div class="mobile-option-grid">'+available.map(render).join('')+'</div>'+(unavailable.length?'<details class="mobile-unavailable-options"'+(!available.length?' open':'')+'><summary>사용 불가 · '+unavailable.length+'종'+(!available.length?' — 사유 확인':'')+'</summary><div class="mobile-option-grid">'+unavailable.map(render).join('')+'</div></details>':'')+'</div><div class="mobile-list-back">'+button('명령으로',backAction)+'</div>';
+}

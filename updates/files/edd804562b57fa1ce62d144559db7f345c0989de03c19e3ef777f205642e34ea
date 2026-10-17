@@ -1,0 +1,94 @@
+/* The same command handlers serve desktop and mobile. Only a mobile scene
+   receives these compact, touch-sized controls; ordinary desktop CSS is intact. */
+#battle-scene[data-mobile-ui=true]{--mobile-command-bottom:calc(max(6px,env(safe-area-inset-bottom)) + 50px)}
+#battle-scene[data-mobile-ui=true] .battle-unit-side,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel,
+#battle-scene[data-mobile-ui=true].is-skill-targeting #skill-targeting-panel{
+ left:6px;right:6px;bottom:var(--mobile-command-bottom);width:auto;height:auto;min-height:0;max-height:min(52dvh,calc(100% - 108px));overflow:auto;border-radius:7px;
+}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui{
+ padding:7px 8px;min-height:0;max-height:52dvh;overflow:auto;font-size:13px;line-height:1.4;
+}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui button,
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #skill-targeting-panel button{
+ min-height:44px;height:auto;min-width:44px;max-width:100%;padding:6px 7px;font-size:13px;line-height:1.35;white-space:normal;overflow-wrap:anywhere;
+}
+#battle-scene[data-mobile-ui=true] .mobile-unit-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 6px;align-items:center;margin:0 0 5px}
+#battle-scene[data-mobile-ui=true] .mobile-unit-identity{min-width:0;line-height:1.35}
+#battle-scene[data-mobile-ui=true] .mobile-unit-identity b{font-size:15px;color:var(--gold);margin-right:6px}
+#battle-scene[data-mobile-ui=true] .mobile-unit-identity>span{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+#battle-scene[data-mobile-ui=true] .mobile-unit-tools{display:flex;gap:4px;align-self:start}
+#battle-scene[data-mobile-ui=true] .mobile-unit-vitals{grid-column:1/-1;margin:1px 0;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+#battle-scene[data-mobile-ui=true] .mobile-unit-vitals strong{font-size:14px;font-variant-numeric:tabular-nums}
+#battle-scene[data-mobile-ui=true] .mobile-unit-vitals>span{margin-left:8px;display:inline-block}
+#battle-scene[data-mobile-ui=true] .mobile-unit-state{grid-column:1/-1;margin:2px 0;font-size:11px;line-height:1.4;color:#e7cc92}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .unit-actions.mobile-action-grid,
+#battle-scene[data-mobile-ui=true] .mobile-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0}
+#battle-scene[data-mobile-ui=true] .mobile-tactic-menu{min-width:0}
+#battle-scene[data-mobile-ui=true] .mobile-tactic-menu>summary,
+#battle-scene[data-mobile-ui=true] .mobile-unavailable-options>summary,
+#battle-scene[data-mobile-ui=true] .mobile-target-list>summary{
+ box-sizing:border-box;min-height:44px;padding:11px 7px;border:1px solid var(--line);background:#24372a;color:var(--text);font-size:13px;line-height:1.5;cursor:pointer;
+}
+#battle-scene[data-mobile-ui=true] .mobile-tactic-menu>summary{text-align:center;list-style:none}
+#battle-scene[data-mobile-ui=true] .mobile-tactic-menu>summary::after{content:' ▾';font-size:10px;color:var(--gold)}
+#battle-scene[data-mobile-ui=true] .mobile-tactic-menu[open]{grid-column:1/-1;display:flex;flex-direction:column;gap:5px}
+#battle-scene[data-mobile-ui=true] .mobile-tactic-menu[open]>summary{padding:11px 7px;min-height:44px}
+#battle-scene[data-mobile-ui=true] .mobile-target-prompt{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px;min-height:44px}
+#battle-scene[data-mobile-ui=true] .mobile-target-prompt p{font-size:13px;line-height:1.45;margin:0;overflow-wrap:anywhere}
+#battle-scene[data-mobile-ui=true] .mobile-target-prompt b{font-size:14px;color:var(--gold);margin-right:7px}
+#battle-scene[data-mobile-ui=true] .mobile-target-prompt small{font-size:11px;color:var(--muted)}
+#battle-scene[data-mobile-ui=true] .mobile-target-list{margin-top:5px}
+#battle-scene[data-mobile-ui=true] .mobile-target-list>.mobile-action-grid{padding-top:5px;max-height:24dvh;overflow:auto}
+#battle-scene[data-mobile-ui=true] #unit-ui[data-mobile-stage=choosing]{padding:5px 7px!important}
+#battle-scene[data-mobile-ui=true] #unit-ui[data-mobile-stage=confirmation] .mobile-unit-vitals,
+#battle-scene[data-mobile-ui=true] #unit-ui[data-mobile-stage=confirmation] .mobile-unit-identity>span{display:none}
+#battle-scene[data-mobile-ui=true] #unit-ui[data-mobile-stage=confirmation] .unit-actions.mobile-action-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:5px}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .command-context,
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .command-reason,
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .prediction-subline{font-size:12px;line-height:1.45;margin:4px 0}
+#battle-scene[data-mobile-ui=true] .mobile-list-heading{font-size:12px;color:var(--gold);margin:2px 0 5px}
+#battle-scene[data-mobile-ui=true] .mobile-option-list{max-height:29dvh;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:1px;min-height:0}
+#battle-scene[data-mobile-ui=true] .mobile-option-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .mobile-option{grid-column:auto;text-align:left;min-width:0;margin:0}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .mobile-option b{font-size:13px;line-height:1.4;display:flex;gap:4px;flex-wrap:wrap;justify-content:space-between}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .mobile-option b span{font-size:11px;line-height:1.4}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .mobile-option small,
+#battle-scene[data-mobile-ui=true][data-command-placement=context] #unit-ui .mobile-option em{font-size:11px;line-height:1.45;display:block;white-space:normal;overflow-wrap:anywhere;margin-top:2px}
+#battle-scene[data-mobile-ui=true] .mobile-unavailable-options{margin-top:5px}
+#battle-scene[data-mobile-ui=true] .mobile-unavailable-options>.mobile-option-grid{margin-top:5px}
+#battle-scene[data-mobile-ui=true] .mobile-list-back{display:flex;justify-content:flex-end;margin-top:5px}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context{display:block;height:auto;min-height:0;max-height:none;padding:7px 8px;font-size:13px;line-height:1.45}
+#battle-scene[data-mobile-ui=true] .mobile-skill-selection{margin:0 0 3px;font-size:12px;color:var(--muted)}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .compact-prediction{padding:0;margin:0;border:0;font-size:13px}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .prediction-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:4px 0}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .prediction-values>span{display:block;color:var(--muted);font-size:11px;line-height:1.4}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .prediction-values small{display:block;font-size:11px}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .prediction-values strong{display:block;font-size:19px;color:var(--gold)}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .prediction-subline{font-size:12px;line-height:1.45;margin:4px 0;color:var(--muted)}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .prediction-details-open{float:right}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .skill-context-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:5px}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .skill-context-actions .primary{background:var(--gold);color:#17241c}
+#battle-scene[data-mobile-ui=true] .mobile-skill-context .skill-context-actions .primary:disabled{background:#46513d;color:#9daa8b}
+/* One scroll owner keeps confirmation controls in the visible dock, including
+   the short landscape viewport, while the complete prediction remains readable. */
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui[data-mobile-stage=confirmation]{overflow:visible;max-height:none}
+#battle-scene[data-mobile-ui=true] #unit-ui[data-mobile-stage=confirmation] .unit-actions,
+#battle-scene[data-mobile-ui=true] .mobile-skill-context.has-selection .skill-context-actions{
+ position:sticky;bottom:0;z-index:3;flex-shrink:0;background:#14271e;border-top:1px solid var(--line);padding:5px 0 0;
+}
+@media(orientation:landscape){
+ #battle-scene[data-mobile-ui=true] .battle-unit-side,
+ #battle-scene[data-mobile-ui=true] #skill-targeting-panel,
+ #battle-scene[data-mobile-ui=true].is-skill-targeting #skill-targeting-panel{left:auto;right:6px;width:min(304px,calc(100% - 108px));max-height:calc(100% - 64px)}
+ #battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui{max-height:calc(100dvh - 150px)}
+ #battle-scene[data-mobile-ui=true] .mobile-option-list{max-height:calc(100dvh - 272px);min-height:44px}
+}
+@media(max-width:640px){
+ #battle-scene[data-mobile-ui=true] .board-navigation{gap:4px;padding:4px;flex-wrap:nowrap}
+ #battle-scene[data-mobile-ui=true] .board-navigation .board-zoom{gap:4px;flex-wrap:nowrap}
+ #battle-scene[data-mobile-ui=true] .board-navigation .board-pan{gap:0}
+ #battle-scene[data-mobile-ui=true] .board-navigation button{min-width:44px;min-height:44px;padding:4px;font-size:13px}
+ #battle-scene[data-mobile-ui=true] .board-navigation button[data-board-focus]{min-width:76px}
+ #battle-scene[data-mobile-ui=true] .board-navigation output{display:none}
+}

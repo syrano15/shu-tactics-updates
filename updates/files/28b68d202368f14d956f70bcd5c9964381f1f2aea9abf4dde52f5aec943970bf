@@ -1,0 +1,109 @@
+import {combatSkillList,combatSkillTargets,previewCombatSkill} from './combat-skills.js';
+import {combatSkillArea} from './combat-skill-area.js';
+import {skillPreviewSummary} from './battle-ui.js';
+
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const count=value=>Math.round(value??0).toLocaleString('ko-KR');
+const coord=unit=>String.fromCharCode(65+unit.x)+(unit.y+1);
+const cellKey=(x,y)=>x+','+y;
+const copyUnit=unit=>({id:unit.id,name:unit.name,x:unit.x,y:unit.y,coordinate:coord(unit),team:unit.team});
+const isSelfCentered=skill=>['allies','self','formation','surround','diamond-self'].includes(skill.area);
+
+function costLabel(meta){
+ const costs=[meta.cost?.sp?'SP '+meta.cost.sp:'',meta.cost?.morale?'사기 −'+meta.cost.morale:''].filter(Boolean);
+ return costs.join(' · ')+(meta.legendary?' · 전투당 1회':'');
+}
+function projectionLabel(row,support){
+ if(!row)return support?'지원 효과':'공격 대상';
+ if(row.skipped)return row.reason||'앞선 전투 결과에 따라 공격 불가';
+ if(support){
+  const labels=[row.amount>0?'병력 +'+count(row.amount):'',row.spAmount>0?'SP +'+count(row.spAmount):'',row.buff??''];
+  return labels.filter(Boolean).join(' · ')||'지원 효과';
+ }
+ if(row.hit===undefined)return '효과 대상';
+ const chance=Math.round((row.chance??1)*100);
+ return (row.kind?'성공 ':'명중 ')+chance+'% · 예상 피해 '+count(chance?row.hit:0);
+}
+function counterLabel(row,support){
+ if(support||!row||row.skipped)return '';
+ if(row.kind)return '반격 없음';
+ if(row.hit===undefined)return '';
+ const afterHit=row.counter?(row.counterChance===0?'명중 후 반격 회피 확정':'명중 후 반격 '+count(row.returnHit)+' · 명중 '+Math.round((row.counterChance??1)*100)+'%'):'명중 후 반격 없음';
+ const afterMiss=row.counterIfMiss&&(row.chance??1)<1?'빗나가면 반격 '+count(row.returnHitIfMiss):'';
+ return [afterHit,afterMiss].filter(Boolean).join(' · ');
+}
+
+/** Pure display data: legal centers, affected units and forecasts come from the
+ * existing rules. Opening or changing this preview never performs an action. */
+export function createSkillTargetingModel(state,actor,skillId,selectedTargetId=null,{busy=false}={}){
+ const inactive={active:false,choices:[],affected:[],safeAllies:[],cells:new Set(),ids:new Set(),canConfirm:false};
+ if(!state||!actor||!skillId)return inactive;
+ const meta=combatSkillList(state,actor).find(row=>row.id===skillId);
+ if(!meta)return inactive;
+ const legal=combatSkillTargets(state,actor,skillId),selected=legal.find(unit=>unit.id===selectedTargetId)??null;
+ const support=meta.actionKind==='support',selfCentered=isSelfCentered(meta),side=support?'아군':'적';
+ const area=combatSkillArea(state,actor,skillId,selected),prediction=selected?previewCombatSkill(state,actor,selected,skillId):null;
+ const order=prediction?.targets??[],rows=prediction?.results??[];
+ const affected=order.map((unit,index)=>{
+  const row=rows.find(result=>(result.result??result).id===unit.id||result.target?.id===unit.id);
+  return {...copyUnit(unit),index:index+1,projectionLabel:projectionLabel(row?.result??row,support),counterLabel:counterLabel(row?.result??row,support),bossCounterWarning:!!(row?.result??row)?.bossCounterWarning};
+ });
+ const ids=new Set(affected.map(unit=>unit.id)),cells=selected?new Set(area.cells):new Set();
+ const safeAllies=!support&&selected?state.units.filter(unit=>unit.hp>0&&!unit.escaped&&unit.team===actor.team&&cells.has(cellKey(unit.x,unit.y))).map(copyUnit):[];
+ const choices=legal.map(unit=>{
+  const affectedCount=combatSkillArea(state,actor,skillId,unit).ids.size;
+  return {...copyUnit(unit),selected:unit.id===selected?.id,affectedCount,summary:side+' '+affectedCount+'부대'};
+ });
+ const reason=meta.reason||prediction?.reason||'',ready=!!selected&&!reason&&affected.length>0;
+ const center=selected?copyUnit(selfCentered?actor:selected):null;
+ const instruction=selfCentered?'자신을 중심으로 표시한 범위를 확인한 뒤 사용하세요.':support?'지도에 초록 테두리가 있는 아군에서 지원 대상을 선택하세요.':meta.area?'지도에 주황 테두리가 있는 적에서 공격 중심을 선택하세요.':'지도에 주황 테두리가 있는 적에서 공격 대상을 선택하세요.';
+ const cost=costLabel(meta),verb=support?'지원':'공격';
+ return {active:true,skillId,meta,caster:copyUnit(actor),support,selfCentered,center,choices,affected,safeAllies,cells,ids,prediction,
+  canConfirm:ready&&!busy,reason,busy,instruction,costLabel:cost,areaLabel:meta.area==='cross'?(meta.areaRadius===2?'선택한 적과 상하좌우 2칸씩 십자 9칸':'선택한 적과 상하좌우 5칸')+' · 적만 공격 · 아군 피해 없음':area.label,
+  bossCounterWarning:!!prediction?.bossCounterWarning||affected.some(unit=>unit.bossCounterWarning),
+  selectionLabel:selfCentered?'자신 중심':support?'지원 대상':meta.area?'공격 중심':'공격 대상',
+  affectedLabel:(support?'효과를 받는 아군':'공격받는 적')+' '+affected.length+'부대',
+  confirmLabel:meta.name+' 사용 · '+side+' '+affected.length+'부대'+(cost?' · '+cost:''),
+  emptyLabel:meta.reason||'선택할 수 있는 '+(support?'아군':'적')+'이 없습니다.',
+  selectionStatus:center?center.name+' · '+center.coordinate+' 중심 · '+side+' '+affected.length+'부대 '+verb:'아직 '+(support?'지원 대상을':'공격 중심을')+' 선택하지 않았습니다.'};
+}
+
+export function skillTargetingCellClass(model,x,y){
+ if(!model?.active)return '';
+ const names=['skill-targeting-cell'],key=cellKey(x,y);
+ if(model.caster.x===x&&model.caster.y===y)names.push('skill-targeting-caster');
+ if(model.choices.some(unit=>unit.x===x&&unit.y===y))names.push('skill-targeting-choice');
+ if(model.cells.has(key))names.push('skill-targeting-area');
+ if(model.center?.x===x&&model.center?.y===y)names.push('skill-targeting-center');
+ if(model.affected.some(unit=>unit.x===x&&unit.y===y))names.push('skill-targeting-affected');
+ if(model.safeAllies.some(unit=>unit.x===x&&unit.y===y))names.push('skill-targeting-safe');
+ if(model.support)names.push('skill-targeting-support');
+ return names.join(' ');
+}
+
+/** Rings remain below unit art; only compact labels sit above it. The cell itself
+ * keeps the board's natural row order so tall sprites retain correct depth. */
+export function skillTargetingTileHTML(model,x,y){
+ if(!model?.active)return '';
+ const key=cellKey(x,y),caster=model.caster.x===x&&model.caster.y===y,center=model.center?.x===x&&model.center?.y===y;
+ const choice=model.choices.some(unit=>unit.x===x&&unit.y===y),affected=model.affected.find(unit=>unit.x===x&&unit.y===y),safe=model.safeAllies.some(unit=>unit.x===x&&unit.y===y);
+ let html=model.cells.has(key)?'<span class="skill-targeting-footprint" aria-hidden="true"></span>':'';
+ if(choice)html+='<span class="skill-targeting-center-ring" aria-hidden="true"></span>';
+ if(caster)html+='<span class="skill-targeting-map-caster" aria-hidden="true">시전자</span>';
+ if(center)html+='<span class="skill-targeting-map-center" aria-hidden="true">'+(model.selfCentered?'자신 중심':model.support?'지원 중심':'중심')+'</span>';
+ else if(choice&&!affected)html+='<span class="skill-targeting-map-choice" aria-hidden="true">◎</span>';
+ if(affected)html+='<span class="skill-targeting-map-number" aria-hidden="true">'+affected.index+'</span>';
+ if(safe)html+='<span class="skill-targeting-map-safe" aria-hidden="true">아군 안전</span>';
+ return html;
+}
+
+export function skillTargetingPanelHTML(model,{mobile=false}={}){
+ if(!model?.active)return '';
+ const selected=!!model.center;
+ if(mobile){
+  const cancel='<button type="button" data-action="skill-back"'+(model.busy?' disabled':'')+'>취소</button>';
+  if(!selected)return '<div class="skill-targeting-ui mobile-skill-context is-choosing'+(model.support?' is-support':'')+'"><div class="mobile-target-prompt"><div><b>'+esc(model.meta.name)+'</b><small>'+esc(model.costLabel)+'</small><p aria-live="polite">'+esc(model.reason||(!model.choices.length?model.emptyLabel:model.instruction))+'</p></div>'+cancel+'</div></div>';
+  return '<div class="skill-targeting-ui mobile-skill-context has-selection'+(model.support?' is-support':'')+'"><p class="mobile-skill-selection" aria-live="polite">'+esc((model.selfCentered?'자신 중심 · ':'')+model.center.coordinate+' · '+model.affectedLabel)+'</p>'+skillPreviewSummary(model.meta,model.prediction??{},model.center)+'<div class="skill-context-actions"><button type="button" data-action="back"'+(model.busy?' disabled':'')+'>다시 선택</button><button type="button" class="primary" data-action="skill-confirm"'+(model.canConfirm?'':' disabled')+'>사용 확정</button>'+cancel+'</div></div>';
+ }
+ return '<div class="skill-targeting-ui compact-skill-context'+(model.support?' is-support':'')+'"><header><h3>'+esc(model.meta.name)+'</h3><span>'+esc(model.costLabel)+'</span></header><p aria-live="polite">'+esc(selected?(model.selfCentered?'자신 중심 · ':'')+model.center.name+' · '+model.affectedLabel+' · '+model.center.coordinate:(model.selfCentered?'자신 중심 · ':'')+model.instruction)+'</p>'+(model.reason?'<p role="status">'+esc(model.reason)+'</p>':'')+(model.bossCounterWarning?'<p class="skill-targeting-boss-warning">S급 적장 반격 주의</p>':'')+'<div class="skill-context-actions">'+(selected?'<button type="button" data-action="prediction-details">예측 상세</button>':'')+'<button type="button" data-action="back"'+(!selected||model.busy?' disabled':'')+'>선택 해제</button><button type="button" class="primary" data-action="skill-confirm"'+(model.canConfirm?'':' disabled')+'>'+esc(selected?model.confirmLabel:'대상 선택 필요')+'</button><button type="button" data-action="skill-back"'+(model.busy?' disabled':'')+'>취소</button></div></div>';
+}

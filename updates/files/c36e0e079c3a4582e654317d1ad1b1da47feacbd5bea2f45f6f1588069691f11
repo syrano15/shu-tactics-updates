@@ -1,0 +1,133 @@
+/* Display density follows actual cell size, independently of page/phone width.
+   Camera code owns data-map-detail; these rules never resize the approved art. */
+#battle-scene .board-viewport[data-map-detail] .token .unit-name{
+ max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#battle-scene .board-viewport[data-map-detail] .sprite-token>.promotion-rank-mark{
+ max-width:calc(100% - 2px);overflow:hidden;text-overflow:clip;white-space:nowrap;
+ line-height:11px;padding:0 2px;
+}
+
+/* Mid-sized cells keep short identification and separate the HP track from it. */
+#battle-scene .board-viewport[data-map-detail=compact] .token .unit-name{
+ font-size:8px;line-height:1.15;max-height:12px;padding:0 1px;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .sprite-token .unit-name{bottom:3px}
+#battle-scene .board-viewport[data-map-detail=compact] .token .mini-hp{
+ bottom:0;height:2px;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .promotion-rank-mark,
+#battle-scene .board-viewport[data-map-detail=compact] .unit-class,
+#battle-scene .board-viewport[data-map-detail=compact] .unit-name .tier-badge{display:none}
+#battle-scene .board-viewport[data-map-detail=compact] .terrain-mark{
+ font-size:7px;line-height:1.1;padding:0 1px;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .guest-badge-board{
+ left:0;top:0;width:9px;height:9px;flex-basis:9px;font-size:6px;border-radius:2px;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .status-mark{
+ font-size:7px;line-height:1.15;padding:0 1px;max-width:70%;overflow:hidden;white-space:nowrap;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .done-mark{
+ right:0;top:0;width:9px;height:9px;line-height:8px;font-size:6px;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .special-ready-mark{font-size:8px}
+
+/* The strategic view shows positions, teams and tactical cues. Full names,
+   ranks, HP and status descriptions remain in the cell's accessible label and
+   the selected-unit panel; unreadably small text does not cover the bodies. */
+#battle-scene .board-viewport[data-map-detail=strategic] .token .unit-name,
+#battle-scene .board-viewport[data-map-detail=strategic] .token .unit-class,
+#battle-scene .board-viewport[data-map-detail=strategic] .token .mini-hp,
+#battle-scene .board-viewport[data-map-detail=strategic] .token .promotion-rank-mark,
+#battle-scene .board-viewport[data-map-detail=strategic] .token .guest-badge-board,
+#battle-scene .board-viewport[data-map-detail=strategic] .terrain-mark{display:none}
+#battle-scene .board-viewport[data-map-detail=strategic] .token:not(.sprite-token){
+ width:94%;height:100%;max-width:none;border:0;border-radius:0;background:none;box-shadow:none;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .sprite-token::before{display:none}
+#battle-scene .board-viewport[data-map-detail=strategic] .token::after{
+ content:"";position:absolute;left:50%;bottom:2%;width:30%;height:30%;max-width:7px;max-height:7px;
+ transform:translateX(-50%);border:1px solid #09261c;border-radius:50%;background:#9bf0c5;
+ z-index:4;pointer-events:none;box-sizing:border-box;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .token.enemy-token::after{
+ border-color:#3d120b;border-radius:0;background:#ffab88;transform:translateX(-50%) rotate(45deg);
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .token.done::after{background:#657d70}
+#battle-scene .board-viewport[data-map-detail=strategic] .token.support-unavailable::after{background:#657d70}
+#battle-scene .board-viewport[data-map-detail=strategic] .cell.selected,
+#battle-scene .board-viewport[data-map-detail=strategic] .cell.targeted{
+ outline:1px solid #ffe3a1;outline-offset:-1px;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .status-mark{
+ top:0;right:0;width:26%;height:26%;max-width:6px;max-height:6px;padding:0;
+ font-size:0;line-height:0;border:1px solid #fff1d5;border-radius:50%;background:#a450ba;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .done-mark{
+ top:0;right:0;width:25%;height:25%;max-width:6px;max-height:6px;padding:0;
+ font-size:0;line-height:0;border:1px solid #c6dfce;border-radius:0;background:#526b5d;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .special-ready-mark{
+ top:0;right:0;font-size:calc(var(--board-cell-size)*.28);line-height:1;
+}
+
+/* Objective flags stay visible on occupied and empty exits. Coordinates and
+   place names are available when selected, without a fixed-size text plaque. */
+#battle-scene .board-viewport[data-map-detail=strategic] .cell>.goal-marker,
+#battle-scene .board-viewport[data-map-detail=compact] .cell>.goal-marker{
+ left:1px;right:auto;top:1px;width:34%;height:34%;max-width:12px;max-height:12px;
+ display:grid;place-items:center;padding:0;gap:0;border:1px solid #e9c676;border-radius:1px;
+ background:#252719c9;box-shadow:none;font-size:0;line-height:1;overflow:hidden;
+}
+#battle-scene .board-viewport:is([data-map-detail=strategic],[data-map-detail=compact]) .goal-marker>b,
+#battle-scene .board-viewport:is([data-map-detail=strategic],[data-map-detail=compact]) .goal-tile-name{display:none}
+#battle-scene .board-viewport:is([data-map-detail=strategic],[data-map-detail=compact]) .goal-marker::before{
+ content:"⚑";font-size:calc(var(--board-cell-size)*.23);line-height:1;color:#ffe6a4;
+}
+#battle-scene .board-viewport:is([data-map-detail=strategic],[data-map-detail=compact]) .goal-locked>.goal-marker{
+ border-style:dashed;border-color:#bba577;
+}
+
+/* Existing range fills, area footprints and selection rings stay intact.
+   Only their fixed-size labels become compact, distinct shapes. */
+#battle-scene .board-viewport[data-map-detail=compact] .skill-targeting-map-caster,
+#battle-scene .board-viewport[data-map-detail=compact] .skill-targeting-map-center{
+ max-width:90%;font-size:7px;line-height:1.1;padding:0 1px;overflow:hidden;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .skill-targeting-map-number{
+ left:0;bottom:14px;width:11px;height:11px;font-size:7px;box-shadow:none;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .skill-targeting-map-safe{
+ right:0;bottom:14px;max-width:60%;font-size:6px;line-height:1.1;padding:0 1px;overflow:hidden;
+}
+#battle-scene .board-viewport[data-map-detail=compact] .skill-targeting-map-choice{
+ right:0;top:0;font-size:10px;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-caster,
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-center,
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-choice,
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-number,
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-safe{
+ width:28%;height:28%;max-width:6px;max-height:6px;min-width:0;min-height:0;
+ padding:0;font-size:0;line-height:0;box-shadow:none;text-shadow:none;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-caster{
+ left:0;top:0;border:1px solid #d1ebff;border-radius:0;background:#258ad1;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-center{
+ left:auto;right:0;top:0;transform:none;border:1px solid #fff2c8;border-radius:50%;background:#e2a237;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-choice{
+ right:0;top:0;border:1px solid #ffe7af;border-radius:50%;background:transparent;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-number{
+ left:0;bottom:0;border-radius:50%;background:#bf3527;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-map-safe{
+ right:0;bottom:0;border-radius:1px;background:#286c48;
+}
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-support .skill-targeting-map-number,
+#battle-scene .board-viewport[data-map-detail=strategic] .skill-targeting-support .skill-targeting-map-center{
+ background:#2a7544;
+}

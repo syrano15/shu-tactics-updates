@@ -1,0 +1,16 @@
+/* Map-only visual policy. Unit state, faction colors and command availability stay intact. */
+#battle-scene .board-viewport[data-map-interacting=true] :is(.promotion-aura,.promotion-aura i,.goal-marker,.fleet-flame-moving,.battle-sprite),
+#battle-scene .board-viewport[data-map-interacting=true] .spirit-effect:not(.is-casting):not(.is-reacting):not(.is-expiring),
+#battle-scene .board-viewport[data-map-interacting=true] .cell::after,
+#battle-scene .board-viewport[data-map-interacting=true] .terrain-art-ready::after{animation-play-state:paused!important}
+#battle-scene .board-viewport[data-map-document-hidden=true] *,
+#battle-scene .board-viewport[data-map-document-hidden=true] *::before,
+#battle-scene .board-viewport[data-map-document-hidden=true] *::after{animation-play-state:paused!important}
+
+/* An overview needs a stable rank cue instead of many independent particles. */
+#battle-scene .board-viewport.board-overview .promotion-aura{animation:none!important;opacity:.18}
+#battle-scene .board-viewport.board-overview .promotion-aura i{display:none}
+@media(any-pointer:coarse),(max-width:680px){
+ #battle-scene .board-viewport .promotion-aura{animation:none!important;opacity:.2}
+ #battle-scene .board-viewport .promotion-aura i{display:none}
+}

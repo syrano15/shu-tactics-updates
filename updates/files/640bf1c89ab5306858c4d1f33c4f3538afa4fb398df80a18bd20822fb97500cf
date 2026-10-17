@@ -1,0 +1,226 @@
+export const BOARD_CELL_PIXELS=64;
+export const MIN_BOARD_CELL_PIXELS=48;
+export const MAP_INTERACTION_IDLE_MS=180;
+export function mapDetailForCell(pixels){
+ if(!Number.isFinite(pixels)||pixels<=0)throw new RangeError('전장 표시 크기 오류');
+ return pixels<24?'strategic':pixels<48?'compact':'full';
+}
+export function boardZoomStep({cell,fitCell,direction}){
+ if(![cell,fitCell].every(n=>Number.isFinite(n)&&n>0)||!['less','more'].includes(direction))throw new RangeError('전장 확대 설정 오류');
+ if(direction==='less'&&cell<=fitCell)return {mode:cell===fitCell?'fit':'normal',pixels:cell};
+ if(direction==='more'&&cell>=96)return {mode:cell===fitCell?'fit':'normal',pixels:cell};
+ const pixels=Math.max(Math.min(MIN_BOARD_CELL_PIXELS,fitCell),Math.min(96,Math.round(cell*(direction==='more'?1.25:.8)*100)/100));
+ return direction==='less'&&pixels<=fitCell?{mode:'fit',pixels:fitCell}:{mode:'normal',pixels};
+}
+export function boardGeometry({columns,rows,viewportWidth,viewportHeight,mode='normal',pixels=BOARD_CELL_PIXELS,gap=0,minPixels=MIN_BOARD_CELL_PIXELS}){
+ if(![columns,rows].every(n=>Number.isInteger(n)&&n>0)||!['fit','normal'].includes(mode))throw new Error('전장 보기 설정 오류');
+ if(!Number.isFinite(minPixels)||minPixels<=0||minPixels>MIN_BOARD_CELL_PIXELS)throw new RangeError('전장 최소 크기 오류');
+ const size=mode==='fit'?Math.max(1,Math.min((viewportWidth-gap*(columns-1))/columns,(viewportHeight-gap*(rows-1))/rows)):Math.max(minPixels,Math.min(96,pixels));
+ return {cell:size,width:columns*size+gap*(columns-1),height:rows*size+gap*(rows-1),mode};
+}
+const clamp=(value,min,max)=>Math.max(min,Math.min(Math.max(min,max),value));
+const overlap=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+export function boardClearancePadding({bounds,obstacles=[],minimumSpace=80}){
+ const next=[0,0,0,0];
+ for(const rect of obstacles){
+  if(!rect||!overlap(rect,bounds))continue;
+  const edge=rect.edge??(rect.width>=bounds.width*.65?((rect.top+rect.bottom)/2<(bounds.top+bounds.bottom)/2?'top':'bottom'):((rect.left+rect.right)/2<(bounds.left+bounds.right)/2?'left':'right'));
+  const index={top:0,right:1,bottom:2,left:3}[edge];
+  if(index===undefined)continue;
+  const amount=[Math.min(bounds.bottom,rect.bottom)-bounds.top,bounds.right-Math.max(bounds.left,rect.left),bounds.bottom-Math.max(bounds.top,rect.top),Math.min(bounds.right,rect.right)-bounds.left][index]+12;
+  next[index]=Math.max(next[index],amount);
+ }
+ // Padding must never become the minimum border-box size of the viewport.
+ // Retain room for a complete normal tile even if several overlays overlap.
+ for(const [first,last,span]of [[0,2,bounds.height],[3,1,bounds.width]]){
+  const total=next[first]+next[last],budget=Math.max(0,span-Math.min(span,minimumSpace));
+  if(total>budget){const ratio=budget/total;next[first]*=ratio;next[last]*=ratio;}
+ }
+ return next.map(value=>Math.max(0,Math.floor(value)));
+}
+
+// Camera and gesture state only. No unit, order, map or saved preference is written.
+export function installBoardNavigation(stage,board,{reposition=()=>{}}={}){
+ const doc=stage.ownerDocument,viewport=doc.createElement('div'),toolbar=doc.createElement('div');
+ viewport.className='board-viewport';viewport.tabIndex=0;viewport.setAttribute('aria-label','전장 지도 · 한 손가락으로 이동 · 지도 확대와 축소는 더하기와 빼기 버튼');
+ viewport.dataset.mapDetail='full';viewport.dataset.mapInteracting='false';viewport.dataset.mapDocumentHidden=String(doc.hidden);
+ board.before(viewport);viewport.append(board);toolbar.className='board-navigation';toolbar.hidden=true;
+ toolbar.innerHTML='<div class="board-zoom"><button type="button" data-board-view="fit" aria-label="전장 전체 보기">전체</button><button type="button" data-board-view="normal" aria-label="지도 기본 크기 100퍼센트">기본</button><button type="button" data-board-zoom="less" aria-label="지도 축소">−</button><output class="board-zoom-value" aria-label="지도 배율">지도 100%</output><button type="button" data-board-zoom="more" aria-label="지도 확대">+</button></div><div class="board-pan"><button type="button" data-board-pan="left" aria-label="전장 왼쪽으로">←</button><button type="button" data-board-pan="up" aria-label="전장 위로">↑</button><button type="button" data-board-pan="down" aria-label="전장 아래로">↓</button><button type="button" data-board-pan="right" aria-label="전장 오른쪽으로">→</button><button type="button" data-board-focus>선택 장수</button></div><small>한 손가락으로 이동 · − +로 지도 확대·축소</small>';
+ stage.before(toolbar);
+ let view=null,mode='normal',pixels=BOARD_CELL_PIXELS,cellPixels=BOARD_CELL_PIXELS,chapter=null,selected=null,drag=null,suppressClick=false,multipleTouch=false;
+ let padding=[0,0,0,0],contextSignature='',correctionPending=false,correctionFrame=null;
+ const touches=new Set(),mapPointers=new Set(),observedPanels=new WeakSet();
+ const frame=callback=>globalThis.requestAnimationFrame?globalThis.requestAnimationFrame(callback):setTimeout(callback,0);
+ const cancelFrame=id=>globalThis.cancelAnimationFrame?globalThis.cancelAnimationFrame(id):clearTimeout(id);
+ let panFrame=null,panPosition=null,repositionFrame=null,interactionTimer=null;
+ function clearInteractionTimer(){if(interactionTimer!==null){globalThis.clearTimeout(interactionTimer);interactionTimer=null;}}
+ function beginInteraction(){clearInteractionTimer();if(!doc.hidden&&viewport.dataset.mapInteracting!=='true')viewport.dataset.mapInteracting='true';}
+ function settleInteraction(){
+  clearInteractionTimer();
+  if(doc.hidden)return;
+  interactionTimer=globalThis.setTimeout(()=>{interactionTimer=null;if(drag||mapPointers.size||touches.size)return;viewport.dataset.mapInteracting='false';scheduleCorrection();},MAP_INTERACTION_IDLE_MS);
+ }
+ function cameraChanged(){if(doc.hidden)return;beginInteraction();settleInteraction();scheduleReposition();}
+ function scheduleReposition(){if(repositionFrame!==null)return;repositionFrame=frame(()=>{repositionFrame=null;reposition();});}
+ function flushPan(){
+  if(panFrame!==null){cancelFrame(panFrame);panFrame=null;}
+  if(!panPosition)return;const {left,top}=panPosition;panPosition=null;
+  viewport.scrollLeft=left;viewport.scrollTop=top;cameraChanged();
+ }
+ let sizeObserver;
+ function stopCorrection(){correctionPending=false;if(correctionFrame!==null){cancelFrame(correctionFrame);correctionFrame=null;}}
+ function releaseGesture({cancel=false}={}){
+  flushPan();const previous=drag;drag=null;viewport.classList.remove('is-panning');
+  if(cancel||previous?.active)suppressClick=true;
+  if(previous&&viewport.hasPointerCapture?.(previous.id)){try{viewport.releasePointerCapture(previous.id);}catch{}}
+ }
+ const pan=(dx,dy)=>{flushPan();stopCorrection();viewport.scrollLeft+=dx;viewport.scrollTop+=dy;cameraChanged();};
+ const rectOf=node=>{if(!node||node.hidden)return null;const rect=node.getBoundingClientRect();return rect.width>0&&rect.height>0?rect:null;};
+ const obstacle=(rect,edge)=>({left:rect.left,top:rect.top,right:rect.right,bottom:rect.bottom,width:rect.width,height:rect.height,edge});
+ function contextView(){
+  const panels=[...stage.querySelectorAll('.battle-unit-side,#skill-targeting-panel')].filter(node=>rectOf(node));
+  if(sizeObserver)for(const panel of panels)if(!observedPanels.has(panel)){sizeObserver.observe(panel);observedPanels.add(panel);}
+  // A rotated viewport can be taller than its stage while old padding consumes
+  // its entire content box. Use the stage's inner box as the independent limit.
+  const outer=viewport.getBoundingClientRect(),host=stage.getBoundingClientRect(),viewLeft=outer.left+(viewport.clientLeft||0),viewTop=outer.top+(viewport.clientTop||0),hostLeft=host.left+(stage.clientLeft||0),hostTop=host.top+(stage.clientTop||0);
+  const left=Math.max(viewLeft,hostLeft),top=Math.max(viewTop,hostTop),right=Math.max(left,Math.min(viewLeft+viewport.clientWidth,hostLeft+stage.clientWidth)),bottom=Math.max(top,Math.min(viewTop+viewport.clientHeight,hostTop+stage.clientHeight));
+  const bounds={left,top,right,bottom,width:right-left,height:bottom-top},obstacles=panels.map(panel=>{const rect=rectOf(panel);return obstacle(rect,rect.width>=bounds.width*.65?'bottom':(rect.left+rect.right)/2>=(bounds.left+bounds.right)/2?'right':'left');});
+  for(const node of [toolbar,...stage.querySelectorAll('.end-turn,.boss-cleanup-finish')]){const rect=rectOf(node);if(rect&&overlap(rect,bounds))obstacles.push(obstacle(rect,node===toolbar?'top':'bottom'));}
+  const selectedUnit=view?.units.find(unit=>unit.id===selected&&unit.hp>0),target=board.querySelector('.skill-targeting-center,.targeted');
+  const tile=target??(selectedUnit?board.querySelector('[data-x="'+selectedUnit.x+'"][data-y="'+selectedUnit.y+'"]'):null);
+  const modeLabel=stage.querySelector('#unit-ui')?.dataset.mode??'';
+  const signature=JSON.stringify([selected,selectedUnit?.x,selectedUnit?.y,target?.dataset.x,target?.dataset.y,modeLabel,panels.map(panel=>[panel.id||panel.className,panel.querySelector('h3')?.textContent,Math.round(rectOf(panel).width),Math.round(rectOf(panel).height)]),obstacles.map(rect=>[Math.round(rect.left-bounds.left),Math.round(rect.top-bounds.top),Math.round(rect.width),Math.round(rect.height)]),Math.round(bounds.width),Math.round(bounds.height)]);
+  return {panels,bounds,obstacles,tile,signature};
+ }
+ function applyClearance(context){
+  const {panels,bounds,obstacles}=context;
+  const next=boardClearancePadding({bounds,obstacles:panels.length?obstacles:[],minimumSpace:112});
+  stage.dataset.contextClearance=String(panels.length>0);viewport.dataset.contextClearance=String(panels.length>0);
+  if(next.every((value,index)=>value===padding[index]))return;
+  const left=viewport.scrollLeft+next[3]-padding[3],top=viewport.scrollTop+next[0]-padding[0];padding=next;
+  viewport.style.padding=padding.map(value=>value+'px').join(' ');
+  viewport.scrollLeft=left;viewport.scrollTop=top;
+ }
+ function revealTile(context){
+  const {tile,bounds,obstacles}=context;if(!tile)return;
+  const original=tile.getBoundingClientRect(),width=original.width,height=original.height,inset=8;
+  if(!width||!height||bounds.width<width+inset*2||bounds.height<height+inset*2)return;
+  const maxLeft=Math.max(0,viewport.scrollWidth-viewport.clientWidth),maxTop=Math.max(0,viewport.scrollHeight-viewport.clientHeight);
+  const xs=[original.left,bounds.left+inset,bounds.right-inset-width],ys=[original.top,bounds.top+inset,bounds.bottom-inset-height];
+  for(const rect of obstacles){xs.push(rect.left-inset-width,rect.right+inset);ys.push(rect.top-inset-height,rect.bottom+inset);}
+  let best=null;
+  for(const wantedX of xs)for(const wantedY of ys){
+   const x=clamp(wantedX,bounds.left+inset,bounds.right-inset-width),y=clamp(wantedY,bounds.top+inset,bounds.bottom-inset-height);
+   const left=clamp(viewport.scrollLeft+original.left-x,0,maxLeft),top=clamp(viewport.scrollTop+original.top-y,0,maxTop);
+   const actualX=original.left+viewport.scrollLeft-left,actualY=original.top+viewport.scrollTop-top,rect={left:actualX,top:actualY,right:actualX+width,bottom:actualY+height};
+   const outside=width*height-overlap(rect,{left:bounds.left+inset,top:bounds.top+inset,right:bounds.right-inset,bottom:bounds.bottom-inset});
+   const covered=outside+obstacles.reduce((sum,obstacle)=>sum+overlap(rect,obstacle),0),distance=(actualX-original.left)**2+(actualY-original.top)**2;
+   if(!best||covered<best.covered||covered===best.covered&&distance<best.distance)best={left,top,covered,distance};
+  }
+  if(best){viewport.scrollLeft=best.left;viewport.scrollTop=best.top;reposition();}
+ }
+ function scheduleCorrection(){
+  if(!correctionPending||correctionFrame!==null||doc.hidden)return;
+  correctionFrame=frame(()=>{correctionFrame=null;if(!correctionPending)return;if(drag||touches.size||viewport.dataset.mapInteracting==='true')return;correctionPending=false;const context=contextView();if(context.panels.length)revealTile(context);});
+ }
+ function geometryFor(nextMode=mode,nextPixels=pixels){
+  const options={columns:view.terrain[0].length,rows:view.terrain.length,viewportWidth:Math.max(1,viewport.clientWidth-padding[1]-padding[3]),viewportHeight:Math.max(1,viewport.clientHeight-padding[0]-padding[2])};
+  const fit=boardGeometry({...options,mode:'fit'});
+  return boardGeometry({...options,mode:nextMode,pixels:nextPixels,minPixels:Math.min(MIN_BOARD_CELL_PIXELS,fit.cell)});
+ }
+ function resize(){
+  if(!view||doc.hidden)return;const expanded=view.campaignLayoutVersion===1;
+  toolbar.hidden=!expanded;stage.classList.toggle('expanded-board-stage',expanded);
+  viewport.classList.toggle('board-fit',expanded&&mode==='fit');viewport.dataset.boardView=mode;
+  if(!expanded){for(const name of ['width','height','margin-left','margin-top'])board.style.removeProperty(name);viewport.classList.remove('expanded-viewport');viewport.dataset.mapDetail='full';applyClearance({panels:[],bounds:viewport.getBoundingClientRect(),obstacles:[]});return;}
+  viewport.classList.add('expanded-viewport');
+  const context=contextView();applyClearance(context);
+  const dims=geometryFor();cellPixels=dims.cell;
+  board.style.width=dims.width+'px';board.style.height=dims.height+'px';board.style.setProperty('--board-cell-size',dims.cell+'px');
+  // Fit uses grid centering; manual scales also center axes that have no overflow.
+  // Oversized axes keep a zero leading margin so every edge remains reachable.
+  board.style.marginLeft=(mode==='fit'?0:Math.max(0,(viewport.clientWidth-padding[1]-padding[3]-dims.width)/2))+'px';
+  board.style.marginTop=(mode==='fit'?0:Math.max(0,(viewport.clientHeight-padding[0]-padding[2]-dims.height)/2))+'px';
+  viewport.classList.toggle('board-overview',expanded&&dims.cell<MIN_BOARD_CELL_PIXELS);
+  viewport.dataset.mapDetail=mapDetailForCell(dims.cell);
+  const scale='지도 '+Math.round(dims.cell/BOARD_CELL_PIXELS*100)+'%';
+  toolbar.querySelector('output').textContent=scale;toolbar.querySelector('output').title=mode==='fit'?'전장 전체 보기 · '+scale:scale;
+  for(const button of toolbar.querySelectorAll('[data-board-view]'))button.setAttribute('aria-pressed',String(button.dataset.boardView==='fit'?mode==='fit':mode==='normal'&&Math.abs(cellPixels-BOARD_CELL_PIXELS)<.01));
+  for(const button of toolbar.querySelectorAll('[data-board-zoom]'))button.disabled=button.dataset.boardZoom==='more'?cellPixels>=96:cellPixels<=geometryFor('fit').cell+.01;
+  if(context.signature!==contextSignature){contextSignature=context.signature;correctionPending=!!context.panels.length;scheduleCorrection();}
+  reposition();
+ }
+ function focusUnit(unitId){
+  const unit=view?.units.find(value=>value.id===unitId&&value.hp>0);if(!unit)return;
+  const tile=board.querySelector('[data-x="'+unit.x+'"][data-y="'+unit.y+'"]');if(!tile)return;
+  const rect=tile.getBoundingClientRect(),bounds=viewport.getBoundingClientRect();
+  viewport.scrollLeft+=rect.left+rect.width/2-bounds.left-bounds.width/2;viewport.scrollTop+=rect.top+rect.height/2-bounds.top-bounds.height/2;
+  const context=contextView();if(context.panels.length)revealTile({...context,tile});reposition();
+ }
+ function focusSelected(){focusUnit(selected);}
+ function changeScale(nextMode,nextPixels){
+  if(!view)return;
+  const center=()=>{const rect=viewport.getBoundingClientRect();return {x:rect.left+(viewport.clientLeft||0)+padding[3]+(viewport.clientWidth-padding[1]-padding[3])/2,y:rect.top+(viewport.clientTop||0)+padding[0]+(viewport.clientHeight-padding[0]-padding[2])/2};};
+  // Actual bounds include fit letterboxing, margins and the map border.
+  const previous=board.getBoundingClientRect(),before=center(),anchorX=clamp((before.x-previous.left)/previous.width,0,1),anchorY=clamp((before.y-previous.top)/previous.height,0,1);
+  stopCorrection();mode=nextMode;pixels=nextPixels;beginInteraction();resize();
+  const current=board.getBoundingClientRect(),after=center();
+  viewport.scrollLeft+=current.left+anchorX*current.width-after.x;viewport.scrollTop+=current.top+anchorY*current.height-after.y;
+  settleInteraction();scheduleReposition();
+ }
+ toolbar.addEventListener('click',event=>{
+  const button=event.target.closest('button');if(!button)return;
+  if(button.dataset.boardView)changeScale(button.dataset.boardView,BOARD_CELL_PIXELS);
+  if(button.dataset.boardZoom&&view){const next=boardZoomStep({cell:cellPixels,fitCell:geometryFor('fit').cell,direction:button.dataset.boardZoom});changeScale(next.mode,next.pixels);}
+  if(button.hasAttribute('data-board-focus'))focusSelected();
+  const direction={left:[-192,0],right:[192,0],up:[0,-192],down:[0,192]}[button.dataset.boardPan];if(direction)pan(...direction);
+ });
+ viewport.addEventListener('scroll',cameraChanged,{passive:true});
+ viewport.addEventListener('wheel',stopCorrection,{passive:true});
+ viewport.addEventListener('keydown',event=>{if(event.target!==viewport)return;const direction={ArrowLeft:[-64,0],ArrowRight:[64,0],ArrowUp:[0,-64],ArrowDown:[0,64]}[event.key];if(direction){event.preventDefault();pan(...direction);}});
+ function globalDown(event){
+  if(event.pointerType!=='touch')return;touches.add(event.pointerId);
+  if(touches.size>1&&(drag||mapPointers.size)){multipleTouch=true;releaseGesture({cancel:true});stopCorrection();}
+ }
+ function finish(event,cancel=false){
+  if(event.pointerType==='touch')touches.delete(event.pointerId);
+  mapPointers.delete(event.pointerId);
+  if(drag?.id===event.pointerId){const tap=!cancel&&!drag.active&&!multipleTouch;releaseGesture({cancel});if(tap)suppressClick=false;}
+  else if(cancel&&mapPointers.size===0&&multipleTouch)suppressClick=true;
+  if(!touches.size)multipleTouch=false;
+  if(viewport.dataset.mapInteracting==='true')settleInteraction();
+  scheduleCorrection();
+ }
+ viewport.addEventListener('pointerdown',event=>{
+  if(view?.campaignLayoutVersion!==1||![0,1].includes(event.button)||event.target.closest('#unit-ui,#skill-targeting-panel'))return;
+  const cameraLeft=viewport.scrollLeft,cameraTop=viewport.scrollTop;
+  stopCorrection();beginInteraction();mapPointers.add(event.pointerId);
+  if(event.pointerType==='touch'){touches.add(event.pointerId);if(touches.size>1||event.isPrimary===false){multipleTouch=true;releaseGesture({cancel:true});return;}}
+  if(drag&&drag.id!==event.pointerId){releaseGesture({cancel:true});return;}
+  drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:cameraLeft,top:cameraTop,active:false,nativeTouch:event.pointerType==='touch'};
+ });
+ viewport.addEventListener('pointermove',event=>{
+  if(!drag||drag.id!==event.pointerId||multipleTouch)return;
+  // Touch panning/inertia belongs to the browser compositor. Pointer cancel
+  // suppresses the following tile click without writing camera coordinates.
+  if(drag.nativeTouch){if(!drag.active&&Math.hypot(event.clientX-drag.x,event.clientY-drag.y)>7){drag.active=true;suppressClick=true;}return;}
+  const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+  if(!drag.active&&Math.hypot(dx,dy)>7){drag.active=true;suppressClick=true;viewport.classList.add('is-panning');try{viewport.setPointerCapture?.(event.pointerId);}catch{}}
+  if(drag.active){panPosition={left:drag.left-dx,top:drag.top-dy};if(panFrame===null)panFrame=frame(()=>{panFrame=null;flushPan();});}
+ },{passive:true});
+ viewport.addEventListener('dragstart',event=>event.preventDefault());
+ viewport.addEventListener('pointerup',event=>finish(event));
+ viewport.addEventListener('pointercancel',event=>finish(event,true));
+ // A cell's implicit capture loss bubbles during capture transfer. Only loss
+ // from the camera itself cancels a mouse/pen drag.
+ viewport.addEventListener('lostpointercapture',event=>{if(event.target===viewport&&drag?.id===event.pointerId){releaseGesture({cancel:true});mapPointers.delete(event.pointerId);settleInteraction();}});
+ viewport.addEventListener('click',event=>{if(suppressClick&&event.detail!==0){event.preventDefault();event.stopImmediatePropagation();}},true);
+ globalThis.addEventListener?.('pointerdown',globalDown,{capture:true});
+ globalThis.addEventListener?.('pointerup',event=>finish(event),{capture:true});
+ globalThis.addEventListener?.('pointercancel',event=>finish(event,true),{capture:true});
+ const abortInteraction=()=>{if(drag||mapPointers.size)releaseGesture({cancel:true});mapPointers.clear();touches.clear();multipleTouch=false;stopCorrection();clearInteractionTimer();viewport.dataset.mapInteracting='false';};
+ globalThis.addEventListener?.('blur',abortInteraction);
+ doc.addEventListener?.('visibilitychange',()=>{viewport.dataset.mapDocumentHidden=String(doc.hidden);if(doc.hidden)abortInteraction();else resize();});
+ if(globalThis.ResizeObserver){sizeObserver=new ResizeObserver(()=>resize());sizeObserver.observe(stage);sizeObserver.observe(viewport);sizeObserver.observe(toolbar);}else globalThis.addEventListener?.('resize',resize);
+ return {isInteracting:()=>!!(drag||mapPointers.size||touches.size),update(state,unitId){const changed=chapter!==state.chapter;view=state;selected=unitId;chapter=state.chapter;if(changed){mode='normal';pixels=BOARD_CELL_PIXELS;abortInteraction();}resize();if(changed){viewport.scrollLeft=0;viewport.scrollTop=0;focusSelected();}},focusSelected,focusUnit,viewport,toolbar};
+}
