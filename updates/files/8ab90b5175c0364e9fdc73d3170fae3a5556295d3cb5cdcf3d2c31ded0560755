@@ -1,0 +1,17 @@
+import {MAP_OVERHAUL_ART} from './map-overhaul-catalog.js';
+
+// These are complete offline paintings, including their own water and bridge
+// surfaces. Registration changes display metadata only; chapter and save
+// objects remain untouched. Legacy/dynamic terrain uses the existing fallback.
+export function installMapOverhaulArt(chapters,register){
+ if(typeof register!=='function')throw new Error('전장 그림 등록 함수가 필요합니다.');
+ const installed=[];
+ for(const chapter of chapters){
+  const art=MAP_OVERHAUL_ART[chapter.id];
+  if(!art||chapter.campaignLayoutVersion!==1)continue;
+  const terrain=chapter.terrain;
+  if(!Array.isArray(terrain)||terrain.length!==art.rows||terrain.some(row=>typeof row!=='string'||row.length!==art.columns)||terrain.join('\n')!==art.terrainKey)continue;
+  register(art);installed.push(art);
+ }
+ return installed;
+}
