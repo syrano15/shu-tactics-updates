@@ -1,0 +1,16 @@
+/* One bounded geometric marker; source bodies, faction cloth and hitboxes stay intact. */
+.unit-rank-mark{display:none}
+.sprite-token{--unit-rank-gutter:12px;--unit-rank-marker-size:10px}
+.sprite-token>.unit-rank-mark{
+ display:block;position:absolute;left:0;bottom:1px;width:var(--unit-rank-marker-size);height:calc(var(--unit-rank-marker-size)*1.2);
+ z-index:4;box-sizing:border-box;pointer-events:none;border:1px solid #e7cc85;border-radius:2px;background:#10251df5;color:#ffe6a5;
+}
+.sprite-token>.unit-rank-mark::before,.sprite-token>.unit-rank-mark::after{
+ content:"";position:absolute;left:20%;top:25%;width:60%;height:50%;background:currentColor;
+ clip-path:polygon(0 45%,50% 0,100% 45%,100% 75%,50% 30%,0 75%);
+}
+.sprite-token>.unit-rank-mark::after{display:none}
+.sprite-token>.unit-rank-2::before{top:5%}
+.sprite-token>.unit-rank-2::after{display:block;top:45%}
+.sprite-token:has(>.unit-rank-mark) .unit-name{box-sizing:border-box;max-width:calc(100% - var(--unit-rank-gutter));left:calc(50% + var(--unit-rank-gutter)/2)}
+.token.support-unavailable>.unit-rank-mark{opacity:.7}

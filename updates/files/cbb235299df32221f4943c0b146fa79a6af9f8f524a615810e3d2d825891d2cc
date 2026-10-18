@@ -1,0 +1,607 @@
+import {SPECIALIST_ART_GALLERY} from './specialist-art.js';
+import {PROMOTED_ART_GALLERY} from './promoted-art.js';
+// 실제 제작 파일만 등록한 1·2·3막 전장 그림 목록.
+export const BATTLE_ART_CATALOG = [
+  {
+    "id": "weiyan_atlas_v0384",
+    "label": "위연 · 준비/베기/회수/피격",
+    "kind": "units",
+    "path": "art/act3/sd/weiyan-atlas-v0384.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "2904337ec69e85de506163a385434850a4ae4e5cadf351e7e75a869c06605613",
+    "staticReady": false
+  },
+  {
+    "id": "bridge_wood_v0282",
+    "label": "연속 강 목교",
+    "kind": "terrain",
+    "path": "art/terrain/bridge-wood-v0282.png",
+    "width": 600,
+    "height": 400
+  },
+  {
+    "id": "bridge_stone_v0282",
+    "label": "연속 강 석교",
+    "kind": "terrain",
+    "path": "art/terrain/bridge-stone-v0282.png",
+    "width": 600,
+    "height": 400
+  },
+  {
+    "id": "act2_pursuit_captain",
+    "label": "조조군 추격대장 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/pursuit_captain.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_kongxiu",
+    "label": "공수 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/kongxiu.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_hanfu",
+    "label": "한복 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/hanfu.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_bianxi",
+    "label": "변희 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/bianxi.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_xiahoudun",
+    "label": "하후돈 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/xiahoudun.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_caoren",
+    "label": "조인 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/caoren.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_caocao",
+    "label": "조조 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/caocao.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "act2_xiahouen",
+    "label": "하후은 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/xiahouen.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "liubei",
+    "label": "유비",
+    "kind": "units",
+    "path": "art/v034/identity/liubei.png",
+    "width": 1254,
+    "height": 1254,
+    "sourcePath": "art/units/liubei-v020.webp",
+    "canonicalPortrait": "assets/portrait/v031/liubei/normal.png",
+    "sha256": "2bd5eb828e3fc14adff22ab0183d363713512ab21de89ef732bd730c73be9c3b"
+  },
+  {
+    "id": "jianyong",
+    "label": "간옹",
+    "kind": "units",
+    "path": "art/v034/identity/jianyong.png",
+    "width": 1254,
+    "height": 1254,
+    "sourcePath": "art/units/jianyong-v020.webp",
+    "canonicalPortrait": "assets/portrait/jianyong/main_normal.webp",
+    "sha256": "644e6f4a63b3924a4c42e9b74f413ac668b759cce9fb58f51b03637d89b5e4cd"
+  },
+  {
+    "id": "sunqian",
+    "label": "손건",
+    "kind": "units",
+    "path": "art/units/sunqian-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "mizhu",
+    "label": "미축",
+    "kind": "units",
+    "path": "art/units/mizhu-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "kongrong",
+    "label": "공융",
+    "kind": "units",
+    "path": "art/v032/kongrong-map.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "yellow-chief",
+    "label": "황건 두목",
+    "kind": "units",
+    "path": "art/units/yellow-chief-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "huaxiong",
+    "label": "화웅",
+    "kind": "units",
+    "path": "art/units/huaxiong-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "guanhai",
+    "label": "관해",
+    "kind": "units",
+    "path": "art/units/guanhai-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "cao-vanguard",
+    "label": "조조군 선봉장",
+    "kind": "units",
+    "path": "art/units/cao-vanguard-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "lvbu",
+    "label": "여포",
+    "kind": "units",
+    "path": "art/units/lvbu-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "cavalry",
+    "label": "공용 기병",
+    "kind": "units",
+    "path": "art/units/cavalry-v020.webp",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "ground",
+    "label": "들판 평지",
+    "kind": "terrain",
+    "path": "art/terrain/ground-v020.webp",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "id": "forest",
+    "label": "숲",
+    "kind": "terrain",
+    "path": "art/terrain/forest-v020.webp",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "id": "water",
+    "label": "강",
+    "kind": "terrain",
+    "path": "art/terrain/water-v0282.webp",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "id": "building",
+    "label": "건물",
+    "kind": "terrain",
+    "path": "art/terrain/building-v020.webp",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "id": "city-ground",
+    "label": "성안 골목",
+    "kind": "terrain",
+    "path": "art/terrain/city-ground-v020.webp",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "id": "s01_zhuoxian",
+    "label": "1화 · 탁현의 의병",
+    "kind": "maps",
+    "path": "art/maps/s01_zhuoxian-v021.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s02_yellow_camp",
+    "label": "2화 · 황건 본진",
+    "kind": "maps",
+    "path": "art/maps/s02_yellow_camp-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s03_hulao",
+    "label": "3화 · 호뢰관",
+    "kind": "maps",
+    "path": "art/maps/s03_hulao-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s04_beihai",
+    "label": "4화 · 북해 구원",
+    "kind": "maps",
+    "path": "art/maps/s04_beihai-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s05_xuzhou_relief",
+    "label": "5화 · 서주 구원",
+    "kind": "maps",
+    "path": "art/maps/s05_xuzhou_relief-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s06_xuzhou_fall",
+    "label": "6화 · 서주 함락",
+    "kind": "maps",
+    "path": "art/maps/s06_xuzhou_fall-v021.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s07_xiapi",
+    "label": "7화 · 하비 공방",
+    "kind": "maps",
+    "path": "art/act2/s07_xiapi-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s08_xiaopei",
+    "label": "8화 · 소패 패주",
+    "kind": "maps",
+    "path": "art/act2/s08_xiaopei-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s09_baima",
+    "label": "9화 · 백마의 일격",
+    "kind": "maps",
+    "path": "art/act2/s09_baima-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s10_thousand_li",
+    "label": "10화 · 천리행",
+    "kind": "maps",
+    "path": "art/act2/s10_thousand_li-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s11_bowang",
+    "label": "11화 · 박망파",
+    "kind": "maps",
+    "path": "art/act2/s11_bowang-v028.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s12_xinye",
+    "label": "12화 · 신야 철수",
+    "kind": "maps",
+    "path": "art/act2/s12_xinye-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "s13_changban",
+    "label": "13화 · 장판파",
+    "kind": "maps",
+    "path": "art/act2/s13_changban-v0282.webp",
+    "width": 1200,
+    "height": 1000
+  },
+  {
+    "id": "pass-rock",
+    "label": "천리행 바위산",
+    "kind": "terrain",
+    "path": "art/act2/pass-rock-v028.webp",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "id": "chendao",
+    "label": "진도 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/chendao.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "zhoucang",
+    "label": "주창 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/zhoucang.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "xushu",
+    "label": "서서 · SD 통일",
+    "kind": "units",
+    "path": "art/v033/sd/xushu.png",
+    "width": 1254,
+    "height": 1254
+  },
+  {
+    "id": "x_carriage",
+    "label": "부인들의 수레",
+    "kind": "units",
+    "path": "art/act2/x_carriage-v028.png",
+    "width": 512,
+    "height": 512
+  },
+  {
+    "id": "act3_ferry",
+    "label": "ferry · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/ferry.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "9fac4e9187b447176834fd9ef92c2d098937dbf788c1a900f7ac86c027cbebd5",
+    "staticReady": true
+  },
+  {
+    "id": "act3_guanping",
+    "label": "guanping · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/guanping.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "eab3fcd23be343e877695ee06625ad2235eaad22e02431356e6634371b244145",
+    "staticReady": true
+  },
+  {
+    "id": "act3_hanxuan",
+    "label": "hanxuan · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/hanxuan.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "65815486c6495096c293dc1a71cfd8e387f825b6d855acca88e77a02611bf37f",
+    "staticReady": true
+  },
+  {
+    "id": "act3_huanggai",
+    "label": "huanggai · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/huanggai.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "8394dbc78d78486509f7062aba32a5d50d37e2ca328e255f3cac66961bd8aa6a",
+    "staticReady": true
+  },
+  {
+    "id": "act3_lady_sun",
+    "label": "lady_sun · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/lady_sun.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "116af2735d29b9397654762d51af5e878ecf61475fdcf62792d2fe7f42957d4f",
+    "staticReady": true
+  },
+  {
+    "id": "act3_liaohua",
+    "label": "liaohua · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/liaohua.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "ddfcc1d6e2bdc45016a28ea6538e242e8e60b22c54adeb8f01b30cc58e4f68f8",
+    "staticReady": true
+  },
+  {
+    "id": "act3_liufeng",
+    "label": "liufeng · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/liufeng.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "c484e11e6424d13ef040ea9be8e79794eafc864ea0b7f170f2f0c74310b77e2f",
+    "staticReady": true
+  },
+  {
+    "id": "act3_maliang",
+    "label": "maliang · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/maliang.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "18812f29eb3f90125c4c0b33ceae343bef23da21e7758d058322349e53779822",
+    "staticReady": true
+  },
+  {
+    "id": "act3_masu",
+    "label": "masu · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/masu.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "0f7798243526bfa2d57e8a541bede33716374618fd895665c595709ac347f501",
+    "staticReady": true
+  },
+  {
+    "id": "act3_pangtong",
+    "label": "pangtong · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/pangtong.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "fa9fd4060c47f650125f74b0e2b8e5583a459bcf7b3358145bfa1deef80c961f",
+    "staticReady": true
+  },
+  {
+    "id": "act3_wei_commander_mounted",
+    "label": "wei_commander-mounted · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/wei_commander_mounted-v0361.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "b048e8e2eb40bbd74b4565371412195ee87ddcc281302af020e637c7637b5321",
+    "staticReady": true
+  },
+  {
+    "id": "act3_wei_commander",
+    "label": "wei_commander · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/wei_commander.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "2d28b121615bb978c0a4792589c496a970d7dabe8536d8de8d9d17a3319b5202",
+    "staticReady": true
+  },
+  {
+    "id": "act3_weiyan",
+    "label": "위연 · 전투 타일",
+    "kind": "units",
+    "path": "art/act3/sd/weiyan-v0384.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "c66ddb76bec2dd9050c63e4ee62f782f86796e8e35692b9b133fd61417cf87ac",
+    "staticReady": true
+  },
+  {
+    "id": "act3_wenpin",
+    "label": "wenpin · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/wenpin.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "7d2ea0f19d6fac961438a9a503ca1bcefc08095165a14dd8c406bf03f594d974",
+    "staticReady": true
+  },
+  {
+    "id": "act3_wu_officer",
+    "label": "wu_officer · 3막 SD",
+    "kind": "units",
+    "path": "art/act3/sd/wu_officer-v0361.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "b2f50c2eb523d7e0eff028dd4884f69fcf9195c4646006fd723804ae58c496be",
+    "staticReady": true
+  },
+  {
+    "id": "act3_zhouyu",
+    "label": "주유 · 전투 타일",
+    "kind": "units",
+    "path": "art/act3/sd/zhouyu-v0384.png",
+    "width": 1254,
+    "height": 1254,
+    "sha256": "4704d099f1e8cc89ffe20776d0d405977928c9c632696c04eedacd1d0a5b610e",
+    "staticReady": true
+  },
+  {
+    "id": "s14_jiangxia",
+    "label": "s14_jiangxia · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s14_jiangxia-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "4969fb9b36f8ba0b2645d189ef023aae58017af9a6013f2d948be9960d9b0fc9"
+  },
+  {
+    "id": "s15_chibi",
+    "label": "s15_chibi · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s15_chibi-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "f1e0517efe1183dce10f51c1ebda036d63ef340ef0af2ecc8cf6c9fb628c7f59"
+  },
+  {
+    "id": "s16_huarong",
+    "label": "s16_huarong · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s16_huarong-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "9d67f3b85de72355d6686e59731277d439423502bd5cc4fe527cb8753766ac85"
+  },
+  {
+    "id": "s17_jingnan",
+    "label": "s17_jingnan · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s17_jingnan-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "71790158c1b5d354071c9cc1bada5a24716fb1a58b755df751ec3408482e89c1"
+  },
+  {
+    "id": "s18_changsha",
+    "label": "s18_changsha · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s18_changsha-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "9eefd366e7e48522984b404b89d0d294bb29eb9c9930baa6549edd63857533f5"
+  },
+  {
+    "id": "s19_jiangling",
+    "label": "s19_jiangling · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s19_jiangling-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "2a245853835bb89b2f18244ae7df153eb096f91a0cb6be1918bfb13f9225d379"
+  },
+  {
+    "id": "s20_adou_river",
+    "label": "s20_adou_river · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s20_adou_river-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "b6155f09b937847e5fb45854d265770ebfaa0fadaeeea577692b8ce688a5c202"
+  },
+  {
+    "id": "s21_jingzhou_hold",
+    "label": "s21_jingzhou_hold · 3막 전장",
+    "kind": "maps",
+    "path": "art/act3/maps/s21_jingzhou_hold-v036.webp",
+    "width": 1200,
+    "height": 1000,
+    "sha256": "01d4e046f3c7d0912990b7b4fdaa5ece9bafe03a2c821504a07370ad741db1da"
+  },
+  ...SPECIALIST_ART_GALLERY,
+  ...PROMOTED_ART_GALLERY,
+];

@@ -1,0 +1,16 @@
+// Measured alpha > 24 bounds; hand-reviewed helmet/crown to feet, excluding plume, pennants and weapons.
+// Full original canvas is preserved; no creative pixel or alpha edits.
+export const PROMOTED_BODY_METRICS=Object.freeze({
+ "art/units-v0741/infantry-r1.webp":Object.freeze([384,384,38,19,324,367,60]),
+ "art/units-v0741/infantry-r2.webp":Object.freeze([384,384,49,53,335,344,83]),
+ "art/units-v0741/spear-r1.webp":Object.freeze([384,384,111,12,318,365,102]),
+ "art/units-v0741/spear-r2.webp":Object.freeze([384,384,102,39,301,344,106]),
+ "art/units-v0741/archer-r1.webp":Object.freeze([384,384,51,10,335,367,77]),
+ "art/units-v0741/archer-r2.webp":Object.freeze([384,384,81,61,317,329,106]),
+ "art/units-v0741/crossbow-r1.webp":Object.freeze([384,384,46,24,332,361,73]),
+ "art/units-v0741/crossbow-r2.webp":Object.freeze([384,384,34,25,335,363,73]),
+ "art/units-v0741/cavalry-r1.webp":Object.freeze([384,384,36,14,357,370,91]),
+ "art/units-v0741/cavalry-r2.webp":Object.freeze([384,384,24,16,362,365,77]),
+ "art/units-v0741/strategist-r1.webp":Object.freeze([384,384,47,27,338,356,46]),
+ "art/units-v0741/strategist-r2.webp":Object.freeze([384,384,104,25,313,360,46]),
+});

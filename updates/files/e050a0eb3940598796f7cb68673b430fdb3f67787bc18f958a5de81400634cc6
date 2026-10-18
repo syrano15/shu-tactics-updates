@@ -1,0 +1,1692 @@
+// Presentation-only measurements: head crown to feet, excluding raised weapons and plumes.
+// Pixel bounds were measured from alpha > 24; source files, units and saves stay untouched.
+import {SPRITE_BODY_METRICS,REVISED_TROOP_SOURCES} from './unit-art-v0728.js';
+import {LATER_UNIT_BODY_METRICS} from './later-unit-metrics.js';
+import {EXTRA_BODY_METRICS} from './extra-unit-art-v0728.js';
+import {SPECIALIST_ART,SPECIALIST_BODY_METRICS} from './specialist-art.js';
+import {PROMOTED_ART_RECORDS,PROMOTED_BODY_METRICS} from './promoted-art.js';
+const specialistBodies=new Set(Object.values(SPECIALIST_ART).map(record=>record.src));
+export const MAP_BODY_HEIGHT=.80, MAP_TROOP_BODY_HEIGHT=.70, MAP_FEET_LINE=.22, COMBAT_BODY_HEIGHT=.64;
+export const MAP_MOUNTED_BODY_HEIGHT=1.02,MAP_MOUNTED_TROOP_BODY_HEIGHT=.90,COMBAT_MOUNTED_BODY_HEIGHT=.76;
+// A complete ferry hull is wider than a standing person. This keeps the bow
+// and oar inside both sides of the narrow combat field.
+export const COMBAT_BOAT_BODY_HEIGHT=.50;
+const TOKEN_WIDTH=.94;
+// Helmeted troop bodies have broader heads and plumes than named heroes.
+// A smaller map height keeps their visible bulk below the heroes without moving their feet.
+// Resolve by delivered source: a general using infantry rules must keep the hero size.
+const troopBodies=new Set([
+ 'art/units/infantry-v08.png','art/units/spear-v09.png',
+ 'art/units/archer-v09.png','art/units/crossbow-v09.png','art/v038/strategist.png',
+ ...REVISED_TROOP_SOURCES,
+ ...Object.values(SPECIALIST_ART).filter(record=>record.kind==='foot').map(record=>record.src),
+ ...PROMOTED_ART_RECORDS.filter(record=>record.kind==='foot').map(record=>record.src),
+]);
+const mountedTroopBodies=new Set(['art/units-v0728/cavalry.webp',...Object.values(SPECIALIST_ART).filter(record=>record.kind==='mounted').map(record=>record.src),...PROMOTED_ART_RECORDS.filter(record=>record.kind==='mounted').map(record=>record.src)]);
+const round=value=>Math.round(value*1e8)/1e8;
+// [canvas width, canvas height, visible left, top, right, bottom, human head top]
+const act4Bodies={
+ "art/act4/units/fazheng-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/fazheng-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/fazheng-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/fazheng-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/fazheng-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/fazheng-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/fazheng-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/huangquan-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/huangquan-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/huangquan-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/huangquan-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/huangquan-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/huangquan-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/huangquan-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/liyan-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/liyan-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/liyan-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/liyan-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/liyan-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/liyan-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/liyan-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/machao-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/machao-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/machao-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/machao-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/machao-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/machao-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/machao-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/machao-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/machao-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/machao-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/machao-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/machao-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/machao-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/machao-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/machao-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/machao-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/machao-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/machao-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wangping-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wangping-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wangping-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wangping-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wangping-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wangping-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wangping-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wuban-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wuban-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wuban-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wuban-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wuban-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wuban-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wuban-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wuyi-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wuyi-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wuyi-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/wuyi-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/wuyi-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wuyi-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/wuyi-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/xiahouyuan-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/xiahouyuan-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/xiahouyuan-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/yanyan-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/yanyan-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/yanyan-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/yanyan-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/yanyan-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/yanyan-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/yanyan-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/zhanghe-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/zhanghe-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/zhanghe-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/zhangren-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/zhangren-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/zhangren-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/zhangren-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/zhangren-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/zhangren-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-archer-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-archer-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-archer-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  451,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-cavalry-r0.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/zhangyi-cavalry-r1.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/zhangyi-cavalry-r2.svg": [
+  512,
+  512,
+  33,
+  12,
+  477,
+  489,
+  49
+ ],
+ "art/act4/units/zhangyi-crossbow-r0.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-crossbow-r1.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-crossbow-r2.svg": [
+  512,
+  512,
+  109,
+  37,
+  431,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-infantry-r0.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-infantry-r1.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-infantry-r2.svg": [
+  512,
+  512,
+  78,
+  37,
+  426,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-spear-r0.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-spear-r1.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-spear-r2.svg": [
+  512,
+  512,
+  109,
+  21,
+  399,
+  489,
+  74
+ ],
+ "art/act4/units/zhangyi-strategist-r0.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/zhangyi-strategist-r1.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ],
+ "art/act4/units/zhangyi-strategist-r2.svg": [
+  512,
+  512,
+  95,
+  63,
+  383,
+  489,
+  63
+ ]
+};
+const bodies={
+ "art/act3/sd/weiyan-v0384.png":[1254,1254,121,174,1123,1172,270],
+ "art/act3/sd/zhouyu-v0384.png":[1254,1254,108,38,1154,1199,153],
+ 'art/v038/strategist.png':[1254,1254,88,38,1157,1218,230],
+ "art/act3/sd/wu_officer-v0361.png":[1254,1254,26,17,1228,1224,166],
+ "art/act3/sd/guanping.png":[1254,1254,46,107,1228,1168,145],
+ "art/act3/sd/hanxuan.png":[1254,1254,158,21,1128,1229,21],
+ "art/act3/sd/huanggai.png":[1254,1254,50,12,1208,1241,202],
+ "art/act3/sd/liaohua.png":[1254,1254,54,55,1191,1206,140],
+ "art/act3/sd/liufeng.png":[1254,1254,77,77,1178,1199,145],
+ "art/act3/sd/maliang.png":[1254,1254,79,32,1211,1222,32],
+ "art/act3/sd/masu.png":[1254,1254,95,20,1189,1228,20],
+ "art/act3/sd/pangtong.png":[1254,1254,146,25,1108,1217,75],
+ "art/act3/sd/wei_commander.png":[1254,1254,77,44,1205,1208,208],
+ "art/act3/sd/weiyan.png":[1254,1254,45,54,1199,1226,168],
+ "art/act3/sd/wenpin.png":[1254,1254,31,43,1210,1191,202],
+ "art/act3/sd/wu_officer.png":[1254,1254,69,22,1226,1222,210],
+ "art/act3/sd/zhouyu.png":[1254,1254,31,68,1230,1207,135],
+ 'art/v034/identity/liubei.png':[1254,1254,201,38,1095,1220,107],
+ 'art/v034/identity/jianyong.png':[1254,1254,258,53,1030,1235,53],
+ 'art/v034/identity/zhugeliang.png':[1254,1254,190,52,1027,1220,53],
+ 'art/v034/identity/bianxi.png':[1254,1254,78,73,1214,1217,73],
+ 'art/v033/sd/xushu.png':[1254,1254,228,79,1121,1220,79],
+ 'art/v033/sd/zhoucang.png':[1254,1254,120,118,1197,1231,118],
+ 'art/v033/sd/chendao.png':[1254,1254,45,83,1217,1227,151],
+ 'art/v033/sd/caoren.png':[1254,1254,124,61,1253,1237,61],
+ 'art/v033/sd/kongxiu.png':[1254,1254,181,77,1196,1219,151],
+ 'art/v033/sd/hanfu.png':[1254,1254,190,31,1243,1226,180],
+ 'art/v033/sd/bianxi.png':[1254,1254,81,81,1206,1217,81],
+ 'art/v033/sd/xiahouen.png':[1254,1254,79,79,1189,1207,174],
+ 'art/v032/kongrong-map.png':[1254,1254,167,13,1125,1240,13],
+ 'art/units/infantry-v08.png':[1222,1287,88,72,1072,1218,232],
+ 'art/units/spear-v09.png':[1241,1268,312,7,968,1254,241],
+ 'art/units/archer-v09.png':[1246,1263,180,29,1030,1237,202],
+ 'art/units/crossbow-v09.png':[1224,1285,34,19,1071,1243,167],
+ 'art/units/yanliang-v12.png':[1242,1266,132,33,1225,1231,152],
+ 'art/units/zhangfei-v09.png':[1247,1261,63,9,1218,1234,227],
+ 'art/units/zhaoyun-v09.png':[1214,1295,43,20,1207,1263,194],
+ 'art/units/huangzhong-v09.png':[1211,1299,81,7,1194,1267,221],
+ 'art/units/zhugeliang-v09.png':[1240,1269,175,31,979,1243,31],
+ 'art/units/liubei-v020.webp':[512,512,80,16,432,496,51],
+ 'art/units/jianyong-v020.webp':[512,512,106,16,406,496,23],
+ 'art/units/sunqian-v020.webp':[512,512,96,16,415,496,16],
+ 'art/units/mizhu-v020.webp':[512,512,80,16,432,496,16],
+ 'art/units/kongrong-v020.webp':[512,512,63,16,448,496,16],
+ 'art/units/yellow-chief-v020.webp':[512,512,21,16,490,496,38],
+ 'art/units/guanhai-v020.webp':[512,512,32,16,479,496,74],
+ 'art/act2/chendao-v028.png':[512,512,59,32,453,496,87],
+ 'art/act2/zhoucang-v028.png':[512,512,65,32,446,496,33],
+ 'art/act2/xushu-v028.png':[512,512,119,33,392,496,33],
+ 'art/act2-characters/kongxiu-v0281.png':[512,512,116,51,453,482,72],
+ 'art/act2-characters/hanfu-v0281.png':[512,512,119,39,481,483,82],
+ 'art/act2-characters/bianxi-v0281.png':[512,512,100,51,447,477,56],
+ 'art/act2-characters/caoren-v0281.png':[512,512,107,43,480,492,44],
+ 'art/act2-characters/xiahouen-v0281.png':[512,512,84,49,455,478,87],
+};
+const atlasHeadTop={
+ 'art/v032/kongrong-atlas.png':109/627,
+ 'art/combat-v024/liubei-atlas.png':.22,
+ 'art/combat-v024/zhangfei-atlas.png':.35,
+ 'art/combat-v024/jianyong-atlas.png':.15789474,
+ 'art/combat-v024/sunqian-atlas.png':.11802233,
+ 'art/combat-v024/mizhu-atlas.png':.193,
+ 'art/combat-v024/x_kongrong-atlas.png':.205,
+ 'art/combat-v024/yellow_boss-atlas.png':.18660287,
+ 'art/combat-v024/guanhai-atlas.png':.23,
+ 'art/combat-v024/infantry-atlas.png':.31,
+ 'art/combat-v024/spear-atlas.png':.31,
+ 'art/combat-v024/archer-atlas.png':.30,
+ 'art/combat-v024/crossbow-atlas.png':.285,
+};
+export function footBodyMetrics(src){
+ // New vector silhouettes use a shared authored canvas. Weapons may extend
+ // above the crown; body normalization still follows the feet and head only.
+ const row=Object.hasOwn(PROMOTED_BODY_METRICS,src)?PROMOTED_BODY_METRICS[src]:Object.hasOwn(SPECIALIST_BODY_METRICS,src)?SPECIALIST_BODY_METRICS[src]:Object.hasOwn(SPRITE_BODY_METRICS,src)?SPRITE_BODY_METRICS[src]:Object.hasOwn(LATER_UNIT_BODY_METRICS,src)?LATER_UNIT_BODY_METRICS[src]:Object.hasOwn(EXTRA_BODY_METRICS,src)?EXTRA_BODY_METRICS[src]:Object.hasOwn(bodies,src)?bodies[src]:Object.hasOwn(act4Bodies,src)?act4Bodies[src]:null;if(!row)return null;
+ const [width,height,left,top,right,bottom,head]=row;
+ return {width,height,visibleBounds:[left/width,top/height,right/width,bottom/height],bodyTop:head/height,bodyBottom:bottom/height};
+}
+export const revisedBodySource=src=>Object.hasOwn(PROMOTED_BODY_METRICS,src)||specialistBodies.has(src)||Object.hasOwn(SPRITE_BODY_METRICS,src)||Object.hasOwn(LATER_UNIT_BODY_METRICS,src)||Object.hasOwn(EXTRA_BODY_METRICS,src);
+export function mapBodyLayout(art){
+ if(art?.kind!=='foot'&&!(art?.kind==='mounted'&&revisedBodySource(art.src)))return null;const body=footBodyMetrics(art.src);if(!body)return null;
+ const bodyHeight=art.kind==='mounted'?(mountedTroopBodies.has(art.src)?MAP_MOUNTED_TROOP_BODY_HEIGHT:MAP_MOUNTED_BODY_HEIGHT):troopBodies.has(art.src)?MAP_TROOP_BODY_HEIGHT:MAP_BODY_HEIGHT;
+ const height=bodyHeight/(body.bodyBottom-body.bodyTop),width=height*body.width/body.height/TOKEN_WIDTH;
+ return {width:round(width*100),height:round(height*100),left:round((1-width)*50),bottom:round((MAP_FEET_LINE-(1-body.bodyBottom)*height)*100)};
+}
+export function combatBodyTop(record){
+ if(Number.isFinite(record?.bodyTop)&&record.bodyTop>=0&&record.bodyTop<.9)return record.bodyTop;
+ return (Object.hasOwn(atlasHeadTop,record?.src)?atlasHeadTop[record.src]:undefined)??footBodyMetrics(record?.src)?.bodyTop??null;
+}
+/** A single-image fallback uses the same body size and feet as its delivered atlas. */
+export function footFallbackRecord(art){
+ if(art?.kind!=='foot'&&!(art?.kind==='mounted'&&art.src?.startsWith('art/act4/units/'))&&!(['mounted','boat'].includes(art?.kind)&&revisedBodySource(art.src)))return null;const body=footBodyMetrics(art.src);if(!body)return null;
+ const ratio=body.width/body.height,drawWidth=Math.min(1,ratio),drawHeight=Math.min(1,1/ratio),padX=(1-drawWidth)/2,padY=(1-drawHeight)/2;
+ const [left,top,right,bottom]=body.visibleBounds;
+ const ready={rect:[0,0,1,1],visibleBounds:[padX+left*drawWidth,padY+top*drawHeight,padX+right*drawWidth,padY+bottom*drawHeight]};
+ return {src:art.src,facing:art.facing,columns:1,rows:1,displayHeight:COMBAT_BODY_HEIGHT,bodyTop:padY+body.bodyTop*drawHeight,...(revisedBodySource(art.src)?{singleImage:true,bodyHeight:art.kind==='mounted'?COMBAT_MOUNTED_BODY_HEIGHT:art.kind==='boat'?COMBAT_BOAT_BODY_HEIGHT:COMBAT_BODY_HEIGHT}:{}),frames:{ready,attack:ready,idle:ready,hit:ready,retreat:ready}};
+}

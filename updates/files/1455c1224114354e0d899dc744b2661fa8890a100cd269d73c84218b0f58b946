@@ -1,0 +1,26 @@
+import {guestHeroIdentity,inheritedGuest} from './guest-allies.js';
+const COLORS={guanyu:'#79e8a4',zhangfei:'#ff6254',zhaoyun:'#a6dfff',zhugeliang:'#cbb3ff',xushu:'#cbb3ff'};
+export function promotionVisual(unit){
+ const owner=guestHeroIdentity(unit)??unit?.id,rank=unit?.team==='ally'&&(!unit.extra||inheritedGuest(unit))?Math.max(0,Math.min(2,unit.promotion??0)):0;
+ return {rank,label:rank===2?'정예':rank===1?'강화':'기본',color:COLORS[owner]??(unit?.cls==='strategist'?'#cbb3ff':'#f6cf72')};
+}
+export function promotionAuraHTML(unit){
+ const v=promotionVisual(unit);if(!v.rank)return '';
+ return '<span aria-hidden="true" class="promotion-aura promotion-rank-'+v.rank+'" data-promotion-label="'+v.label+'" style="--promotion-color:'+v.color+'"></span>';
+}
+const TIER_LABELS={troop:'일반병',elite:'정예병',officer:'적장',boss:'S급 적장'};
+// Enemy combat tier and the saved 0/1/2 promotion are independent axes.
+// This view never infers a promotion from a name, combat tier, or specialist art.
+export function unitRankVisual(unit){
+ const team=unit?.team,eligible=team==='ally'&&(!unit.extra||inheritedGuest(unit))||team==='enemy'&&!unit.nonCombat;
+ const recorded=team==='ally'?(unit.promotion??0):(unit?.promotion??unit?.rank??0),rank=eligible&&Number.isInteger(recorded)&&recorded>=0&&recorded<=2?recorded:0;
+ const tier=team==='enemy'&&Object.hasOwn(TIER_LABELS,unit.combatTier)?unit.combatTier:null;
+ return {rank,label:rank===2?'정예':rank===1?'강화':'기본',symbol:rank===2?'II':rank===1?'I':'',tier,tierLabel:tier?TIER_LABELS[tier]:''};
+}
+export function unitRankMarkerHTML(unit){
+ const view=unitRankVisual(unit);if(!view.rank)return '';
+ return '<span aria-hidden="true" class="unit-rank-mark unit-rank-'+view.rank+'" data-unit-rank="'+view.rank+'" title="승급 '+view.symbol+' · '+view.label+'"></span>';
+}
+export function applyPromotionVisual(node,unit){
+ const v=promotionVisual(unit);node.dataset.promotionRank=String(v.rank);node.style.setProperty('--promotion-color',v.color);return v;
+}

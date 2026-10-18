@@ -1,0 +1,12 @@
+import {PROMOTED_BODY_METRICS} from './promoted-art-metrics.js';
+export {PROMOTED_BODY_METRICS};
+const classes=[['infantry','보병'],['spear','창병'],['archer','활병'],['crossbow','석궁병'],['cavalry','기병'],['strategist','책사']];
+export const PROMOTED_TROOP_ART=Object.freeze(Object.fromEntries(classes.map(([cls])=>[cls,Object.freeze(Object.fromEntries([1,2].map(rank=>[rank,Object.freeze({
+ src:`art/units-v0741/${cls}-r${rank}.webp`,mapSrc:`art/units-v0741/map/${cls}-r${rank}.webp`,kind:cls==='cavalry'?'mounted':'foot',facing:'left',rank,cls,
+})])))])));
+export const PROMOTED_ART_RECORDS=Object.freeze(Object.values(PROMOTED_TROOP_ART).flatMap(ranks=>Object.values(ranks)));
+export const PROMOTED_MAP_SPRITES=Object.freeze(Object.fromEntries(PROMOTED_ART_RECORDS.map(({src,mapSrc})=>[src,Object.freeze({src:mapSrc})])));
+export const PROMOTED_ART_GALLERY=Object.freeze(PROMOTED_ART_RECORDS.map(record=>Object.freeze({
+ id:`promoted_${record.cls}_r${record.rank}`,label:`${record.rank===2?'정예':'강화'} ${classes.find(([cls])=>cls===record.cls)[1]} · 전용 승급 그림`,kind:'units',path:record.src,
+ width:PROMOTED_BODY_METRICS[record.src]?.[0]??384,height:PROMOTED_BODY_METRICS[record.src]?.[1]??384,staticReady:true,
+})));

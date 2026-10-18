@@ -1,0 +1,89 @@
+.palette-shu{filter:url(#cloth-shu)}.palette-wu{filter:url(#cloth-wu)}
+.troop-strategist.palette-shu{filter:url(#cloth-strategist-shu)}.troop-strategist.palette-wu{filter:url(#cloth-strategist-wu)}
+.board{isolation:isolate}
+.cell{overflow:visible}
+.token.sprite-token{background:none;border:0;box-shadow:none;border-radius:0;width:94%;height:100%;max-width:none;overflow:visible;pointer-events:none;position:relative;transform:none}
+.sprite-token:before{content:"";position:absolute;bottom:17%;left:6%;width:88%;height:21%;border:2px solid #73cfaa;background:#244b39a8;border-radius:50%;box-shadow:0 2px 4px #0008}
+.sprite-token.enemy-token:before{border-color:#ed9b7c;background:#593123a8}
+.battle-sprite{object-fit:contain;object-position:center bottom;user-select:none}
+.sprite-token>.battle-sprite{position:absolute;left:-8%;bottom:18%;width:116%;height:100%;max-width:none;z-index:1}
+.sprite-token>.battle-sprite.mounted{left:-12%;width:124%;height:122%;bottom:16%}
+.sprite-token .unit-name{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:2;color:#fff6d6;background:#0e1c16e8;border:1px solid #71977c;padding:0 3px;font-size:11px;line-height:15px;white-space:nowrap;text-shadow:0 1px 2px #000}
+.sprite-token.enemy-token .unit-name{border-color:#b88268}
+.sprite-token .unit-class{display:none}
+.sprite-token .mini-hp{bottom:-4px;z-index:3;height:3px;left:7%;width:86%}
+.token.done:not(.enemy-token){filter:none;opacity:1}
+.sprite-token.done:not(.enemy-token)>.battle-sprite{opacity:.92;filter:grayscale(1)}
+.sprite-token.done:not(.enemy-token) .unit-name{color:#d7e2d0;background:#15261df2}
+.token.done:not(.enemy-token) .done-mark{color:#e6f5dc;border-color:#a0c694;background:#203b2bf5;box-shadow:0 1px 3px #000b}
+.sprite-token .status-mark,.sprite-token .done-mark{z-index:4;right:-2px;top:3px}
+.token.travel-hidden{visibility:hidden}
+.unit-traveller{position:absolute!important;margin:0!important;pointer-events:none;z-index:6;transform-origin:center center}
+.unit-traveller.sprite-token>.battle-sprite{animation:unit-step .22s ease-in-out infinite alternate}
+@keyframes unit-step{from{translate:0 0}to{translate:0 -3px}}
+.float-han.has-portrait{padding:0;overflow:visible;background:#273f2e}
+.float-han .battle-sprite{width:44px;height:50px;max-width:none}
+.unit-image-failed .battle-sprite{display:none}
+.unit-image-failed .unit-name{font-size:12px}
+.palette-showcase{margin:24px 0;padding:24px;border:1px solid #56654a;background:#15231b}
+.palette-showcase h3{font:600 24px var(--font-heading);color:var(--gold);margin:0 0 8px}
+.palette-showcase p{color:#b6c6ad;font-size:13px;margin:8px 0}
+.palette-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.palette-card{margin:0;padding:15px;text-align:center;background:radial-gradient(ellipse at center,#455641,#213329 70%);border:1px solid #465c49}
+.palette-card img{width:100%;height:220px;object-fit:contain}
+.palette-card figcaption{font-size:14px;color:#e5d5a6}.palette-card small{display:block;color:#9dae98;font-size:11px}
+@media(min-width:1000px){.board{max-width:740px}.board-stage{padding-inline:150px}}
+@media(max-width:620px){.sprite-token .unit-name{font-size:9px;line-height:12px;padding:0 2px}.sprite-token:before{border-width:1px}.palette-grid{grid-template-columns:repeat(2,1fr)}.palette-card{padding:9px}.palette-card img{height:155px}.palette-showcase{padding:15px}.sprite-token .done-mark{font-size:9px;width:13px;height:13px;line-height:11px}}
+@media(prefers-reduced-motion:reduce){.unit-traveller.sprite-token>.battle-sprite{animation:none}}
+
+.palette-yellow{filter:url(#cloth-yellow)}.palette-dong{filter:url(#cloth-dong)}.palette-cao{filter:url(#cloth-cao)}.palette-lu{filter:url(#cloth-lu)}
+
+/* Source-specific map sizing keeps feet anchored and also follows travelling clones.
+   Width/height are used so the movement transform and mirror stay independent. */
+.sprite-token>.battle-sprite.map-normalized{
+ left:calc(50% - 58% * var(--unit-map-scale));
+ width:calc(116% * var(--unit-map-scale));height:calc(100% * var(--unit-map-scale));
+}
+.sprite-token>.battle-sprite.mounted.map-normalized{
+ left:calc(50% - 62% * var(--unit-map-scale));
+ width:calc(124% * var(--unit-map-scale));height:calc(122% * var(--unit-map-scale));
+}
+
+/* Reassigned generals retain their identity; their class is displayed on the map. */
+.sprite-token>.battle-sprite.class-portrait{left:9%;bottom:19%;width:82%;height:82%;object-fit:cover;object-position:50% 12%;border:1px solid #d7b779;border-radius:50%;background:#183326;box-shadow:0 2px 5px #0007}
+.sprite-token:has(>.class-portrait) .unit-class{display:block;position:absolute;left:50%;bottom:15%;transform:translateX(-50%);z-index:3;font-size:clamp(7px,.7vw,10px);white-space:nowrap;color:#fff4d0;background:#15281fee;border:1px solid #827443;padding:0 2px;line-height:1.2}
+
+/* Head-to-feet sizing shares one feet line for foot troops, heroes and guests.
+   It follows moving clones, and leaves mounted units and carriages at their own size. */
+.sprite-token>.battle-sprite.body-normalized{
+ left:var(--unit-body-left);bottom:var(--unit-body-bottom);
+ width:var(--unit-body-width);height:var(--unit-body-height);
+}
+
+/* Support selection shows command recipients, independently of action completion. */
+.token.support-eligible{filter:none;opacity:1}
+.token.support-eligible>.battle-sprite{opacity:1;filter:none}
+.token.done.support-eligible:not(.enemy-token)>.battle-sprite{opacity:.92;filter:grayscale(1)}
+.token.done:not(.sprite-token):not(.enemy-token)>.unit-han{filter:grayscale(1)}
+.token.support-eligible:before{border-color:#b0f5ca;background:#397954b8;box-shadow:0 0 8px #91e9b5}
+.token.support-unavailable{filter:saturate(.15);opacity:.28}
+.roster button.support-eligible{opacity:1;border-color:#98ddb3;background:#294b37}
+.roster button.support-eligible small{color:#b0f5ca}
+.roster button.support-unavailable:disabled{opacity:.28}
+
+/* Rank feedback preserves the approved character identity and measured body size. */
+.promotion-aura,.promotion-rank-mark{display:none}
+.sprite-token>.promotion-aura{display:block;position:absolute;left:10%;bottom:15%;width:80%;height:20%;z-index:0;pointer-events:none;box-sizing:border-box;border:2px solid var(--promotion-color);border-radius:50%;background:radial-gradient(ellipse,#fff7 0,#10251d55 45%,transparent 68%);opacity:1;animation:none}
+.sprite-token>.promotion-aura.promotion-rank-2{left:5%;bottom:13%;width:90%;height:25%;border:3px double var(--promotion-color)}
+.token.support-unavailable>.promotion-aura{display:none}
+.cell.skill-area{box-shadow:inset 0 0 0 2px #efab73;background-color:#784a3238}
+.cell.skill-area.skill-support-area{box-shadow:inset 0 0 0 2px #b9e2c4;background-color:#48745438}
+.cell.skill-affected .token:before{border-color:#ffdf92;box-shadow:0 0 9px #ffdf92}
+.skill-area-note{margin:7px 0;border-left:2px solid #e6c884;padding:5px 7px;background:#344332;font-size:12px;line-height:1.6}.skill-area-note strong{display:block;color:#ffe3a5}.skill-command small.skill-target-hint{display:block;color:#c3dbb0;font-size:11px}
+.combat-combatant .combat-rank-badge{border-color:var(--promotion-color,#dab86b)}
+@media(prefers-reduced-motion:reduce){.promotion-aura,.promotion-aura i{animation:none}}
+
+/* Range overlays sit ABOVE opaque map art and BELOW unit tokens, so empty cells stay readable. */
+.skill-area-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;border:2px solid #ff5f58;background:repeating-linear-gradient(135deg,#ef363944 0 9px,#ef363966 9px 13px);box-shadow:inset 0 0 10px #ff342e55}
+.skill-area-overlay.is-support{border-color:#75dfac;background:repeating-linear-gradient(135deg,#46a57644 0 9px,#46a57666 9px 13px);box-shadow:inset 0 0 10px #4adb9055}
+.cell.skill-special-area.skill-affected .token:before{border-color:#ff635c;box-shadow:0 0 10px #ff4d42}
