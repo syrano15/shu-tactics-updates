@@ -1,0 +1,90 @@
+/* Target selection is a persistent side panel. It never covers battlefield
+   units and does not alter the player's ordinary command placement preference. */
+#skill-targeting-panel{flex:1;min-height:0;min-width:0;width:100%;border:1px solid #af985f;background:#101e18;color:#eee9d6;border-radius:4px;overflow:hidden;box-shadow:0 4px 16px #0004}
+#skill-targeting-panel[hidden]{display:none!important}
+/* The context and mobile shells both set normal wrapping on their buttons.
+   Keep only the short use/cost command intact and let its grid track fit it. */
+#battle-scene[data-command-placement] #skill-targeting-panel .skill-context-actions button[data-action="skill-confirm"],
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-frame button[data-action="skill-confirm"]{min-width:max-content;padding-inline:6px;white-space:nowrap;word-break:keep-all;overflow-wrap:normal}
+.skill-targeting-ui{display:flex;flex-direction:column;height:100%;max-height:100%;min-height:0}
+#battle-scene.is-skill-targeting .bottom-bar{display:none}
+#battle-scene.is-skill-targeting .battle-unit-side{display:none!important}
+@media(min-width:1100px){#battle-scene.is-skill-targeting[data-command-placement] .battle-workspace{grid-template-columns:minmax(0,1fr) 320px}}
+@media(min-width:760px) and (max-width:1099px){#battle-scene.is-skill-targeting[data-command-placement] .battle-workspace{grid-template-columns:minmax(0,1fr) 290px}}
+@media(max-width:759px){#battle-scene.is-skill-targeting .battle-workspace{display:flex;flex-direction:column;overflow-y:auto}#battle-scene.is-skill-targeting .battle-map-column{flex:0 0 42dvh;min-height:260px}#battle-scene.is-skill-targeting .battle-command-column{flex:0 0 auto;min-height:0}#battle-scene.is-skill-targeting #skill-targeting-panel{flex:none;height:62dvh;min-height:340px;max-height:62dvh}}
+.skill-targeting-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 11px;border-bottom:1px solid #596046;background:#213126}
+.skill-targeting-heading small{display:block;font-size:10px;color:#d5c38a}
+.skill-targeting-heading h3{font-size:18px;line-height:1.3;margin:2px 0 0;color:#f4deb0}
+.skill-targeting-heading button{font-size:12px;padding:5px 8px;flex-shrink:0}
+.skill-targeting-scroll{overflow-y:auto;overscroll-behavior:contain;min-height:0;padding:0 11px 10px;scrollbar-width:thin}
+.skill-targeting-step{padding-top:11px}
+.skill-targeting-step h4{display:flex;gap:6px;align-items:center;margin:0 0 7px;font-size:13px;color:#f0e7c9}
+.skill-targeting-step h4>span{display:grid;place-items:center;flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1px solid #8d8965;background:#354232;font:700 12px sans-serif}
+.skill-targeting-caster-card{display:grid;grid-template-columns:1fr auto;gap:3px 6px;padding:8px;border:1px solid #6ea9dc;border-left:4px solid #7cbff5;background:#163347}
+.skill-targeting-caster-card b{font-size:15px;color:#edf7ff}
+.skill-targeting-caster-card>span{font-size:12px;font-weight:700;color:#c8e8ff}
+.skill-targeting-caster-card small{grid-column:1/-1;font-size:11px;line-height:1.5;color:#c8dcdf}
+.skill-targeting-instruction{font-size:12px;line-height:1.65;margin:0 0 7px;color:#d4ddc8;word-break:keep-all}
+.skill-targeting-area-note{font-size:11px;line-height:1.6;color:#f0d39c;margin:0 0 5px;word-break:keep-all}
+.skill-targeting-description{font-size:10px;line-height:1.6;color:#bcc7b0;margin:0 0 7px}
+.skill-targeting-description summary{cursor:pointer;color:#d4d7bf}
+.skill-targeting-description p{margin:4px 0 0;padding:6px;border-left:2px solid #777558;background:#192a1e}
+.skill-targeting-choices{display:grid;gap:4px;max-height:clamp(110px,25dvh,215px);overflow-y:auto;overscroll-behavior:contain;padding:1px;scrollbar-width:thin}
+.skill-targeting-ui.has-selection .skill-targeting-choices{max-height:118px}
+.skill-targeting-option{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:6px;width:100%;min-width:0;text-align:left;padding:7px 6px;background:#1a2b20;border:1px solid #6e7556;border-radius:3px;color:#e8e7d4;line-height:1.3}
+.skill-targeting-option:hover,.skill-targeting-option:focus-visible{background:#3a3b25;border-color:#ffd18a;outline:2px solid #ffd18a;outline-offset:-2px}
+.skill-targeting-option.is-selected{border:2px solid #ffd283;background:#4b3b20;padding:6px 5px}
+.skill-targeting-option-coordinate{font-size:12px;font-weight:800;color:#ffd18a}
+.skill-targeting-option b{display:block;font-size:12px;overflow-wrap:anywhere}
+.skill-targeting-option small{display:block;margin-top:3px;font-size:10px;color:#c3c8b0}
+.skill-targeting-option-status{font-size:10px;color:#c9b581;white-space:nowrap}
+.skill-targeting-option.is-selected .skill-targeting-option-status{font-weight:800;color:#ffe5a8}
+.skill-targeting-selection{padding:8px;border:1px solid #ba9251;background:#302b1b}
+.skill-targeting-selection>b{display:block;font-size:12px;line-height:1.6;color:#ffe2a4}
+.skill-targeting-selection>b>span{white-space:nowrap}
+.skill-targeting-selection>p{font-size:12px;margin:5px 0 8px}
+.skill-targeting-affected-list{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+.skill-targeting-affected-list li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:6px;align-items:start}
+.skill-targeting-list-number{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#c63c2d;border:1px solid #ffb3a5;font:800 12px sans-serif;color:#fff8eb}
+.skill-targeting-affected-list b{display:block;font-size:12px;line-height:1.4}
+.skill-targeting-affected-list small{display:block;font-size:10px;line-height:1.6;color:#d3cfb8;overflow-wrap:anywhere}
+.skill-targeting-affected-list .skill-targeting-counter{color:#efbda2}
+.skill-targeting-boss-warning{font-size:11px;line-height:1.6;color:#ffd0a4;border:1px solid #9d623e;background:#39271d;padding:7px;margin:8px 0 0}
+.skill-targeting-safe-note{font-size:10px!important;line-height:1.6;color:#b6e1c9;margin:9px 0 0!important}
+.skill-targeting-forecast-note{font-size:10px;line-height:1.6;color:#b3bda6;margin:7px 0 0}
+.skill-targeting-unselected,.skill-targeting-empty{padding:9px;border:1px dashed #657153;color:#b8c5aa;font-size:12px;line-height:1.7;margin:0}
+.skill-targeting-legend{display:flex;flex-wrap:wrap;gap:5px 10px;padding-top:10px;font-size:10px;line-height:1.5}
+.skill-targeting-legend .caster-key{color:#a1d4ff}.skill-targeting-legend .center-key{color:#ffd089}.skill-targeting-legend .affected-key{color:#ffb3a5}
+.skill-targeting-reason{font-size:12px;line-height:1.5;color:#ffd09f;border:1px solid #8b613e;padding:8px;margin:8px 0 0}
+.skill-targeting-footer{flex-shrink:0;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin:0;padding:8px 10px 10px;border-top:1px solid #7a7453;background:#1b2a1d;min-width:0}
+.skill-targeting-footer p{grid-column:1/-1;margin:0;font-size:11px;line-height:1.5;color:#d6d8b9}
+.skill-targeting-confirm{grid-column:1/-1;min-width:0;white-space:normal;line-height:1.6;font-size:13px;font-weight:700;padding:9px 8px;background:#d9ba75;color:#17251b;border-color:#e9d69f}
+.skill-targeting-confirm:disabled{background:#46513d;color:#9daa8b;opacity:1;border-color:#657153}
+.skill-targeting-change{grid-column:1/-1;justify-self:center;font-size:11px;padding:3px 8px}
+.skill-targeting-ui.is-support .skill-targeting-option.is-selected{background:#234735;border-color:#9be6b4}
+.skill-targeting-ui.is-support .skill-targeting-option-coordinate,.skill-targeting-ui.is-support .center-key{color:#a3edbc}
+.skill-targeting-ui.is-support .skill-targeting-selection{background:#1c3525;border-color:#75bd8c}
+.skill-targeting-ui.is-support .skill-targeting-selection>b{color:#b8efc8}
+.skill-targeting-ui.is-support .skill-targeting-list-number{background:#34734d;border-color:#a2e3b6}
+
+/* Board layering contract: no cell stacking context; area/rings z1, sprites z2,
+   compact identification badges z3. All overlays allow clicks through. */
+.cell.skill-targeting-cell{cursor:default}
+.cell.skill-targeting-choice{cursor:crosshair}
+#board .cell.skill-targeting-caster.selected{box-shadow:inset 0 0 0 3px #8bcaff!important;outline-color:#8bcaff}
+#board .cell.skill-targeting-caster.selected>.terrain-art-ready::after,#board .cell.skill-targeting-caster.selected>.stage-map-ready::after{border-color:#8bcaff;box-shadow:inset 0 0 0 2px #8bcaff;background:#3983bc25}
+.skill-targeting-footprint,.skill-targeting-center-ring,.skill-targeting-map-caster,.skill-targeting-map-center,.skill-targeting-map-choice,.skill-targeting-map-number,.skill-targeting-map-safe{position:absolute;pointer-events:none;box-sizing:border-box}
+.skill-targeting-footprint{inset:1px;z-index:1;background:#da3e2770;border:1px solid #ff9989aa}
+.skill-targeting-center-ring{inset:2px;z-index:1;border:2px solid #ffc474;box-shadow:inset 0 0 0 1px #3b2513,0 0 0 1px #3b2513;border-radius:3px}
+.skill-targeting-center .skill-targeting-center-ring{inset:0;border:3px solid #ffe09b;box-shadow:inset 0 0 0 1px #4d3010,0 0 0 1px #e8b459}
+.skill-targeting-map-caster{z-index:3;left:2px;top:1px;padding:1px 3px;background:#16486c;border:1px solid #9bd6ff;border-radius:3px;color:#effaff;font:bold 9px/1.35 sans-serif;white-space:nowrap;text-shadow:none}
+.skill-targeting-map-center{z-index:3;left:50%;top:1px;transform:translateX(-50%);padding:1px 3px;background:#6b4515;border:1px solid #ffe7ab;border-radius:3px;color:#fff3c7;font:bold 9px/1.35 sans-serif;white-space:nowrap;text-shadow:none}
+.skill-targeting-caster.skill-targeting-center .skill-targeting-map-center{top:18px}
+.skill-targeting-map-choice{z-index:3;right:1px;top:0;color:#ffe7af;text-shadow:0 1px 2px #000,0 0 2px #000;font:900 15px/1 sans-serif}
+.skill-targeting-map-number{z-index:3;left:1px;bottom:17px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;border:1px solid #ffd3bd;background:#bf3527;color:#fffaf0;font:800 11px/1 sans-serif;box-shadow:0 1px 3px #000b;text-shadow:none}
+.skill-targeting-map-safe{z-index:3;right:1px;bottom:17px;padding:1px 2px;border:1px solid #a0dabb;border-radius:2px;background:#173d2a;color:#d5ffdf;font:bold 8px/1.4 sans-serif;white-space:nowrap;text-shadow:none}
+.skill-targeting-support .skill-targeting-footprint{background:#45b17148;border-color:#b0f4b9aa}
+.skill-targeting-support .skill-targeting-center-ring{border-color:#9ce1b1}
+.skill-targeting-support .skill-targeting-map-number{background:#2a7544;border-color:#c9f3d4}
+.skill-targeting-support .skill-targeting-map-center{background:#235635;border-color:#b8edc5;color:#e2ffea}
+@media(max-width:780px){.skill-targeting-ui{max-height:62dvh}.skill-targeting-choices{max-height:145px}.skill-targeting-option{grid-template-columns:34px 1fr auto}.skill-targeting-heading h3{font-size:17px}}

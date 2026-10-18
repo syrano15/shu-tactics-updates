@@ -1,0 +1,46 @@
+import {jiangxiaFerry} from './ferry-navigation.js';
+// One pure AI decision owns these indexes. No live battle object or path survives
+// the call, so moving/defeated/restored units cannot leave a stale global cache.
+export function decisionOccupancy(units){
+ const cells=new Map();for(const unit of units)if(unit.hp>0){const key=unit.x+','+unit.y;if(!cells.has(key))cells.set(key,unit);}
+ return (x,y)=>cells.get(x+','+y);
+}
+
+// Stable min queue: reachable's old Array.sort compared cost alone, relying on
+// insertion order for ties. Reverse searches compare cost/y/x before that order.
+export function decisionQueue(compare){
+ const heap=[];let sequence=0;
+ const less=(a,b)=>compare(a.value,b.value)<0||compare(a.value,b.value)===0&&a.sequence<b.sequence;
+ return {get length(){return heap.length;},push(value){
+  const entry={value,sequence:sequence++};let i=heap.length;heap.push(entry);
+  while(i){const parent=(i-1)>>1;if(!less(entry,heap[parent]))break;heap[i]=heap[parent];i=parent;}heap[i]=entry;
+ },shift(){
+  if(!heap.length)return undefined;const result=heap[0].value,last=heap.pop();if(!heap.length)return result;
+  let i=0;while(i*2+1<heap.length){let child=i*2+1;if(child+1<heap.length&&less(heap[child+1],heap[child]))child++;if(!less(heap[child],last))break;heap[i]=heap[child];i=child;}heap[i]=last;return result;
+ }};
+}
+
+export function createDecisionSearch(state,{key,inside,movement,terrainMovementCost,act7MovementLocked,act7CommanderLocked,huarongChaser,huarongReachable}){
+ const at=decisionOccupancy(state.units),costsByClass=new Map();
+ const cost=(unit,x,y)=>{
+  const profile=unit.cls+(jiangxiaFerry(state,unit)?':ferry':'');
+  let costs=costsByClass.get(profile);if(!costs){costs=new Map();costsByClass.set(profile,costs);}
+  const cell=key(x,y);if(!costs.has(cell))costs.set(cell,terrainMovementCost(state,unit,x,y));return costs.get(cell);
+ };
+ function reachable(current,unit,limit=movement(unit,current),occupancy=current===state?at:decisionOccupancy(current.units)){
+  if(act7MovementLocked(current,unit)||act7CommanderLocked(current,unit))return new Map([[key(unit.x,unit.y),0]]);
+  if(huarongChaser(current,unit))return huarongReachable(current,unit,limit);
+  const costs=new Map([[key(unit.x,unit.y),0]]),queue=decisionQueue((a,b)=>a.cost-b.cost);queue.push({x:unit.x,y:unit.y,cost:0});
+  while(queue.length){
+   const p=queue.shift();if(p.cost!==costs.get(key(p.x,p.y)))continue;
+   for(const [dx,dy]of [[0,-1],[-1,0],[1,0],[0,1]]){
+    const x=p.x+dx,y=p.y+dy;if(!inside(x,y,current))continue;
+    const other=occupancy(x,y);if(other&&other.team!==unit.team)continue;
+    const next=p.cost+cost(unit,x,y),cell=key(x,y);if(next>limit||next>=(costs.get(cell)??Infinity))continue;
+    costs.set(cell,next);queue.push({x,y,cost:next});
+   }
+  }
+  return new Map([...costs].filter(([cell])=>{const [x,y]=cell.split(',').map(Number),other=occupancy(x,y);return !other||other.id===unit.id;}));
+ }
+ return {at,cost,reachable};
+}

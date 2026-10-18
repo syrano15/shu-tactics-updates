@@ -1,0 +1,90 @@
+import {act4RewardStatus,validateAct4RewardReceipt} from './act4-progression.js';
+import {act5RewardStatus,validateAct5RewardReceipt} from './act5-progression.js';
+import {act6RewardStatus,validateAct6RewardReceipt} from './act6-progression.js';
+import {act7RewardStatus,validateAct7RewardReceipt} from './act7-progression.js';
+import {equipmentDropActors} from './equipment-drops.js';
+import {survivalBonusStatus} from './survival-bonus.js';
+import {survivorRewardStatus} from './survivor-reward.js';
+import {PARTS} from './equipment.js';
+import {HERO_DATA} from './heroes.js';
+import {guestHeroIdentity,inheritedGuest} from './guest-allies.js';
+import {getPromotionBonuses,PROMOTION_LEVELS} from './promotion.js';
+import {legacyFerryStatAllowed} from './ferry-navigation.js';
+import {ACT1_MERITS,ACT2_MERITS,ACT3_MERITS,validMeritAward,completeXinyeClear} from './battle-rewards.js';
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const integer=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+const ensure=(ok,message='추가 시스템의 저장 내용이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const parts=items=>Array.isArray(items)&&items.length<=1000&&items.every(id=>typeof id==='string'&&Object.hasOwn(PARTS,id));
+// Only capacities shipped by earlier versions are eligible for the upgrade.
+export const legacyKongRongHealth=(unit,ref)=>unit.extra&&ref.extra&&unit.team==='ally'&&unit.id==='x_kongrong'&&[2400,2900,3400].includes(unit.maxHp)&&ref.maxHp===3900;
+// Call only after the entire save has passed validation. Historical results and
+// paid receipts keep their original battle snapshot; active saves keep wounds.
+export function upgradeValidatedKongRongHealth(value,refs){
+ const state=value.state;
+ if(state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return false;
+ const unit=state.units.find(u=>u.id==='x_kongrong'),ref=refs.find(u=>u.id==='x_kongrong');
+ if(!unit||!ref||!legacyKongRongHealth(unit,ref))return false;
+ const increase=ref.maxHp-unit.maxHp;
+ unit.maxHp=ref.maxHp;if(unit.hp>0)unit.hp+=increase;
+ // A pending choice must mirror live HP exactly. After cleanup begins its
+ // captured victory basis is historical and must keep the original capacity.
+ if(state.bossCleanupVersion===1&&state.bossCleanup?.status==='pending'){
+  const saved=state.bossCleanup.basis.units.find(u=>u.id===unit.id);
+  if(saved){saved.maxHp=ref.maxHp;if(saved.hp>0)saved.hp+=increase;}
+ }
+ return true;
+}
+function validateSummary(v,chapter){
+ const state=v.state,summary=state.rewardSummary;
+ if(summary===undefined||summary===null){ensure(!state.rewardsSettled||v.featuresVersion===undefined,'정산된 전투의 보상 요약이 없습니다.');return;}
+ ensure(object(summary)&&state.result!==null&&state.rewardsSettled,'보상 요약은 정산이 끝난 전투에만 보관할 수 있습니다.');
+ ensure(integer(summary.gold,0,100000000)&&parts(summary.items));
+ ensure(summary.alreadyClaimed===undefined||typeof summary.alreadyClaimed==='boolean');
+ if(summary.lost!==undefined)ensure(object(summary.lost)&&integer(summary.lost.gold,0,100000000)&&parts(summary.lost.items));
+ if(state.result==='defeat'){ensure(summary.survivorReward===undefined,'패배에는 생존 부대 보상이 없습니다.');ensure(summary.gold===0&&summary.items.length===0&&summary.merit===null&&!summary.alreadyClaimed);return;}
+ ensure(state.result==='victory');
+ const merit=summary.merit,spec=ACT1_MERITS[chapter.id]??ACT2_MERITS[chapter.id]??ACT3_MERITS[chapter.id];
+ if(spec){ensure(object(merit)&&merit.id===spec.id&&typeof merit.achieved==='boolean'&&typeof merit.condition==='string'&&merit.condition.length>0&&merit.condition.length<=500&&integer(merit.gold,0,100000000)&&parts(merit.items)&&validMeritAward(merit,chapter.id,spec)&&same(merit.items,spec.items));}
+ else ensure(merit===null);
+ const survival=survivalBonusStatus(state,chapter);ensure(survival?same(summary.survivalBonus,survival):summary.survivalBonus===undefined,'전원 생존 보너스 요약과 전투 기록이 다릅니다.');
+ const survivors=survivorRewardStatus(state,chapter);ensure(survivors?same(summary.survivorReward,survivors):summary.survivorReward===undefined,'생존 부대 보상 요약과 전투 기록이 다릅니다.');
+ const receipt=v.army.rewardReceipts?.[chapter.id];ensure(object(receipt),'승리 보상 요약에 대응하는 정산 영수증이 없습니다.');
+ if(summary.alreadyClaimed){ensure(summary.gold===0&&summary.items.length===0);return;}
+ ensure((receipt.regularRewardsVersion??0)===(state.regularRewardsVersion??0),'정규 생존 보상 영수증과 실제 전투의 버전이 다릅니다.');
+ ensure(survivors?same(receipt.survivorReward,survivors)&&receipt.survivorRewardVersion===1:receipt.survivorReward===undefined,'생존 부대 보상 영수증과 전투 기록이 다릅니다.');
+ ensure(survival?same(receipt.survivalBonus,survival)&&receipt.survivalBonusVersion===1:receipt.survivalBonus===undefined,'전원 생존 보너스 영수증과 전투 기록이 다릅니다.');
+ ensure((receipt.campaignEventsVersion??0)===(state.campaignEventsVersion??0),'전리품 전장 사건 버전과 실제 전투가 다릅니다.');
+ ensure(state.equipmentDropsVersion===1?receipt.equipmentDropsVersion===1&&same(receipt.equipmentDropActors,equipmentDropActors(state,chapter,receipt.sourceUnitIds)):receipt.equipmentDropsVersion===undefined,'조건부 장비 영수증과 실제 격파자가 다릅니다.');
+ validateAct4RewardReceipt(receipt,chapter);const act4=act4RewardStatus(state,chapter);ensure(act4?same(summary.act4Rewards,act4)&&same(receipt.act4Rewards,act4):summary.act4Rewards===undefined&&receipt.act4Rewards===undefined,'4막 군수·목표 정산과 전투 기록이 다릅니다.');
+ validateAct5RewardReceipt(receipt,chapter);const act5=act5RewardStatus(state,chapter);ensure(act5?same(summary.act5Rewards,act5)&&same(receipt.act5Rewards,act5):summary.act5Rewards===undefined&&receipt.act5Rewards===undefined,'5막 군수·목표 정산과 전투 기록이 다릅니다.');
+ validateAct6RewardReceipt(receipt,chapter);const act6=act6RewardStatus(state,chapter);ensure(act6?same(summary.act6Rewards,act6)&&same(receipt.act6Rewards,act6):summary.act6Rewards===undefined&&receipt.act6Rewards===undefined,'6막 군수·목표 정산과 전투 기록이 다릅니다.');
+ validateAct7RewardReceipt(receipt,chapter);const act7=act7RewardStatus(state,chapter);ensure(act7?same(summary.act7Rewards,act7)&&same(receipt.act7Rewards,act7):summary.act7Rewards===undefined&&receipt.act7Rewards===undefined,'7막 군수·목표 정산과 전투 기록이 다릅니다.');
+ const expectedGold=(receipt.act4Rewards?.militaryGold??0)+(receipt.act4Rewards?.optionalGold??0)+(receipt.act5Rewards?.militaryGold??0)+(receipt.act5Rewards?.optionalGold??0)+(receipt.act6Rewards?.militaryGold??0)+(receipt.act6Rewards?.optionalGold??0)+(receipt.act7Rewards?.militaryGold??0)+(receipt.act7Rewards?.optionalGold??0)+receipt.lootGold+(receipt.survivorReward?.achieved?receipt.survivorReward.gold:0)+(receipt.merit?.achieved?receipt.merit.gold:0)+(receipt.survivalBonus?.achieved?receipt.survivalBonus.gold:0),expectedItems=[...receipt.lootItems,...(receipt.merit?.achieved?receipt.merit.items:[])];
+ ensure(summary.gold===expectedGold&&same(summary.items,expectedItems));
+ if(spec){ensure(merit.achieved===receipt.merit.achieved);ensure((merit.variant??null)===(receipt.merit.variant??null));if(merit.variant==='completeClear')ensure(completeXinyeClear(state,chapter));}
+}
+// Army changes made in intermission apply to the next sortie. The completed
+// battle remains a historical snapshot, so its equipment is not recomputed.
+export function validateSaveFeatures(value,chapter,refs){
+ ensure(object(value)&&object(value.state)&&object(value.army)&&chapter&&Array.isArray(refs));
+ const active=['preDialogue','deployment','battle'].includes(value.campaign.stage);
+ for(const unit of value.state.units){
+  const ref=refs.find(r=>r.id===unit.id);ensure(ref,'알 수 없는 부대의 추가 시스템 기록입니다.');
+  unit.promotion??=0;unit.rank??=unit.promotion;unit.moraleBonus??=ref.moraleBonus??0;
+  const promotion=getPromotionBonuses(unit.cls,unit.promotion);
+
+
+  ensure(integer(unit.promotion,0,2)&&integer(unit.rank,0,2)&&unit.rank===unit.promotion,'병과 승급 표시와 전투 단계가 다릅니다.');
+  ensure(integer(unit.baseAtk,0,1000)&&integer(unit.evasionBonus,0,100)&&integer(unit.criticalBonus,0,100)&&integer(unit.moraleBonus,0,100)&&integer(unit.tacticBonus,0,100));
+   const matchup=unit.team==='enemy'&&[1,2].includes(value.state.campaignEnemyBalanceVersion)?ref:promotion;
+  ensure((unit.cavalryDamageReceived??null)===matchup.cavalryDamageReceived&&(unit.cavalryDamageDealt??null)===matchup.cavalryDamageDealt,'승급 병과의 상성 보정이 올바르지 않습니다.');
+  if(unit.team==='ally')ensure(unit.promotion===0||unit.level>=PROMOTION_LEVELS[unit.promotion],'장수 레벨에 맞지 않는 승급 단계입니다.');
+  if(unit.extra&&!inheritedGuest(unit))ensure(unit.promotion===0&&unit.rank===0);
+  else if(unit.team==='enemy')ensure(unit.promotion===ref.promotion&&unit.rank===ref.rank);
+  else {const owner=guestHeroIdentity(unit)??unit.id,hero=value.army.heroes[owner];ensure(hero&&unit.promotion<=hero.promotion);ensure(!HERO_DATA[owner]?.guest||unit.promotion===0);}
+  if(active)for(const key of ['promotion','rank','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','atk','def','int','move','min','max','attackAfterMove'])ensure(unit[key]===ref[key]||(key==='maxHp'&&legacyKongRongHealth(unit,ref))||legacyFerryStatAllowed(value.state,unit,ref,key),`출전 상태의 ${key} 값이 장수·장비 기록과 다릅니다.`);
+ }
+ validateSummary(value,chapter);
+ return value;
+}

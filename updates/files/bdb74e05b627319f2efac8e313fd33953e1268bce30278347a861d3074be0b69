@@ -1,0 +1,5 @@
+// The selected strategist tactic belongs only to strategist commands. A physical
+// unit must keep its ordinary attack even after another unit selected water.
+export function commandTactic(actor, selected = 'fire') {
+  return actor?.cls === 'strategist' ? selected : 'fire';
+}

@@ -1,0 +1,78 @@
+// Short presentation copy is separate from the complete skill definitions.
+// Rules, eligibility and resolved previews remain owned by the combat modules.
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const core={
+ 'guanyu-cleave':'적 한 부대에 강한 일격을 가합니다.',
+ 'zhangfei-roar':'주변의 적을 공격합니다.',
+ 'liubei-oath':'주변 아군의 공격과 사기를 높입니다.',
+ 'jianyong-relief':'아군의 병력과 상태를 회복합니다.',
+ 'zhaoyun-breakthrough':'직선의 적 한 부대를 강하게 공격합니다.',
+ 'zhugeliang-fire':'넓은 범위에 불을 지릅니다.',
+ 'tactic-area-fire':'범위에 불을 지릅니다.',
+ 'supply':'아군의 병력과 SP를 회복합니다.',
+};
+export function skillSummary(meta){
+ if(core[meta?.id])return core[meta.id];
+ const kind=meta?.actionKind??meta?.kind,effects=meta?.effects??{},persistent=meta?.persistent??{};
+ if(kind==='support'){
+  if(effects.rally)return '행동을 마친 아군을 다시 움직이게 합니다.';
+  if(effects.restoreConfusionAction)return '혼란을 풀고 잃은 행동을 되돌립니다.';
+  if(effects.enemyMorale)return '아군의 사기를 높이고 적의 사기를 낮춥니다.';
+  if(effects.heal&&effects.sp)return '아군의 병력과 SP를 회복합니다.';
+  if(effects.sp)return effects.morale?'아군의 SP와 사기를 회복합니다.':'아군의 SP를 보급합니다.';
+  if(effects.cleanse&&persistent.guard)return '아군의 상태를 회복하고 보호합니다.';
+  if(effects.heal&&persistent.guard)return '아군을 회복하고 보호합니다.';
+  if(persistent.guard)return '범위 안의 아군을 보호합니다.';
+  if(effects.heal)return '범위 안의 아군을 회복합니다.';
+  if(persistent.attackMultiplier)return '범위 안의 아군을 강화합니다.';
+  return '아군을 지원합니다.';
+ }
+ if(kind==='tactic'){
+  if(meta.power===0||meta.enemyPersistent)return '범위 안의 적을 약화합니다.';
+  if(effects.control)return '범위를 공격해 적을 혼란에 빠뜨립니다.';
+  return meta.weatherIndependent?'범위 안의 적을 책략으로 공격합니다.':'범위에 불을 지릅니다.';
+ }
+ if(effects.cooperation)return '적을 공격하고 아군과 협공합니다.';
+ if(effects.pull)return '적을 공격해 가까이 끌어옵니다.';
+ if(effects.push)return '범위 안의 적을 공격해 밀어냅니다.';
+ if(effects.reposition)return '적을 공격하고 뒤로 돌파합니다.';
+ if(effects.control)return '적을 공격해 혼란에 빠뜨립니다.';
+ if(effects.lifesteal)return '주변 적을 공격해 병력을 회복합니다.';
+ if(effects.frontHeal)return '적을 공격하고 주변 아군을 회복합니다.';
+ if(meta?.allyAura!==undefined)return '적을 공격하고 주변 아군을 강화합니다.';
+ if(meta?.finisherPower)return '약해진 적에게 강한 일격을 가합니다.';
+ if(meta?.area==='chain-enemy')return '여러 적을 연달아 공격합니다.';
+ return meta?.area?'범위 안의 적을 공격합니다.':'적 한 부대를 강하게 공격합니다.';
+}
+export function skillCostLabel(meta){
+ return [meta?.cost?.sp?'SP '+meta.cost.sp:'',meta?.cost?.morale?'사기 −'+meta.cost.morale:''].filter(Boolean).join(' · ');
+}
+export function skillUseLabel(meta){
+ const cost=meta?.cost?.sp?'SP '+meta.cost.sp:meta?.cost?.morale?'사기 -'+meta.cost.morale:'';
+ return '사용'+(cost?' · '+cost:'');
+}
+export const skillUseAriaLabel=meta=>[meta?.name,'사용',skillCostLabel(meta)].filter(Boolean).join(' · ');
+export function skillReasonLabel(meta){
+ if(meta?.locked)return 'Lv'+(meta.level??meta.gate?.level??50)+' 해금';
+ const restriction=meta?.restriction??'';
+ if(restriction.startsWith('Lv'))return restriction.split(' · ')[0];
+ return restriction?'현재 병과 사용 불가':meta?.reason??'';
+}
+export function skillInfoHTML(meta){
+ const lines=[meta?.description??''];
+ const restriction=meta?.restriction?.startsWith('Lv')?meta.restriction.split(' · ')[0]:meta?.restriction;
+ if(restriction)lines.push(restriction);
+ if(meta?.range)lines.push('사거리 '+meta.range.join('~')+'칸'+(meta.straight?' · 같은 행·열':''));
+ const cost=skillCostLabel(meta);if(cost)lines.push('소모 '+cost);
+ if(meta?.gate?.morale)lines.push('사기 '+meta.gate.morale+' 이상'+(meta.legendary?' · 전투당 1회':'')+' · 사용 후 '+(meta.gate.cooldown-1)+'턴 휴식');
+ if(meta?.afterMoveAllowed!==undefined)lines.push((meta.afterMoveAllowed?'이동 후 사용 가능':'이동 전 사용')+' · 행동 종료');
+ return '<details class="skill-info"><summary>기술 정보</summary>'+lines.filter(Boolean).map(line=>'<p>'+esc(line)+'</p>').join('')+'</details>';
+}
+export function skillDescriptionHTML(meta){
+ const reason=skillReasonLabel(meta);
+ return '<div class="skill-description"><b>'+esc(meta.name)+'</b><p>'+esc(skillSummary(meta))+'</p>'+(reason?'<small class="skill-reason">'+esc(reason)+'</small>':'')+skillInfoHTML(meta)+'</div>';
+}
+export function skillOptionHTML(meta,{mobile=false}={}){
+ const reason=skillReasonLabel(meta),cost=[skillCostLabel(meta),meta.legendary?'전투당 1회':''].filter(Boolean).join(' · ');
+ return '<div class="battle-skill-option"><button type="button" class="'+(mobile?'mobile-stable-option':'skill-command')+'" data-action="skill-'+esc(meta.id)+'"'+(meta.reason?' disabled':'')+'><b>'+esc(meta.name)+(meta.legendary?' · Lv'+(meta.level??50):'')+(cost?'<span>'+esc(cost)+'</span>':'')+'</b><small>'+esc(skillSummary(meta))+'</small>'+(reason?'<em>'+esc(reason)+'</em>':'')+'</button>'+skillInfoHTML(meta)+'</div>';
+}

@@ -1,0 +1,39 @@
+// Water-only presentation. Coordinates and contact time come from the already
+// resolved exchange; this module owns no clock, random value or battle object.
+const crestSVG='<svg viewBox="0 0 200 140" aria-hidden="true" focusable="false"><path fill="#217e98" d="M3 125C37 117 48 108 62 91C83 66 75 34 113 15C144 0 179 18 188 47C173 32 154 31 141 45C126 62 139 83 159 96C176 107 186 115 198 126L198 139H3Z"/><path fill="#69cbd0" d="M4 126C45 121 62 102 76 79C94 47 96 25 123 18C148 11 170 22 180 36C164 30 146 32 135 46C116 69 138 97 163 108L195 129L195 137H4Z"/><path fill="none" stroke="#e1f6ed" stroke-width="7" stroke-linecap="round" d="M9 124C52 115 68 96 78 73C92 38 104 18 130 17C152 15 170 24 179 36C161 29 144 35 137 49C126 70 141 89 159 97"/></svg>';
+const splashSVG='<svg viewBox="0 0 200 145" aria-hidden="true" focusable="false"><path fill="#67c9d4" d="M8 139C28 119 31 93 18 71C48 83 58 105 62 111C63 82 47 47 57 24C82 39 91 75 95 100C103 66 100 20 119 5C137 37 127 76 124 105C143 86 148 55 173 48C177 79 152 110 146 121C168 112 185 118 198 138Z"/><path fill="none" stroke="#e5f8f0" stroke-width="7" stroke-linecap="round" d="M15 134C37 109 31 89 23 78M65 117C68 87 52 49 59 32M98 112C112 78 104 32 119 14M125 119C151 97 151 68 170 57M146 129C166 117 182 124 193 135"/></svg>';
+const finite=(value,fallback)=>Number.isFinite(value)?value:fallback;
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+export function waterPresentationGeometry(contact){
+ const size=clamp(finite(contact.spriteSize,240),80,300),direction=contact.direction===-1?-1:1;
+ const start=finite(contact.projectileX,finite(contact.sourceCenter,100)),end=finite(contact.impactX,start+direction*200);
+ return {start,end,travel:end-start,direction,ground:finite(contact.sourceFoot,finite(contact.impactY,200)+45)-8,width:clamp(size*.88,84,210),height:clamp(size*.59,56,142)};
+}
+export function createWaterPresentation(field,effect,contact,{landed=true,reduced=false}={}){
+ const doc=field.ownerDocument??globalThis.document,geometry=waterPresentationGeometry(contact);
+ const make=(tag,name)=>{const node=doc.createElement(tag);node.className=name;node.setAttribute('aria-hidden','true');return node;};
+ const flow=make('div','combat-water-flow'),front=make('span','combat-water-impact');
+ flow.dataset.waterStage='gather-surge';flow.classList.toggle('is-water-reduced',reduced);front.hidden=true;
+ for(const node of [flow,front]){
+  for(const [name,value]of Object.entries({start:geometry.start,end:geometry.end,travel:geometry.travel,ground:geometry.ground,width:geometry.width,height:geometry.height}))node.style.setProperty('--water-'+name,value+'px');
+  node.style.setProperty('--water-direction',String(geometry.direction));node.style.setProperty('--water-contact-duration',contact.collision/1000+'s');
+ }
+ const gather=make('i','combat-water-gather'),channel=make('i','combat-water-channel'),surge=make('span','combat-water-surge');
+ channel.style.left=Math.min(geometry.start,geometry.end)+'px';channel.style.width=Math.max(16,Math.abs(geometry.travel))+'px';channel.style.transformOrigin=geometry.direction===1?'left center':'right center';
+ surge.classList.toggle('is-water-failing',!landed);const crest=make('span','combat-water-crest');crest.innerHTML=crestSVG;surge.append(crest);
+ flow.append(gather,channel,surge);field.append(flow);effect.append(front);
+ let closed=false,contacted=false;
+ return {
+  impact(){
+   if(closed||contacted)return;contacted=true;flow.dataset.waterStage=landed?'break-recede':'disperse';flow.classList.add('is-water-contact');front.hidden=false;front.classList.add(landed?'is-water-hit':'is-water-miss');
+   if(landed){
+    const breaker=make('span','combat-water-breaker');breaker.innerHTML=splashSVG;front.append(breaker,make('i','combat-water-ring'));
+    if(!reduced)for(let index=0;index<6;index++){
+     const spray=make('i','combat-water-spray'+(index<3?' combat-water-drop':''));
+     spray.style.setProperty('--water-spray-x',[-64,-43,-18,21,47,72][index]+'px');spray.style.setProperty('--water-spray-y',[-42,-76,-94,-88,-66,-32][index]+'px');spray.style.setProperty('--water-index',String(index));front.append(spray);
+    }
+   }else for(let index=0;index<2;index++){const mist=make('i','combat-water-miss-wisp');mist.style.setProperty('--water-index',String(index));front.append(mist);}
+  },
+  stop(){if(closed)return;closed=true;flow.dataset.waterStage='closed';flow.remove();front.remove();}
+ };
+}

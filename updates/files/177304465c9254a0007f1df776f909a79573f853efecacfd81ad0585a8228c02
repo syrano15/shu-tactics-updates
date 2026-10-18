@@ -1,0 +1,78 @@
+/* Header and footer stay outside the only scrollable command content. The
+   shell owns dock bounds; command stages never resize the battlefield. */
+#battle-scene[data-mobile-ui=true] .battle-unit-side,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel{overflow:hidden}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui{
+ padding:0;width:100%;height:auto;min-height:0;max-height:none;overflow:hidden;font-size:13px;line-height:1.45;border:0;background:transparent;
+}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame{
+ display:flex;flex-direction:column;min-width:0;min-height:0;max-height:calc(var(--mobile-command-max-height,min(52dvh,calc(100dvh - 140px))) - 2px);overflow:hidden;
+}
+#battle-scene[data-mobile-ui=true] .mobile-command-header{
+ display:flex;align-items:center;flex:none;gap:5px;min-height:52px;padding:4px 6px;border-bottom:1px solid #596046;background:#203326;
+}
+#battle-scene[data-mobile-ui=true] .mobile-command-header>div{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.3}
+#battle-scene[data-mobile-ui=true] .mobile-command-header b{display:block;color:var(--gold);font-size:14px}
+#battle-scene[data-mobile-ui=true] .mobile-command-header small{display:block;color:var(--muted);font-size:11px;line-height:1.35;margin-top:2px}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui button,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-frame button{
+ box-sizing:border-box;min-width:44px;min-height:44px;height:auto;max-width:100%;margin:0;padding:6px 7px;font-size:13px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;
+}
+#battle-scene[data-mobile-ui=true] .mobile-command-header>button{flex:0 0 44px;align-self:stretch}
+#battle-scene[data-mobile-ui=true] .mobile-command-scroll{
+ flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;scrollbar-width:thin;padding:7px 8px;
+}
+#battle-scene[data-mobile-ui=true] .mobile-command-footer{
+ display:grid;flex:none;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:5px;padding:5px 6px;margin:0;border-top:1px solid #596046;background:#203326;
+}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .mobile-command-footer>button,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-footer>button{grid-column:auto;color:var(--text)}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .mobile-command-footer>button:only-child,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-footer>button:only-child{grid-column:1/-1}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame[data-command-kind=command] .mobile-command-footer{grid-template-columns:repeat(3,minmax(0,1fr))}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .mobile-command-footer>button.primary,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-footer>button.primary{background:var(--gold);color:#17241c;font-weight:700}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .mobile-command-footer>button.primary:disabled,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-footer>button.primary:disabled{background:#46513d;color:#bac4ab;opacity:1}
+#battle-scene[data-mobile-ui=true] .mobile-vitals,
+#battle-scene[data-mobile-ui=true] .mobile-state{margin:0 0 4px;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+#battle-scene[data-mobile-ui=true] .mobile-state{color:#e7cc92;font-size:11px}
+#battle-scene[data-mobile-ui=true] .mobile-selection-note{margin:0;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+#battle-scene[data-mobile-ui=true] .mobile-selection-note>b{color:var(--gold)}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .command-context,
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .command-reason,
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .prediction-subline,
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-command-frame .command-context{font-size:12px;line-height:1.5;margin:0 0 6px}
+#battle-scene[data-mobile-ui=true] .mobile-stable-options,
+#battle-scene[data-mobile-ui=true] .mobile-target-choices{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin:3px 0 7px;min-width:0}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option{text-align:left;background:#203326;border-color:#6e785b}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option.is-selected{border-color:#f0d38b;outline:2px solid #f0d38b;outline-offset:-2px;background:#453d24}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option.is-unavailable{color:#c6cab8;background:#1e2b22}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option b{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px 8px;font-size:14px;line-height:1.35}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option b>span{font-size:12px;font-weight:400;color:#e6d098}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option small,
+#battle-scene[data-mobile-ui=true] .mobile-stable-option em{display:block;font-size:12px;line-height:1.5;margin-top:3px;white-space:normal;overflow-wrap:anywhere;font-style:normal}
+#battle-scene[data-mobile-ui=true] .mobile-stable-option em{color:#f0ba9a}
+#battle-scene[data-mobile-ui=true] .mobile-effect-list p{font-size:12px;line-height:1.5;margin:6px 0}
+#battle-scene[data-mobile-ui=true] #skill-targeting-panel .mobile-effect-details>summary{box-sizing:border-box;min-height:44px;padding:10px 2px;cursor:pointer;color:var(--muted);font-size:13px;line-height:1.5}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame .compact-prediction{margin:0;padding:0;border:0;font-size:13px;line-height:1.5;max-height:none;overflow:visible;overscroll-behavior:auto}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame .prediction-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:5px 0}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame .prediction-values>span{display:block;font-size:11px;line-height:1.4;color:var(--muted)}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame .prediction-values small{display:block;font-size:11px;line-height:1.4}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame .prediction-values strong{display:block;font-size:19px;line-height:1.4;color:var(--gold)}
+#battle-scene[data-mobile-ui=true] .mobile-command-frame .prediction-details-open{float:right}
+#battle-scene[data-mobile-ui=true] .mobile-move-path{outline:2px dashed #ffe4a0;outline-offset:-3px;box-shadow:inset 0 0 0 3px #72561a88}
+#battle-scene[data-mobile-ui=true] .mobile-move-preview{outline:3px solid #ffe4a0;outline-offset:-3px;box-shadow:inset 0 0 0 5px #72561ac9;z-index:2}
+.mobile-roster-dialog{padding:0;width:min(440px,calc(100% - 16px));max-height:min(80dvh,620px);overflow:hidden}
+.mobile-roster-dialog[open]{display:flex;flex-direction:column}
+.mobile-roster-header{display:flex;flex:none;justify-content:space-between;align-items:center;gap:8px;padding:5px 8px;border-bottom:1px solid #596046;background:#203326}
+.mobile-roster-header h3{font-size:17px;margin:0}
+.mobile-roster-header button{min-width:44px;min-height:44px;font-size:13px;padding:5px 8px}
+.mobile-roster-scroll{display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;align-content:start;gap:6px;min-height:0;padding:8px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y pinch-zoom}
+.mobile-roster-scroll button{display:block;min-height:56px;text-align:left;padding:7px 9px;font-size:13px;line-height:1.4}
+.mobile-roster-scroll button[aria-pressed=true]{border-color:var(--gold);background:#423b23}
+.mobile-roster-scroll b{font-size:15px;color:var(--gold)}
+.mobile-roster-scroll span,.mobile-roster-scroll small{display:block;font-size:12px;margin-top:2px;color:var(--muted)}
+@media(orientation:landscape) and (min-width:601px){
+ #battle-scene[data-mobile-ui=true] .mobile-command-frame{max-height:calc(var(--mobile-command-max-height,calc(100dvh - 86px)) - 2px)}
+}

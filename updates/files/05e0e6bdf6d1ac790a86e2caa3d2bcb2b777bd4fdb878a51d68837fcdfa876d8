@@ -1,0 +1,42 @@
+import {specializationFor} from './specializations.js';
+import {spiritTacticPower,spiritTacticBonus,spiritDamageGuard} from './spirits-system.js';
+import {CHAPTERS} from './campaign.js';
+import {zhugeliangIdentity,zhugeliangTacticProfile} from './zhugeliang-balance.js';
+
+export const TACTIC_FIRE_POWER=Object.freeze({version:1,single:1.35,area:1.25});
+export function tacticFireMultiplier(actor,state,area=false){
+ const chapter=CHAPTERS[state?.chapter];
+ const modern=state?.combatProfile==='act2'||chapter?.act===2||chapter?.combatProfile==='act2';
+ return actor?.cls==='strategist'&&modern&&state?.tacticFirePowerVersion===TACTIC_FIRE_POWER.version?TACTIC_FIRE_POWER[area?'area':'single']:1;
+}
+
+const PROFILES=Object.freeze({
+ zhugeliang:{name:'S급 진형·범위 책사',firePower:1.10,areaPower:1.15,tacticChance:8,areaSPCost:16,controlChance:0,description:'천재 군략 · 책략 성공 +8%p · 화공 위력 +10% · 범위 화공 추가 위력 +15%·SP16. 책략 숙련과 팔진 화계를 활용합니다.'},
+ xushu:{name:'기습·제어 책사',firePower:1.04,areaPower:1,controlChance:4,description:'화공 위력 +4% · 혼란·위보 성공률 +4%p. 약한 부대를 노리고 적의 행동을 묶습니다.'},
+ jianyong:{name:'보급·군심 책사',firePower:1,areaPower:1,controlChance:0,description:'보급과 군심 수습으로 동료의 병력·상태를 회복합니다. 공격 책략은 지력에 비례합니다.'},
+ sunqian:{name:'교란·외교 책사',firePower:1,areaPower:1,controlChance:5,description:'혼란·위보 성공률 +5%p. 책사로 편성하면 적의 행동을 방해하는 데 강점이 있습니다.'},
+});
+const BASIC={name:'일반 책사',firePower:1,areaPower:1,controlChance:0,description:'지력에 비례하는 화공과 혼란·위보를 사용합니다.'};
+export function casterProfile(actor,state=null){
+ const identity=zhugeliangIdentity(actor)?'zhugeliang':actor?.id;
+ const baseProfile=actor?.cls==='strategist'&&actor?.team==='ally'?(PROFILES[identity]??BASIC):BASIC;
+ const profile=zhugeliangTacticProfile(actor,baseProfile);
+ const specialization=actor?.cls==='strategist'?specializationFor(actor):null;
+ const description=[profile.description,tacticFireMultiplier(actor,state)>1?'책사 화공 강화 · 단일 위력 ×1.35 · 범위·화공 필살기 위력 ×1.25 · 양군 공통.':''].filter(Boolean).join(' ');
+ return {...profile,description,specialization:specialization?.name??'',note:[description,specialization?.firePower?'화공 책사 · 화공 위력 +12%.':'',specialization?.controlChance?'제어 책사 · 혼란·위보 성공률 +10%p.':''].filter(Boolean).join(' ')};
+}
+export const tacticIntFactor=actor=>Math.max(.5,(actor?.int??85)/85);
+export const WATER_TACTIC=Object.freeze({id:'water',name:'수계',range:[2,4],power:.6,description:'첫 승급을 마친 아군 책사 · 비 오는 동안 사용 · 거리 2~4 적 1부대 · 기본 화공 피해의 60%에 지력 적용 · SP 소모 없음 · 반격 없음 · 행동 종료'});
+// Water is a separate normal tactic, so fire terrain/profile bonuses do not apply.
+export const waterTacticDamage=(baseDamage,actor,target)=>Math.max(1,Math.round(baseDamage*WATER_TACTIC.power*tacticIntFactor(actor)*spiritTacticPower(actor)*spiritDamageGuard(target,'tactic')));
+export function tacticAccuracyBonus(actor,kind){
+ const profile=casterProfile(actor),spec=specializationFor(actor);
+ const control=kind!=='fire'?(profile.controlChance+(spec?.controlChance??0)):0;
+ // Existing trait calculation already includes Wisdom. Chant and Wisdom never stack.
+ return (profile.tacticChance??0)+control+Math.max(0,spiritTacticBonus(actor)-(actor?.spirits?.wisdom?20:0));
+}
+export function tacticDamage(baseDamage,actor,target,power=1,area=false,state=null,fireArea=area){
+ const profile=casterProfile(actor),spec=specializationFor(actor);
+ const role=profile.firePower*(area?profile.areaPower:1);
+ return Math.max(1,Math.round(baseDamage*tacticIntFactor(actor)*role*(spec?.firePower??1)*power*spiritTacticPower(actor)*spiritDamageGuard(target,'tactic')*tacticFireMultiplier(actor,state,fireArea)));
+}

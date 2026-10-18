@@ -1,0 +1,23 @@
+import {CHAPTERS} from './campaign.js';
+
+// The Jiangxia evacuation vessel alone can navigate its river. The # glyph in
+// other chapters also represents walls and cliffs; a sprite/class is no permit.
+export const jiangxiaFerry=(state,unit)=>(state?.chapterId??CHAPTERS[state?.chapter]?.id)==='s14_jiangxia'&&unit?.id==='x_ferry'&&unit.team==='ally'&&unit.extra===true&&unit.nonCombat===true;
+export const legacyFerryStats=(state,unit,ref)=>jiangxiaFerry(state,unit)&&jiangxiaFerry(state,ref)&&unit.maxHp===5000&&unit.move===2&&ref.maxHp===6000&&ref.move===1;
+export const legacyFerryStatAllowed=(state,unit,ref,key)=>['maxHp','move'].includes(key)&&legacyFerryStats(state,unit,ref);
+
+// Validate the complete historical record before upgrading an active battle.
+// Keep wounds, dead units, paid rewards and completed snapshots intact.
+export function upgradeValidatedFerryNavigation(value,refs){
+ const state=value.state;
+ if(state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return false;
+ const unit=state.units.find(u=>u.id==='x_ferry'),ref=refs.find(u=>u.id==='x_ferry');
+ if(!legacyFerryStats(state,unit,ref))return false;
+ const increase=ref.maxHp-unit.maxHp;
+ unit.maxHp=ref.maxHp;unit.move=ref.move;if(unit.hp>0)unit.hp+=increase;
+ if(state.bossCleanupVersion===1&&state.bossCleanup?.status==='pending'){
+  const saved=state.bossCleanup.basis.units.find(u=>u.id===unit.id);
+  if(saved){saved.maxHp=ref.maxHp;if(saved.hp>0)saved.hp+=increase;}
+ }
+ return true;
+}
