@@ -1,0 +1,128 @@
+import {imageSource,retryOriginalImage} from './image-source.js';
+import {decorationPlanFor,DECORATION_ASSETS} from './map-decoration-policy.js';
+
+export const DECORATION_TILE_PIXELS=48;
+export const DECORATION_LAYER_LIMITS=Object.freeze({columns:26,rows:20,placements:256,assets:12,assetEdge:1024,assetPixels:1048576});
+const localSource=source=>typeof source==='string'&&!!source&&!/^(?:[a-z]+:|\/\/|\/)|(?:^|\/)\.\.(?:\/|$)|[?#\\]/i.test(source);
+const finite=Number.isFinite;
+
+// Snapshot the authored display plan. Neither the asynchronous painter nor its
+// cache retains a mutable battle, unit, terrain array or policy placement.
+function displayPlan(plan,geometry,baseSource,assets){
+ if(!plan||typeof plan.key!=='string'||!plan.key||typeof baseSource!=='string'||!baseSource)return null;
+ const {columns,rows}=plan;
+ if(!Number.isInteger(columns)||columns<1||columns>DECORATION_LAYER_LIMITS.columns||!Number.isInteger(rows)||rows<1||rows>DECORATION_LAYER_LIMITS.rows||geometry?.width!==columns||geometry?.height!==rows||!Array.isArray(geometry.terrain)||geometry.terrain.length!==rows||geometry.terrain.some(row=>typeof row!=='string'||row.length!==columns||!/^[.F#]+$/.test(row)))return null;
+ if(!Array.isArray(plan.placements)||!plan.placements.length||plan.placements.length>DECORATION_LAYER_LIMITS.placements)return null;
+ const sources=new Map(),placements=[];
+ for(const item of plan.placements){
+  if(!item||typeof item.asset!=='string'||!Object.hasOwn(assets,item.asset)||!localSource(assets[item.asset]?.src))return null;
+  const {asset,x,y,width,height}=item,rotation=item.rotation??0,opacity=item.opacity??1;
+  if(![x,y,width,height,rotation,opacity].every(finite)||width<=0||height<=0||opacity<0||opacity>1||Math.abs(rotation)>360)return null;
+  const angle=rotation*Math.PI/180,halfWidth=(Math.abs(Math.cos(angle))*width+Math.abs(Math.sin(angle))*height)/2,halfHeight=(Math.abs(Math.sin(angle))*width+Math.abs(Math.cos(angle))*height)/2,cx=x+width/2,cy=y+height/2;
+  if(cx-halfWidth<-.000001||cy-halfHeight<-.000001||cx+halfWidth>columns+.000001||cy+halfHeight>rows+.000001)return null;
+  sources.set(asset,assets[asset].src);placements.push({asset,x,y,width,height,rotation,opacity});
+ }
+ if(sources.size>DECORATION_LAYER_LIMITS.assets)return null;
+ const key=JSON.stringify([plan.key,baseSource,columns,rows,geometry.terrain.join('\n'),[...sources],placements]);
+ return {key,columns,rows,placements,sources};
+}
+
+// One active transparent board image, prepared only after a matching base map
+// is ready. Selection, ranges and camera movement reuse the finished image.
+export function createMapDecorationLayer({document=globalThis.document,ImageType=globalThis.Image,urlAPI=globalThis.URL,assets=DECORATION_ASSETS,planFor=decorationPlanFor,resolveSource=imageSource,retryImage=retryOriginalImage,onChange=()=>{},onRelease=()=>{}}={}){
+ let current=null,destroyed=false;
+ const counts={requests:0,compositions:0,createdURLs:0,revokedURLs:0,failures:0};
+ const capable=!!document?.createElement&&typeof ImageType==='function'&&typeof urlAPI?.createObjectURL==='function'&&typeof urlAPI?.revokeObjectURL==='function';
+ const active=record=>!destroyed&&current===record&&!record.cancelled&&record.status!=='failed';
+ const notify=(callback,value)=>{try{callback(value);}catch{/* Decoration failure cannot interrupt a battle render. */}};
+ function releaseImages(record){
+  for(const image of record.images){image.onload=null;image.onerror=null;image.removeAttribute?.('src');}
+  record.images.clear();
+ }
+ function releaseCanvas(record){if(record.canvas){record.canvas.width=record.canvas.height=1;record.canvas=null;}}
+ function releaseURL(record){
+  if(!record.url)return;
+  const source=record.url;record.url=null;record.source=null;
+  // The host removes the CSS reference before this owned URL is revoked.
+  notify(onRelease,source);try{urlAPI.revokeObjectURL(source);}finally{counts.revokedURLs++;}
+ }
+ function dispose(record){
+  if(!record)return;record.cancelled=true;
+  for(const abort of [...record.aborters])abort();record.aborters.clear();
+  releaseImages(record);releaseCanvas(record);releaseURL(record);
+ }
+ function fail(record){
+  if(!active(record))return;
+  record.status='failed';counts.failures++;
+  for(const abort of [...record.aborters])abort();record.aborters.clear();
+  releaseImages(record);releaseCanvas(record);releaseURL(record);
+ }
+ function load(record,source,{width,height,blob=false}={}){
+  return new Promise(resolve=>{
+   if(!active(record)){resolve(null);return;}
+   let image,settled=false;
+   const finish=value=>{if(settled)return;settled=true;record.aborters.delete(abort);if(image){image.onload=null;image.onerror=null;}resolve(value);};
+   const abort=()=>finish(null);record.aborters.add(abort);
+   try{
+    image=new ImageType();record.images.add(image);image.decoding='async';image.draggable=false;
+    image.onload=()=>{
+     if(settled||!active(record)){finish(null);return;}
+     const w=image.naturalWidth,h=image.naturalHeight;
+     if(!Number.isInteger(w)||w<1||!Number.isInteger(h)||h<1||(blob?(w!==width||h!==height):(Math.max(w,h)>DECORATION_LAYER_LIMITS.assetEdge||w*h>DECORATION_LAYER_LIMITS.assetPixels))){finish(null);return;}
+     image.onload=null;image.onerror=null;
+     Promise.resolve().then(()=>image.decode?.()).then(()=>finish(active(record)?image:null),()=>finish(null));
+    };
+    image.onerror=()=>{if(settled)return;try{if(!blob&&active(record)&&retryImage(image))return;}catch{}finish(null);};
+    image.src=blob?source:resolveSource(source);
+   }catch{finish(null);}
+  });
+ }
+ function encode(record,canvas){
+  return new Promise(resolve=>{
+   let settled=false;
+   const finish=blob=>{if(settled)return;settled=true;record.aborters.delete(abort);resolve(blob);};
+   const abort=()=>finish(null);record.aborters.add(abort);
+   try{canvas.toBlob(blob=>finish(blob),'image/webp',.9);}catch{finish(null);}
+  });
+ }
+ async function build(record){
+  const {plan}=record,loaded=await Promise.all([...plan.sources].map(async([id,src])=>{const image=await load(record,src);if(!image)fail(record);return [id,image];}));
+  if(!active(record))return;
+  if(loaded.some(([,image])=>!image)){fail(record);return;}
+  const images=new Map(loaded),canvas=document.createElement('canvas');record.canvas=canvas;
+  canvas.width=plan.columns*DECORATION_TILE_PIXELS;canvas.height=plan.rows*DECORATION_TILE_PIXELS;
+  const width=canvas.width,height=canvas.height,ctx=canvas.getContext?.('2d');
+  if(!ctx||typeof canvas.toBlob!=='function'){fail(record);return;}
+  ctx.clearRect(0,0,width,height);
+  for(const item of plan.placements){
+   ctx.save();ctx.globalAlpha=item.opacity;
+   ctx.translate((item.x+item.width/2)*DECORATION_TILE_PIXELS,(item.y+item.height/2)*DECORATION_TILE_PIXELS);
+   if(item.rotation)ctx.rotate(item.rotation*Math.PI/180);
+   ctx.drawImage(images.get(item.asset),-item.width*DECORATION_TILE_PIXELS/2,-item.height*DECORATION_TILE_PIXELS/2,item.width*DECORATION_TILE_PIXELS,item.height*DECORATION_TILE_PIXELS);ctx.restore();
+  }
+  counts.compositions++;releaseImages(record);
+  const blob=await encode(record,canvas);releaseCanvas(record);
+  if(!active(record))return;
+  if(!blob||!finite(blob.size)||blob.size<=0||!/^image\/(?:webp|png)$/.test(blob.type)){fail(record);return;}
+  record.url=urlAPI.createObjectURL(blob);counts.createdURLs++;
+  const decoded=await load(record,record.url,{width,height,blob:true});releaseImages(record);
+  if(!active(record))return;
+  if(!decoded){fail(record);return;}
+  record.source=record.url;record.status='ready';notify(onChange,{key:plan.key,source:record.source});
+ }
+ function clear(){const previous=current;current=null;dispose(previous);}
+ return {
+  update({scenarioId,geometry,baseSource}={}){
+   if(destroyed||!capable)return null;
+   let plan=null;
+   try{if(baseSource)plan=displayPlan(planFor(scenarioId,geometry,baseSource),geometry,baseSource,assets);}catch{}
+   if(!plan){clear();return null;}
+   if(current?.plan.key===plan.key)return current.status==='ready'?current.source:null;
+   clear();const record={plan,status:'loading',source:null,url:null,cancelled:false,aborters:new Set(),images:new Set(),canvas:null};current=record;counts.requests++;
+   void build(record).catch(()=>fail(record));return null;
+  },
+  clear,
+  destroy(){if(destroyed)return;destroyed=true;clear();},
+  stats:()=>({...counts,liveURLs:counts.createdURLs-counts.revokedURLs,activeStatus:current?.status??null,activeKey:current?.plan.key??null,assetImages:current?.images.size??0,canvasPixels:current?.canvas?current.canvas.width*current.canvas.height:0,destroyed})
+ };
+}
