@@ -1,0 +1,13 @@
+// Arrival morale is sampled once from the live field, never from reserve stats.
+// Initial deployment, already-arrived units and stored reserve profiles stay intact.
+export const RELIEF_MORALE_WAVES=Object.freeze([
+ Object.freeze({chapterId:'s14_jiangxia',waveId:'jiangxia_return',morale:150,requireOutnumbered:true}),
+]);
+const fieldCombatant=(unit,team)=>unit?.team===team&&unit.hp>0&&!unit.nonCombat&&!unit.escaped&&!unit.withdrawn;
+export function alliedReinforcementMorale(state,chapter,wave){
+ if(wave?.team!=='ally')return null;
+ const allies=state.units.filter(unit=>fieldCombatant(unit,'ally'));
+ const relief=RELIEF_MORALE_WAVES.find(rule=>rule.chapterId===chapter?.id&&rule.waveId===wave.id);
+ if(relief?.requireOutnumbered&&state.units.filter(unit=>fieldCombatant(unit,'enemy')).length>allies.length)return relief.morale;
+ return allies.length?Math.max(50,Math.min(150,Math.round(allies.reduce((total,unit)=>total+unit.morale,0)/allies.length))):100;
+}
