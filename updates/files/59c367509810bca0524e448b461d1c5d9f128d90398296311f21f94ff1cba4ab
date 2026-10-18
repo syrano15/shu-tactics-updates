@@ -1,0 +1,19 @@
+/* Map-only visual policy. Unit state, faction colors and command availability stay intact. */
+#battle-scene .board-viewport[data-map-interacting=true] :is(.promotion-aura,.promotion-aura i,.goal-marker,.fleet-flame-moving,.battle-sprite),
+#battle-scene .board-viewport[data-map-interacting=true] .spirit-effect:not(.is-casting):not(.is-reacting):not(.is-expiring),
+#battle-scene .board-viewport[data-map-interacting=true] .cell::after,
+#battle-scene .board-viewport[data-map-interacting=true] .terrain-art-ready::after{animation-play-state:paused!important}
+#battle-scene .board-viewport[data-map-document-hidden=true] *,
+#battle-scene .board-viewport[data-map-document-hidden=true] *::before,
+#battle-scene .board-viewport[data-map-document-hidden=true] *::after{animation-play-state:paused!important}
+
+/* A full duel owns the foreground; preserve a still battlefield behind it. */
+#battle-scene .board-viewport[data-map-presentation-paused=true] *,
+#battle-scene .board-viewport[data-map-presentation-paused=true] *::before,
+#battle-scene .board-viewport[data-map-presentation-paused=true] *::after{animation-play-state:paused!important}
+
+/* Static rank seals keep their contrast at every scale. No standing particles. */
+#battle-scene .board-viewport.board-overview .promotion-aura{animation:none!important}
+@media(any-pointer:coarse),(max-width:680px){
+ #battle-scene .board-viewport .promotion-aura{animation:none!important}
+}

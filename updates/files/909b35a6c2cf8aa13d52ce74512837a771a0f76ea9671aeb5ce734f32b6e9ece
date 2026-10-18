@@ -1,0 +1,97 @@
+// Weather owns a separate visual clock. It never reads or advances battle RNG.
+const value=(n,k)=>{let x=Math.imul(n+19,374761393)^Math.imul(k+73,668265263);x=Math.imul(x^(x>>>13),1274126177);return ((x^(x>>>16))>>>0)/4294967296;};
+const wrap=(n,span)=>((n%span)+span)%span;
+export function weatherVisualModel(state,active=true){
+ return {rain:active&&state?.weather?.kind==='rain',columns:state?.terrain?.[0]?.length??0,rows:state?.terrain?.length??0};
+}
+
+/** Deterministic screen-space particles: no Math.random and no game-state inputs. */
+export function rainVisualFrame(width,height,elapsedMs,{reducedMotion=false}={}){
+ const w=Math.max(1,width),h=Math.max(1,height),t=reducedMotion?0:Math.max(0,elapsedMs)*.001;
+ const count=Math.max(80,Math.min(220,Math.round(w*h/5400))),drops=[],splashes=[];
+ for(let i=0;i<count;i++){
+  const near=i%4===0,speed=(near?430:240)+value(i,2)*(near?190:140),length=(near?23:11)+value(i,4)*(near?18:12);
+  const x=wrap(value(i,3)*(w+130)-t*speed*.2,w+130)-45,y=wrap(value(i,1)*(h+100)+t*speed,h+100)-50;
+  drops.push({x,y,dx:-length*.2,dy:length,width:near?1.3:.7,opacity:near?.56:.31});
+ }
+ // Bursts disappear between impacts instead of becoming permanent rings across the map.
+ for(let i=0;i<32;i++){
+  const cycle=wrap(t*(.8+value(i,14)*.6)+value(i,11),1),visible=reducedMotion?false:cycle<.34;
+  if(visible)splashes.push({index:i,x:value(i,7),y:value(i,8),progress:cycle/.34,opacity:(1-cycle/.34)*.47});
+ }
+ return {drops,splashes};
+}
+
+export function installWeatherPresentation(viewport,board=viewport?.querySelector('#board')){
+ if(!viewport?.ownerDocument||!board)return {update(){},setPaused(){},clear(){},destroy(){}};
+ const doc=viewport.ownerDocument,win=doc.defaultView,media=win.matchMedia('(prefers-reduced-motion: reduce)');
+ if(!doc.querySelector('#weather-presentation-style')){const style=doc.createElement('link');style.id='weather-presentation-style';style.rel='stylesheet';style.href=new URL('./weather-presentation.css',import.meta.url).href;doc.head.append(style);}
+ let canvas=null,ctx=null,state=null,frame=0,lastFrame=null,lastDraw=-Infinity,elapsed=0,raining=false,disposed=false,geometryDirty=true,layout=null,presentationPaused=false;
+ function pause(){if(frame)win.cancelAnimationFrame(frame);frame=0;lastFrame=null;if(canvas)canvas.dataset.animation=media.matches?'still':'paused';}
+ function clear(){raining=false;pause();canvas?.remove();canvas=ctx=null;layout=null;geometryDirty=true;elapsed=0;lastDraw=-Infinity;viewport.classList.remove('weather-rain');}
+ function geometry(){
+  if(!canvas||!ctx)return;
+  // Read the viewport and board together before changing the canvas. Camera
+  // events only dirty this snapshot; the one rain clock owns all paint work.
+  const width=Math.max(1,viewport.clientWidth),height=Math.max(1,viewport.clientHeight),ratio=Math.min(2,win.devicePixelRatio||1),scrollLeft=viewport.scrollLeft,scrollTop=viewport.scrollTop,b=board.getBoundingClientRect(),v=viewport.getBoundingClientRect();
+  layout={width,height,left:b.left-v.left,top:b.top-v.top,boardWidth:b.width,boardHeight:b.height};geometryDirty=false;
+  if(canvas.width!==Math.round(width*ratio)||canvas.height!==Math.round(height*ratio)){canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);}
+  canvas.style.width=width+'px';canvas.style.height=height+'px';canvas.style.transform=`translate(${scrollLeft}px,${scrollTop}px)`;
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+ }
+ function draw(){
+  if(!canvas||!ctx||!state||!layout)return;
+  const model=weatherVisualModel(state),{width:w,height:h,left,top,boardWidth,boardHeight}=layout;
+  if(!model.columns||!model.rows)return;
+  ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.rect(left,top,boardWidth,boardHeight);ctx.clip();
+  ctx.fillStyle='#18304717';ctx.fillRect(left,top,boardWidth,boardHeight);
+  const particles=rainVisualFrame(w,h,elapsed,{reducedMotion:media.matches});
+  ctx.lineCap='round';
+  for(const drop of particles.drops){
+   ctx.beginPath();ctx.moveTo(drop.x,drop.y);ctx.lineTo(drop.x+drop.dx,drop.y+drop.dy);ctx.strokeStyle=`rgba(217,233,238,${drop.opacity})`;ctx.lineWidth=drop.width;ctx.stroke();
+  }
+  const cellW=boardWidth/model.columns,cellH=boardHeight/model.rows;
+  for(const splash of particles.splashes){
+   const x=Math.min(model.columns-1,Math.floor(splash.x*model.columns)),y=Math.min(model.rows-1,Math.floor(splash.y*model.rows));
+   if(!['.','~'].includes(state.terrain[y][x]))continue;
+   const px=left+(x+.18+value(splash.index,9)*.64)*cellW,py=top+(y+.23+value(splash.index,10)*.5)*cellH,scale=Math.max(.55,cellW/60);
+   const radius=(2+splash.progress*9)*scale;
+   ctx.beginPath();ctx.ellipse(px,py,radius,radius*.3,0,0,Math.PI*2);ctx.strokeStyle=`rgba(215,235,238,${splash.opacity})`;ctx.lineWidth=.9;ctx.stroke();
+   if(splash.progress<.45){const lift=(1-splash.progress/.45)*4*scale;ctx.beginPath();ctx.moveTo(px-2*scale,py);ctx.lineTo(px-3*scale,py-lift);ctx.moveTo(px+2*scale,py);ctx.lineTo(px+3*scale,py-lift);ctx.stroke();}
+  }
+  ctx.restore();
+ }
+ function tick(now){
+  frame=0;if(!raining||disposed||doc.hidden||presentationPaused){pause();return;}
+  if(media.matches){if(geometryDirty){geometry();draw();}canvas.dataset.animation='still';lastFrame=null;return;}
+  if(lastFrame!==null)elapsed+=Math.min(80,Math.max(0,now-lastFrame));else lastDraw=now;lastFrame=now;
+  // Older hosts without ResizeObserver cannot announce a board-only zoom.
+  // Retain their original per-rain-frame measurement; modern hosts use cache.
+  if(now-lastDraw>=32){if(geometryDirty||!observer)geometry();draw();lastDraw=now;}
+  frame=win.requestAnimationFrame(tick);
+ }
+ function resume(){
+  if(!raining||disposed)return;
+  if(doc.hidden||presentationPaused){pause();return;}
+  if(media.matches){pause();geometryDirty=true;geometry();draw();return;}
+  canvas.dataset.animation='running';if(!frame){geometryDirty=true;geometry();draw();lastFrame=null;lastDraw=-Infinity;frame=win.requestAnimationFrame(tick);}
+ }
+ function invalidateGeometry(){
+  if(!raining||disposed)return;geometryDirty=true;
+  if(!doc.hidden&&!presentationPaused&&!frame)frame=win.requestAnimationFrame(tick);
+ }
+ const resized=invalidateGeometry,scrolled=invalidateGeometry;
+ const observer=win.ResizeObserver?new win.ResizeObserver(resized):null;observer?.observe(viewport);observer?.observe(board);
+ viewport.addEventListener('scroll',scrolled,{passive:true});win.addEventListener('resize',resized);media.addEventListener('change',resume);doc.addEventListener('visibilitychange',resume);
+ return {update({state:next,active=true}){
+  if(disposed)return;state=next;const model=weatherVisualModel(next,active);if(!model.rain||!model.columns||!model.rows){clear();return;}
+  if(!canvas){
+   canvas=doc.createElement('canvas');canvas.className='weather-rain-layer';canvas.setAttribute('aria-hidden','true');canvas.dataset.weather='rain';viewport.append(canvas);ctx=canvas.getContext('2d');
+   if(!ctx){clear();return;}
+  }
+  raining=true;geometryDirty=true;viewport.classList.add('weather-rain');resume();
+ },setPaused(paused){
+  const next=!!paused;if(disposed||presentationPaused===next)return;
+  presentationPaused=next;if(next)pause();else resume();
+ },clear,destroy(){if(disposed)return;clear();disposed=true;state=null;observer?.disconnect();viewport.removeEventListener('scroll',scrolled);win.removeEventListener('resize',resized);media.removeEventListener('change',resume);doc.removeEventListener('visibilitychange',resume);}};
+}

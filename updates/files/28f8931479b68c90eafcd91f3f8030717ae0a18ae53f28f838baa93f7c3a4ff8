@@ -1,0 +1,98 @@
+
+/* v5.1: the board owns all reclaimed space; controls are contextual overlays. */
+body.battle-screen .masthead,body.battle-screen .story-progress,body.battle-screen #chapter-label,body.battle-screen .compact-context,body.battle-screen .build-tag{display:none!important}
+body.battle-screen #game-main{padding:6px;gap:4px}
+body.battle-screen .battle-heading{min-height:30px}
+body.battle-screen .battle-heading h2{display:block;white-space:normal;font-size:clamp(16px,2vw,22px);line-height:1.35}
+#battle-scene .battle-workspace,#battle-scene.is-skill-targeting[data-command-placement] .battle-workspace{display:flex!important;flex-direction:column;gap:0;overflow:hidden}
+#battle-scene .battle-map-column,#battle-scene.is-skill-targeting .battle-map-column{flex:1 1 auto!important;min-height:0;min-width:0}
+#battle-scene .battle-command-column,#battle-scene .field-bottom,#battle-scene #instruction,#battle-scene #range-hint{display:none!important}
+#battle-scene #board-stage{position:relative;flex:1;height:auto!important;min-height:0;isolation:isolate}
+#battle-scene .field-top{padding:0 6px;margin:0 0 4px;min-height:48px;flex-wrap:nowrap;gap:8px;font-size:12px}
+#battle-scene .field-top>span:first-child{display:none}
+#battle-scene .turn-display{margin-right:0;gap:8px;white-space:nowrap;flex-shrink:0}
+#battle-scene .battle-victory-goal{flex:1;min-width:0;color:var(--text);font-size:14px;line-height:1.45;word-break:keep-all}
+#battle-scene #weather-info{margin-left:0;display:inline;font-size:12px}
+#battle-menu-open{min-height:48px;min-width:64px;font-size:16px}
+#battle-scene .board-navigation{position:absolute;right:8px;top:8px;z-index:12;width:auto;max-width:calc(100% - 16px);background:#17291fdd;border:0}
+#battle-scene .battle-map-column{position:relative}
+#battle-scene .board-navigation .board-pan{display:none}
+#battle-scene .board-navigation button{min-width:40px;min-height:40px;font-size:14px}
+#battle-scene .board-navigation output{font-size:12px}
+#battle-scene .end-turn{position:absolute;bottom:max(8px,env(safe-area-inset-bottom));right:max(8px,env(safe-area-inset-right));left:auto;width:auto;min-width:108px;min-height:48px;z-index:20;font-size:15px;box-shadow:0 2px 8px #0007}
+#battle-scene .boss-cleanup-finish{position:absolute;right:calc(max(8px,env(safe-area-inset-right)) + 116px);left:auto;bottom:max(8px,env(safe-area-inset-bottom));z-index:20;min-height:48px}
+#battle-scene .battle-unit-side,#battle-scene #skill-targeting-panel{position:absolute;right:max(8px,env(safe-area-inset-right));bottom:calc(max(8px,env(safe-area-inset-bottom)) + 56px);width:min(340px,calc(100% - 16px));max-height:calc(100% - 124px);z-index:21;min-height:0;overflow:auto;overscroll-behavior:contain}
+#battle-scene .battle-unit-side #unit-ui{max-height:100%;font-size:16px}
+#battle-scene #unit-ui .unit-actions{gap:8px}
+#battle-scene #unit-ui .unit-actions button,#battle-scene #unit-ui .spirit-option{min-height:48px;height:auto;font-size:15px;padding:8px}
+#battle-scene #unit-ui .spirit-option small{font-size:13px}
+#battle-scene #unit-ui .command-hint{display:none}
+#battle-scene #skill-targeting-panel{height:auto;min-height:0;max-height:calc(100% - 68px);background:#17291ff5}
+#battle-scene .compact-skill-context{padding:12px;display:block;height:auto;font-size:15px}
+.compact-skill-context header{display:flex;justify-content:space-between;align-items:center;gap:8px}.compact-skill-context h3{margin:0;font-size:18px}.compact-skill-context p{margin:8px 0}
+.skill-context-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.skill-context-actions button{min-height:48px;font-size:15px}
+.battle-feedback{position:absolute;top:68px;left:50%;translate:-50% 0;z-index:25;max-width:min(500px,calc(100% - 24px));margin:0;padding:10px 14px;background:#17291ff2;border:1px solid var(--gold);box-shadow:0 3px 10px #0008;font-size:16px;pointer-events:none}
+.battlefield-menu{width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}.battlefield-menu-actions{display:grid;gap:8px}.battlefield-menu button,.battle-detail-dialog button{min-height:48px;font-size:16px}
+@media(max-width:540px){body.battle-screen{height:100dvh;min-height:0;overflow:hidden}body.battle-screen #game-main{min-height:0}#battle-scene .battle-unit-side,#battle-scene #skill-targeting-panel{width:calc(100% - 16px);bottom:64px;max-height:calc(100% - 128px)}#battle-scene .board-navigation button{min-width:48px;min-height:48px}#battle-scene .board-navigation output{display:none}}
+@media(max-height:480px){#battle-scene .field-top{min-height:48px}#battle-scene .battle-unit-side,#battle-scene #skill-targeting-panel{bottom:64px;max-height:calc(100% - 72px);width:min(300px,calc(100% - 16px))}#battle-scene .board-navigation{left:8px;right:auto;top:4px}#battle-scene #unit-ui .float-hp{margin:2px 0}#battle-scene #unit-ui .unit-hp-track{display:none}}
+
+/* Supersede the legacy phone minimum-height rule, including wide landscape. */
+body.battle-screen{height:100dvh;min-height:0;overflow:hidden}
+#battle-scene.is-skill-targeting #skill-targeting-panel{height:auto;min-height:0;max-height:calc(100% - 68px)}
+#battle-scene #unit-ui .command-reason{display:block;color:#edc49b;font-size:15px;line-height:1.45;margin:8px 0}
+#battle-scene #unit-ui .command-context{display:block;font-size:15px;line-height:1.45;margin:8px 0}
+@media(max-width:540px){#battle-scene.is-skill-targeting #skill-targeting-panel{max-height:calc(100% - 128px)}}
+@media(max-height:480px){#battle-scene.is-skill-targeting #skill-targeting-panel{max-height:calc(100% - 16px)}}
+/* Native touch panning retains compositor scrolling and inertia. Mouse dragging
+   is handled separately; panels and dialogs keep their own native scrolling. */
+#battle-scene .board-viewport.expanded-viewport{touch-action:pan-x pan-y pinch-zoom;box-sizing:border-box;scroll-padding:8px}
+#battle-scene .board-navigation{gap:6px;flex-wrap:wrap;max-width:calc(100% - 16px)}
+#battle-scene .board-navigation .board-zoom{min-width:0;max-width:100%;flex-wrap:wrap}
+#battle-scene .board-navigation .board-pan{display:flex;margin-left:0}
+#battle-scene .board-navigation .board-pan button[data-board-pan]{display:none}
+#battle-scene .board-navigation button{min-width:48px;min-height:48px;font-size:15px;padding:6px 8px}
+#battle-scene .board-navigation button[data-board-focus]{min-width:82px}
+
+/* Defeat legacy side/spirit selectors while keeping the compact HP summary. */
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui button{
+ min-height:48px;height:auto;font-size:15px;line-height:1.4;padding:8px;
+}
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .spirit-option{min-height:48px;height:auto}
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .spirit-option b{font-size:16px;line-height:1.4}
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .spirit-option b span{font-size:14px}
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .spirit-option small,
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .spirit-option em,
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .skill-command small{font-size:15px;line-height:1.45}
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .float-header h3{font-size:17px;line-height:1.4}
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .command-reason,
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .command-context,
+#battle-scene[data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .prediction-subline{font-size:16px;line-height:1.5}
+#battle-scene[data-command-placement=context] #skill-targeting-panel .skill-context-actions button{min-height:48px;font-size:16px;white-space:normal}
+.battle-detail-dialog .battle-detail-content,
+.battle-detail-dialog .battle-detail-content small,
+.battle-unit-detail p,.battle-unit-detail small,.battle-unit-detail .table-note,
+.battle-unit-detail .growth-inline,.battle-unit-detail .trait-note,.battle-unit-detail .float-stats,
+.battle-prediction-detail,.battle-prediction-detail p,.battle-prediction-detail small,
+.battle-prediction-detail td,.battle-prediction-detail th{font-size:16px;line-height:1.6}
+@media(max-height:480px){
+ #battle-scene:has(#board-stage[data-context-clearance=true]) .board-navigation{
+  max-width:calc(100% - min(300px,calc(100% - 140px)) - 24px);
+ }
+}
+
+
+/* The bottom-right turn button has its own row below contextual commands. */
+#battle-scene #skill-targeting-panel,#battle-scene.is-skill-targeting #skill-targeting-panel{max-height:calc(100% - 124px)}
+@media(max-width:640px){#battle-scene .field-top{flex-wrap:wrap;gap:4px 8px;padding-bottom:5px}#battle-scene .battle-victory-goal{order:4;flex-basis:100%;font-size:13px}#battle-scene #weather-info{margin-left:auto}}
+@media(max-height:480px){#battle-scene .battle-victory-goal{font-size:12px}#battle-scene #skill-targeting-panel,#battle-scene.is-skill-targeting #skill-targeting-panel{max-height:calc(100% - 72px)}}
+
+/* Desktop commands have a permanent rail. Opening or closing a command must
+   not resize/recenter the map, and edge units stay outside the command area. */
+#battle-scene[data-mobile-ui=false]{--desktop-command-rail:clamp(280px,22vw,360px)}
+#battle-scene[data-mobile-ui=false] #board-stage .board-viewport.expanded-viewport{
+ width:calc(100% - var(--desktop-command-rail));max-width:calc(100% - var(--desktop-command-rail));
+}
+#battle-scene[data-mobile-ui=false] .battle-unit-side,
+#battle-scene[data-mobile-ui=false] #skill-targeting-panel{
+ width:calc(var(--desktop-command-rail) - 16px);
+}
