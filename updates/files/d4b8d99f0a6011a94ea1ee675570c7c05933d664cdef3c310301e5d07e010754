@@ -1,0 +1,22 @@
+const ACTIVE_STAGES=new Set(['preDialogue','deployment','battle']);
+import {specialistIdentity} from './special-troops.js';
+import {campaignEnemyBalanceV2Applies} from './campaign-enemy-balance.js';
+const applies=chapter=>Number.isInteger(chapter?.act)&&chapter.act>=3&&chapter.act<=7;
+const active=value=>value.state.result===null&&!value.state.rewardsSettled&&ACTIVE_STAGES.has(value.campaign.stage);
+const fail=()=>{throw new Error('후반 적 밸런스 저장 기록이 올바르지 않습니다.');};
+export function validateCampaignEnemyBalanceSave(state,chapter){
+ if(![undefined,0,1,2].includes(state.campaignEnemyBalanceVersion)||[1,2].includes(state.campaignEnemyBalanceVersion)&&!applies(chapter))fail();
+ if(state.campaignEnemyBalanceVersion===2&&(state.enemyProgressionVersion!==3||!campaignEnemyBalanceV2Applies(chapter)))fail();
+ if(state.campaignEnemyBalanceSourceVersion!==undefined&&(state.campaignEnemyBalanceSourceVersion!==0||state.campaignEnemyBalanceVersion!==1||!applies(chapter)))fail();
+ if(![undefined,0,1].includes(state.tacticFirePowerVersion)||state.tacticFirePowerVersion===1&&(!Number.isInteger(chapter?.act)||chapter.act<2||chapter.act>7))fail();
+ for(const unit of [...(state.units??[]),...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units??[])]){
+  if(unit.specialistId!==undefined&&(state.campaignEnemyBalanceVersion!==2||!specialistIdentity(unit)))fail();
+ }
+}
+// A started battle is a snapshot. Neither v0 nor v1 is rewritten on load;
+// the normal new-battle factory opts into v2 after this battle ends.
+export function upgradeValidatedCampaignEnemyBalance(){return false;}
+export function upgradeValidatedTacticFirePower(value,chapter){
+ if(!Number.isInteger(chapter?.act)||chapter.act<2||chapter.act>7||(value.state.tacticFirePowerVersion??0)!==0||!active(value))return false;
+ value.state.tacticFirePowerVersion=1;return true;
+}

@@ -1,0 +1,487 @@
+import {validateAct3StageRevision,upgradeValidatedAct3StageRevision,appendAct3StageInitials} from './act3-stage-revision.js';
+import {act3DefaultRemovedIds} from './act3-reinforcement-limit.js';
+import {validateAct4Progression} from './act4-progression.js';
+import {validateAct5Progression} from './act5-progression.js';
+import {validateAct6Progression} from './act6-progression.js';
+import {validateAct7Progression} from './act7-progression.js';
+import {validateAct7Mission} from './act7-mission.js';
+import {validateAct7Story} from './act7-story-mechanics.js';
+import {upgradeValidatedAct2Relief} from './act2-relief-save.js';
+import {upgradeValidatedBaimaReinforcement} from './baima-reinforcement-limit.js';
+import {upgradeValidatedThousandLiReinforcement} from './thousand-li-reinforcement-limit.js';
+import {upgradeValidatedAct2EnemyWaveLimit} from './act2-enemy-wave-limit.js';
+import {upgradeValidatedAct3ReinforcementLimit} from './act3-reinforcement-limit.js';
+import {validateEscortFollow} from './escort-follow.js';
+import {validateAllyMovementVersion,applyAllyMovementUpgrade} from './ally-movement.js';
+import {validateFourthSpiritState} from './fourth-spirit.js';
+import {validateHeroMasteryState,upgradeValidatedHeroMastery} from './hero-mastery.js';
+import {validateLegendarySave,initializeLegendaryBattle} from './legendary-skills.js';
+import {validateEnemyStrategistHealth,upgradeValidatedEnemyStrategistHealth} from './enemy-strategist-health.js';
+import {validateAct4Mission} from './act4-mission.js';
+import {validateAct5Mission} from './act5-mission.js';
+import {validateAct6Mission} from './act6-mission.js';
+import {validateAct6Story} from './act6-story-mechanics.js';
+import {validateEnemyControlGuards} from './enemy-control.js';
+import {xiapiScenario,upgradeValidatedXiapiRoutes} from './xiapi-routes.js';
+import {upgradeValidatedCombatSkillRules} from './combat-skill-rules-save.js';
+import {openingPressureApplies} from './opening-pressure.js';
+import {validateCampaignEvents,objectiveForCampaignVersion} from './campaign-events.js';
+import {validateHuarongChase} from './huarong-chase.js';
+import {validateTerrainEffectsRecord} from './terrain-effects.js';
+import {enemyHealthCapacity} from './enemy-progression.js';
+import {upgradeValidatedAct2Difficulty} from './act2-enemy-difficulty-save.js';
+import {validateCampaignEnemyBalanceSave,upgradeValidatedTacticFirePower} from './campaign-enemy-balance-save.js';
+import {reinforcementReferenceUnits,validateReinforcementRecord} from './reinforcements.js';
+import {enemyProgressionStamp,enemyProgressionRefs,validateEnemyProgressionMarker} from './enemy-progression-save.js';
+import {enemyFormationStamp,enemyFormationRefs,validateEnemyFormationMarker} from './enemy-formation-save.js';
+import {normalizeEscortSave} from './escort-balance.js';
+import {normalizeFixedGuestSave} from './fixed-guest-save.js';
+import {validateReplaySave} from './replay-mode.js';
+import {validateCombatSkillSave} from './save-combat-skills.js';
+import {validateSaveFeatures,legacyKongRongHealth,upgradeValidatedKongRongHealth} from './save-features.js';
+import {validateStoryRecord} from './story-events.js';
+import {HERO_DATA} from './heroes.js';
+import {classTrainingFactor,classAptitude} from './class-change.js';
+import {baseSP,normalizeSPRecoverySave,validateExtendedSpiritsSave} from './spirits.js';
+import {specializationFor} from './specializations.js';
+import {MAX_LEVEL,BENCH_GROWTH_CAP_VERSION,growthType,validateProgress,gainProgress,gainLegacyProgress,gainLegacyVeteranProgress,syncGrowth,HERO_GROWTH} from './growth.js';
+import {validateDraft,needsDeployment,validateDeploymentSlots} from './deployment.js';
+import {mapSize} from './maps.js';
+import {validateObjective,validateDefeat,battleOutcome,objectiveUnits,validateBossCleanup,bossCleanupPending,updateBattleOutcome,bossCleanupRemaining} from './objectives.js';
+import {Campaign,CHAPTERS,RETIRED_CHAPTERS,resolveChapterId} from './campaign.js';
+import {normalizeBattleRng} from './battle-rng.js';
+import {normalizeBattleFeatures,validateBattleFeatures,validateRewardReceipts} from './battle-rewards.js';
+import {createArmy,PARTS,normalizeArmyFeatures,validateArmyFeatures,validateHeroEquipment,validateModificationLimits,equipmentSlotCapacity} from './equipment.js';
+import {UNIT_TEMPLATES,STARTING_HEROES} from './roster.js';
+import {LEGACY_V1} from './legacy-v1.js';
+import {createBattle,createUnit} from './engine.js';
+import {GUEST_ALLIES_VERSION,guestTemplateHero,guestHeroIdentity,inheritedGuest,validateGuestAllies,upgradeValidatedGuestAllies,savedGuestSources,guestSourceArmy,validateGuestProfile} from './guest-allies.js';
+import {ZHUGELIANG_BALANCE_VERSION,modernZhugeliangBalance} from './zhugeliang-balance.js';
+import {validateZhugeliangBalance,upgradeValidatedZhugeliangBalance} from './zhugeliang-balance-save.js';
+import {validateBalance,normalizeBalance,DEFAULT_BALANCE} from './balance.js';
+// Keep slot names to locate old saves. Payload version is independent.
+const trial=typeof location!=='undefined'&&location.pathname.endsWith('/commander-trial.html');
+const baima=typeof location!=='undefined'&&location.pathname.endsWith('/baima-trial.html');
+const academy=typeof location!=='undefined'&&location.pathname.endsWith('/academy.html');
+const story=()=>CHAPTERS[0]?.rosterMode==='story';
+const legacyTrial=typeof location!=='undefined'&&location.pathname.endsWith('/legacy-trial.html');
+const comparison=()=>CHAPTERS[0]?.comparison??null;
+const prefix=comparison()?'shu-tactics-act1-compare-'+comparison().variant+'-'+comparison().seed:story()?'shu-tactics-act1':legacyTrial?'shu-tactics-trial-legacy':academy?'shu-tactics-trial-academy':baima?'shu-tactics-trial-baima':trial?'shu-tactics-trial-commander':'shu-tactics';
+export const SAVE_KEYS={manual:prefix+'-save-v1-manual',auto:prefix+'-save-v1-auto'};
+export const BACKUP_KEYS={manual:prefix+'-backup-v1-manual',auto:prefix+'-backup-v1-auto'};
+const assert=(ok,message='저장 파일의 내용이 올바르지 않습니다.')=>{if(!ok)throw new Error(message)};
+const integer=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+const object=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const unique=a=>Array.isArray(a)&&new Set(a).size===a.length;
+const cleanKeys=(v,depth=0)=>{assert(depth<40);if(!object(v)&&!Array.isArray(v))return;for(const k of Object.keys(v)){assert(!['__proto__','prototype','constructor'].includes(k));cleanKeys(v[k],depth+1)}};
+const canonical=id=>resolveChapterId(id).id;
+const knownReceipt=id=>typeof id==='string'&&(Object.hasOwn(RETIRED_CHAPTERS,id)||CHAPTERS.some(ch=>ch.id===id||ch.aliases?.includes(id)));
+const receipt=id=>Object.hasOwn(RETIRED_CHAPTERS,id)?id:canonical(id);
+export function saveReason({campaign,state,busy=false,origin=null,target=null,mode='command',title=false}){
+ if(state?.storyEvents?.pending?.length)return '전투 대사가 끝난 뒤 저장하세요.';
+ if(title)return '게임을 시작한 뒤 저장하세요.';
+ if(busy)return '연출이나 적군 행동이 끝난 뒤 저장하세요.';
+ if(campaign.stage==='battle'){
+  if(bossCleanupPending(state))return '';
+  if(state.phase!=='ally'||state.result)return '아군 턴에 저장할 수 있습니다.';
+  if(origin||target||['move','attack','heal','spirit-target','combat-skill'].includes(mode)||state.units.some(u=>!u.done&&u.moved))return '이동·대상 선택을 취소하거나 행동을 마친 뒤 저장하세요.';
+ }
+ return '';
+}
+export function makeSave(data,kind='manual'){
+ const reason=saveReason(data);if(reason)throw new Error(reason);
+ const ch=CHAPTERS[data.campaign.chapter];
+ const v={...(story()?{journey:'act1',storyVersion:1}:legacyTrial?{journey:'legacy-trial-v16'}:{}),comparison:comparison(),featuresVersion:1,...enemyFormationStamp(data.state,ch),...enemyProgressionStamp(data.state,ch),...(ch.id==='s10_thousand_li'?{escortBalanceVersion:1}:{}),...(ch.fixedGuests?.length?{fixedGuestVersion:1}:{}),game:'shu-tactics',version:2,systemsVersion:1,growthVersion:1,savedAt:new Date().toISOString(),kind,
+  campaign:{chapterId:ch.id,contentVersion:ch.contentVersion,stage:data.campaign.stage,line:data.campaign.line,result:data.campaign.result,lastVictoryId:data.campaign.lastVictoryId??null,...(data.campaign.sortie?{sortie:[...data.campaign.sortie]}:{}),...(data.campaign.draft?{draft:[...data.campaign.draft]}:{}),...(data.campaign.draftSlots?{draftSlots:[...data.campaign.draftSlots]}:{}),...(data.campaign.sortieSlots?{sortieSlots:[...data.campaign.sortieSlots]}:{}),...(data.campaign.nextDraft?{nextDraft:structuredClone(data.campaign.nextDraft)}:{})},
+  army:structuredClone(data.army),state:structuredClone(data.state),balance:structuredClone(data.balance),fast:!!data.fast,logs:[...data.logs].slice(0,24),victoryReward:data.victoryReward};
+ syncGrowth(v.state,v.army);
+ v.state.chapterId=ch.id;delete v.state.chapter;
+ for(const u of v.state.units)if(u.done)u.moveOrigin=null;
+ return parseSave(JSON.stringify(v));
+}
+function referenceArmy(v){
+ if(!v.state.result)return v.army;
+ const army=structuredClone(v.army);for(const u of v.state.units)if(u.team==='ally'&&army.heroes[u.id])army.heroes[u.id].departed=false;
+ return army;
+}
+function validateGuestPreparation(v,chapter){
+ validateGuestAllies(v,chapter);
+ for(const unit of [...v.state.units,...(v.state.reinforcements?.pending??[]).flatMap(wave=>wave.units)]){
+  const id=guestHeroIdentity(unit),source=unit.guestSource;if(!id||!source)continue;
+  validateProgress(source.hero.growth,growthType(id));
+  validateHeroEquipment(guestSourceArmy(v.army,id,source),id);
+  if(HERO_DATA[id].guest)assert(source.hero.level===0&&source.hero.troopLevel===0&&source.hero.slots.every(part=>part===null));
+  const current=v.army.heroes[id];
+  assert(current&&source.meritPoints<=(v.army.meritPoints??0)&&source.hero.level<=current.level&&source.hero.troopLevel<=current.troopLevel&&source.hero.promotion<=current.promotion,'출전 원천이 현재 누적 육성 기록을 넘습니다.');
+  assert(source.hero.growth.level<current.growth.level||source.hero.growth.level===current.growth.level&&source.hero.growth.exp<=current.growth.exp,'출전 원천의 성장 기록이 현재 기록을 넘습니다.');
+  for(const kind of ['weapon','troops','defense'])assert((source.hero.modifications?.[kind]??0)<=(current.modifications?.[kind]??0),'출전 원천의 개조 기록이 현재 기록을 넘습니다.');
+ }
+}
+function preparedReferenceBattle(v,index,selection){const slots=v.state.deploymentSlots??null;return createBattle(v.balance,index,referenceArmy(v),slots?slots.filter(id=>id!==null):selection,{enemyProgressionVersion:v.enemyProgressionVersion??v.state.enemyProgressionVersion??1,act2EnemyHealthVersion:v.state.act2EnemyHealthVersion??0,act2EnemyDifficultyVersion:v.state.act2EnemyDifficultyVersion??0,campaignEnemyBalanceVersion:v.state.campaignEnemyBalanceVersion??0,tacticFirePowerVersion:v.state.tacticFirePowerVersion??0,guestAlliesVersion:v.state.guestAlliesVersion??0,guestSources:savedGuestSources(v.state),zhugeliangBalanceVersion:v.state.zhugeliangBalanceVersion??0,xiapiRoutesVersion:v.state.xiapiRoutesVersion??0,enemyFormationVersion:v.enemyFormationVersion??v.state.enemyFormationVersion??null,allyPreparationVersion:v.state.allyPreparationVersion??0,lootVersion:v.state.lootVersion??0,terrainRulesVersion:v.state.terrainRulesVersion??0,campaignEventsVersion:v.state.campaignEventsVersion??0,growthBenefitsVersion:v.state.growthBenefitsVersion??0,survivalBonusVersion:v.state.survivalBonusVersion??0,survivorRewardVersion:v.state.survivorRewardVersion??0,regularRewardsVersion:v.state.regularRewardsVersion??0,equipmentDropsVersion:v.state.equipmentDropsVersion??0,armyBalanceVersion:v.state.armyBalanceVersion??0,bossCleanupVersion:v.state.bossCleanupVersion??0,huarongChaseVersion:v.state.huarongChaseVersion??0,openingPressureVersion:v.state.openingPressureVersion??0,act2ReliefVersion:v.state.act2ReliefVersion??0,act2ReliefRemovedIds:v.state.act2ReliefRemovedIds??null,guanyuWithdrawalVersion:v.state.guanyuWithdrawalVersion??0,escortFollowVersion:v.state.escortFollowVersion??0,allyMovementVersion:v.state.allyMovementVersion??0,heroMasteryVersion:v.state.heroMasteryVersion??0,allyHpVersion:v.state.allyHpVersion??0,enemyStrategistHealthVersion:v.state.enemyStrategistHealthVersion??0,enemyStrategistHealthAdjustedIds:v.state.enemyStrategistHealthAdjustedIds??null,baimaReinforcementVersion:v.state.baimaReinforcementVersion??0,baimaReinforcementRemovedIds:v.state.baimaReinforcementRemovedIds??null,thousandLiReinforcementVersion:v.state.thousandLiReinforcementVersion??0,thousandLiReinforcementRemovedIds:v.state.thousandLiReinforcementRemovedIds??null,act2EnemyWaveLimitVersion:v.state.act2EnemyWaveLimitVersion??0,act2EnemyWaveLimitRemovedIds:v.state.act2EnemyWaveLimitRemovedIds??null,act3StageRevisionVersion:v.state.act3StageRevisionVersion??0,act3StageRosterVersion:v.state.act3StageRosterVersion??0,act3StageSpawnedWaves:v.state.act3StageSpawnedWaves??[],act3ReinforcementVersion:v.state.act3ReinforcementVersion??0,act3ReinforcementRemovedIds:v.state.act3ReinforcementRemovedIds??null,act3ReinforcementHistory:v.state.act3ReinforcementHistory??null,deploymentSlots:slots});}
+function validateArmy(a,legacy){
+ assert(object(a)&&integer(a.gold,0,100000000)&&object(a.heroes)&&object(a.stock));
+ if(legacy){assert(same(Object.keys(a.heroes).sort(),[...STARTING_HEROES].sort()));a.joined=[...STARTING_HEROES];}
+ assert(unique(a.joined)&&a.joined.length>0&&a.joined.every(id=>UNIT_TEMPLATES[id]?.playable));
+ assert(same(Object.keys(a.heroes).sort(),[...a.joined].sort()));
+ assert(unique(a.rosterEvents)&&a.rosterEvents.length<1000&&a.rosterEvents.every(id=>typeof id==='string'&&(knownReceipt(id)||Object.values(HERO_DATA).some(h=>h.joinAfterChapter===id||h.leaveAfterChapter===id))));
+ assert(unique(a.claimed)&&a.claimed.every(knownReceipt));assert(unique(a.benchTrainingReceipts)&&a.benchTrainingReceipts.every(knownReceipt));
+ for(const [id,h] of Object.entries(a.heroes)){
+  assert(object(h)&&integer(h.level,0,10)&&integer(h.troopLevel,0,20));
+  validateProgress(h.growth,growthType(id));assert(typeof h.departed==='boolean');
+  if(HERO_DATA[id]?.guest)assert(h.level===0&&h.troopLevel===0&&h.slots?.every(p=>p===null),'게스트 장수에게 개조·장비를 적용할 수 없습니다.');
+  assert(Array.isArray(h.slots)&&[2,3].includes(h.slots.length)&&h.slots.length<=equipmentSlotCapacity(a,id)&&h.slots.every(p=>p===null||Object.hasOwn(PARTS,p)));
+ }
+ validateArmyFeatures(a);validateRewardReceipts(a,CHAPTERS);validateAct4Progression(a);validateAct5Progression(a);validateAct6Progression(a);validateAct7Progression(a);
+}
+// Schema 1 uses its validated chapter index. Stable IDs in schema 2 may be
+// approved aliases or retired IDs, so resolve them through the campaign model.
+function validationChapter(state,campaign){
+ if(Number.isInteger(state.chapter))return CHAPTERS[state.chapter];
+ const id=state.chapterId??campaign.chapterId;
+ return typeof id==='string'?resolveChapterId(Object.hasOwn(RETIRED_CHAPTERS,id)?RETIRED_CHAPTERS[id]:id):undefined;
+}
+function validateState(v,refs=null,terrain=null,legacy=false){
+ const s=v.state,c=v.campaign;
+ validateCampaignEnemyBalanceSave(s,validationChapter(s,c));validateAct3StageRevision(s,validationChapter(s,c));
+ assert(object(s));validateCampaignEvents(s,validationChapter(s,c));validateTerrainEffectsRecord(s,validationChapter(s,c));validateReinforcementRecord(s,validationChapter(s,c));assert(s.allyPreparationVersion===undefined||s.allyPreparationVersion===1,'아군 출전 수치 버전이 올바르지 않습니다.');assert(s.growthBenefitsVersion===undefined||s.growthBenefitsVersion===1,'성장 보너스 저장 버전이 올바르지 않습니다.');assert(s.armyBalanceVersion===undefined||s.armyBalanceVersion===1,'군단 밸런스 저장 버전이 올바르지 않습니다.');const chapterLayout=validationChapter(s,c);assert(s.openingPressureVersion===undefined||s.openingPressureVersion===1&&openingPressureApplies(chapterLayout),'초반 적 편성 저장 버전이 올바르지 않습니다.');assert((s.campaignLayoutVersion??0)===(chapterLayout?.campaignLayoutVersion??0),'저장 전장 구성 버전이 현재 전투와 다릅니다.');assert(s.act2EnemyHealthVersion===undefined||s.act2EnemyHealthVersion===1&&chapterLayout?.act===2&&s.enemyProgressionVersion===3,'2막 적 병력 저장 버전이 올바르지 않습니다.');assert(s.act2EnemyDifficultyVersion===undefined||[1,2].includes(s.act2EnemyDifficultyVersion)&&chapterLayout?.act===2&&s.enemyProgressionVersion===3&&s.act2EnemyHealthVersion===1,'2막 적 난도 저장 버전이 올바르지 않습니다.');assert(s.act2EnemyDifficultySourceHealthVersion===undefined||[0,1].includes(s.act2EnemyDifficultySourceHealthVersion)&&[1,2].includes(s.act2EnemyDifficultyVersion)&&chapterLayout?.act===2&&s.enemyProgressionVersion===3,'2막 적 난도 이행 기록이 올바르지 않습니다.');assert(s.xiapiRoutesVersion===undefined||s.xiapiRoutesVersion===1&&chapterLayout?.id==='s07_xiapi'&&s.campaignLayoutVersion===1,'하비 강·배치 저장 버전이 올바르지 않습니다.');const {width,height}=mapSize(s.terrain,s.campaignLayoutVersion??0);
+ if(legacy)assert(width===10&&height===8);
+ if(terrain)assert(same(s.terrain,terrain));
+ normalizeBalance(s.balance);validateBalance(s.balance);for(const id of Object.keys(DEFAULT_BALANCE.classes))s.balance.classes[id].name=DEFAULT_BALANCE.classes[id].name;
+ assert(same(s.balance,v.balance));
+ assert(integer(s.round,1,100000)&&integer(s.items,0,3)&&['ally','enemy'].includes(s.phase)&&s.result===c.result);
+ if(c.stage==='battle')assert(s.phase==='ally'||bossCleanupPending(s));
+ assert(object(s.weather)&&['clear','rain'].includes(s.weather.kind)&&integer(s.weather.sinceRound,1,s.round)&&integer(s.weather.hold,2,8));
+ assert(Array.isArray(s.units)&&s.units.length>0&&s.units.length<=80&&unique(s.units.map(u=>u.id)));
+ validateGuestPreparation(v,chapterLayout);
+ validateZhugeliangBalance(v,chapterLayout,refs);
+ validateEnemyControlGuards(s);
+ if(refs)assert(s.units.length===refs.length&&s.units.every(u=>refs.some(r=>r.id===u.id)));
+ assert(typeof s.growthSettled==='boolean'&&(!s.growthSettled||s.result!==null));
+ assert(Array.isArray(s.benchGrowth)&&unique(s.benchGrowth.map(b=>b.id)));
+ for(const b of s.benchGrowth){
+  assert(object(b)&&v.army.joined.includes(b.id)&&!s.units.some(u=>u.id===b.id)&&integer(b.from,1,MAX_LEVEL)&&integer(b.to,b.from,MAX_LEVEL)&&v.army.heroes[b.id].growth.level===b.to&&s.result==='victory'&&s.growthSettled);
+  if(b.gained===undefined)assert(b.to>b.from&&b.capVersion===undefined&&b.to<=(growthType(b.id)==='veteran'?45:60),'이전 강제 훈련의 성장 상한 기록이 올바르지 않습니다.'); // Historical forced catch-up records remain readable at their original bounds.
+  else{
+   assert(HERO_DATA[b.id]&&!HERO_DATA[b.id].guest&&integer(b.gained,1,20)&&integer(b.fromExp,0,100000)&&integer(b.toExp,0,100000));
+   const type=growthType(b.id);assert(b.capVersion===undefined||b.capVersion===1&&type==='veteran'||b.capVersion===BENCH_GROWTH_CAP_VERSION,'대기 훈련 성장 상한 버전이 올바르지 않습니다.');
+   const progress={level:b.from,exp:b.fromExp};
+   const change=b.capVersion===BENCH_GROWTH_CAP_VERSION?gainProgress(progress,b.gained,type):type==='veteran'&&b.capVersion===undefined?gainLegacyVeteranProgress(progress,b.gained):gainLegacyProgress(progress,b.gained,type);
+   assert(change.level===b.to&&change.exp===b.toExp&&v.army.heroes[b.id].growth.exp===b.toExp&&v.army.benchTrainingReceipts.includes(c.chapterId),'대기 훈련 경험치와 정산 기록이 다릅니다.');
+  }
+ }
+ const occupied=new Set();
+ for(const u of s.units){
+  const ref=refs?.find(r=>r.id===u.id);
+  const guest=guestHeroIdentity(u),inherited=inheritedGuest(u),owner=inherited?guest:u.id,historicalGuest=!!guest&&!['preDialogue','deployment','battle'].includes(c.stage);
+  validateGuestProfile(u,ref);
+  if(u.specialization!==undefined)assert(typeof u.specialization==='string'&&!!specializationFor(u),'장수 전문화 저장이 올바르지 않습니다.');
+  if(ref&&['preDialogue','deployment','battle'].includes(c.stage)){const historicalBranch=!s.growthBenefitsVersion&&(u.promotion??0)===0&&(v.army.heroes[u.id]?.promotion??0)===0&&u.specialization!==undefined&&u.specialization===v.army.heroes[owner]?.specialization;assert(historicalBranch||(u.specialization??null)===(ref.specialization??null),'장수의 전문화와 출전 능력치가 다릅니다.');}
+  assert(typeof u.id==='string'&&u.id.length>0&&u.id.length<100&&Object.hasOwn(DEFAULT_BALANCE.classes,u.cls)&&['ally','enemy'].includes(u.team));
+  if(ref){assert((u.protectedFromFaction??null)===(ref.protectedFromFaction??null),'중립 부대의 진영 보호가 다릅니다.');u.promotion??=0;u.baseAtk??=ref.baseAtk;u.evasionBonus??=ref.evasionBonus??0;u.criticalBonus??=ref.criticalBonus??0;u.tacticBonus??=ref.tacticBonus??0;assert(integer(u.promotion,0,2)&&integer(u.baseAtk,0,1000)&&integer(u.evasionBonus,0,100)&&integer(u.criticalBonus,0,100)&&integer(u.tacticBonus,0,100));assert(!!u.extra===!!ref.extra);assert((historicalGuest||u.cls===ref.cls||(legacy&&u.id==='madai'&&u.cls==='crossbow'))&&u.team===ref.team);if(u.classTraining!==undefined){assert((!u.extra||inherited)&&u.team==='ally'&&HERO_DATA[owner]&&u.cls!==UNIT_TEMPLATES[owner]?.cls&&object(u.classTraining)&&same(Object.keys(u.classTraining).sort(),['factor','atkBase','baseAtkBase','intBase','defBase'].sort())&&u.classTraining.factor===classTrainingFactor(owner,u.cls,s.allyPreparationVersion??0)&&u.classAptitude===classAptitude(owner,u.cls,s.allyPreparationVersion??0));for(const k of ['atkBase','baseAtkBase','intBase','defBase'])assert(integer(u.classTraining[k],0,1000));if(['preDialogue','deployment','battle'].includes(c.stage))assert(same(u.classTraining,ref.classTraining));}else if(['preDialogue','deployment','battle'].includes(c.stage))assert(ref.classTraining===undefined&&u.classAptitude===undefined);u.name=ref.name;u.han=ref.han;if(ref.generic)u.generic=true;else delete u.generic;if(ref.faction)u.faction=ref.faction;else delete u.faction;}
+  else assert(typeof u.name==='string'&&u.name.length<100&&typeof u.han==='string'&&u.han.length<10);
+  assert(integer(u.x,0,width-1)&&integer(u.y,0,height-1)&&s.terrain[u.y][u.x]!=='#');
+  validateProgress(u,u.team==='ally'?growthType(owner):'balanced');
+  assert(integer(u.startLevel,1,u.level)&&integer(u.battleExp,0,100000000));
+  if(u.team==='ally'&&!u.extra)assert(same({level:u.level,exp:u.exp},v.army.heroes[u.id]?.growth));
+  else if(guest){assert(u.battleExp===0&&u.startLevel===u.level);if(!historicalGuest){assert(u.level===(ref?.level??1)&&u.exp===(ref?.exp??0));if(inherited)assert(same({level:u.level,exp:u.exp},v.army.heroes[owner]?.growth));}}
+  else {assert(u.exp===0&&u.battleExp===0&&u.startLevel===u.level);if(ref)assert(u.level===(ref.level??1));}
+  if(u.extra){assert(ref?.extra&&u.team==='ally');if(!guest){assert(u.promotion===0&&u.level===1&&u.startLevel===1&&u.exp===0&&u.battleExp===0&&u.sp===0&&Object.keys(u.spirits).length===0);}else if(!inherited)assert(u.promotion===0&&u.level===1&&u.exp===0);
+   for(const k of ['rank','promotion','maxHp','baseAtk','atk','def','int','move','min','max','attackAfterMove'])assert(u[k]===ref[k]||(k==='maxHp'&&legacyKongRongHealth(u,ref)));}
+  assert(integer(u.maxHp,1,enemyHealthCapacity(s,u))&&integer(u.hp,0,u.maxHp)&&integer(u.morale,u.moraleFloor??50,150));
+  if(ref&&s.campaignEnemyBalanceVersion===2)for(const field of ['specialistId','combatTier','attackAfterMove'])assert(u[field]===ref[field],'특수 병력 식별·행동이 출전 원본과 다릅니다.');
+  if(ref&&u.team==='enemy'&&s.enemyProgressionVersion===3){for(const k of ['rank','promotion','maxHp','baseAtk','atk','def','int','move','min','max','cavalryDamageReceived','cavalryDamageDealt'])assert(u[k]===ref[k],'적 성장 능력치가 출전 원본과 다릅니다.');}
+  assert(u.maxSp===(historicalGuest?baseSP(guest)+u.level-1:((!legacy?ref?.maxSp:null)??(u.team==='ally'?baseSP(u.id)+u.level-1:0)))&&integer(u.sp,0,u.maxSp));
+  for(const k of ['atk','def','int'])assert(integer(u[k],0,1000));
+  assert(integer(u.move,1,20)&&integer(u.min,1,8)&&integer(u.max,u.min,8));
+  for(const k of ['done','moved','attackAfterMove'])assert(typeof u[k]==='boolean');
+  assert(u.moveOrigin===null&&(c.stage!=='battle'||u.done||!u.moved));
+  assert(object(u.spirits)&&Object.entries(u.spirits).every(([k,val])=>['strike','flash','focus','accel','fury','wall','wisdom','aim','ambush','charge','protect','penetrate','chant'].includes(k)&&val===true));
+  assert(typeof u.firstGuardUsed==='boolean'&&typeof u.confusionLost==='boolean'&&integer(u.ralliedRound,0,s.round));
+  if(u.confusionLost)assert(u.done&&u.status?.type==='confusion'&&u.status.consumed);
+  assert(u.status===null||object(u.status)&&['confusion','deception'].includes(u.status.type)&&typeof u.status.consumed==='boolean');
+  if(u.hp>0){const pos=u.x+','+u.y;assert(!occupied.has(pos));occupied.add(pos);}
+ }
+ validateDefeat(s.defeat,s.units);
+ const goal=validateObjective(s.objective,objectiveUnits(s),s.terrain);
+ if(legacy)assert(goal.type==='defeatAll');
+ if(['surviveRounds','defendTiles'].includes(goal.type))assert(integer(s.completedRounds,0,s.round)&&(s.completedRounds===s.round-1||s.completedRounds===goal.rounds&&s.round===goal.rounds&&s.phase==='enemy'&&s.result==='victory'));
+ validateBossCleanup(s);validateAct4Progression(v.army,s,chapterLayout);validateAct4Mission(s,chapterLayout);validateAct5Progression(v.army,s,chapterLayout);validateAct5Mission(s,chapterLayout);validateAct6Progression(v.army,s,chapterLayout);validateAct6Mission(s,chapterLayout);validateAct7Progression(v.army,s,chapterLayout);validateAct7Mission(s,chapterLayout);validateAct7Story(s,chapterLayout);validateAct6Story(s,chapterLayout);validateEscortFollow(s,chapterLayout);validateAllyMovementVersion(s);validateFourthSpiritState(v);validateHeroMasteryState(v);validateLegendarySave(s);validateEnemyStrategistHealth(s,chapterLayout);
+ assert(battleOutcome(s)===s.result);
+ normalizeBattleRng(s);
+ const scenario=CHAPTERS.find(ch=>ch.id===c.chapterId);if(scenario){normalizeSPRecoverySave(s,scenario);validateExtendedSpiritsSave(s,scenario);normalizeBattleFeatures(s);validateBattleFeatures(s,scenario);validateHuarongChase(s,scenario);validateCombatSkillSave(s,scenario,refs);validateReplaySave(s,scenario,v.army);}
+}
+export function parseSave(text){
+ assert(typeof text==='string'&&text.length<=500000,'저장 파일은 500KB 이하만 지원합니다.');
+ let v;try{v=JSON.parse(text)}catch{throw new Error('JSON 저장 파일을 읽을 수 없습니다.')}
+ if(CHAPTERS[0]?.campaignLayoutVersion===1)assert(v?.state?.campaignLayoutVersion===1,'v0.39 새 전장은 이전 저장을 지원하지 않습니다. 새 게임으로 시작하세요.');
+ cleanKeys(v);validateEnemyFormationMarker(v);validateEnemyProgressionMarker(v);assert(same(v.comparison??null,comparison()),'A/B 비교 저장과 본편 저장은 서로 불러올 수 없습니다.');
+ assert(v.featuresVersion===undefined||v.featuresVersion===1,'지원하지 않는 추가 시스템 저장 버전입니다.');
+ assert(v?.game==='shu-tactics','촉한전기 저장 파일이 아닙니다.');
+ if(story())assert(v.journey==='act1','이전 버전 저장입니다. 새 본편으로 불러올 수 없습니다. 원본은 보존됩니다.');
+ if(legacyTrial)assert(v.journey==='legacy-trial-v16','이전 버전 저장입니다. 시험 전투는 새로 시작하세요.');
+ assert(v.version===1||v.version===2,'지원하지 않는 저장 버전입니다. 원본 파일을 보관하세요.');
+ const legacy=v.version===1,c=v.campaign,oldGrowth=v.growthVersion===undefined;
+ assert(oldGrowth||v.growthVersion===1,'지원하지 않는 성장 저장 버전입니다.');
+ if(oldGrowth){
+  assert(object(v.army)&&object(v.army.heroes)&&object(v.state)&&Array.isArray(v.state.units));
+  for(const h of Object.values(v.army.heroes)){assert(object(h));h.growth={level:1,exp:0};}
+  for(const u of v.state.units){assert(object(u));Object.assign(u,{level:1,exp:0,startLevel:1,battleExp:0});}
+  v.state.growthSettled=v.state.result!==null;v.state.benchGrowth=[];v.growthVersion=1;
+ }
+ const oldSystems=v.systemsVersion===undefined;
+ assert(oldSystems||v.systemsVersion===1,'지원하지 않는 정신기 저장 버전입니다.');
+ if(oldSystems){
+  assert(object(v.army)&&object(v.army.heroes)&&object(v.state)&&Array.isArray(v.state.units));
+  v.army.rosterEvents??=[];for(const h of Object.values(v.army.heroes))h.departed??=false;
+  for(const u of v.state.units){
+   assert(integer(u.sp,0,u.maxSp)&&u.maxSp===(u.team==='ally'?60+u.level-1:0));
+   const spent=u.maxSp-u.sp;u.maxSp=u.team==='ally'?baseSP(u.id)+u.level-1:0;u.sp=Math.max(0,u.maxSp-spent);
+   assert(object(u.spirits)&&Object.entries(u.spirits).every(([k,v])=>['strike','alert','focus','accel'].includes(k)&&v===true));
+   if(u.spirits.alert){u.spirits.flash=true;delete u.spirits.alert;}
+   u.firstGuardUsed=!['preDialogue','deployment'].includes(c?.stage);u.confusionLost=!!(u.done&&u.status?.type==='confusion'&&u.status.consumed);u.ralliedRound=0;
+  }
+  v.systemsVersion=1;
+ }
+ assert(object(c)&&object(v.state)&&['manual','auto'].includes(v.kind)&&typeof v.savedAt==='string'&&Number.isFinite(Date.parse(v.savedAt)));
+ // Dialogue sections contain at most 200 lines; the saved cursor is zero-based.
+ // The section-specific checks below still reject a cursor outside its actual lines.
+ assert(['preDialogue','deployment','battle','result','defeatDialogue','postDialogue','intermission','complete'].includes(c.stage)&&[null,'victory','defeat'].includes(c.result)&&integer(c.line,0,199));
+ if(!c.stage.endsWith('Dialogue'))assert(c.line===0);
+ if(['preDialogue','deployment','battle'].includes(c.stage))assert(c.result===null);
+ if(c.stage==='result')assert(c.result!==null);
+ if(c.stage==='defeatDialogue')assert(c.result==='defeat');
+ if(['postDialogue','intermission','complete'].includes(c.stage))assert(c.result==='victory');
+ normalizeBalance(v.balance);validateBalance(v.balance);for(const id of Object.keys(DEFAULT_BALANCE.classes))v.balance.classes[id].name=DEFAULT_BALANCE.classes[id].name;
+ normalizeArmyFeatures(v.army);validateArmy(v.army,legacy);
+ if(!legacy){assert(Array.isArray(v.state.units));validateGuestPreparation(v,validationChapter(v.state,c));}
+ if(c.sortie!==undefined)assert(unique(c.sortie)&&c.sortie.every(id=>typeof id==='string')&&Array.isArray(v.state.units)&&same([...c.sortie].sort(),v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id).sort()));
+ if(c.draft!==undefined)assert(unique(c.draft)&&c.draft.every(id=>typeof id==='string'));
+ assert(typeof v.fast==='boolean'&&integer(v.victoryReward,0,3000));
+ assert(Array.isArray(v.logs)&&v.logs.length<=24&&v.logs.every(t=>typeof t==='string'&&t.length<=500));
+ if(v.migrationNotice!==undefined)assert(typeof v.migrationNotice==='string'&&v.migrationNotice.length<=500);
+ if(legacy){
+  assert(integer(c.chapter,0,LEGACY_V1.length-1)&&v.state.chapter===c.chapter);
+  const old=LEGACY_V1[c.chapter];if(c.stage==='complete')assert(c.chapter===LEGACY_V1.length-1);
+  if(c.stage.endsWith('Dialogue'))assert(c.line<(c.stage==='preDialogue'?old.preLength:old.postLength));
+  validateState(v,old.units,old.terrain,true);
+  c.chapterId=old.id;c.contentVersion=1;c.lastVictoryId=c.result==='victory'?old.id:LEGACY_V1.filter(ch=>v.army.claimed.includes(ch.id)).at(-1)?.id??null;
+  v.state.chapterId=old.id;delete c.chapter;delete v.state.chapter;v.version=2;
+  const m=v.state.units.find(u=>u.id==='madai');
+  if(m?.cls==='crossbow'){
+   const next=createUnit(v.balance,'madai','ally',v.army),hp=m.hp===0?0:Math.max(1,Math.round(m.hp/m.maxHp*next.maxHp));
+   for(const k of ['cls','maxHp','atk','def','int','move','min','max','attackAfterMove'])m[k]=next[k];m.hp=hp;
+  }
+  v.migrationNotice='이전 저장을 형식 2로 변환했습니다. 성장·진행 기록을 유지했습니다.';
+ }
+ assert(typeof c.chapterId==='string'&&v.state.chapterId===c.chapterId&&integer(c.contentVersion,1,100000));
+ assert(c.lastVictoryId===null||knownReceipt(c.lastVictoryId));
+ const retired=Object.hasOwn(RETIRED_CHAPTERS,c.chapterId);
+ const ch=resolveChapterId(retired?RETIRED_CHAPTERS[c.chapterId]:c.chapterId),index=CHAPTERS.indexOf(ch);
+ if(story()){
+  assert(v.storyVersion===undefined||v.storyVersion===1,'지원하지 않는 전투 대사 저장 버전입니다.');
+  if(v.storyVersion===undefined){assert(index<4,'이전 버전의 장 범위가 아닙니다.');v.state.storyEvents={fired:['preDialogue','deployment'].includes(c.stage)?[]:ch.events.map((_,i)=>i),pending:[]};v.storyVersion=1;v.migrationNotice='v0.16 진행을 유지했습니다. 진행 중 전투의 새 이벤트는 재도전부터 표시됩니다.';}
+  validateStoryRecord(v.state,ch.events);
+ }
+ assert(c.contentVersion<=ch.contentVersion||retired,'현재 게임보다 새로운 전투 저장입니다.');
+ if(!retired&&c.contentVersion===ch.contentVersion)normalizeFixedGuestSave(v,ch);
+ if(!legacy){
+  const unchanged=!retired&&c.contentVersion===ch.contentVersion;
+  assert(Array.isArray(v.state.units));
+  const refs=unchanged?enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id))))):null;
+  normalizeEscortSave(v,ch,refs);
+  validateState(v,refs,unchanged?xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain:null);
+  if(unchanged)assert(same(validateDefeat(v.state.defeat,v.state.units),validateDefeat(ch.defeat,refs)),'저장 패배 조건이 현재 전투와 다릅니다.');
+  if(unchanged)assert(same(validateObjective(v.state.objective,objectiveUnits(v.state),v.state.terrain),validateObjective(objectiveForCampaignVersion(ch,v.state.campaignEventsVersion??0,v.state),objectiveUnits({...v.state,units:refs}),xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain)),'저장 목표가 현재 전투와 다릅니다.');
+  if(unchanged&&c.stage.endsWith('Dialogue'))assert(c.line<(c.stage==='defeatDialogue'?ch.defeatDialogue:ch[c.stage==='preDialogue'?'pre':'post'])?.length);
+ }
+ v.army.claimed=[...new Set(v.army.claimed.map(receipt))];v.army.benchTrainingReceipts=[...new Set(v.army.benchTrainingReceipts.map(receipt))];
+ if(c.lastVictoryId!==null)c.lastVictoryId=receipt(c.lastVictoryId);
+ c.chapterId=ch.id;v.state.chapterId=ch.id;
+ const changed=retired||c.contentVersion!==ch.contentVersion;
+ if(changed){
+  const won=c.result==='victory';
+  if(retired||!won){c.stage='preDialogue';c.result=null;}
+  else if(c.stage!=='complete')c.stage='intermission';
+  c.line=0;c.contentVersion=ch.contentVersion;delete c.sortie;delete c.draft;delete c.draftSlots;delete c.sortieSlots;delete c.nextDraft;
+  v.state=createBattle(v.balance,index,v.army);v.state.chapterId=ch.id;delete v.state.chapter;Object.assign(v,enemyFormationStamp(v.state,ch),enemyProgressionStamp(v.state,ch));
+  if(c.result==='victory'){v.state.units.filter(u=>u.team==='enemy'&&(!v.state.objective||u.id===v.state.objective.targetId)).forEach(u=>u.hp=0);v.state.result='victory';}
+  v.migrationNotice=retired?'삭제된 장의 지정 후속 전투로 이동했습니다. 성장·보상 기록은 보존했습니다.':'전투 내용이 변경되어 진행 중 전투는 출전 대화부터, 승리 기록은 정비부터 복원했습니다.';
+ }
+ if(c.stage==='complete'&&index<CHAPTERS.length-1){c.stage='intermission';v.migrationNotice='새 전투가 추가되었습니다. 마지막 승리 장의 정비에서 다음 출전을 선택하세요.';}
+ if(c.stage==='deployment'){assert(needsDeployment(ch));validateDraft(ch,v.army,c.draft);}else if(c.stage==='preDialogue'&&c.draft!==undefined){assert(c.draftSlots!==undefined,'출전 대화의 편성 초안에는 출발 위치가 필요합니다.');validateDraft(ch,v.army,c.draft);}else assert(c.draft===undefined);
+ validateFormationSave(v,ch,index);
+ if(c.sortie!==undefined)preparedReferenceBattle(v,index,c.sortie);
+ let refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+ validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);
+ assert(same(validateObjective(v.state.objective,objectiveUnits(v.state)),validateObjective(objectiveForCampaignVersion(ch,v.state.campaignEventsVersion??0,v.state),objectiveUnits({...v.state,units:refs}))));
+ assert(same(validateDefeat(v.state.defeat,v.state.units),validateDefeat(ch.defeat,refs)));
+ if(c.stage.endsWith('Dialogue'))assert(c.line<(c.stage==='defeatDialogue'?ch.defeatDialogue:c.stage==='preDialogue'?ch.pre:ch.post)?.length);
+ normalizeEscortSave(v,ch,refs);
+ if(CHAPTERS[0]?.rosterMode==='story')validateModificationLimits(v.army,Math.min(CHAPTERS.length,index+(['intermission','postDialogue','complete'].includes(c.stage)?2:1)));
+ validateSaveFeatures(v,ch,refs);
+ if(oldGrowth){for(const u of v.state.units)if(u.team==='ally'&&u.cls!=='strategist'&&HERO_GROWTH[u.id])u.int=HERO_GROWTH[u.id].intellect;
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice+' ':'')+'장수 레벨을 Lv1·경험치 0으로 추가했습니다. 기존 개조·증편은 유지됩니다.';}
+ if(oldSystems)v.migrationNotice=(v.migrationNotice?v.migrationNotice+' ':'')+'장수별 정신기·SP를 적용했습니다. 사용한 SP와 기존 효과를 보존했습니다.';
+ // Upgrade only a fully validated, unsettled current battle. Historical receipts
+ // and completed battle snapshots continue using their original participant rule.
+ if(v.state.regularRewardsVersion===undefined&&!v.state.result&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)&&(v.state.survivalBonusVersion===1||v.state.survivorRewardVersion===1))v.state.regularRewardsVersion=1;
+ // Rebalance only after every original record has passed its historical rules.
+ // Raw new reserve references are used first: checking the old reserve against
+ // new statistics before migration would incorrectly reject a valid save.
+ if(ch.act===2&&v.state.enemyProgressionVersion===3&&[undefined,1].includes(v.state.act2EnemyDifficultyVersion)&&v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)){
+  const next=structuredClone(v);next.state.act2EnemyHealthVersion=1;next.state.act2EnemyDifficultyVersion=2;
+  const raw=reinforcementReferenceUnits(preparedReferenceBattle(next,index,next.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)));
+  const nextRefs=next.enemyFormationVersion===3?raw:enemyProgressionRefs(next,ch,enemyFormationRefs(next,ch,raw));
+  if(upgradeValidatedAct2Difficulty(v,ch,nextRefs)){
+   refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+   validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+   const notice='2막 정예·강화 등급을 복구했습니다. 낮춘 최대 병력과 남은 병력 비율, 전투 진행은 유지했습니다.';
+   v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+  }
+ }
+ // Only a fully validated active checkpoint receives the repaired crossing.
+ // The reference for marker-less saves above remains the actual old map/roster.
+ if(ch.id==='s07_xiapi'&&ch.campaignLayoutVersion===1&&v.state.xiapiRoutesVersion===undefined&&v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)){
+  const next=structuredClone(v);next.state.xiapiRoutesVersion=1;
+  const raw=reinforcementReferenceUnits(preparedReferenceBattle(next,index,next.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)));
+  const upgrade=upgradeValidatedXiapiRoutes(v,ch,raw);
+  if(upgrade){
+   refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+   validateState(v,refs,ch.terrain);validateSaveFeatures(v,ch,refs);
+   const notice='하비 강의 우회로를 막고 일반 적 2부대를 추가했습니다.'+(upgrade.relocated.length?' 옛 우회로의 부대는 가까운 강둑으로 이동했습니다.':'');
+   v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+  }
+ }
+ if(upgradeValidatedCombatSkillRules(v,ch))validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);
+ if(upgradeValidatedKongRongHealth(v,refs)){
+  const notice='공융 최대 병력을 3,900으로 상향했습니다. 받은 피해량은 유지했습니다.';
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+ }
+ const relief=upgradeValidatedAct2Relief(v,ch);
+ if(relief){
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+  const notice=(relief.removedIds.length?'아직 등장하지 않은 2막 증원 '+relief.removedIds.length+'부대를 제외했습니다. 이미 등장한 적·성장·보상은 유지했습니다.':'')+(relief.withdrawalUpgraded?' 관우는 5턴 시작에 하비로 이탈합니다.':'');
+  if(notice.trim())v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice.trim();
+ }
+ const baima=upgradeValidatedBaimaReinforcement(v,ch);
+ if(baima){
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+  const notice='백마의 아직 등장하지 않은 추가 북측·남측 예비 증원을 제외했습니다. 원고의 문추 증원 1회와 이미 등장한 적·받은 피해·SP·성장·보상은 보존했습니다.';
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+ }
+ const thousandLi=upgradeValidatedThousandLiReinforcement(v,ch);
+ if(thousandLi){
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+  const notice='천리행의 아직 등장하지 않은 적 증원을 취소했습니다. 이미 등장한 적·받은 피해·SP·성장·보상과 주창의 아군 합류는 보존했습니다. 수레는 직접 조작합니다.';
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+ }
+ const waveLimit=upgradeValidatedAct2EnemyWaveLimit(v,ch);
+ if(waveLimit){
+  if(waveLimit.wenChouCancelled&&v.state.bossCleanupVersion===1&&v.state.units.find(unit=>unit.id==='e_boss')?.hp===0&&bossCleanupRemaining(v.state).length)updateBattleOutcome(v.state);
+  if(battleOutcome(v.state)==='victory')v.state.act2EnemyWaveVictoryPending=true;
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+  const notice='2막 적 증원을 한 번으로 제한했습니다. 이미 등장한 적·원장·받은 피해·SP·성장·보상은 보존했습니다.'+(waveLimit.wenChouCancelled?' 이전 적 증원이 이미 도착하여 대기 중인 문추도 취소했습니다. 승리에 문추 격파를 요구하지 않습니다.':'');
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+ }
+ if(v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)&&(!v.state.heroMasteryVersion||!v.state.allyHpVersion)){
+  const next=structuredClone(v);next.state.heroMasteryVersion=1;next.state.allyHpVersion=1;
+  const nextRefs=enemyProgressionRefs(next,ch,enemyFormationRefs(next,ch,reinforcementReferenceUnits(preparedReferenceBattle(next,index,next.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  if(upgradeValidatedHeroMastery(v,refs,nextRefs)){
+   refs=nextRefs;validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+   const notice='최대 강화 보너스와 장수별 특성, 자연 병력 상한을 적용했습니다. 받은 피해량·퇴각·SP·성장·정산 기록은 보존했습니다.';
+   v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+  }
+ }
+ if(ch.act===2&&v.state.allyMovementVersion===undefined&&v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)&&applyAllyMovementUpgrade(v.state)){
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+ }
+ if((ch.act===2||ch.combatProfile==='act2')&&v.state.legendarySkillsVersion===undefined&&v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)){
+  initializeLegendaryBattle(v.state);validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+ }
+ if(upgradeValidatedEnemyStrategistHealth(v,ch)){
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+ }
+ // Preserve existing enemy identities, wounded HP and pending reserves. New
+ // specialist lineups apply only when the next battle is created.
+if(upgradeValidatedTacticFirePower(v,ch))validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);
+ if(v.state.guestAlliesVersion===undefined&&ch.extraAllies?.some(order=>guestTemplateHero(UNIT_TEMPLATES[order.templateId]))&&v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)){
+  const next=structuredClone(v);next.state.guestAlliesVersion=GUEST_ALLIES_VERSION;
+  const nextRefs=reinforcementReferenceUnits(preparedReferenceBattle(next,index,next.state.units.filter(unit=>unit.team==='ally'&&!unit.extra).map(unit=>unit.id)));
+  if(upgradeValidatedGuestAllies(v,ch,nextRefs)){
+   refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(unit=>unit.team==='ally'&&!unit.extra).map(unit=>unit.id)))));validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+   const notice='동행 장수의 기존 병과·성장·정신기를 이어받았습니다. 남은 병력 비율·사용한 SP·위치·행동·전투 진행은 보존했습니다.';
+   v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+  }
+ }
+ if(modernZhugeliangBalance(ch)&&(v.state.zhugeliangBalanceVersion??0)===0&&v.state.result===null&&!v.state.rewardsSettled&&['preDialogue','deployment','battle'].includes(c.stage)){
+  const next=structuredClone(v);next.state.zhugeliangBalanceVersion=ZHUGELIANG_BALANCE_VERSION;
+  const nextRefs=enemyProgressionRefs(next,ch,enemyFormationRefs(next,ch,reinforcementReferenceUnits(preparedReferenceBattle(next,index,next.state.units.filter(unit=>unit.team==='ally'&&!unit.extra).map(unit=>unit.id)))));
+  if(upgradeValidatedZhugeliangBalance(v,ch,refs,nextRefs)){
+   refs=nextRefs;validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+   const notice='제갈량의 공격·생존 능력을 보완했습니다. 남은 병력 비율·사용한 SP·위치·행동·전투 진행은 보존했습니다.';
+   v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+  }
+ }
+ const act3Limit=upgradeValidatedAct3ReinforcementLimit(v,ch);
+ if(act3Limit){
+  if(battleOutcome(v.state)==='victory')v.state.act3ReinforcementVictoryPending=true;
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(unit=>unit.team==='ally'&&!unit.extra).map(unit=>unit.id)))));
+  validateState(v,refs,xiapiScenario(ch,v.state.xiapiRoutesVersion??0).terrain);validateSaveFeatures(v,ch,refs);
+  const notice='3막 적 증원을 한 번에 최대 5부대·전투당 최대 2회로 제한했습니다. 이미 도착한 적과 아군 합류·현재 전투·육성·보상은 보존했습니다.';
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+ }
+ const stageRevision=upgradeValidatedAct3StageRevision(v,ch,act3DefaultRemovedIds);
+ if(stageRevision){
+  const raw=reinforcementReferenceUnits(preparedReferenceBattle(v,index,v.state.units.filter(unit=>unit.team==='ally'&&!unit.extra).map(unit=>unit.id)));
+  if(stageRevision.addInitials)appendAct3StageInitials(v.state,ch,raw);
+  if(ch.id==='s16_huarong')for(const unit of v.state.units.filter(u=>u.team==='enemy')){unit.moraleFloor=30;unit.morale=Math.min(unit.morale,30);}
+  if(battleOutcome(v.state)==='victory')v.state.act3ReinforcementVictoryPending=true;
+  refs=enemyProgressionRefs(v,ch,enemyFormationRefs(v,ch,raw));
+  validateState(v,refs,ch.terrain);validateSaveFeatures(v,ch,refs);
+  const notice=(ch.id==='s15_chibi'?'적벽':'화용도')+'의 대기 중 적 증원을 모두 취소했습니다. '+(stageRevision.addInitials?'초기 일반 병력을 추가했습니다. ':'시작한 전투에는 새 병력을 도중에 추가하지 않습니다. ')+(ch.id==='s15_chibi'?'새 화공은 적 전원 병력 3,000 피해·한 턴 혼란, 발동 후 아군 화공 100%입니다. 이전 화공 피해는 다시 적용하지 않습니다.':'패잔병 사기를 30으로 낮췄습니다. 출구·도주·현재 병력은 보존했습니다.');
+  v.migrationNotice=(v.migrationNotice?v.migrationNotice.slice(0,500-notice.length-1)+' ':'')+notice;
+ }
+ return v;
+}
+function validateFormationSave(v,ch,index){
+ const c=v.campaign,s=v.state,army=referenceArmy(v),ids=slots=>slots.filter(id=>id!==null);
+ if(s.deploymentSlots!==undefined){validateDeploymentSlots(ch,army,s.deploymentSlots);assert(same([...ids(s.deploymentSlots)].sort(),s.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>u.id).sort()),'출발 위치와 전장 장수가 다릅니다.');}
+ if(c.draftSlots!==undefined){assert(['preDialogue','deployment'].includes(c.stage)&&c.draft!==undefined,'현재 단계에 편성 초안을 저장할 수 없습니다.');validateDeploymentSlots(ch,v.army,c.draftSlots);assert(same(c.draft,ids(c.draftSlots))&&same(c.draftSlots,s.deploymentSlots),'편성 초안과 전장 출발 위치가 다릅니다.');}
+ if(c.sortieSlots!==undefined){assert(!['preDialogue','deployment'].includes(c.stage)&&c.sortie!==undefined,'확정 출전 위치를 확인하세요.');validateDeploymentSlots(ch,army,c.sortieSlots);assert(same(c.sortie,ids(c.sortieSlots))&&same(c.sortieSlots,s.deploymentSlots),'확정 편성과 전장 출발 위치가 다릅니다.');}
+ if(c.nextDraft!==undefined){const d=c.nextDraft,next=CHAPTERS[index+1];assert(c.stage==='intermission'&&next&&object(d)&&same(Object.keys(d).sort(),['chapterId','ids','slots'].sort())&&d.chapterId===next.id,'다음 출전 초안을 확인하세요.');validateDeploymentSlots(next,v.army,d.slots);assert(same(d.ids,ids(d.slots)),'다음 출전 명단과 위치가 다릅니다.');}
+}
+export function restoreSave(value){
+ const v=parseSave(JSON.stringify(value)),chapter=CHAPTERS.findIndex(ch=>ch.id===v.campaign.chapterId);
+ const campaign=Object.assign(new Campaign(),{chapter,stage:v.campaign.stage,line:v.campaign.line,result:v.campaign.result,lastVictoryId:v.campaign.lastVictoryId,sortie:v.campaign.sortie??null,draft:v.campaign.draft??null,draftSlots:v.campaign.draftSlots??null,sortieSlots:v.campaign.sortieSlots??null,...(v.campaign.nextDraft?{nextDraft:structuredClone(v.campaign.nextDraft)}:{})});
+ const state={...v.state,chapter};delete state.chapterId;
+ return {...v,campaign,state};
+}
+export function readSlot(storage,slot){
+ try{assert(Object.hasOwn(SAVE_KEYS,slot));const raw=storage.getItem(SAVE_KEYS[slot]);return {value:raw?parseSave(raw):null,error:''};}
+ catch(e){return {value:null,error:'저장 읽기 실패: '+e.message};}
+}
+export function writeSlot(storage,slot,value,importedOriginal=null){
+ assert(Object.hasOwn(SAVE_KEYS,slot));const text=JSON.stringify(parseSave(JSON.stringify(value)));
+ try{
+  const original=importedOriginal??storage.getItem(SAVE_KEYS[slot]);
+  if(original){let old;try{old=JSON.parse(original)}catch{}if((old?.version===1||old?.version===2&&(old.growthVersion===undefined||old.systemsVersion===undefined||old.journey==='act1'&&old.storyVersion===undefined))&&!storage.getItem(BACKUP_KEYS[slot]))storage.setItem(BACKUP_KEYS[slot],original);}
+  storage.setItem(SAVE_KEYS[slot],text);
+ }catch{throw new Error('브라우저에 저장하지 못했습니다. 원본을 보관하고 파일 내보내기를 사용하세요.');}
+}
+export function saveLabel(v){
+ const ch=resolveChapterId(v.campaign.chapterId),index=CHAPTERS.indexOf(ch);
+ const stage={preDialogue:'출전 대화',deployment:'출전 편성',battle:'아군 '+v.state.round+'턴',result:'전투 결과',defeatDialogue:'패배 대화',postDialogue:'전후 대화',intermission:'정비 상점',complete:'여정 완료'}[v.campaign.stage];
+ return (index+1)+'장 · '+ch.title+' · '+stage;
+}
+
+export function previousSaves(storage){
+ if(!story())return [];
+ return ['shu-tactics-save-v1-manual','shu-tactics-save-v1-auto','shu-tactics-backup-v1-manual','shu-tactics-backup-v1-auto'].flatMap(key=>{try{const raw=storage.getItem(key);return raw?[{key,raw,label:'이전 버전 저장 · '+(key.includes('backup')?'백업 ':'')+(key.endsWith('manual')?'수동':'자동')}]:[];}catch{return [];}});
+}

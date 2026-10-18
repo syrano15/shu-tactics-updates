@@ -1,0 +1,93 @@
+import {terrainProfile,terrainMovementCost,terrainPhysicalDefense,terrainHitAdjustment,terrainFireMultiplier,modernTerrain} from './terrain-effects.js';
+import {terrainDefense} from './traits.js';
+
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const signed=value=>(value>0?'+':value<0?'−':'')+Math.abs(value);
+const coordinate=(x,y)=>String.fromCharCode(65+x)+(y+1);
+const validCell=(state,x,y)=>Number.isInteger(x)&&Number.isInteger(y)&&!!state?.terrain?.[y]?.[x];
+
+/** Only an idle map tap may open information; targeting taps retain their action. */
+export function canInspectTerrain({mobile,mode,origin,target,busy=false,blocked=false}={}){
+ return !!mobile&&!busy&&!blocked&&!origin&&!target&&['command','inspect'].includes(mode);
+}
+
+export function terrainInfoModel(state,x,y){
+ if(!validCell(state,x,y))return null;
+ const profile=terrainProfile(state,x,y),unit={x,y,cls:'infantry'},modern=modernTerrain(state);
+ const defense=terrainPhysicalDefense(state,unit),hit=terrainHitAdjustment(state,unit),fire=terrainFireMultiplier(state,unit);
+ const foot=terrainMovementCost(state,unit,x,y),cavalry=terrainMovementCost(state,{...unit,cls:'cavalry'},x,y);
+ const fireBonus=profile.kind==='forest'?(state.balance?.fire?.forestBonus??20):0;
+ const lines=profile.blocked?['진입할 수 없는 칸입니다.']:[
+  defense||hit?'물리 방어 '+signed(defense)+(hit?' · '+(hit<0?'회피 +':'피격 +')+Math.abs(hit)+'%p':''):'물리 지형 방어·명중 보정 없음',
+  '화공 '+(fireBonus?'성공 보정 +'+fireBonus+'%p · ':'')+'피해 '+Math.round(fire*100)+'%',
+  foot===cavalry?'진입 비용 '+foot:'진입 비용 기병 '+cavalry+' / 그 외 '+foot
+ ];
+ if(profile.kind==='burned')lines[1]='숲 효과 상실 · 추가 턴 피해 없음';
+ if(profile.kind==='flood')lines[0]='숲 방어·회피·지형 숙련 효과 없음';
+ return {x,y,coordinate:coordinate(x,y),kind:profile.kind,name:profile.name,modern,blocked:profile.blocked,defense,hit,fireMultiplier:fire,fireBonus,footCost:foot,cavalryCost:cavalry,lines,
+  legacy:modern?'':'구 전투 규칙 · 새 지형 효과 소급 없음'};
+}
+
+export function terrainInfoButtonHTML(state,unit){
+ const model=unit&&terrainInfoModel(state,unit.x,unit.y);if(!model)return '';
+ return '<button type="button" class="terrain-info-open" data-action="terrain-info" aria-label="현재 칸 '+esc(model.coordinate+' '+model.name)+' 지형 효과 보기">현재 칸 · '+esc(model.name)+' <span>효과 보기</span></button>';
+}
+
+export function terrainDetailHTML(state,unit){
+ const model=unit&&terrainInfoModel(state,unit.x,unit.y);if(!model)return '';
+ return '<section class="terrain-unit-detail"><b>현재 칸 '+esc(model.coordinate+' · '+model.name)+'</b><p>'+model.lines.map(esc).join('<br>')+'</p>'+(model.legacy?'<small>'+esc(model.legacy)+'</small>':'')+'</section>';
+}
+
+export function terrainArrivalHTML(state,unit,x,y){
+ const model=terrainInfoModel(state,x,y);if(!model)return '';
+ const cost=terrainMovementCost(state,unit,x,y);
+ const parts=[model.name,'진입 '+cost,model.defense?'방어 '+signed(model.defense):'',model.hit?(model.hit<0?'회피 +':'피격 +')+Math.abs(model.hit)+'%p':'',model.fireMultiplier!==1?'화공 피해 '+Math.round(model.fireMultiplier*100)+'%':''];
+ return '<p class="terrain-arrival">도착지 지형 · '+esc(parts.filter(Boolean).join(' · '))+(model.modern?'':' · 구 규칙')+'</p>';
+}
+
+function predictionContribution(state,unit,{kind='physical',terrainPierce=0}={}){
+ const model=terrainInfoModel(state,unit.x,unit.y);if(!model)return '';
+ if(kind==='fire')return model.name+' · '+(model.fireBonus?'화공 성공 보정 +'+model.fireBonus+'%p · ':'')+'화공 피해 '+Math.round(model.fireMultiplier*100)+'%';
+ if(kind==='water'||['confusion','deception'].includes(kind))return model.name+' · '+(kind==='water'?'수계':'상태 책략')+'의 지형 보정 없음';
+ const trait=terrainDefense(unit,state),parts=[];
+ if(terrainPierce===1&&(model.defense||trait))parts.push('지형 방어 무시');
+ else{if(model.defense)parts.push('지형 방어 '+signed(model.defense*(1-terrainPierce)));if(trait)parts.push('지형 숙련 +'+trait*(1-terrainPierce));}
+ if(model.hit)parts.push('명중 보정 '+signed(model.hit)+'%p');
+ return model.name+' · '+(parts.join(' · ')||'지형 방어·명중 보정 없음');
+}
+
+/** Contribution labels describe modifiers before caps; the existing forecast remains authoritative. */
+export function terrainPredictionHTML(state,actor,target,{kind='physical',terrainPierce=0,targets=null,counter=false}={}){
+ if(kind==='tactic')kind='fire';
+ if(!actor||!target||kind==='support')return '';
+ const units=(targets?.length?targets:[target]).map(unit=>state.units?.find(live=>live.id===unit.id)??unit),groups=new Map();
+ for(const unit of units){const text=predictionContribution(state,unit,{kind,terrainPierce});if(text)groups.set(text,(groups.get(text)??0)+1);}
+ if(!groups.size)return '';
+ let text=(units.length>1?'대상 칸별 · ':'대상 지형 · ')+[...groups].map(([label,count])=>label+(units.length>1?' ('+count+'기)':'')).join(' / ');
+ if(counter&&kind==='physical'&&terrainProfile(state,actor.x,actor.y).kind!=='plain')text+=' · 반격은 내 '+predictionContribution(state,actor,{kind:'physical'});
+ return '<p class="terrain-prediction-note" data-terrain-prediction>'+esc(text)+(modernTerrain(state)?'':' · 구 전투 규칙')+'</p>';
+}
+
+/** One transient map overlay. It never changes map dimensions, input defaults or game state. */
+export function installTerrainInspector(stage,{isMobile=()=>false}={}){
+ const doc=stage.ownerDocument;
+ if(!doc.querySelector('link[href$="terrain-ui.css"]')){const link=doc.createElement('link');link.rel='stylesheet';link.href=new URL('./terrain-ui.css',import.meta.url).href;doc.head.append(link);}
+ const card=doc.createElement('aside');card.className='terrain-inspector';card.hidden=true;card.setAttribute('aria-label','칸 지형 효과');
+ const header=doc.createElement('div');header.className='terrain-inspector-header';
+ const title=doc.createElement('strong');title.dataset.terrainTitle='';
+ const close=doc.createElement('button');close.type='button';close.dataset.terrainClose='';close.textContent='닫기';close.setAttribute('aria-label','지형 정보 닫기');
+ const body=doc.createElement('div');body.className='terrain-inspector-body';body.setAttribute('aria-live','polite');
+ header.append(title,close);card.append(header,body);stage.append(card);
+ let signature='';
+ const hide=()=>{card.hidden=true;};
+ const dismiss=event=>{if(!card.contains(event.target))hide();};
+ const escape=event=>{if(event.key==='Escape'&&!card.hidden)hide();};
+ close.addEventListener('click',hide);stage.addEventListener('pointerdown',dismiss,{capture:true,passive:true});doc.addEventListener('keydown',escape);
+ return {show(state,x,y){
+   if(!isMobile()){hide();return false;}
+   const model=terrainInfoModel(state,x,y);if(!model){hide();return false;}
+   const next=JSON.stringify(model);
+   if(signature!==next){title.textContent=model.coordinate+' · '+model.name;body.innerHTML=model.lines.map(line=>'<p>'+esc(line)+'</p>').join('')+(model.legacy?'<small>'+esc(model.legacy)+'</small>':'');signature=next;}
+   card.hidden=false;return true;
+  },hide,destroy(){stage.removeEventListener('pointerdown',dismiss,{capture:true});doc.removeEventListener('keydown',escape);card.remove();},get visible(){return !card.hidden;}};
+}

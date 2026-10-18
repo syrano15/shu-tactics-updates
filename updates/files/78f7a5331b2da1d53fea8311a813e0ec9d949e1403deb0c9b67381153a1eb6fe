@@ -1,0 +1,44 @@
+import {UNIT_TEMPLATES} from './roster.js';
+import {getPromotionBonuses} from './promotion.js';
+
+// Fresh v2 sorties replace existing elite slots. IDs, positions and waves stay
+// unchanged; no historical chapter/template object is rewritten.
+export const SPECIALIST_IDS=Object.freeze(['tiger-cavalry','armored-cavalry','sniper','shield-infantry','long-spear']);
+export const SPECIALIST_NAMES=Object.freeze({'tiger-cavalry':'호표기','armored-cavalry':'철갑기병',sniper:'저격병','shield-infantry':'방패병','long-spear':'장창병'});
+const H='tiger-cavalry',I='armored-cavalry',S='sniper',D='shield-infantry',L='long-spear';
+const PLANS={
+ s17_jingnan:[D],s18_changsha:[S],s19_jiangling:[H],s21_jingzhou_hold:[L],
+ s22_jiameng:[D],s23_fucheng:[L],s24_luofengpo:[S],s25_luocheng:[D,S],s26_machao:[I,L],s27_chengdu:[D,L],s28_dangqu:[H],s29_dingjun:[S,I],s30_hanshui:[H,S],s31_hanzhong:[D,H],
+ s32_fancheng:[D,H],s33_flood:[L,S],s34_xuhuang:[H,I,S],s35_white_robes:[D,L],s36_maicheng:[S,I],s37_jiangling_retake:[D,L,S],
+ s39_wuxia:[I,S,D],s40_yiling:[L,S,I],s41_ruxu:[H,H,L],s42_alliance:[H,H,D],s43_lushui:[D,L,S],s44_menghuo:[D,L,I],s45_rattan:[D,L,S],
+ s46_tianshui:[H,I,S],s47_jieting:[D,L,H,I],s48_jigu:[S,D,L],s49_chencang:[H,I,S,D],s50_yinping:[L,H,I,S],s51_wheat:[D,L,H,I],s52_mumen:[S,D,L,H],s53_wuzhangyuan:[I,S,D,L],s54_seven_lamps:[H,I,S,D],s55_weishui:[L,H,I],s56_changan:[S,D,L,H],
+};
+export const SPECIAL_TROOP_PLANS=Object.freeze(Object.fromEntries(Object.entries(PLANS).map(([id,roles])=>[id,Object.freeze(roles)])));
+export function validSpecialistClass(id,cls){
+ return id===H||id===I?cls==='cavalry':id===S?['archer','crossbow'].includes(cls):id===D?cls==='infantry':id===L?cls==='spear':false;
+}
+export function specialistIdentity(unit){
+ return unit?.team==='enemy'&&unit.generic===true&&unit.combatTier==='elite'&&validSpecialistClass(unit.specialistId,unit.cls)?unit.specialistId:null;
+}
+const classFor=(id,number)=>id===H||id===I?'cavalry':id===D?'infantry':id===L?'spear':number%2?'archer':'crossbow';
+export function specialTroopOrders(chapter,orders,version=0){
+ if(version!==2||!SPECIAL_TROOP_PLANS[chapter?.id])return orders;
+ const reserves=new Set((chapter.reinforcements??[]).flatMap(w=>w.unitIds));
+ const protectedIds=new Set([chapter.objective?.targetId,chapter.objective?.unit,...(chapter.objective?.requiredDefeated??[]),...(chapter.act6Tactics?.escapes?.unitIds??[]),chapter.act7Tactics?.commanderGate?.unit]);
+ const candidates=orders.filter(order=>order.combatTier==='elite'&&(chapter.act>=5||!reserves.has(order.id))&&!protectedIds.has(order.id)&&UNIT_TEMPLATES[order.templateId]?.generic&&UNIT_TEMPLATES[order.templateId]?.cls!=='strategist').sort((a,b)=>Number(reserves.has(a.id))-Number(reserves.has(b.id)));
+ const selected=new Map(),number=Number(/^s(\d+)_/.exec(chapter.id)?.[1]);
+ for(const id of SPECIAL_TROOP_PLANS[chapter.id]){
+  const cls=classFor(id,number),eligible=candidates.filter(order=>!selected.has(order.id)&&(id!==H||order.faction==='wei'));
+  const source=eligible.find(order=>UNIT_TEMPLATES[order.templateId].cls===cls)??(id===S?eligible.find(order=>['archer','crossbow'].includes(UNIT_TEMPLATES[order.templateId].cls)):null)??eligible[0];
+  if(!source)throw new Error('특수 병력으로 교체할 정예가 없습니다: '+chapter.id+'/'+id);
+  const original=UNIT_TEMPLATES[source.templateId],chosenClass=id===S&&['archer','crossbow'].includes(original.cls)?original.cls:cls;
+  const templateId='specialist_v2_'+chapter.id+'_'+source.id+'_'+id.replaceAll('-','_');
+  const baseStats={...original.baseStats};
+  // Early replacements change the role, not the slot's original health curve.
+  // Offset only the class promotion HP; normal growth/profile caps still apply.
+  if(chapter.act<=5){const rank=source.rank??source.promotion??0;baseStats.hp+=getPromotionBonuses(original.cls,rank).hp-getPromotionBonuses(chosenClass,rank).hp;}
+  UNIT_TEMPLATES[templateId]={...original,cls:chosenClass,baseStats,specialistId:id};
+  selected.set(source.id,{...source,templateId});
+ }
+ return orders.map(order=>selected.get(order.id)??order);
+}
