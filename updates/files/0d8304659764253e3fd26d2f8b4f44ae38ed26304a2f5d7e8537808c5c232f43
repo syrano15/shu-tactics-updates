@@ -1,0 +1,43 @@
+import {QINGGANG_SWORD_VERSION} from './equipment.js';
+import {guestHeroIdentity} from './guest-allies.js';
+const ACTIVE=new Set(['preDialogue','deployment','battle']);
+const active=value=>value.state.result===null&&!value.state.rewardsSettled&&ACTIVE.has(value.campaign.stage);
+const allUnits=state=>[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+const fail=message=>{throw new Error('청강검 저장 오류: '+message);};
+const same=(a,b)=>a===b||a&&b&&typeof a==='object'&&typeof b==='object'&&Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>same(a[k],b[k]));
+function wearsSword(value,unit){
+ if(unit.team!=='ally')return false;
+ const hero=unit.extra?unit.guestInherited&&guestHeroIdentity(unit)&&unit.guestSource?.hero:value.army?.heroes?.[unit.id];
+ return !!hero?.slots?.includes('qinggangSword');
+}
+const fields=['atk','baseAtk','int','classTraining'];
+function expected(unit,ref){
+ if(!ref||ref.team!=='ally'||ref.cls!==unit.cls)fail('출전 참조가 다릅니다.');
+ for(const k of fields)if(!same(unit[k],ref[k]))fail('출전 '+k+' 수치가 다릅니다.');
+}
+// References are built using the snapshot's own equipment version. Current
+// and historical class aptitude/guest profiles stay strict before migration.
+export function validateQinggangSword(value,refs=null){
+ const version=value.state.qinggangSwordVersion??0;
+ if(version!==0&&version!==QINGGANG_SWORD_VERSION)fail('지원하지 않는 버전입니다.');
+ // Pending allied sources are checked with complete reserve references by
+ // validateReinforcementRecord; the state validator receives active refs only.
+ if(refs&&active(value))for(const unit of value.state.units.filter(u=>wearsSword(value,u)))expected(unit,refs.find(r=>r.id===unit.id));
+ return true;
+}
+// Only a fully validated live checkpoint gains the +4 attack difference.
+// No HP, SP, actions, positions, RNG, inventories or completed result is touched.
+export function upgradeValidatedQinggangSword(value,oldRefs,newRefs){
+ if((value.state.qinggangSwordVersion??0)!==0||!active(value))return false;
+ const units=allUnits(value.state).filter(u=>wearsSword(value,u));if(!units.length)return false;
+ for(const unit of units){
+  const before=oldRefs.find(r=>r.id===unit.id),after=newRefs.find(r=>r.id===unit.id);expected(unit,before);
+  if(!after||after.cls!==unit.cls||after.team!=='ally'||['atk','baseAtk','int'].some(k=>!Number.isInteger(after[k])||after[k]<before[k]))fail('새 능력 참조가 다릅니다.');
+ }
+ for(const unit of units){
+  const after=newRefs.find(r=>r.id===unit.id);
+  for(const k of fields){if(Object.hasOwn(after,k))unit[k]=structuredClone(after[k]);else delete unit[k];}
+ }
+ value.state.qinggangSwordVersion=QINGGANG_SWORD_VERSION;
+ return true;
+}

@@ -1,0 +1,115 @@
+// Authored presentation identities, not procedural terrain. Each material is
+// framed once at display time and can only occupy its existing tactical kind.
+const asset=(src,clipCode,sourceRect)=>Object.freeze({src,...(clipCode?{clipCode}:{}),sourceRect:Object.freeze(sourceRect)});
+export const BIOME_DECORATION_ART=Object.freeze({
+ 'rural-harvest':asset('art/visual-v0746/rural-harvest.webp',null,{"x":13.933,"y":19.0656,"width":485.7161,"height":462.384}),
+ 'camp-supplies':asset('art/visual-v0746/camp-supplies.webp',null,{"x":14.7294,"y":22.245,"width":484.5204,"height":449.5099}),
+ 'river-driftwood':asset('art/visual-v0746/river-driftwood.webp',null,{"x":19.1548,"y":70.5478,"width":480.4548,"height":377.6771}),
+ 'mossy-rock':asset('art/visual-v0746/mossy-rock.webp','#',{"x":8.8026,"y":21.6551,"width":483.1908,"height":468.6899}),
+ 'woodland-ferns':asset('art/visual-v0746/woodland-ferns.webp','F',{"x":18.8,"y":14.3974,"width":484.4,"height":462.6123}),
+ 'jungle-plants':asset('art/visual-v0746/jungle-plants.webp','F',{"x":23.4427,"y":23.8466,"width":468.0339,"height":468.6645}),
+ 'northern-scrub':asset('art/visual-v0746/northern-scrub.webp',null,{"x":27.2626,"y":20.8518,"width":471.9347,"height":474.3126}),
+ 'city-pottery':asset('art/visual-v0746/city-pottery.webp',null,{"x":27.318,"y":59.0884,"width":470.4746,"height":414.7413}),
+});
+const ids=['rural-harvest','camp-supplies','river-driftwood','mossy-rock','woodland-ferns','jungle-plants','northern-scrub','city-pottery'];
+const recipe=(theme,...pairs)=>Object.freeze({theme,materials:Object.freeze(pairs.map(([i,count])=>Object.freeze({asset:ids[i],count})))});
+export const MAP_BIOME_STYLES=Object.freeze({
+ s01_zhuoxian:recipe('spring-farm',[0,4],[4,2]),
+ s02_yellow_camp:recipe('dawn-rebel-camp',[1,4],[4,2]),
+ s03_hulao:recipe('rocky-frontier-pass',[3,4],[1,2]),
+ s04_beihai:recipe('besieged-market-outskirts',[7,3],[0,3]),
+ s05_xuzhou_relief:recipe('rural-relief-road',[0,3],[1,3]),
+ s06_xuzhou_fall:recipe('night-city-stores',[7,4],[1,2]),
+ s07_xiapi:recipe('river-town-bank',[2,3],[7,3]),
+ s08_xiaopei:recipe('rural-flight',[0,4],[4,2]),
+ s09_baima:recipe('northern-ford-camp',[2,4],[1,2]),
+ s10_thousand_li:recipe('successive-stone-passes',[3,4],[1,2]),
+ s11_bowang:recipe('dense-temperate-understory',[4,6]),
+ s12_xinye:recipe('evacuated-river-town',[2,3],[7,3]),
+ s13_changban:recipe('refugee-river-road',[2,4],[0,2]),
+ s14_jiangxia:recipe('ferry-bank-supplies',[2,4],[1,2]),
+ s15_chibi:recipe('linked-burning-fleet'),
+ s16_huarong:recipe('muddy-rock-gully',[6,3],[3,3]),
+ s17_jingnan:recipe('southern-earth-fort',[7,4],[4,2]),
+ s18_changsha:recipe('stone-moat-garrison',[7,5],[1,1]),
+ s19_jiangling:recipe('north-bank-city-supply',[7,3],[1,3]),
+ s20_adou_river:recipe('quiet-linked-fleet'),
+ s21_jingzhou_hold:recipe('river-defense-camp',[2,4],[1,2]),
+ s22_jiameng:recipe('green-mountain-pass',[3,4],[4,2]),
+ s23_fucheng:recipe('old-city-farm-stores',[7,4],[0,2]),
+ s24_luofengpo:recipe('fern-covered-ambush-pass',[4,4],[3,2]),
+ s25_luocheng:recipe('siege-city-supplies',[7,4],[1,2]),
+ s26_machao:recipe('rural-cavalry-staging',[0,4],[1,2]),
+ s27_chengdu:recipe('capital-granary-stores',[7,5],[0,1]),
+ s28_dangqu:recipe('wooded-rock-valley',[4,4],[3,2]),
+ s29_dingjun:recipe('wooded-mountain-ridge',[3,4],[4,2]),
+ s30_hanshui:recipe('river-supply-camp',[2,3],[1,3]),
+ s31_hanzhong:recipe('river-basin-encampment',[2,3],[1,3]),
+ s32_fancheng:recipe('stone-siege-garrison',[7,4],[1,2]),
+ s33_flood:recipe('flood-washed-bank',[2,4],[1,2]),
+ s34_xuhuang:recipe('farm-road-reinforcement',[0,3],[1,3]),
+ s35_white_robes:recipe('landing-bank-supplies',[2,4],[1,2]),
+ s36_maicheng:recipe('wooded-retreat-ridge',[3,4],[4,2]),
+ s37_jiangling_retake:recipe('retaken-town-stores',[7,4],[1,2]),
+ s38_langzhong:recipe('night-military-camp',[1,4],[6,2]),
+ s39_wuxia:recipe('lush-gorge-rock',[3,4],[4,2]),
+ s40_yiling:recipe('forest-encampments',[1,3],[4,3]),
+ s41_ruxu:recipe('river-mouth-front',[2,3],[1,3]),
+ s42_alliance:recipe('river-side-settlement',[2,2],[7,4]),
+ s43_lushui:recipe('subtropical-river-crossing',[5,4],[2,2]),
+ s44_menghuo:recipe('dense-southern-jungle',[5,6]),
+ s45_rattan:recipe('jungle-rock-gully',[5,3],[3,3]),
+ s46_tianshui:recipe('dry-northern-farmland',[6,4],[0,2]),
+ s47_jieting:recipe('isolated-dry-mountain',[3,3],[6,3]),
+ s48_jigu:recipe('dry-narrow-gorge',[3,4],[6,2]),
+ s49_chencang:recipe('winter-siege-stores',[6,4],[1,2]),
+ s50_yinping:recipe('northern-limestone-ridges',[3,4],[6,2]),
+ s51_wheat:recipe('ripe-grain-harvest',[0,4],[6,2]),
+ s52_mumen:recipe('autumn-wooded-valley',[4,3],[6,3]),
+ s53_wuzhangyuan:recipe('dry-river-plateau',[6,4],[2,2]),
+ s54_seven_lamps:recipe('night-command-camp',[1,4],[6,2]),
+ s55_weishui:recipe('northern-river-crossing',[2,3],[6,3]),
+ s56_changan:recipe('old-capital-storeyards',[7,4],[1,2])
+});
+const point=(x,y)=>x+','+y;
+const dryGround=new Set(['s46_tianshui','s47_jieting','s48_jigu','s50_yinping','s52_mumen','s53_wuzhangyuan','s55_weishui']);
+// The same sparse plain-cell corners express northern dry ground without
+// adding more stamps or making a new cover cell.
+export const plainGrassMaterialFor=id=>dryGround.has(id)?'northern-scrub':'grass';
+const specifications=Object.freeze({
+ 'rural-harvest':{code:'.',width:.58,height:.48,affinity:'edge'},
+ 'camp-supplies':{code:'.',width:.54,height:.48,affinity:'edge'},
+ 'river-driftwood':{code:'.',width:.7,height:.43,affinity:'bank'},
+ 'mossy-rock':{code:'#',width:.96,height:.9,affinity:'rock'},
+ 'woodland-ferns':{code:'F',width:.92,height:.88,affinity:'forest'},
+ 'jungle-plants':{code:'F',width:.96,height:.94,affinity:'forest'},
+ 'northern-scrub':{code:'.',width:.52,height:.48,affinity:'edge'},
+ 'city-pottery':{code:'.',width:.54,height:.5,affinity:'wall'}
+});
+export function biomePlacementsFor(chapter,art,{reserved,occupied,hash}={}){
+ const style=MAP_BIOME_STYLES[chapter?.id];
+ if(!style||chapter.id!==art?.id||chapter.campaignLayoutVersion!==1||chapter.terrain?.join('\n')!==art.terrainKey||!(reserved instanceof Set)||!(occupied instanceof Set)||typeof hash!=='function')return [];
+ const terrain=chapter.terrain,result=[],used=new Set(occupied),near=(x,y,code)=>[[0,-1],[0,1],[-1,0],[1,0]].some(([dx,dy])=>terrain[y+dy]?.[x+dx]===code);
+ const night=['s06_xuzhou_fall','s38_langzhong','s54_seven_lamps'].includes(chapter.id),winter=chapter.id==='s49_chencang';
+ for(const [index,material]of style.materials.entries()){
+  const spec=specifications[material.asset];if(spec.code==='#'&&art.blockedKind!=='rock')continue;
+  const candidates=[];
+  for(let y=0;y<art.rows;y++)for(let x=0;x<art.columns;x++){
+   if(terrain[y]?.[x]!==spec.code||reserved.has(point(x,y))||used.has(point(x,y)))continue;
+   if(spec.affinity==='bank'&&(art.blockedKind!=='water'||!near(x,y,'#')))continue;
+   const edge=x<2||y<2||x>=art.columns-2||y>=art.rows-2,preferred=spec.affinity==='wall'?near(x,y,'#'):spec.affinity==='edge'?edge||near(x,y,'F'):true;
+   candidates.push({x,y,rank:preferred?0:1});
+  }
+  const salt=80+index;candidates.sort((a,b)=>a.rank-b.rank||hash(art.id,a.x,a.y,salt)-hash(art.id,b.x,b.y,salt)||a.y-b.y||a.x-b.x);
+  let added=0;
+  for(const cell of candidates){
+   if(added>=material.count)break;
+   const {width,height}=spec,right=hash(art.id,cell.x,cell.y,salt+3)>.5,bottom=hash(art.id,cell.x,cell.y,salt+4)>.5,margin=.02;
+   const x=spec.code==='.'?cell.x+(right?1-width-.06:.06):cell.x+(1-width)/2,y=spec.code==='.'?cell.y+(bottom?1-height-.06:.06):cell.y+(1-height)/2;
+   const p={asset:material.asset,x:Number(x.toFixed(4)),y:Number(y.toFixed(4)),width,height,rotation:0,opacity:night?.58:winter?.8:spec.code==='.'?.9:.94,...(spec.code!=='.'?{clipCode:spec.code}:{})};
+   if(p.x<cell.x+margin||p.y<cell.y+margin||p.x+width>cell.x+1-margin+.000001||p.y+height>cell.y+1-margin+.000001)continue;
+   result.push(Object.freeze(p));used.add(point(cell.x,cell.y));added++;
+  }
+ }
+ return Object.freeze(result);
+}

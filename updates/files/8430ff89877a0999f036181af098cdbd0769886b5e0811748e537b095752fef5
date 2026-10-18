@@ -1,0 +1,168 @@
+import {installAct3StageRevision,act3StageEnemyOrders,ACT3_STAGE_ROSTER_VERSION} from './act3-stage-revision.js';
+import {installXiapiRoutes} from './xiapi-routes.js';
+import {installAct2ReliefPolicy,act2DefaultRemovedIds,act2ReliefEnemyOrders,act2ReliefWaves} from './act2-relief-save.js';
+import {openingPressureOrders} from './opening-pressure.js';
+import {installBaimaReinforcementPolicy,baimaExpandedReserveIds,baimaLimitedWaves} from './baima-reinforcement-limit.js';
+import {installThousandLiReinforcementPolicy,thousandLiEnemyReserveIds,thousandLiLimitedWaves} from './thousand-li-reinforcement-limit.js';
+import {installAct2EnemyWaveLimitPolicy,act2EnemyWaveDefaultRemovedIds,act2EnemyLimitedOrders,act2EnemyLimitedWaves,act2EnemyWaveLimitApplies} from './act2-enemy-wave-limit.js';
+import {act3DefaultRemovedIds,act3ReinforcementApplies,act3LimitedEnemyOrders,act3LimitedWaves} from './act3-reinforcement-limit.js';
+import {CHAPTERS} from './campaign.js';
+import {HERO_DATA} from './heroes.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {progressionEnemyOrder} from './enemy-progression.js';
+import {mapSize} from './maps.js';
+
+// The original campaign installers remain unchanged. The main game opts in
+// after all three acts have been installed; trials and historical tests do not.
+export const CAMPAIGN_LAYOUT_VERSION=1;
+const sizes={1:[16,12],2:[18,14],3:[22,16]};
+const counts=[16,18,18,20,22,20,24,26,24,26,28,30,32,36,40,20,38,40,44,24,48];
+const targets=[3,6,6,6,6,8,8,8,1,1,10,10,10,10,10,2,12,12,12,2,12];
+export const FUTURE_SORTIE_POLICY=Object.freeze({act4:14,act5:16,act6Final:{minimum:15,maximum:18}});
+const bridgeCells={s07_xiapi:[[7,2],[7,4],[7,5],[7,7]],s09_baima:[[6,4],[6,5]],s12_xinye:[[6,4],[6,5]],s13_changban:[[7,4],[7,5]],s15_chibi:[[5,4],[5,5]],s20_adou_river:[[5,4],[6,4],[5,5],[6,5]],s21_jingzhou_hold:[[6,2],[6,3],[6,6],[6,7]]};
+const coordinate=([x,y],width,height,oldWidth,oldHeight)=>[Math.floor((x+.5)*width/oldWidth),Math.floor((y+.5)*height/oldHeight)];
+const key=p=>p.join(',');
+const mean=points=>points.reduce((sum,p)=>[sum[0]+p[0]/points.length,sum[1]+p[1]/points.length],[0,0]);
+const valid=(terrain,p)=>Array.isArray(p)&&p.length===2&&p.every(Number.isInteger)&&terrain[p[1]]?.[p[0]]!==undefined&&terrain[p[1]][p[0]]!=='#';
+function cellCandidates(terrain,origin,occupied,{minimumX=0,maximumX=Infinity}={}){
+ const candidates=[];for(let y=0;y<terrain.length;y++)for(let x=0;x<terrain[0].length;x++)if(x>=minimumX&&x<=maximumX&&terrain[y][x]!=='#'&&!occupied.has(key([x,y])))candidates.push([x,y]);
+ return candidates.sort((a,b)=>(a[0]-origin[0])**2+(a[1]-origin[1])**2-((b[0]-origin[0])**2+(b[1]-origin[1])**2)||a[1]-b[1]||a[0]-b[0]);
+}
+function transformEvent(event,move){
+ const value=structuredClone(event);
+ if(value.trigger?.tiles)value.trigger.tiles=value.trigger.tiles.map(move);
+ if(value.fx?.tile)value.fx.tile=move(value.fx.tile);
+ if(value.terrainEffect?.cells)value.terrainEffect.cells=value.terrainEffect.cells.map(move);
+ return value;
+}
+function activeAt(index,chapters){
+ const prior=new Set(chapters.slice(0,index).map(c=>c.rosterEventId??c.id));
+ return Object.keys(HERO_DATA).filter(id=>HERO_DATA[id].joinAfterChapter==='start'||prior.has(HERO_DATA[id].joinAfterChapter)).filter(id=>!prior.has(HERO_DATA[id].leaveAfterChapter));
+}
+function addEnemyFormations(chapter,target,index){
+ const width=chapter.terrain[0].length,height=chapter.terrain.length;
+ const occupied=new Set([...chapter.allyPositions,...chapter.enemies.map(e=>e.position),...(chapter.extraAllies??[]).map(e=>e.position)].map(key));
+ const sources=chapter.enemies.filter(e=>UNIT_TEMPLATES[e.templateId]&&(e.combatTier?['troop','elite'].includes(e.combatTier):UNIT_TEMPLATES[e.templateId].generic));
+ if(!sources.length)throw new Error('확대 전장에 일반 적 원본이 없습니다: '+chapter.id);
+ const wanted=Math.max(0,target-chapter.enemies.length),start=chapter.enemies.length;
+ const escape=chapter.id==='s16_huarong';
+ const waveIds=[];
+ for(let n=0;n<wanted;n++){
+  const source=sources[n%sources.length],fraction=n/Math.max(1,wanted-1);
+  // Three approach lanes put the larger army on distinct fronts rather than
+  // packing all new units against the old commander in one block.
+  const lane=n%3,origin=escape?[7+(n%5),2+(n%11)]:[Math.round(width*(.48+.36*fraction)),Math.round(height*[.2,.5,.8][lane])];
+  const candidates=cellCandidates(chapter.terrain,origin,occupied,{minimumX:escape?7:Math.floor(width*.32),maximumX:escape?14:width-1});
+  const position=candidates.find(p=>chapter.allyPositions.every(a=>Math.abs(a[0]-p[0])+Math.abs(a[1]-p[1])>=3));
+  if(!position)throw new Error('확대 적 배치 공간이 없습니다: '+chapter.id);
+  occupied.add(key(position));
+  const order={...structuredClone(source),id:'layout_e'+String(n+1).padStart(2,'0'),position,aiMode:escape?'charge':n%3===0?'hold':'charge',...(chapter.act===1?{}:{advanceRound:2+n%3})};
+  delete order.boss;delete order.loot;delete order.introducedFormationVersion;
+  delete order.campaignTemplateId;delete order.campaignCombatTier;delete order.campaignPosition;
+  if(chapter.id==='s15_chibi'){order.combatTier='elite';order.rank=2;}
+  chapter.enemies.push(order);waveIds.push(order.id);
+ }
+ // All pursuit units start on the board; a finite reserve does not get a
+ // second chance to escape. The short two-officer escort also has fewer foes.
+ if(chapter.act!==1&&!escape&&wanted>=6){
+  const reserve=chapter.id==='s15_chibi'?12:Math.min(12,Math.floor(wanted/3)*3);
+  const pending=waveIds.slice(-reserve),first=Math.ceil(pending.length/2);
+  chapter.reinforcements??=[];chapter.battleEventsVersion=1;
+  const originalWave=chapter.reinforcements.filter(w=>w.team!=='ally').flatMap(w=>w.unitIds).length;
+  // Chibi's original two escorts join the first expanded wave, leaving exactly
+  // 28 initial enemies and 12 delayed enemies in the 40-unit fleet.
+  if(chapter.id==='s15_chibi'){
+   const original=chapter.reinforcements.filter(w=>w.team!=='ally').flatMap(w=>w.unitIds);
+   chapter.reinforcements=chapter.reinforcements.filter(w=>w.team==='ally');
+   const ids=[...original,...pending].slice(-12);
+   chapter.reinforcements.push({id:'layout_north_fleet',unitIds:ids.slice(0,6),trigger:{type:'enemyCountBelow',count:20,minRound:2,fallbackRound:3}},{id:'layout_east_fleet',unitIds:ids.slice(6),trigger:{type:'enemyCountBelow',count:16,minRound:3,fallbackRound:5}});
+  }else{
+   chapter.reinforcements.push({id:'layout_north_relief',unitIds:pending.slice(0,first),trigger:{type:'enemyCountBelow',count:Math.max(4,Math.floor((target-originalWave-reserve)*.6)),minRound:2,fallbackRound:3}},{id:'layout_south_relief',unitIds:pending.slice(first),trigger:{type:'enemyCountBelow',count:Math.max(3,Math.floor((target-originalWave-reserve)*.4)),minRound:3,fallbackRound:5}});
+  }
+ }
+ // Stamp tiers and templates from one immutable formation. Both combat and
+ // settlement now read the same elite/officer identity.
+ const snapshot={...chapter,enemies:structuredClone(chapter.enemies)};
+ chapter.enemies=snapshot.enemies.map(e=>progressionEnemyOrder(snapshot,e,3));
+ return start;
+}
+export function activateExpandedCampaign(chapters=CHAPTERS){
+ if(!Array.isArray(chapters)||chapters.length!==21||chapters.some(c=>c.rosterMode!=='story'))throw new Error('확대 전장은 1~3막 21장 설치 후 활성화합니다.');
+ if(chapters.every(c=>c.campaignLayoutVersion===1))return chapters;
+ if(chapters.some(c=>c.campaignLayoutVersion!==undefined))throw new Error('확대 전장 버전이 섞여 있습니다.');
+ for(const [index,chapter] of chapters.entries()){
+  const act=chapter.act??1,[width,height]=sizes[act],old=[...chapter.terrain],oldWidth=old[0].length,oldHeight=old.length;
+  const move=p=>coordinate(p,width,height,oldWidth,oldHeight);
+  chapter.act??=1;chapter.campaignLayoutVersion=1;
+  chapter.terrain=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>old[Math.min(oldHeight-1,Math.floor(y*oldHeight/height))][Math.min(oldWidth-1,Math.floor(x*oldWidth/width))]).join(''));
+  chapter.allyPositions=chapter.allyPositions.map(move);
+  chapter.enemies=chapter.enemies.map(e=>({...structuredClone(e),position:move(e.position),...(e.campaignPosition?{campaignPosition:move(e.campaignPosition)}:{})}));
+  chapter.extraAllies=(chapter.extraAllies??[]).map(e=>({...structuredClone(e),position:move(e.position)}));
+  if(chapter.objective?.tiles)chapter.objective.tiles=chapter.objective.tiles.map(move);
+  if(chapter.objective?.tile)chapter.objective.tile=move(chapter.objective.tile);
+  for(const condition of chapter.defeat??[])if(condition.tiles)condition.tiles=condition.tiles.map(move);
+  chapter.events=(chapter.events??[]).map(e=>transformEvent(e,move));
+  chapter.bridgeCells=(bridgeCells[chapter.id]??[]).map(move);
+  if(chapter.id==='s15_chibi'){
+   // The approved fleet illustration places the water gap at columns J/K,
+   // joined by three plank rows. Logical movement follows that exact geometry.
+   const rows=chapter.terrain.map(row=>[...row]);for(let y=0;y<height;y++)for(const x of [9,10])rows[y][x]=y>=6&&y<=8?'.':'#';
+   chapter.terrain=rows.map(row=>row.join(''));
+   chapter.bridgeCells=[[9,6],[10,6],[9,7],[10,7],[9,8],[10,8]];
+   const occupied=new Set([...chapter.allyPositions,...chapter.extraAllies.map(e=>e.position)].map(key));
+   for(const enemy of chapter.enemies){if(!valid(chapter.terrain,enemy.position)||occupied.has(key(enemy.position)))enemy.position=cellCandidates(chapter.terrain,enemy.position,occupied,{minimumX:11})[0];occupied.add(key(enemy.position));}
+   for(const event of chapter.events)if(event.terrainEffect)event.terrainEffect.cells=event.terrainEffect.cells.filter(p=>valid(chapter.terrain,p));
+  }
+  if(chapter.id==='s16_huarong'){
+   chapter.huarongExits=[[21,6],[21,7],[21,8],[21,9]];
+   const rows=chapter.terrain.map(row=>[...row]);for(let y=4;y<=11;y++)for(let x=13;x<width;x++)rows[y][x]='.';
+   chapter.terrain=rows.map(row=>row.join(''));
+   // Fugitives start near the interception line. None can escape on turn one.
+   const positions=[[11,8],[8,6],[8,8],[10,3],[10,5],[11,10],[12,7]];
+   const occupied=new Set(chapter.allyPositions.map(key));
+   chapter.enemies.forEach((e,i)=>{e.position=cellCandidates(chapter.terrain,positions[i]??e.position,occupied,{minimumX:7,maximumX:14})[0];occupied.add(key(e.position));});
+   chapter.brief='적벽 패잔병 18부대를 관우·주창으로 추격합니다. 사기 30·병력 40%의 적은 공격하지 않고 V7~V10으로 도주합니다. 적 증원은 없습니다. 탈출 전에 격파한 부대만 경험치와 전리품을 줍니다.';
+  }
+  const fixedGuests=chapter.fixedGuests??[],owned=activeAt(index,chapters),eligible=owned.filter(id=>!chapter.unavailable.includes(id)&&!fixedGuests.includes(id));
+  const regular=chapter.fixed?chapter.required.length:Math.max(chapter.required.length,Math.min(targets[index],eligible.length));
+  const guestPositions=fixedGuests.length?chapter.allyPositions.splice(chapter.allyPositions.length-fixedGuests.length):[];
+  chapter.maxSortie=regular+fixedGuests.length;
+  if(chapter.regularSortie!==undefined)chapter.regularSortie=regular;
+  const occupied=new Set([...chapter.allyPositions,...chapter.enemies.map(e=>e.position),...chapter.extraAllies.map(e=>e.position)].map(key));
+  const origin=mean(chapter.allyPositions);
+  guestPositions.forEach(p=>occupied.add(key(p)));
+  while(chapter.allyPositions.length<regular){const p=cellCandidates(chapter.terrain,origin,occupied)[0];if(!p)throw new Error('확대 아군 배치 공간이 없습니다.');chapter.allyPositions.push(p);occupied.add(key(p));}
+  chapter.allyPositions.push(...guestPositions);
+  addEnemyFormations(chapter,counts[index],index);
+  installAct3StageRevision(chapter);
+  installAct2ReliefPolicy(chapter);
+  installBaimaReinforcementPolicy(chapter);
+  installThousandLiReinforcementPolicy(chapter);
+  installAct2EnemyWaveLimitPolicy(chapter);
+  if(chapter.id==='s09_baima')chapter.brief='관우와 조조군 협력 부대로 백마의 포위를 돌파합니다. 안량을 격파하면 원고에 따른 문추 증원 1부대가 딱 한 번 도착하며 문추까지 격파해야 승리합니다. 추가 북측·남측 예비 증원은 없습니다. 옛 진행에서 이미 등장한 적은 보존합니다.';
+  if(chapter.id==='s10_thousand_li')chapter.brief='관우가 세 관문의 수문장을 격파하고 직접 조작하는 수레를 목적지까지 호위합니다. 적 증원은 없으며 주창은 3턴 시작에 아군으로 합류합니다. 옛 진행에서 이미 등장한 적은 보존합니다.';
+  if(chapter.act===2&&!['s09_baima','s10_thousand_li'].includes(chapter.id))chapter.brief+=' 적 증원은 '+(chapter.id==='s12_xinye'?'원고의 측면 증원':'첫 북측 증원')+' 한 번만 도착합니다. 옛 진행에서 이미 등장한 적은 보존하고 추가 파동은 취소합니다.';
+  if(chapter.id==='s15_chibi')chapter.brief='적 선단 44부대(일반 병력 4부대 추가)가 처음부터 출현하며 적 증원은 없습니다. 2턴에 바람이 바뀌고 3턴 아군 시작에 대화공이 발동합니다. 황개가 먼저 퇴각해도 발동합니다. 적 전원은 남은 병력에서 최대 3,000 피해와 적군 1턴 혼란을 받고 사기가 60 이하로 떨어집니다. 이후 아군 화공은 100% 성공합니다. 불길 구역의 아군 35% 피해는 유지됩니다.';
+  const freshPolicy=freshReinforcementPolicyState(chapter),removedBaima=new Set([...baimaExpandedReserveIds(chapter),...thousandLiEnemyReserveIds(chapter)]);
+  const currentEnemies=act3StageEnemyOrders(freshPolicy,chapter,act3LimitedEnemyOrders(freshPolicy,chapter,act2EnemyLimitedOrders(freshPolicy,chapter,act2ReliefEnemyOrders(freshPolicy,chapter)))).filter(enemy=>!removedBaima.has(enemy.id));
+  chapter.campaignLayout={version:1,width,height,oldWidth,oldHeight,enemyTotal:openingPressureOrders(chapter,currentEnemies).length,fronts:act===1?'중앙·북측·남측 전선':'중앙 돌파·북측 우회·남측 예비대',renderer:'terrainTiles'};
+  chapter.intermissionHint=(chapter.intermissionHint??'')+' 확대 전장: 출전 가능 장수 '+chapter.maxSortie+'명 · 적 '+openingPressureOrders(chapter,currentEnemies).length+'부대.';
+  installXiapiRoutes(chapter);
+  if(chapter.id==='s07_xiapi'){
+   const routedPolicy=freshReinforcementPolicyState(chapter),routedEnemies=act2EnemyLimitedOrders(routedPolicy,chapter,act2ReliefEnemyOrders(routedPolicy,chapter));
+   chapter.campaignLayout.enemyTotal=routedEnemies.length;chapter.intermissionHint=chapter.intermissionHint.replace(/ · 적 \d+부대\.$/,' · 적 '+routedEnemies.length+'부대.');
+  }
+  mapSize(chapter.terrain,1);
+  const placements=[...chapter.allyPositions,...chapter.enemies.map(e=>e.position),...chapter.extraAllies.map(e=>e.position)];
+  if(placements.some(p=>!valid(chapter.terrain,p))||new Set(placements.map(key)).size!==placements.length)throw new Error('확대 전장 배치 중복 또는 통행 오류: '+chapter.id);
+ }
+ return chapters;
+}
+function freshReinforcementPolicyState(chapter){
+ const act2Removed=act2DefaultRemovedIds(chapter),baimaRemoved=baimaExpandedReserveIds(chapter).filter(id=>!act2Removed.includes(id)),thousandLiRemoved=thousandLiEnemyReserveIds(chapter).filter(id=>!act2Removed.includes(id)),fresh={act3StageRosterVersion:ACT3_STAGE_ROSTER_VERSION,campaignEventsVersion:1,act2ReliefVersion:1,act2ReliefRemovedIds:act2Removed,...(baimaRemoved.length?{baimaReinforcementVersion:1,baimaReinforcementRemovedIds:baimaRemoved}:{}),...(thousandLiRemoved.length?{thousandLiReinforcementVersion:1,thousandLiReinforcementRemovedIds:thousandLiRemoved}:{})};
+ if(act2EnemyWaveLimitApplies(chapter)){fresh.act2EnemyWaveLimitVersion=1;fresh.act2EnemyWaveLimitRemovedIds=act2EnemyWaveDefaultRemovedIds(chapter,fresh);}if(act3ReinforcementApplies(chapter)){fresh.act3ReinforcementVersion=1;fresh.act3ReinforcementRemovedIds=act3DefaultRemovedIds(chapter,[],['s15_chibi','s16_huarong'].includes(chapter.id)?1:0);}return fresh;
+}
+export function expandedCampaignReport(chapters=CHAPTERS){return chapters.map((c,index)=>{
+ const fresh=freshReinforcementPolicyState(c),orders=openingPressureOrders(c,act3StageEnemyOrders(fresh,c,act3LimitedEnemyOrders(fresh,c,act2EnemyLimitedOrders(fresh,c,act2ReliefEnemyOrders(fresh,c))))).filter(enemy=>!fresh.baimaReinforcementRemovedIds?.includes(enemy.id)&&!fresh.thousandLiReinforcementRemovedIds?.includes(enemy.id)),waves=act3LimitedWaves(fresh,c,act2EnemyLimitedWaves(fresh,c,thousandLiLimitedWaves(fresh,c,baimaLimitedWaves(fresh,c,act2ReliefWaves(fresh,c))))).filter(w=>w.team!=='ally');
+ return {chapter:index+1,id:c.id,title:c.title,act:c.act??1,width:c.terrain[0].length,height:c.terrain.length,regularSortie:c.regularSortie??c.maxSortie,maxSortie:c.maxSortie,required:[...c.required],enemyTotal:orders.length,enemyInitial:orders.length-waves.flatMap(w=>w.unitIds).length,enemyWaves:waves.map(w=>({id:w.id,count:w.unitIds.length,trigger:w.trigger})),terrain:[...c.terrain],allyPositions:structuredClone(c.allyPositions),enemyPositions:orders.map(e=>({id:e.id,position:e.position,templateId:e.templateId,tier:e.combatTier,rank:e.rank})),bridges:structuredClone(c.bridgeCells??[]),objective:structuredClone(c.objective),huarongExits:c.huarongExits};
+});}

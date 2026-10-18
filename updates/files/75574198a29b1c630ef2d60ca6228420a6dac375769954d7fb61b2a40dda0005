@@ -1,0 +1,207 @@
+import {validateSurvivalBonusReceipt} from './survival-bonus.js';
+import {heroMasteryBonuses,MAXIMUM_BONUS_DELTA} from './hero-mastery.js';
+import {validateFourthSpiritHero} from './fourth-spirit.js';
+import {validateSurvivorRewardReceipt} from './survivor-reward.js';
+import {HERO_DATA} from './heroes.js';
+import {PROMOTION_LEVELS} from './promotion.js';
+import {effectiveClass,validateHeroClass} from './class-change.js';
+import {UNIT_TEMPLATES,STARTING_HEROES} from './roster.js';
+import {CHAPTERS} from './campaign.js';
+export const HEROES=Object.fromEntries(Object.entries(UNIT_TEMPLATES).filter(([,u])=>u.playable).map(([id,u])=>[id,u.name]));
+export const QINGGANG_SWORD_VERSION=1;
+export const PARTS={
+ armor:{name:'군수 지원',description:'최대 병력 +500 · 방어 +3',hp:500,def:3},
+ horse:{name:'명마',description:'이동력 +1',move:1},
+ manual:{name:'병법서',description:'공격력 +5 · 책사는 지력 +5',atk:5},
+ ironArmor:{name:'철갑',description:'방어 +6',def:6},
+ banner:{name:'군기',description:'전투 시작 사기 +10',morale:10},
+ talisman:{name:'호신부',description:'회피 +10%p',evasion:10},
+ silkPouch:{name:'금낭',description:'책략 성공 +10%p',tactic:10},
+ largeSupply:{name:'대군수',description:'최대 병력 +1,000 · 방어 +5',hp:1000,def:5,grade:'advanced'},
+ famedSword:{name:'명검',description:'공격 +8 · 치명 +5%p',atk:8,critical:5,grade:'advanced'},
+ bloodHorse:{name:'한혈마',description:'이동력 +2',move:2,grade:'advanced'},
+ warlordArmor:{name:'화웅의 철갑',description:'방어 +8 · 최대 병력 +400',def:8,hp:400,grade:'advanced'},
+ redHare:{name:'적토마',description:'이동력 +3 · 전투 시작 사기 +10',move:3,morale:10,grade:'advanced'},
+ fangtianHalberd:{name:'방천화극',description:'공격 +8 · 치명 +8%p',atk:8,critical:8,grade:'advanced'},
+ qinggangSword:{name:'청강검',description:'공격 +12 · 치명 +8%p',atk:12,critical:8,grade:'advanced'},
+ jueying:{name:'조황비전',description:'이동력 +2 · 회피 +10%p',move:2,evasion:10,grade:'advanced'},
+ jianglingShield:{name:'강릉 방패',description:'방어 +10 · 최대 병력 +500',def:10,hp:500,grade:'advanced'},
+ whiteHorseBanner:{name:'백마군기',description:'전투 시작 사기 +10 · 방어 +3',morale:10,def:3,grade:'advanced'},
+ hebeiManual:{name:'하북 병법서',description:'지력 +6 · 책략 성공 +8%p',int:6,tactic:8,grade:'advanced'},
+};
+export const INITIAL_STOCK=Object.fromEntries(Object.keys(PARTS).map(id=>[id,['armor','horse','manual'].includes(id)?2:0]));
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const integer=(v,max=1000000)=>Number.isInteger(v)&&v>=0&&v<=max;
+const ensure=(ok,message='장비·승급 저장 기록이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+export const MAX_UPGRADE=10;
+export const troopCost=level=>500+level*250;
+// Historical investments retain their original +4 attack / +500 troops values.
+// New 15-step purchases reach the former 20-step total through integer cumulative gains.
+export const MODIFICATION_MAX=15;
+export const MODIFICATION_KINDS=Object.freeze({weapon:{name:'무기·지력 개조',totalAmount:40,baseCost:600},troops:{name:'부대 증편',totalAmount:4000,baseCost:800},defense:{name:'방어 개조',totalAmount:20,baseCost:700}});
+// Round cumulative gains upward, so each purchase has an integer benefit and batches
+// match buying one step at a time. Milestone bonuses are applied separately below.
+export function modificationGain(kind,level){
+ const spec=MODIFICATION_KINDS[kind];if(!spec||!integer(level,MODIFICATION_MAX))throw new Error('개조 단계를 확인하세요.');
+ return Math.floor((level*spec.totalAmount+MODIFICATION_MAX-1)/MODIFICATION_MAX);
+}
+export const MODIFICATION_LIMITS=Object.freeze(Array(13).fill(MODIFICATION_MAX));
+export function modificationChapter(chapter){
+ const n=typeof chapter==='number'?chapter:typeof chapter?.id==='string'?Number(/^s(\d{2})_/.exec(chapter.id)?.[1]??CHAPTERS.indexOf(chapter)+1):NaN;
+ if(!Number.isInteger(n)||n<1||n>13)throw new Error('개조할 출전 장을 확인하세요.');return n;
+}
+export function modificationLimit(chapter){return MODIFICATION_MAX;}
+export function armyModificationLimit(army,chapter){return MODIFICATION_MAX;}
+export function modifications(army,id){const h=army?.heroes?.[id];return h?.modifications??{version:1,weapon:0,troops:0,defense:0};}
+export function legacyModificationSteps(hero,kind){return kind==='weapon'?(hero?.level??0)*2:kind==='troops'?Math.ceil((hero?.troopLevel??0)*2.5):0;}
+export function equipmentSlotCapacity(army,id){const hero=army?.heroes?.[id];return hero&&!HERO_DATA[id]?.guest&&legacyModificationSteps(hero,'weapon')+modifications(army,id).weapon>=MODIFICATION_MAX?3:2;}
+export function equippedSlots(army,id){return Array.from({length:equipmentSlotCapacity(army,id)},(_,i)=>army?.heroes?.[id]?.slots?.[i]??null);}
+// Derived once from investment records: loading or batching cannot award it twice.
+export function modificationMilestones(army,id){
+ const hero=army?.heroes?.[id],record=modifications(army,id),strategist=effectiveClass(army,id,UNIT_TEMPLATES[id]?.cls)==='strategist';
+ return ['weapon','troops','defense'].map(kind=>({kind,level:legacyModificationSteps(hero,kind)+record[kind],required:10,achieved:legacyModificationSteps(hero,kind)+record[kind]>=10,description:kind==='weapon'?(strategist?'지력 +3 · 책략 성공 +5%p':'공격 +3 · 치명타 +5%p'):kind==='troops'?'최대 병력 +500':'방어 +3'}));
+}
+export function maximumModificationMilestones(army,id){
+ const hero=army?.heroes?.[id],record=modifications(army,id);
+ return ['troops','defense'].map(kind=>({kind,level:legacyModificationSteps(hero,kind)+record[kind],required:MODIFICATION_MAX,achieved:legacyModificationSteps(hero,kind)+record[kind]>=MODIFICATION_MAX,description:kind==='troops'?'추가 최대 병력 +1,500':'추가 방어 +8'}));
+}
+export const MERIT_RANKS=Object.freeze([{points:3,name:'명성 있는 의병',morale:3},{points:6,name:'검증된 정예',morale:6},{points:10,name:'촉군의 기둥',morale:10}]);
+export function meritBenefits(army){
+ const points=army?.meritPoints??0,rank=MERIT_RANKS.filter(r=>points>=r.points).at(-1),next=MERIT_RANKS.find(r=>points<r.points);
+ return {points,name:rank?.name??'의병',morale:rank?.morale??0,next:next?{...next}:null};
+}
+export function modificationCost(kind,from,steps=1){
+ const spec=MODIFICATION_KINDS[kind];if(!spec||!integer(from,MODIFICATION_MAX)||!Number.isInteger(steps)||steps<1||from+steps>MODIFICATION_MAX)throw new Error('개조 단계를 확인하세요.');
+ return Array.from({length:steps},(_,i)=>spec.baseCost+(from+i)*200+Math.floor((from+i)/5)*500).reduce((a,b)=>a+b,0);
+}
+export function modificationStatus(army,id,kind,chapter){
+ const spec=MODIFICATION_KINDS[kind];if(!spec)throw new Error('개조 종류를 확인하세요.');
+ const h=army?.heroes?.[id],record=modifications(army,id),legacySteps=legacyModificationSteps(h,kind),purchased=record[kind],level=legacySteps+purchased,limit=armyModificationLimit(army,chapter),remaining=Math.max(0,Math.min(MODIFICATION_MAX,limit)-level);
+ let reason=!h?'장수를 선택하세요.':equipmentReason(army,id);
+ if(!reason&&!remaining)reason=level>=MODIFICATION_MAX?'최대 개조 완료':'최대 개조 완료';
+ return {kind,name:spec.name,amount:remaining?modificationGain(kind,purchased+1)-modificationGain(kind,purchased):0,purchased,legacySteps,level,limit,max:MODIFICATION_MAX,remaining,cost:remaining?modificationCost(kind,level):0,available:!reason&&remaining>0&&army.gold>=modificationCost(kind,level),reason:reason||(!remaining?'최대 개조 완료':army.gold<modificationCost(kind,level)?'자금이 부족합니다.':'')};
+}
+export function modifyHero(army,id,kind,steps,chapter,currentCapacity=null){
+ if(army?.heroes?.[id])validateModifications(army.heroes[id],id);
+ const status=modificationStatus(army,id,kind,chapter);
+ if(equipmentReason(army,id)||!army.heroes[id])throw new Error(status.reason);
+ if(!Number.isInteger(steps)||steps<1||steps>status.remaining)throw new Error(status.reason||'전체 15단계 상한을 넘습니다.');
+ if(kind==='troops'&&currentCapacity!==null&&(!Number.isFinite(currentCapacity)||currentCapacity<1))throw new Error('현재 부대 병력을 확인하세요.');
+ const cost=modificationCost(kind,status.level,steps);if(army.gold<cost)throw new Error('개조 자금이 부족합니다.');
+ const record={...modifications(army,id),[kind]:status.purchased+steps};army.gold-=cost;army.heroes[id].modifications=record;return {kind,steps,cost,level:status.level+steps};
+}
+function validateModifications(hero,id){
+ if(hero.modifications===undefined)return;
+ const m=hero.modifications;ensure(object(m)&&sameModificationKeys(m)&&m.version===1&&['weapon','troops','defense'].every(k=>integer(m[k],MODIFICATION_MAX)),'개조 단계 저장이 올바르지 않습니다.');
+ ensure(!HERO_DATA[id]?.guest||['weapon','troops','defense'].every(k=>m[k]===0),'게스트는 개조할 수 없습니다.');
+ for(const kind of ['weapon','troops','defense'])ensure(m[kind]===0||legacyModificationSteps(hero,kind)+m[kind]<=MODIFICATION_MAX,'과거 투자와 새 개조 한도가 다릅니다.');
+}
+const sameModificationKeys=m=>Object.keys(m).sort().join(',')==='defense,troops,version,weapon';
+export function validateModificationLimits(army,chapter){
+ const limit=armyModificationLimit(army,chapter);
+ for(const [id,h] of Object.entries(army.heroes)){validateModifications(h,id);for(const kind of ['weapon','troops','defense'])ensure(!h.modifications?.[kind]||legacyModificationSteps(h,kind)+h.modifications[kind]<=limit,'전체 15단계 상한을 넘습니다.');}
+ return army;
+}
+
+export function equipmentReason(army,id){return army.heroes[id]?.departed?'이탈한 장수는 정비할 수 없습니다.':HERO_DATA[id]?.guest?'게스트는 개조·증편·장비 장착을 할 수 없습니다.':'';}
+function checkEquipment(army,id){const reason=equipmentReason(army,id);if(reason)throw new Error(reason);}
+export function normalizeArmyFeatures(army){
+ ensure(object(army)&&object(army.stock)&&object(army.heroes));
+ army.rewardReceipts??={};army.benchTrainingReceipts??=[...new Set([...(army.claimed??[]),...Object.keys(army.rewardReceipts)])];army.merits??=[];army.meritPoints??=army.merits.length;
+ army.soldStock??=Object.fromEntries(Object.keys(PARTS).map(id=>[id,0]));
+ for(const id of Object.keys(PARTS)){if(!Object.hasOwn(army.stock,id)&&INITIAL_STOCK[id]===0)army.stock[id]=0;}
+ army.inventoryTotals??={...INITIAL_STOCK};
+ for(const id of Object.keys(PARTS))if(INITIAL_STOCK[id]===0){if(!Object.hasOwn(army.inventoryTotals,id))army.inventoryTotals[id]=0;if(!Object.hasOwn(army.soldStock,id))army.soldStock[id]=0;}
+ for(const hero of Object.values(army.heroes))if(object(hero))hero.promotion??=0;
+ return army;
+}
+export function validateHeroEquipment(army,id){
+ const hero=army.heroes[id];
+ validateFourthSpiritHero(id,hero);validateModifications(hero,id);
+ ensure(object(hero)&&Number.isInteger(hero.promotion)&&hero.promotion>=0&&hero.promotion<=2);validateHeroClass(id,hero);
+ ensure(hero.promotion===0||hero.growth?.level>=PROMOTION_LEVELS[hero.promotion]);
+ ensure(!HERO_DATA[id]?.guest||hero.promotion===0);
+ ensure(Array.isArray(hero.slots)&&[2,3].includes(hero.slots.length)&&hero.slots.length<=equipmentSlotCapacity(army,id)&&hero.slots.every(p=>p===null||Object.hasOwn(PARTS,p)));
+ ensure(!hero.slots.some((p,i)=>p&&PARTS[p].grade==='advanced'&&hero.slots.indexOf(p)!==i));
+ return hero;
+}
+export function validateArmyFeatures(army){
+ ensure(object(army)&&object(army.stock)&&object(army.heroes)&&object(army.inventoryTotals)&&object(army.soldStock)&&object(army.rewardReceipts));
+ for(const values of [army.stock,army.inventoryTotals,army.soldStock])ensure(Object.keys(values).length===Object.keys(PARTS).length&&Object.keys(values).every(id=>Object.hasOwn(PARTS,id)));
+ ensure(Array.isArray(army.benchTrainingReceipts)&&army.benchTrainingReceipts.length<=1000&&new Set(army.benchTrainingReceipts).size===army.benchTrainingReceipts.length&&army.benchTrainingReceipts.every(id=>typeof id==='string'&&/^[-a-zA-Z0-9_]{1,100}$/.test(id)),'대기 훈련 정산 기록이 올바르지 않습니다.');
+ const acquired={...INITIAL_STOCK};
+ for(const [stageId,receipt] of Object.entries(army.rewardReceipts)){
+  validateSurvivalBonusReceipt(receipt);validateSurvivorRewardReceipt(receipt);
+  ensure(receipt.campaignEventsVersion===undefined||receipt.campaignEventsVersion===1);
+  ensure(receipt.equipmentDropsVersion===undefined&&receipt.equipmentDropActors===undefined||receipt.equipmentDropsVersion===1&&object(receipt.equipmentDropActors)&&Object.entries(receipt.equipmentDropActors).every(([target,actor])=>/^[-a-zA-Z0-9_]{1,100}$/.test(target)&&typeof actor==='string'&&/^[-a-zA-Z0-9_]{1,100}$/.test(actor)));
+  ensure(receipt?.lootVersion===undefined||[1,2].includes(receipt.lootVersion),'전리품 저장 버전이 올바르지 않습니다.');
+  ensure(/^[-a-zA-Z0-9_]{1,100}$/.test(stageId)&&object(receipt)&&integer(receipt.lootGold,100000000)&&Array.isArray(receipt.lootItems)&&Array.isArray(receipt.sourceUnitIds));
+  ensure(receipt.lootItems.every(id=>Object.hasOwn(PARTS,id))&&new Set(receipt.sourceUnitIds).size===receipt.sourceUnitIds.length);
+  ensure(receipt.sourceUnitIds.every(id=>typeof id==='string'&&/^[-a-zA-Z0-9_]{1,100}$/.test(id)));
+  ensure(receipt.merit===null||object(receipt.merit)&&typeof receipt.merit.achieved==='boolean'&&typeof receipt.merit.id==='string'&&integer(receipt.merit.gold,100000000)&&Array.isArray(receipt.merit.items)&&receipt.merit.items.every(id=>Object.hasOwn(PARTS,id)));
+  for(const id of [...receipt.lootItems,...(receipt.merit?.achieved?receipt.merit.items:[])])acquired[id]++;
+ }
+ const equipped=Object.fromEntries(Object.keys(PARTS).map(id=>[id,0]));
+ for(const [id,hero] of Object.entries(army.heroes)){
+  validateHeroEquipment(army,id);
+  for(const id of hero.slots)if(id)equipped[id]++;
+ }
+ for(const id of Object.keys(PARTS)){
+  ensure(integer(army.stock[id])&&integer(army.inventoryTotals[id])&&integer(army.soldStock[id])&&army.soldStock[id]<=acquired[id]);
+  ensure(army.inventoryTotals[id]===acquired[id]-army.soldStock[id]&&army.stock[id]+equipped[id]===army.inventoryTotals[id]);
+ }
+ ensure(Array.isArray(army.merits)&&new Set(army.merits).size===army.merits.length&&army.merits.every(id=>typeof id==='string'));
+ const awarded=Object.values(army.rewardReceipts).filter(r=>r.merit?.achieved).map(r=>r.merit.id);
+ ensure(new Set(awarded).size===awarded.length&&awarded.length===army.merits.length&&awarded.every(id=>army.merits.includes(id))&&army.meritPoints===army.merits.length);
+ return army;
+}
+export function upgradeTroops(army,id,currentCapacity){
+ checkEquipment(army,id);const hero=army.heroes[id];
+ if(!hero||!Number.isFinite(currentCapacity)||currentCapacity<1||(hero.troopLevel??0)>=20)throw new Error('더 증편할 수 없습니다.');
+ const cost=troopCost(hero.troopLevel??0);if(army.gold<cost)throw new Error('증편 자금이 부족합니다.');
+ army.gold-=cost;hero.troopLevel=(hero.troopLevel??0)+1;
+}
+export function createArmy(options={}){
+ const ids=options.ids??(options.story?Object.values(HERO_DATA).filter(h=>h.joinAfterChapter==='start').map(h=>h.id):STARTING_HEROES);
+ return {gold:3000,claimed:[],benchTrainingReceipts:[],rosterEvents:[],joined:[...ids],stock:{...INITIAL_STOCK},inventoryTotals:{...INITIAL_STOCK},soldStock:Object.fromEntries(Object.keys(PARTS).map(id=>[id,0])),rewardReceipts:{},merits:[],meritPoints:0,heroes:Object.fromEntries(ids.map(id=>[id,{slots:[null,null],level:0,troopLevel:0,promotion:0,departed:false,growth:{level:options.level??1,exp:0}}]))};
+}
+export function equip(army,id,slot,part){
+ checkEquipment(army,id);const hero=army.heroes[id];
+ if(!hero||!Number.isInteger(slot)||slot<0||slot>=equipmentSlotCapacity(army,id)||part!==null&&!Object.hasOwn(PARTS,part))throw new Error('장착 대상이 올바르지 않습니다.');
+ const previous=hero.slots[slot]??null;if(previous===part)return;
+ if(part&&PARTS[part].grade==='advanced'&&hero.slots.some((p,i)=>i!==slot&&p===part))throw new Error('같은 상급 장비는 중복 장착할 수 없습니다.');
+ if(part&&!(army.stock[part]>=1))throw new Error('남은 장비가 없습니다. 다른 장수에게서 해제하세요.');
+ if(previous)army.stock[previous]++;if(part)army.stock[part]--;hero.slots[slot]=part;
+}
+export function sellPart(army,part){
+ if(!Object.hasOwn(PARTS,part)||!(army.stock[part]>=1))throw new Error('재고에 있는 장비만 매각할 수 있습니다.');
+ normalizeArmyFeatures(army);validateArmyFeatures(army);
+ const gold=PARTS[part].grade==='advanced'?1000:300;
+ if(!integer(army.gold+gold,100000000))throw new Error('자금 상한을 초과합니다.');
+ army.stock[part]--;army.inventoryTotals[part]--;army.soldStock[part]++;army.gold+=gold;return gold;
+}
+export function upgradeCost(level,steps=1){
+ if(!Number.isInteger(level)||!Number.isInteger(steps)||level<0||steps<1||level+steps>MAX_UPGRADE)throw new Error('개조 단계를 확인하세요.');
+ return Array.from({length:steps},(_,i)=>300+(level+i)*150).reduce((a,b)=>a+b,0);
+}
+export function upgrade(army,id,steps){checkEquipment(army,id);const hero=army.heroes[id];if(!hero)throw new Error('장수를 선택하세요.');const cost=upgradeCost(hero.level,steps);if(army.gold<cost)throw new Error('자금이 부족합니다.');army.gold-=cost;hero.level+=steps;}
+export function bonuses(army,id,{growthBenefitsVersion=1,armyBalanceVersion=1,heroMasteryVersion=armyBalanceVersion===1?1:0,qinggangSwordVersion=QINGGANG_SWORD_VERSION}={}){
+ if(![0,QINGGANG_SWORD_VERSION].includes(qinggangSwordVersion))throw new Error('청강검 능력 버전이 올바르지 않습니다.');
+ const hero=army?.heroes?.[id],result={hp:0,atk:0,def:0,move:0,int:0,evasion:0,critical:0,morale:0,tactic:0};if(!hero)return result;
+ const m=modifications(army,id);result.hp=(hero.troopLevel??0)*500+modificationGain('troops',m.troops);result.def=modificationGain('defense',m.defense);result[effectiveClass(army,id,UNIT_TEMPLATES[id]?.cls)==='strategist'?'int':'atk']=hero.level*4+modificationGain('weapon',m.weapon);
+ for(const milestone of growthBenefitsVersion===1?modificationMilestones(army,id):[])if(milestone.achieved){
+  if(milestone.kind==='weapon'){const strategist=effectiveClass(army,id,UNIT_TEMPLATES[id]?.cls)==='strategist';result[strategist?'int':'atk']+=3;result[strategist?'tactic':'critical']+=5;}
+  else if(milestone.kind==='troops')result.hp+=500;
+  else result.def+=3;
+ }
+ if(growthBenefitsVersion===1&&armyBalanceVersion===1)for(const milestone of maximumModificationMilestones(army,id))if(milestone.achieved)result[milestone.kind==='troops'?'hp':'def']+=milestone.kind==='troops'?1000:5;
+ if(heroMasteryVersion===1){
+  for(const milestone of maximumModificationMilestones(army,id))if(milestone.achieved)result[milestone.kind==='troops'?'hp':'def']+=milestone.kind==='troops'?MAXIMUM_BONUS_DELTA.hp:MAXIMUM_BONUS_DELTA.def;
+  for(const [stat,amount] of Object.entries(heroMasteryBonuses(army,id)))result[stat]+=amount;
+ }
+ if(growthBenefitsVersion===1)result.morale+=meritBenefits(army).morale;
+ for(const part of hero.slots)if(part)for(const stat of Object.keys(result))result[stat]+=part==='redHare'&&stat==='move'&&armyBalanceVersion===0?2:part==='qinggangSword'&&stat==='atk'&&qinggangSwordVersion===0?8:PARTS[part][stat]??0;
+ if(effectiveClass(army,id,UNIT_TEMPLATES[id]?.cls)==='strategist'){result.int+=result.atk;result.atk=0;}
+ return result;
+}
+export function rewardVictory(army,chapter){if(army.claimed.includes(chapter))return 0;const reward=3000;army.claimed.push(chapter);army.gold+=reward;return reward;}

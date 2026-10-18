@@ -1,0 +1,39 @@
+// Water-only presentation. Coordinates and contact time come from the already
+// resolved exchange; this module owns no clock, random value or battle object.
+// Texture is supplied by three reviewed transparent raster backgrounds in CSS;
+// the existing bounded spans keep the same geometry, contact and lifetime.
+const finite=(value,fallback)=>Number.isFinite(value)?value:fallback;
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+export function waterPresentationGeometry(contact){
+ const size=clamp(finite(contact.spriteSize,240),80,300),direction=contact.direction===-1?-1:1;
+ const start=finite(contact.projectileX,finite(contact.sourceCenter,100)),end=finite(contact.impactX,start+direction*200);
+ return {start,end,travel:end-start,direction,ground:finite(contact.sourceFoot,finite(contact.impactY,200)+45)-8,width:clamp(size*.88,84,210),height:clamp(size*.59,56,142)};
+}
+export function createWaterPresentation(field,effect,contact,{landed=true,reduced=false}={}){
+ const doc=field.ownerDocument??globalThis.document,geometry=waterPresentationGeometry(contact);
+ const make=(tag,name)=>{const node=doc.createElement(tag);node.className=name;node.setAttribute('aria-hidden','true');return node;};
+ const flow=make('div','combat-water-flow'),front=make('span','combat-water-impact');
+ flow.dataset.waterStage='gather-surge';flow.classList.toggle('is-water-reduced',reduced);front.hidden=true;
+ for(const node of [flow,front]){
+  for(const [name,value]of Object.entries({start:geometry.start,end:geometry.end,travel:geometry.travel,ground:geometry.ground,width:geometry.width,height:geometry.height}))node.style.setProperty('--water-'+name,value+'px');
+  node.style.setProperty('--water-direction',String(geometry.direction));node.style.setProperty('--water-contact-duration',contact.collision/1000+'s');
+ }
+ const gather=make('i','combat-water-gather'),channel=make('i','combat-water-channel'),surge=make('span','combat-water-surge');
+ channel.style.left=Math.min(geometry.start,geometry.end)+'px';channel.style.width=Math.max(16,Math.abs(geometry.travel))+'px';channel.style.transformOrigin=geometry.direction===1?'left center':'right center';
+ surge.classList.toggle('is-water-failing',!landed);const crest=make('span','combat-water-crest');crest.dataset.waterArt='textured-crest';surge.append(crest);
+ flow.append(gather,channel,surge);field.append(flow);effect.append(front);
+ let closed=false,contacted=false;
+ return {
+  impact(){
+   if(closed||contacted)return;contacted=true;flow.dataset.waterStage=landed?'break-recede':'disperse';flow.classList.add('is-water-contact');front.hidden=false;front.classList.add(landed?'is-water-hit':'is-water-miss');
+   if(landed){
+    const breaker=make('span','combat-water-breaker');breaker.dataset.waterArt='textured-impact';front.append(breaker,make('i','combat-water-ring'));
+    if(!reduced)for(let index=0;index<6;index++){
+     const spray=make('i','combat-water-spray'+(index<3?' combat-water-drop':''));
+     spray.style.setProperty('--water-spray-x',[-64,-43,-18,21,47,72][index]+'px');spray.style.setProperty('--water-spray-y',[-42,-76,-94,-88,-66,-32][index]+'px');spray.style.setProperty('--water-index',String(index));front.append(spray);
+    }
+   }else for(let index=0;index<2;index++){const mist=make('i','combat-water-miss-wisp');mist.style.setProperty('--water-index',String(index));front.append(mist);}
+  },
+  stop(){if(closed)return;closed=true;flow.dataset.waterStage='closed';flow.remove();front.remove();}
+ };
+}

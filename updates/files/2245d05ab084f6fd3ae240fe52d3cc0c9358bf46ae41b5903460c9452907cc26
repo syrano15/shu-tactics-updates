@@ -1,0 +1,24 @@
+// Reviewed original raster materials are framed at display time only. These
+// two authored defenses occupy existing blocked cells; no terrain is written.
+const art=(src,sourceRect)=>Object.freeze({src,clipCode:'#',sourceRect:Object.freeze(sourceRect)});
+export const FORTIFICATION_ART=Object.freeze({
+ 'jingnan-earth-fort':art('art/visual-v0746/jingnan-earth-fort.webp',{x:172.3987,y:26.0667,width:262.1661,height:974.9815}),
+ 'changsha-stone-fort':art('art/visual-v0746/changsha-stone-fort.webp',{x:184.0654,y:9.3237,width:285.9408,height:992.1156})
+});
+const byChapter=Object.freeze({s17_jingnan:'jingnan-earth-fort',s18_changsha:'changsha-stone-fort'});
+export const fortificationBlockedLabel=scenarioId=>Object.hasOwn(byChapter,scenarioId)?'성곽·해자':null;
+export function fortificationPlacementsFor(chapter,art){
+ if(!chapter||!art||!Object.hasOwn(byChapter,chapter.id)||chapter.id!==art.id||chapter.campaignLayoutVersion!==1||art.blockedKind!=='wall'||art.columns!==22||art.rows!==16||!Array.isArray(chapter.terrain)||chapter.terrain.length!==art.rows||chapter.terrain.some(row=>typeof row!=='string'||row.length!==art.columns)||chapter.terrain.join('\n')!==art.terrainKey)return [];
+ const terrain=chapter.terrain,seen=new Set(),result=[];
+ for(let y=0;y<art.rows;y++)for(let x=0;x<art.columns;x++){
+  const first=x+','+y;if(terrain[y][x]!=='#'||seen.has(first))continue;
+  const queue=[[x,y]];seen.add(first);let minX=x,maxX=x,minY=y,maxY=y;
+  for(const [cx,cy]of queue){minX=Math.min(minX,cx);maxX=Math.max(maxX,cx);minY=Math.min(minY,cy);maxY=Math.max(maxY,cy);for(const[dx,dy]of [[0,-1],[0,1],[-1,0],[1,0]]){const nx=cx+dx,ny=cy+dy,key=nx+','+ny;if(terrain[ny]?.[nx]==='#'&&!seen.has(key)){seen.add(key);queue.push([nx,ny]);}}}
+  const width=maxX-minX+1,height=maxY-minY+1;
+  // Authored current strips are rectangles. An altered/irregular footprint
+  // never stretches a moat or a gate across a route inside its bounding box.
+  if(width!==2||width*height!==queue.length)continue;
+  result.push(Object.freeze({asset:byChapter[chapter.id],x:minX,y:minY,width,height,rotation:0,opacity:1,clipCode:'#'}));
+ }
+ return Object.freeze(result);
+}

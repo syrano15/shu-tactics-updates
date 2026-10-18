@@ -1,0 +1,14 @@
+// Presentation only: fire never changes HP, movement, RNG or reward records here.
+export const CHIBI_BURNING_ART='art/visual-v0746/scarlet-fire.webp';
+export function burningEnemyTile(state,unit){return !!(state?.shipFire&&unit?.team==='enemy'&&unit.hp>0&&state.shipFire.hits?.some(hit=>hit.unitId===unit.id));}
+export const CHIBI_FLEET_FIRE_LIMITS=Object.freeze({sprites:12,animatedSprites:4});
+const sites=Object.freeze([[11,2],[14,2],[18,2],[21,4],[21,9],[20,14],[16,14],[12,14],[11,10],[11,6],[15,7],[18,11]].map(p=>Object.freeze(p)));
+export function chibiFleetFireSites(state,scenarioId=state?.chapterId){
+ if(scenarioId!=='s15_chibi'||!state?.shipFire||!Array.isArray(state.terrain)||state.terrain.length!==16||state.terrain.some(row=>row.length!==22))return [];
+ return sites.filter(([x,y])=>state.terrain[y][x]!=='#').map(([x,y],i)=>({x,y,animated:i%3===0}));
+}
+const pct=n=>Number(n.toFixed(4));
+export function chibiFleetFireHTML(state,scenarioId=state?.chapterId){
+ const slots=chibiFleetFireSites(state,scenarioId);if(!slots.length)return '';
+ return '<div class="chibi-fleet-fire" aria-hidden="true" data-chibi-burning="true">'+slots.map(({x,y,animated},i)=>'<i class="fleet-flame'+(animated?' fleet-flame-moving':'')+'" style="left:'+pct((x-.3)/22*100)+'%;top:'+pct((y-.5)/16*100)+'%;width:'+pct(1.6/22*100)+'%;height:'+pct(1.8/16*100)+'%;--fire-phase:-'+(i*.19).toFixed(2)+'s"></i>').join('')+'</div>';
+}

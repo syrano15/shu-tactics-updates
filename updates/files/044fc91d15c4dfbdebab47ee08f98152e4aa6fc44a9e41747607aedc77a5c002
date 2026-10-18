@@ -1,0 +1,12 @@
+/* Persistent, bounded Chibi fleet fire: twelve stamps, only four small
+   opacity/transform animations. Warriors and labels remain above the fire. */
+.chibi-fleet-fire{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;contain:layout paint}
+.chibi-fleet-fire::before{content:"";position:absolute;inset:0 0 0 42%;background:linear-gradient(90deg,transparent,#971b1130 22%,#df341b3b 72%,#8c170c2e);pointer-events:none}
+.chibi-fleet-fire .fleet-flame{position:absolute;display:block;background:url('art/visual-v0746/scarlet-fire.webp') center / 100% 100% no-repeat;opacity:.97;transform-origin:50% 85%;pointer-events:none}
+.chibi-fleet-fire .fleet-flame-moving{animation:chibi-fleet-flicker 2.8s ease-in-out infinite;animation-delay:var(--fire-phase)}
+@keyframes chibi-fleet-flicker{0%,100%{opacity:.82;transform:scaleY(.96)}50%{opacity:1;transform:scaleY(1.03)}}
+/* A ship burns at fixed sites after units move or retreat. Remove the former
+   unbounded animated frame from every burning unit and every affected cell. */
+.board[data-board-background-stage="s15_chibi"]>.cell:is(.ship-fire-zone,.burning-enemy)::after{background:none;animation:none;filter:none}
+.board[data-board-background-stage="s15_chibi"]>.cell.ship-fire-zone>.terrain-art-ready::after{animation:none}
+@media(prefers-reduced-motion:reduce){.chibi-fleet-fire .fleet-flame-moving{animation:none;opacity:.93}}

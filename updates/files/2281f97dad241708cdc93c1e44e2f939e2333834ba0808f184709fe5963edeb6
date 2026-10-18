@@ -1,0 +1,277 @@
+import {dialogueSlotsAt} from './dialogue-pairing.js';
+import {CHARACTERS,CHAPTERS} from './campaign.js';
+import {ACT6_NATIVE_FX} from './act6-effects.js';
+import {ACT7_NATIVE_FX,createAct7EffectLayer} from './act7-effects.js';
+import {prepareArtwork,cancelArtworkScope} from './artwork-loader.js';
+import {imageSource,retryOriginalImage} from './image-source.js';
+import {presentationAt, chapterTitle, chapterSubtitle, textCatalog, visibleHeroTexts, visibleStageTexts} from './story-presentation.js';
+import {assetURL, markAssetUnavailable, markAssetURLUnavailable} from './story-assets.js';
+import {storyPortraitAsset,woundedStoryPortraitID} from './story-portrait-context.js';
+import {PARTS,meritBenefits} from './equipment.js';
+import {PROMOTION_NAMES,promotionName, promotionStatus} from './promotion.js';
+import {enemyLoot} from './battle-rewards.js';
+import {enemySpecialistName} from './campaign-enemy-balance.js';
+export const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Presentation accepts only the saved promotion enum; malformed metadata must
+// neither invent a rank nor become an unbounded String.repeat allocation.
+const displayedPromotion=unit=>Number.isInteger(unit?.promotion)&&unit.promotion>=0&&unit.promotion<=2?unit.promotion:0;
+export function rankName(unit){
+ const specialist=enemySpecialistName(unit);if(specialist)return specialist;
+ const cls=typeof unit?.cls==='string'&&Object.hasOwn(PROMOTION_NAMES,unit.cls)?unit.cls:'';
+ return promotionName(cls,displayedPromotion(unit),typeof unit?.specialization==='string'?unit.specialization:null);
+}
+export const rankStars = unit => '★'.repeat(displayedPromotion(unit));
+let cardOpen=false, effectCount=0, seenCard=null;
+export const presentationBusy=()=>cardOpen||effectCount>0;
+const presentationVersions=new WeakMap();
+const image=(src,kind,id,alt)=>{
+ const img=document.createElement('img');img.alt=alt;
+ img.onerror=()=>{if(retryOriginalImage(img))return;if(!markAssetURLUnavailable(kind,src))markAssetUnavailable(kind,id);img.remove();};
+ img.src=imageSource(src);return img;
+};
+const removeArt=el=>el.remove();
+export function speakerUnit(chapter,speaker){
+ const matches=unit=>unit.id===speaker||[unit.templateId,unit.campaignTemplateId].some(id=>id?.replace(/^(?:act[1234]_extra_|act[1234]_)/,'')===speaker)||([6,7].includes(chapter.act)&&unit.storySpeaker===speaker);
+ return {enemy:chapter.enemies?.find(matches)??null,ally:chapter.extraAllies?.find(matches)??null};
+}
+const presentationState=new WeakMap();
+const presentationScopes=new WeakMap();
+function warmPresentation(lines,index,chapter,phase,event,scope){
+ const sources=new Set();
+ for(let lookahead=index+1;lookahead<Math.min(lines.length,index+3);lookahead++){
+  const line=lines[lookahead],fields=presentationAt(lines,lookahead,{bg:chapter.bg?.[phase]??chapter.bg?.pre??null});
+  for(const kind of ['bg','cg'])if(fields[kind]){const src=assetURL(kind,fields[kind]);if(src)sources.add(src);}
+  if(line.speaker!=='narrator'){
+   const units=speakerUnit(chapter,line.speaker),options={faction:units.enemy?.faction??units.ally?.faction};
+   const asset=storyPortraitAsset(line.speaker,fields.face,chapter,options,{lines,index:lookahead,phase,event});if(asset)sources.add(asset.url);
+  }
+ }
+ sources.forEach(src=>prepareArtwork(src,{priority:'background',scope}));
+}
+export function clearPresentation(container) {
+ cancelArtworkScope(presentationScopes.get(container));presentationScopes.delete(container);
+ presentationVersions.set(container,Symbol());
+ container.querySelectorAll('.story-cg,.story-cutin,.story-fx').forEach(removeArt);
+ container.classList.remove('has-story-cg','has-story-emphasis');
+ container.setAttribute('data-event-speaker-side','');
+ container.style.backgroundImage='';
+ presentationState.delete(container);
+}
+function portraitFrame(img,asset){
+ let viewport=img.parentElement;
+ if(!viewport?.classList?.contains('portrait-viewport')){
+  viewport=document.createElement('span');viewport.className='portrait-viewport';
+  img.before(viewport);viewport.append(img);
+ }
+ viewport.classList.toggle('framed-portrait',!!asset.framed);
+ const [x,y,w,h]=asset.crop??[0,0,1,1];
+ viewport.classList.toggle('sheet-portrait',!!asset.crop);
+ viewport.style.setProperty('--portrait-x',String(-x/w*100)+'%');
+ viewport.style.setProperty('--portrait-y',String(-y/h*100)+'%');
+ viewport.style.setProperty('--portrait-w',String(100/w)+'%');
+ viewport.style.setProperty('--portrait-h',String(100/h)+'%');
+ img.style.objectPosition='center top';
+}
+export function paintPresentation(container,lines,index,chapter,{event=false,phase='pre'}={}) {
+ const fields=presentationAt(lines,index,{bg:chapter.bg?.[phase]??(phase==='defeat'?chapter.bg?.pre:null)??null}),line=lines[index];
+ if(!line)return;
+ cancelArtworkScope(presentationScopes.get(container));
+ const scope=Symbol();presentationScopes.set(container,scope);
+ const visual=container.querySelector(event?'.event-visual':'.portrait-stage')??container;
+ const version=Symbol();presentationVersions.set(container,version);
+ const current=()=>presentationVersions.get(container)===version;
+ const previous=presentationState.get(container)??{};
+ const next={...previous};presentationState.set(container,next);
+ container.querySelectorAll('.story-cutin,.story-fx').forEach(removeArt);
+ const units=speakerUnit(chapter,line.speaker),options={faction:units.enemy?.faction??units.ally?.faction};
+ const injury=woundedStoryPortraitID(line.speaker,chapter,{lines,index,phase,event});
+ // Important story lines emphasize the dialogue immediately. A second portrait/strip
+ // used to load later, move enemy speakers across the scene, then disappear on a timer.
+ container.classList.toggle('has-story-emphasis',fields.cutin&&line.speaker!=='narrator');
+ container.setAttribute('data-event-speaker-side',event&&line.speaker!=='narrator'?(units.enemy?'right':'left'):'');
+ const background=fields.bg&&assetURL('bg',fields.bg);
+ next.background=background;
+ if(!background)container.style.backgroundImage='';
+ else prepareArtwork(background,{scope,ready:()=>{if(current()){const value=`linear-gradient(#1118,#111b),url("${imageSource(background)}")`;if(container.style.backgroundImage!==value)container.style.backgroundImage=value;}},failed:()=>{markAssetURLUnavailable('bg',background);if(current())container.style.backgroundImage='';}});
+ const portrait=!event&&container.querySelector('#portrait-left');
+ const rightPortrait=!event&&container.querySelector('#portrait-right');
+ const paired=!!(portrait&&rightPortrait);
+ const pair=paired?dialogueSlotsAt(lines,index,{bg:chapter.bg?.[phase]??null,sides:chapter.rosterMode==='story'?{}:Object.fromEntries(Object.entries(CHARACTERS).map(([id,c])=>[id,c.side]))}):null;
+ if(paired){container.classList.add('paired-dialogue');container.dataset.speakingSide=pair.speaking??'';}
+ const cg=fields.cg&&assetURL('cg',fields.cg);
+ const revealPortrait=()=>{
+  if(paired){for(const [side,node] of [['left',portrait],['right',rightPortrait]])node.hidden=pair.narrator||!next.portraits?.[side]?.ready||!!next.cg;}
+  else if(portrait)portrait.hidden=line.speaker==='narrator'||!next.portraitReady||!!next.cg;
+  const small=event&&container.querySelector('.event-portrait');
+  if(small)small.hidden=line.speaker==='narrator'||!next.eventPortraitReady||!!next.cg;
+ };
+ if(!cg){
+  next.cg=null;container.querySelectorAll('.story-cg').forEach(removeArt);container.classList.remove('has-story-cg');
+ } else {
+  next.cg=cg;
+  prepareArtwork(cg,{scope,ready:()=>{
+   if(!current())return;
+   let node=container.querySelector('.story-cg');
+   if(node?.getAttribute('src')!==imageSource(cg)){
+    const replacement=image(cg,'cg',fields.cg,'이야기 장면');replacement.className='story-cg';
+    if(node)node.replaceWith(replacement);else visual.append(replacement);
+   }
+   container.classList.add('has-story-cg');revealPortrait();
+  },failed:()=>{markAssetURLUnavailable('cg',cg);if(current()){next.cg=null;container.querySelectorAll('.story-cg').forEach(removeArt);container.classList.remove('has-story-cg');revealPortrait();}}});
+ }
+ if(paired){
+  next.portraits={};next.hero=line.speaker==='narrator'?null:line.speaker;
+  for(const [side,node] of [['left',portrait],['right',rightPortrait]]){
+   const entry=pair[side],before=previous.portraits?.[side]??{},entryInjury=woundedStoryPortraitID(entry?.hero,chapter,{lines,index,phase,event}),state={hero:entry?.hero??null,injury:entryInjury,ready:entry?.hero===before.hero&&entryInjury===before.injury&&!!before.ready};next.portraits[side]=state;
+   node.classList.toggle('speaking',!pair.narrator&&pair.speaking===side);node.dataset.speaker=entry?.hero??'';
+   if(!entry){node.hidden=true;continue;}
+   const img=node.querySelector('img'),name=chapter.speakers?.[entry.hero]??CHARACTERS[entry.hero]?.name??entry.hero;
+   if(entry.hero!==before.hero||entryInjury!==before.injury)node.hidden=true;
+   img.alt=name;node.querySelector('figcaption').textContent=name;node.setAttribute('aria-label',name+(pair.speaking===side?' · 말하는 장수':' · 대화 상대'));
+   const targetUnit=speakerUnit(chapter,entry.hero),opts={faction:targetUnit.enemy?.faction??targetUnit.ally?.faction},tried=new Set();
+   const load=()=>{
+    const asset=storyPortraitAsset(entry.hero,entry.face,chapter,opts,{lines,index,phase,event});
+    if(!asset||tried.has(asset.url)){state.ready=false;revealPortrait();return;}
+    tried.add(asset.url);
+    prepareArtwork(asset.url,{scope,ready:()=>{if(!current())return;portraitFrame(img,asset);if(img.getAttribute('src')!==imageSource(asset.url))img.src=imageSource(asset.url);state.ready=true;revealPortrait();},failed:()=>{markAssetURLUnavailable('portrait',asset.url);if(current())load();}});
+   };load();
+  }
+  revealPortrait();
+ } else if(portrait){
+  if(line.speaker==='narrator'){next.hero=null;next.portraitReady=false;portrait.hidden=true;}
+  else {
+   const img=portrait.querySelector('img'),name=chapter.speakers?.[line.speaker]??line.speaker;
+   const changedSpeaker=previous.hero!==line.speaker||previous.injury!==injury;
+   next.hero=line.speaker;next.injury=injury;
+   if(changedSpeaker){next.portraitReady=false;portrait.hidden=true;}
+   img.alt=name;portrait.querySelector('figcaption').textContent=name;
+   const tried=new Set();
+   const load=()=>{
+    const asset=storyPortraitAsset(line.speaker,fields.face,chapter,options,{lines,index,phase,event});
+    if(!asset||tried.has(asset.url)){next.portraitReady=false;revealPortrait();return;}
+    tried.add(asset.url);
+    prepareArtwork(asset.url,{scope,ready:()=>{if(!current())return;portraitFrame(img,asset);if(img.getAttribute('src')!==imageSource(asset.url))img.src=imageSource(asset.url);next.portraitReady=true;revealPortrait();},
+     failed:()=>{markAssetURLUnavailable('portrait',asset.url);if(current())load();}});
+   };load();revealPortrait();
+  }
+ }
+ if(event&&line.speaker!=='narrator'){
+  let small=container.querySelector('.event-portrait');
+  if(!small){small=document.createElement('figure');small.className='event-portrait';small.hidden=true;small.append(document.createElement('img'));visual.append(small);}
+  small.classList.toggle('is-enemy',!!units.enemy);
+  if(previous.hero!==line.speaker||previous.injury!==injury){small.hidden=true;next.eventPortraitReady=false;}
+  next.hero=line.speaker;next.injury=injury;
+  const tried=new Set();
+  const load=()=>{
+   const asset=storyPortraitAsset(line.speaker,fields.face,chapter,options,{lines,index,phase,event});
+   if(!asset||tried.has(asset.url)){next.eventPortraitReady=false;small.hidden=true;return;}
+   tried.add(asset.url);
+   prepareArtwork(asset.url,{scope,ready:()=>{if(current()){const img=small.querySelector('img');img.alt=chapter.speakers?.[line.speaker]??line.speaker;portraitFrame(img,asset);if(img.getAttribute('src')!==imageSource(asset.url))img.src=imageSource(asset.url);next.eventPortraitReady=true;revealPortrait();}},failed:()=>{markAssetURLUnavailable('portrait',asset.url);if(current())load();}});
+  };load();
+ } else {container.querySelectorAll('.event-portrait').forEach(node=>node.remove());if(event){next.hero=null;next.eventPortraitReady=false;}}
+ warmPresentation(lines,index,chapter,phase,event,scope);
+
+}
+
+
+export function initializeTitleArtwork(title=document.getElementById('title-scene')){
+ if(!title)return {background:null,frame:null};
+ const background=assetURL('bg','bg_field'),frameSource=assetURL('ui','ui_title_frame');
+ const result={background:null,frame:null};
+ if(background){
+  const probe=image(background,'bg','bg_field','');result.background=probe;
+  probe.onload=()=>{title.style.setProperty('--title-art',`url("${imageSource(background)}")`);title.classList.add('title-art-ready');};
+  probe.addEventListener('error',()=>{title.style.removeProperty('--title-art');title.classList.remove('title-art-ready');});
+ }
+ const name=title.querySelector('#title-name');
+ if(frameSource&&name){
+  name.querySelectorAll('.title-frame-art').forEach(el=>el.remove());
+  const frame=image(frameSource,'ui','ui_title_frame','');result.frame=frame;frame.className='title-frame-art';frame.setAttribute('aria-hidden','true');frame.hidden=true;
+  frame.onload=()=>{frame.hidden=false;};name.append(frame);
+ }
+ return result;
+}
+export function mapEffect(effect,state,at='before'){
+ if(!effect||(effect.at??'before')!==at)return;
+ if((state.act7GrowthVersion===1||CHAPTERS[state.chapter]?.act===7)&&Object.hasOwn(ACT7_NATIVE_FX,effect.id)){
+  const native=createAct7EffectLayer(effect,state);if(!native)return;
+  effectCount++;setTimeout(()=>{native.remove();effectCount--;},native.duration);return;
+ }
+ if((state.act6GrowthVersion===1||CHAPTERS[state.chapter]?.act===6)&&Object.hasOwn(ACT6_NATIVE_FX,effect.id)){nativeMapEffect(effect,state);return;}
+ if(['fx_ship_fire','fx_gate_open','fx_arrow_rain'].includes(effect.id)){nativeMapEffect(effect,state);return;}
+ const source=assetURL('fx',effect.id);if(!source)return;
+ const unit=effect.unit&&state.units.find(u=>u.id===effect.unit),tile=effect.tile??(unit?[unit.x,unit.y]:null);
+ const board=document.getElementById('board-stage'),cell=tile&&document.querySelector(`#board [data-x="${tile[0]}"][data-y="${tile[1]}"]`);
+ const img=image(source,'fx',effect.id,'전장 효과');img.className='map-fx';
+ if(cell){const r=cell.getBoundingClientRect(),b=board.getBoundingClientRect();img.style.cssText=`position:absolute;left:${r.left-b.left}px;top:${r.top-b.top}px;width:${r.width}px;height:${r.height}px;pointer-events:none;z-index:6`;}
+ else img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:6';
+ board.append(img);effectCount++;setTimeout(()=>{img.remove();effectCount--;},600);
+}
+function nativeMapEffect(effect,state){
+ const board=document.getElementById('board-stage');if(!board)return;
+ const unit=effect.unit&&state.units.find(u=>u.id===effect.unit),tile=effect.tile??(unit?[unit.x,unit.y]:null),cell=tile&&document.querySelector(`#board [data-x="${tile[0]}"][data-y="${tile[1]}"]`);
+ const layer=document.createElement('div'),names={fx_ship_fire:'적벽 화공',fx_gate_open:'성문 개방',fx_arrow_rain:'화살 세례',...ACT6_NATIVE_FX};layer.className='map-fx native-map-fx '+effect.id;layer.setAttribute('role','img');layer.setAttribute('aria-label',names[effect.id]);
+ const count=effect.id==='fx_arrow_rain'?15:effect.id==='fx_ship_fire'?12:2;
+ const burning=effect.id==='fx_ship_fire'?state.units.filter(u=>u.team==='enemy'&&u.hp>0):[];
+ const forestFire=effect.id==='fx_forest_fire'?(state.shipFire?.cells??[]).map(([x,y])=>({x,y})):[];
+ if(burning.length||forestFire.length){for(const enemy of [...burning,...forestFire]){const at=document.querySelector(`#board [data-x="${enemy.x}"][data-y="${enemy.y}"]`);if(!at)continue;const r=at.getBoundingClientRect(),b=board.getBoundingClientRect(),particle=document.createElement('span');particle.className='ship-fire-front';particle.style.cssText=`left:${r.left-b.left-r.width*.1}px;top:${r.top-b.top-r.height*.2}px;width:${r.width*1.2}px;height:${r.height*1.3}px`;layer.append(particle);}}
+ else for(let i=0;i<count;i++){const particle=document.createElement('span');particle.style.setProperty('--i',i);layer.append(particle);}
+ if(cell){const r=cell.getBoundingClientRect(),b=board.getBoundingClientRect();layer.style.cssText=`left:${r.left-b.left-r.width}px;top:${r.top-b.top-r.height}px;width:${r.width*3}px;height:${r.height*3}px`;}
+ board.append(layer);effectCount++;setTimeout(()=>{layer.remove();effectCount--;},effect.id==='fx_ship_fire'?1350:900);
+}
+export function chapterCard(chapter,fast=false){
+ if(chapter.rosterMode!=='story'||seenCard===chapter.id)return;
+ seenCard=chapter.id;cardOpen=true;
+ const box=document.createElement('dialog');box.className='chapter-card';box.setAttribute('aria-label','장 시작');
+ const map=assetURL('map',chapter.actMap??'act1');
+ box.innerHTML=`<span class="eyebrow gold">${esc(chapter.episodeTitle??'1막 의용')}</span><h2>${esc(chapterTitle(chapter))}</h2><p>${esc(chapterSubtitle(chapter)||chapter.subtitle)}</p>${chapter.fate?`<p class="fate-text">${esc(chapter.fate.front)}</p>`:''}<button class="primary">이야기 시작</button>`;
+ if(map){const img=image(map,'map',chapter.actMap??'act1','이야기 지도');img.className='chapter-map';box.prepend(img);}
+ let timer;const close=()=>{clearTimeout(timer);cardOpen=false;box.close();box.remove();};box.querySelector('button').onclick=close;box.addEventListener('cancel',e=>{e.preventDefault();close();});
+ document.body.append(box);box.showModal();box.querySelector('button').focus();
+ if(!chapter.fate)timer=setTimeout(close,fast?1200:2400);
+ return box;
+}
+export function fateVictory(chapter){
+ if(!chapter.fate)return;
+ cardOpen=true;const box=document.createElement('dialog');box.className='chapter-card';box.setAttribute('aria-label','운명 기록');
+ box.innerHTML=`<h3>${esc(chapter.fate.front)}</h3><p>${esc(chapter.fate.back)}</p><button class="primary">결과 확인</button>`;
+ const close=()=>{cardOpen=false;box.close();box.remove();};box.querySelector('button').onclick=close;box.addEventListener('cancel',e=>{e.preventDefault();close();});document.body.append(box);box.showModal();
+}
+export function resetCards(){seenCard=null;}
+export function criticalPreview(p,enabled=false){
+ if(!enabled&&!p.criticalChance&&!p.returnCriticalChance)return '';
+ return `<p class="critical-note">치명타 ${Math.round(p.criticalChance*100)}% · 명중·치명 시 피해 ${p.criticalHit.toLocaleString()}${p.counter?`<br>반격 치명타 ${Math.round(p.returnCriticalChance*100)}% · 피해 ${p.returnCriticalHit.toLocaleString()}`:''}${p.counterIfMiss&&p.chance<1?`<br>공격 회피 후 반격 치명타 ${Math.round(p.returnCriticalChanceIfMiss*100)}% · 피해 ${p.returnCriticalHitIfMiss.toLocaleString()}`:''}</p>`;
+}
+export async function criticalEffect(actor,amount,critical,fast){
+ const box=document.getElementById('combat');box.classList.toggle('critical-combat',!!critical);box.classList.toggle('enemy-critical',actor.team==='enemy');
+ if(!critical)return;
+ const label=document.createElement('strong');label.className='critical-label';label.textContent='치명타!';box.append(label);
+ if(amount>=10&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  await new Promise(resolve=>setTimeout(resolve,fast?40:80));
+  const board=document.getElementById('board-stage');board.classList.add('critical-shake');setTimeout(()=>board.classList.remove('critical-shake'),fast?100:200);
+ }
+}
+export function lootNote(scenario,unit){const loot=enemyLoot(scenario,unit);return `<p class="loot-note">${loot.items.length?'◆ 소지품 있음<br>':''}격파 전리품 · 승리 시 정산</p>`;}
+export function promotionPanel(army,id){
+ const status=promotionStatus(army,id);
+ return `<section class="promotion-card"><span class="eyebrow gold">04 / 병과 승급</span><h4>${esc(status.name)} ${'★'.repeat(status.rank)}</h4><p>${status.nextName?`${esc(status.nextName)} · 장수 Lv${status.requiredLevel} · ${status.cost?status.cost.toLocaleString()+' 자금':'무료'}`:'최종 병과에 도달했습니다.'}</p><p>${esc(status.reason||'장수 레벨과 경험치는 유지되며 다음 출전에 적용됩니다.')}</p><button data-shop="promote" class="primary" ${status.available?'':'disabled'}>${status.nextName?esc(status.nextName)+' 승급':'최종 승급 완료'}</button></section>`;
+}
+export function salesPanel(army){return `<details class="sales-panel"><summary>장비 재고 판매</summary><p>장착 중인 장비는 해제한 뒤 판매하세요.</p>${Object.entries(PARTS).filter(([id])=>army.stock[id]>0).map(([id,part])=>`<button data-sell="${id}">${esc(part.name)} · 재고 ${army.stock[id]} · ${part.grade==='advanced'?1000:300} 자금에 판매</button>`).join('')}</details>`;}
+export function rewardPanel(state,army){
+ const r=state.rewardSummary;if(!r)return '';
+ if(state.result==='defeat')return '<p>이번 전투의 임시 전리품은 정산되지 않습니다.</p>';
+ return `<section class="reward-card"><h4>전리품과 공적</h4><p>${r.alreadyClaimed?'이미 받은 보상입니다.':`추가 자금 ${r.gold.toLocaleString()} · ${r.items.length?r.items.map(id=>esc(PARTS[id].name)).join(', '):'추가 장비 없음'}`}</p>${r.merit?`<p>공적 ${r.merit.achieved?'달성':'미달성'} · ${esc(r.merit.condition)}</p>`:''}${r.survivorReward?`<p class="gold" data-reward="survivors"><b>${state.regularRewardsVersion===1?'정규 생존 장수 보상':'생존 부대 보상'} · ${r.survivorReward.survivorIds.length}${state.regularRewardsVersion===1?'명':'부대'} × ${r.survivorReward.goldPerUnit.toLocaleString()}골 = +${r.survivorReward.gold.toLocaleString()}골</b><br>${esc(r.survivorReward.condition)}${r.alreadyClaimed?' · 이전 정산에 포함됨':''}</p>`:''}${r.survivalBonus?`<p class="${r.survivalBonus.achieved?'gold':''}"><b>전원 생존 보너스 ${r.survivalBonus.achieved?'달성 · +'+r.survivalBonus.gold.toLocaleString()+' 금화':'미달성'}</b><br>${esc(r.survivalBonus.condition)}${r.alreadyClaimed&&r.survivalBonus.achieved?' · 이전 정산에 포함됨':''}</p>`:''}<p>누적 공적 ${army.meritPoints??0}점 · ${esc(meritBenefits(army).name)}<br>정규 장수 다음 출전 사기 +${meritBenefits(army).morale}${meritBenefits(army).next?' · 다음 보너스 '+meritBenefits(army).next.points+'공적':''}</p></section>`;
+}
+export function openCatalog(army,chapter){
+ const catalog=textCatalog(),heroes=visibleHeroTexts(catalog,army),stages=visibleStageTexts(catalog,chapter.id,army);
+ const box=document.createElement('dialog');box.className='catalog-dialog';box.setAttribute('aria-label','인물과 이야기');
+ box.innerHTML=`<div class="dialog-heading"><h3>인물과 이야기</h3><button class="quiet">닫기</button></div><h4>함께하는 장수</h4>${heroes.map(h=>`<article><h4>${esc(h.name)} ${esc(h.courtesy)} · ${esc(h.title)}</h4><p>${esc(h.intro)}</p><p>${h.historyUnlocked?esc(h.history):'역사 기록 · 아직 해금되지 않았습니다.'}</p></article>`).join('')}<h4>지금까지의 여정</h4>${stages.map(s=>`<article><h4>제${s.no}화 ${esc(s.title)}</h4><p>${esc(s.intro)}</p></article>`).join('')}<h4>용어</h4>${catalog.glossary.filter(g=>!g.needsRuleCheck).map(g=>`<p><b>${esc(g.term)}</b> · ${esc(g.text)}</p>`).join('')}<p>전투 규칙은 도움말에서 확인할 수 있습니다.</p>`;
+ box.querySelector('button').onclick=()=>{box.close();box.remove();};box.addEventListener('close',()=>box.remove());document.body.append(box);box.showModal();
+}
+export function comparisonInfo(chapter){
+ const mode=chapter.comparison,nav=document.querySelector('.masthead nav');if(!nav)return;
+ if(!document.getElementById('catalog-open')){const button=document.createElement('button');button.id='catalog-open';button.className='quiet';button.textContent='인물과 이야기';nav.prepend(button);}
+ let el=document.getElementById('comparison-info');if(!el){el=document.createElement('p');el.id='comparison-info';el.className='comparison-info';document.getElementById('title-scene').append(el);}
+ const seed=mode?.seed??18001;
+ el.innerHTML=`${mode?`비교 ${mode.variant} · 난수 기준 ${seed}<br>`:''}<a href="?compare=A&seed=${seed}">A · 임시 아군 포함</a> / <a href="?compare=B&seed=${seed}">B · 지정 임시 아군 제외</a><br>비교 모드는 별도 저장을 사용합니다. 치명타 기본 꺼짐.`;
+}

@@ -1,0 +1,27 @@
+// Explain the existing engine result only; opening details never rolls or
+// recalculates the chance and never assumes that an owned item is equipped.
+const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const signed=value=>(value>0?'+':'')+value+'%p';
+export function tacticAccuracyNote(prediction,{slots=[]}={}){
+ const results=prediction?.results?.length?prediction.results:prediction?.exchanges??[];
+ const rows=results.length?results.map(row=>row.result??row):prediction?.chanceBreakdown?[prediction]:[];
+ const details=rows.map(row=>row.chanceBreakdown).filter(Boolean);
+ if(!details.length||details.every(row=>row.blocked))return '';
+ if(details.every(row=>row.guaranteed))return '전장 효과 · 성공 확정';
+ const normal=details.filter(row=>!row.blocked&&!row.guaranteed);
+ if(!normal.length)return '';
+ const bonuses=[...new Set(normal.map(row=>row.equipmentAndTrainingBonus))];
+ const notes=[];
+ if(bonuses.length===1&&Number.isFinite(bonuses[0])){
+  let bonus=bonuses[0];
+  if(slots.includes('silkPouch')&&bonus>=10){notes.push('금낭 +10%p 적용');bonus-=10;}
+  if(bonus)notes.push('장비·단련 '+signed(bonus));
+ }
+ const capped=normal.filter(row=>row.capped),caps=[...new Set(capped.map(row=>row.cap))];
+ if(caps.length===1)notes.push((capped.length<details.length?'일부 대상 ':'')+'상한 '+caps[0]+'%');
+ return notes.join(' · ');
+}
+export function tacticAccuracyNoteHTML(prediction,options){
+ const note=tacticAccuracyNote(prediction,options);
+ return note?'<p class="tactic-accuracy-note">'+escape(note)+'</p>':'';
+}

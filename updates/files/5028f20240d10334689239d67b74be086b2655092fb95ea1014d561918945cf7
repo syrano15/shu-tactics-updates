@@ -1,0 +1,123 @@
+import {CHAPTERS} from './campaign.js';
+import {MAP_OVERHAUL_ART} from './map-overhaul-catalog.js';
+import {FORTIFICATION_ART,fortificationPlacementsFor} from './fortification-decoration.js';
+import {BIOME_DECORATION_ART,biomePlacementsFor,plainGrassMaterialFor} from './biome-decoration.js';
+import {GROUND_DECORATION_ART,groundPlacementsFor,groundExclusionsFor} from './ground-decoration.js';
+
+// Presentation only. Scene identity is authored explicitly: a plain tactical
+// cell can be earth, a ford or a ship deck, and F can mean trees or cargo.
+export const DECORATION_ASSETS=Object.freeze({...Object.fromEntries(
+ ['grass','pebbles','reeds','house','rope','cargo'].map(id=>[id,Object.freeze({src:'art/map-decor-v0742/'+id+'.webp'})])
+),...FORTIFICATION_ART,...BIOME_DECORATION_ART,...GROUND_DECORATION_ART});
+const scene=(kind,options={})=>Object.freeze({kind,...options});
+const CONTEXT=Object.freeze({
+ s01_zhuoxian:scene('rural'),s02_yellow_camp:scene('camp'),s03_hulao:scene('pass'),
+ s04_beihai:scene('town-edge'),s05_xuzhou_relief:scene('town-edge'),s06_xuzhou_fall:scene('city'),
+ s07_xiapi:scene('river-town'),s08_xiaopei:scene('rural'),s09_baima:scene('river'),
+ s10_thousand_li:scene('pass'),s11_bowang:scene('woodland'),s12_xinye:scene('river-town'),
+ s13_changban:scene('river'),s14_jiangxia:scene('river'),s15_chibi:scene('ship'),
+ s16_huarong:scene('mud'),s17_jingnan:scene('city'),s18_changsha:scene('city'),
+ s19_jiangling:scene('city'),s20_adou_river:scene('ship'),s21_jingzhou_hold:scene('river'),
+ s22_jiameng:scene('pass'),s23_fucheng:scene('city'),s24_luofengpo:scene('woodland'),
+ s25_luocheng:scene('city'),s26_machao:scene('rural'),s27_chengdu:scene('city'),
+ s28_dangqu:scene('woodland'),s29_dingjun:scene('mountain'),s30_hanshui:scene('river-camp'),
+ s31_hanzhong:scene('river'),s32_fancheng:scene('city'),s33_flood:scene('floodplain'),
+ s34_xuhuang:scene('rural'),s35_white_robes:scene('river'),s36_maicheng:scene('mountain'),
+ s37_jiangling_retake:scene('city'),s38_langzhong:scene('camp',{night:true}),s39_wuxia:scene('mountain'),
+ s40_yiling:scene('camp'),s41_ruxu:scene('river'),s42_alliance:scene('river'),
+ s43_lushui:scene('jungle-river'),s44_menghuo:scene('woodland'),s45_rattan:scene('mountain'),
+ s46_tianshui:scene('rural'),s47_jieting:scene('mountain'),s48_jigu:scene('mountain'),
+ s49_chencang:scene('city',{winter:true}),s50_yinping:scene('mountain'),s51_wheat:scene('harvest'),
+ s52_mumen:scene('woodland'),s53_wuzhangyuan:scene('river'),s54_seven_lamps:scene('camp',{night:true}),
+ s55_weishui:scene('river'),s56_changan:scene('city')
+});
+// A complete foundation and roof replace the appearance of two explicitly
+// reviewed, isolated 2x2 wall blocks. Small masonry images pasted onto a wall
+// face are deliberately excluded, even when their logical mask would fit.
+const GATEHOUSES=Object.freeze({s06_xuzhou_fall:Object.freeze([2,2]),s23_fucheng:Object.freeze([14,5])});
+const cache=new Map();
+const pointKey=(x,y)=>x+','+y;
+const hash=(id,x,y,salt)=>{
+ let n=2166136261;for(const c of id)n=Math.imul(n^c.charCodeAt(0),16777619);
+ n^=Math.imul(x+101,374761393)^Math.imul(y+71,668265263)^Math.imul(salt+1,2246822519);
+ n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;
+};
+const coordinateFields=new Set(['tile','tiles','position','positions','campaignPosition','cells','allyPositions','enemyPositions','bridgeCells','huarongExits']);
+function reservedCells(chapter){
+ const reserved=new Set();
+ function add(value){
+  if(!Array.isArray(value))return;
+  if(value.length===2&&value.every(Number.isInteger)){reserved.add(pointKey(...value));return;}
+  for(const child of value)add(child);
+ }
+ function visit(value){
+  if(!value||typeof value!=='object')return;
+  for(const [name,child] of Object.entries(value)){
+   if(coordinateFields.has(name))add(child);
+   if(child&&typeof child==='object')visit(child);
+  }
+ }
+ visit(chapter);
+ if(chapter.id==='s14_jiangxia')add([[17,5],[18,5],[17,4],[16,4],[15,4]]);
+ if(chapter.id==='s29_dingjun')add([[25,1],[24,18],[25,18]]);
+ if(chapter.id==='s44_menghuo')for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(Math.abs(dx)+Math.abs(dy)<=2)reserved.add(pointKey(6+dx,17+dy));
+ if(chapter.id==='s15_chibi'){
+  // These fleet flames are wider than their anchor cell. Reserve their whole
+  // possible footprint even before the fire event starts.
+  const sites=[[11,2],[14,2],[18,2],[21,4],[21,9],[20,14],[16,14],[12,14],[11,10],[11,6],[15,7],[18,11]];
+  for(const [x,y] of sites)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)reserved.add(pointKey(x+dx,y+dy));
+ }
+ return reserved;
+}
+function fits(placement,terrain,code,reserved){
+ if(!Number.isFinite(placement.x)||!Number.isFinite(placement.y)||placement.x<0||placement.y<0||placement.width<=0||placement.height<=0||placement.x+placement.width>terrain[0].length||placement.y+placement.height>terrain.length)return false;
+ for(let y=Math.floor(placement.y);y<Math.ceil(placement.y+placement.height);y++)for(let x=Math.floor(placement.x);x<Math.ceil(placement.x+placement.width);x++)if(terrain[y]?.[x]!==code||reserved.has(pointKey(x,y)))return false;
+ return true;
+}
+function buildPlan(chapter,art,context){
+ const terrain=chapter.terrain,reserved=reservedCells(chapter),placements=[],occupied=new Set();
+ const cells=[];for(let y=0;y<art.rows;y++)for(let x=0;x<art.columns;x++)if(terrain[y][x]==='.'&&!reserved.has(pointKey(x,y)))cells.push({x,y});
+ const sorted=(input,salt)=>[...input].sort((a,b)=>hash(art.id,a.x,a.y,salt)-hash(art.id,b.x,b.y,salt)||a.y-b.y||a.x-b.x);
+ function scatter(asset,count,{eligible=cells,width=.25,height=.25,opacity=context.night ? .58 : .82,salt=1}={}){
+  let added=0;for(const cell of sorted(eligible,salt)){
+   if(added>=count)break;if(occupied.has(pointKey(cell.x,cell.y)))continue;
+   const right=hash(art.id,cell.x,cell.y,salt+2)>.5,bottom=hash(art.id,cell.x,cell.y,salt+3)>.5;
+   const x=cell.x+(right?1-width-.06:.06),y=cell.y+(bottom?1-height-.06:.06);
+   const placement={asset,x:Number(x.toFixed(4)),y:Number(y.toFixed(4)),width,height,opacity};
+   if(!fits(placement,terrain,'.',reserved))continue;
+   placements.push(placement);occupied.add(pointKey(cell.x,cell.y));added++;
+  }
+ }
+ if(context.kind==='ship'){
+  scatter('rope',4,{width:.31,height:.24,opacity:.9,salt:11});
+  scatter('cargo',3,{width:.3,height:.28,opacity:.9,salt:12});
+ }else{
+  // Snow, ripe wheat, mud and already flooded fields do not receive fresh
+  // green tufts. They retain a few neutral pebbles instead.
+  if(!context.winter&&!['harvest','mud','floodplain'].includes(context.kind))scatter(plainGrassMaterialFor(chapter.id),Math.min(25,Math.max(10,Math.round(art.rows*art.columns/21))),{width:.5,height:.45,salt:2});
+  scatter('pebbles',context.kind==='harvest'?4:Math.min(8,Math.max(4,Math.round(art.rows*art.columns/70))),{width:.22,height:.18,salt:3});
+  if(['river','river-town','river-camp','jungle-river'].includes(context.kind)&&art.blockedKind==='water'){
+   const banks=cells.filter(({x,y})=>[[0,-1],[0,1],[-1,0],[1,0]].some(([dx,dy])=>terrain[y+dy]?.[x+dx]==='#'));
+   scatter('reeds',Math.min(5,Math.ceil(banks.length/10)),{eligible:banks,width:.27,height:.3,salt:4});
+  }
+  if(['camp','river-camp'].includes(context.kind))scatter('cargo',2,{width:.3,height:.27,salt:6});
+  const gatehouse=GATEHOUSES[art.id];
+  if(gatehouse&&context.kind==='city'&&art.blockedKind==='wall'){
+   const [x,y]=gatehouse,placement={asset:'house',x,y,width:2,height:2,rotation:0,opacity:1};
+   if(fits(placement,terrain,'#',reserved))placements.push(placement);
+  }
+ }
+ placements.push(...fortificationPlacementsFor(chapter,art));
+ placements.push(...biomePlacementsFor(chapter,art,{reserved,occupied,hash}));
+ return Object.freeze({key:'v0746-ground03:'+art.id+':'+art.terrainKey,columns:art.columns,rows:art.rows,groundExclusions:groundExclusionsFor(chapter),placements:Object.freeze([...groundPlacementsFor(chapter,art),...placements].map(placement=>Object.freeze(placement)))});
+}
+
+export function decorationPlanFor(scenarioId,geometry,baseSource){
+ if(typeof scenarioId!=='string'||!Object.hasOwn(CONTEXT,scenarioId)||!Object.hasOwn(MAP_OVERHAUL_ART,scenarioId)||!geometry||typeof geometry!=='object')return null;
+ const art=MAP_OVERHAUL_ART[scenarioId],terrain=geometry.terrain;
+ if(baseSource!==art.src||geometry.width!==art.columns||geometry.height!==art.rows||geometry.campaignLayoutVersion!==undefined&&geometry.campaignLayoutVersion!==1||!Array.isArray(terrain)||terrain.length!==art.rows||terrain.some(row=>typeof row!=='string'||row.length!==art.columns)||terrain.join('\n')!==art.terrainKey)return null;
+ const chapter=CHAPTERS.find(value=>value.id===scenarioId);
+ if(!chapter||chapter.campaignLayoutVersion!==1||chapter.terrain.join('\n')!==art.terrainKey)return null;
+ if(!cache.has(scenarioId))cache.set(scenarioId,buildPlan(chapter,art,CONTEXT[scenarioId]));
+ return cache.get(scenarioId);
+}

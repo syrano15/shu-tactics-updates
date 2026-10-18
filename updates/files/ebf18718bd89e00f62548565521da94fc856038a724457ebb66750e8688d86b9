@@ -1,0 +1,70 @@
+import {activeManifest,assetURL,portraitAsset} from './story-assets.js';
+
+// Injury artwork belongs to a manuscript scene, never to a unit's persistent
+// portrait, combat HP, or campaign save. Re-evaluate on every line/back navigation.
+const woundedIDs=Object.freeze(Object.fromEntries(['caocao','zhangliao','huanggai','zhouyu','guanyu'].map(hero=>[hero,hero+'/v0746_wounded'])));
+const sameLines=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((line,i)=>line?.speaker===b[i]?.speaker&&line?.text===b[i]?.text);
+
+function eventContext(chapter,lines,index){
+ // storyEventLines omits a defeated speaker. Match only an unambiguous ordered
+ // subset of one canonical event, retaining its original line indices.
+ if(!Array.isArray(chapter.events))return null;
+ const matches=[];
+ for(const event of chapter.events){
+  if(!Array.isArray(event.lines))continue;
+  const mappings=[];
+  const visit=(at,after,positions)=>{
+   if(mappings.length>1)return;
+   if(at===lines.length){mappings.push(positions);return;}
+   for(let i=after;i<event.lines.length;i++)if(event.lines[i].speaker===lines[at]?.speaker&&event.lines[i].text===lines[at]?.text)visit(at+1,i+1,[...positions,i]);
+  };
+  visit(0,0,[]);
+  if(mappings.length>1)return null;
+  if(mappings.length===1)matches.push({event,index:mappings[0][index]});
+ }
+ return matches.length===1?matches[0]:null;
+}
+
+export function woundedStoryPortraitID(hero,chapter,{lines,index,phase='pre',event=false}={}){
+ if(typeof hero!=='string'||!Object.hasOwn(woundedIDs,hero)||!chapter||!Array.isArray(lines)||!Number.isInteger(index)||index<0||index>=lines.length)return null;
+ const source=event?eventContext(chapter,lines,index):null;
+ if(event?!source:!['pre','post','defeat'].includes(phase)||!sameLines(chapter[phase==='defeat'?'defeatDialogue':phase]??chapter[phase],lines))return null;
+ const originalIndex=event?source.index:index;
+ let wounded=false;
+ switch(chapter.id){
+  case 's15_chibi':
+   if(!event&&phase==='post')wounded=hero==='huanggai'?originalIndex>=9&&originalIndex<14:['caocao','zhangliao'].includes(hero)&&originalIndex>=14&&originalIndex<23;
+   break;
+  case 's16_huarong':
+   if(['caocao','zhangliao'].includes(hero))wounded=event||phase==='pre'&&originalIndex>=39&&originalIndex<51||phase==='post'&&originalIndex<22;
+   break;
+  case 's19_jiangling':
+   if(hero==='zhouyu')wounded=event?source.event.trigger?.type==='roundStart'&&source.event.trigger.round===3:phase==='post';
+   break;
+  case 's21_jingzhou_hold':
+   wounded=hero==='zhouyu'&&!event&&phase==='pre'&&originalIndex<11;
+   break;
+  case 's34_xuhuang':
+   // The opening treatment ends before the new Wei scene. The arm is mentioned
+   // again in post[7]; no injury state is guessed for intervening battle barks.
+   wounded=hero==='guanyu'&&!event&&(phase==='pre'&&originalIndex<10||phase==='post'&&originalIndex>=7);
+   break;
+  case 's35_white_robes':
+  case 's36_maicheng':
+   wounded=hero==='guanyu';
+   break;
+ }
+ return wounded?woundedIDs[hero]:null;
+}
+
+export function storyPortraitAsset(hero,face,chapter,options={},context={}){
+ const id=woundedStoryPortraitID(hero,chapter,context);
+ if(id){
+  const record=activeManifest().catalog.find(row=>row.kind==='portrait'&&row.id===id&&row.storyOnly===true);
+  const url=record&&assetURL('portrait',id);
+  if(url){const crop=record.dialogueCrop??record.crop;return {url,id,crop:crop?[...crop]:null,framed:record.framed===true};}
+ }
+ // A missing/failed wounded image always returns to this speaker's ordinary
+ // resolver, including its normal/JPG/identified silhouette fallback chain.
+ return portraitAsset(hero,face,chapter?.id,options);
+}

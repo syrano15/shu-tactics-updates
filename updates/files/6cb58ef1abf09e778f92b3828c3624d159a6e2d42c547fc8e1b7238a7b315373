@@ -1,0 +1,153 @@
+import {stageNumber} from './story-presentation.js';
+export const PORTRAIT_FACES=Object.freeze(['normal','resolve','smile','sad','angry','worried','sneer','roar','thinking','frustrated','laugh','annoyed']);
+const faceSuffix=new RegExp('_('+PORTRAIT_FACES.join('|')+')$');
+const kinds=['cg','bg','portrait','map','fx','ui'];
+const object=value=>value&&typeof value==='object'&&!Array.isArray(value);
+const safePath=value=>typeof value==='string'&&/^[a-z0-9_-]+(?:\/[a-z0-9_-]+)*\.(?:webp|png|jpe?g|json)$/i.test(value);
+const validCrop=value=>Array.isArray(value)&&value.length===4&&value.every(Number.isFinite)&&value[0]>=0&&value[1]>=0&&value[2]>0&&value[3]>0&&value[0]+value[2]<=1&&value[1]+value[3]<=1;
+const idOK=(kind,id)=>typeof id==='string'&&(kind==='portrait'?/^(?:[a-z][a-z0-9_]*\/[a-z][a-z0-9_]*|sil_[a-z0-9_]+)$/.test(id):new RegExp('^'+kind+'_[a-z0-9_]+$').test(id));
+const fallbackPortraits={guanyu:'portraits/guanyu.jpg',zhangliao:'portraits/zhangliao.jpg'};
+const empty=()=>({schemaVersion:1,catalog:[],available:Object.fromEntries(kinds.map(kind=>[kind,[]])),fallbackPortraits:{...fallbackPortraits}});
+let manifest=empty();
+const warned=new Set(),failedPaths=new Set();
+const silhouetteFactions={shu:'sil_shu',wei:'sil_wei',cao:'sil_wei',wu:'sil_wu',yellow:'sil_yellow',rebel:'sil_yellow',south:'sil_south',nanman:'sil_south',dong:'sil_warlord',lu:'sil_warlord',yuan:'sil_warlord',warlord:'sil_warlord',civil:'sil_civil',people:'sil_people'};
+// Manuscript speakers have an identified allegiance or role. Explicit unit factions
+// still take precedence for defectors and opposing scenes; unknown names stay unknown.
+const speakerGroups={
+ shu:'liubei zhangfei guanyu militia_leader jianyong sunqian mizhu chendao lady_mi lady_gan zhoucang zhaoyun xushu zhugeliang liuqi maliang guanping huangzhong weiyan pangtong masu liaohua liufeng fazheng madai machao yanyan huangquan wuyi liyan wuban wangping zhangyi feishi fushiren mifang fanqiang zhangda guanxing zhangbao fengxi fudong dengzhi zhangni mazhong liushan jiangwei gaoxiang shu_soldier',
+ wei:'caocao cao_vanguard xiahoudun zhangliao pass_guard kongxiu hanfu bianxi caoren wei_soldier wenpin wei_commander zhanghe xiahouyuan yangxiu pangde yujin xuhuang caopi wei_vanguard mazun caozhen haozhao jinxiang guohuai simayi',
+ wu:'taishici lusu sunquan zhangzhao zhouyu zhugejin huanggai wu_officer lady_sun wu_envoy lvmeng luxun wu_soldier',
+ warlord:'gongsunzan huaxiong lvbu chengong yuanshao yanliang wenchou liubiao zhaofan hanxuan zhangsong hanzhong_captain fucheng_captain yizhou_soldier zhangren chengdu_captain',
+ civil:'kongrong taoqian xiandi simahui messenger civil_official yizhou_official',
+ yellow:'yellow_boss guanhai yellow_soldier',
+ south:'menghuo nanman_warrior zhurong wutugu south_soldier',
+ people:'villager people'
+};
+const speakerFactions=Object.fromEntries(Object.entries(speakerGroups).flatMap(([faction,speakers])=>speakers.split(' ').map(speaker=>[speaker,faction])));
+export function portraitFallbackID(hero,{faction}={}){
+ if(hero==='narrator')return null;
+ if(Object.values(silhouetteFactions).includes(hero))return hero;
+ const identified=faction??speakerFactions[hero];
+ return Object.hasOwn(silhouetteFactions,identified)?silhouetteFactions[identified]:null;
+}
+const urlFor=path=>new URL('./'+path,import.meta.url).href;
+export const activeManifest=()=>manifest;
+export function assetWarning(kind,id){
+ const key=kind+':'+id,message='에셋이 없어 대체 표시합니다: '+key;
+ if(!warned.has(key)){warned.add(key);console.warn(message);}
+ return message;
+}
+export function setAssetManifest(value){
+ if(!object(value)||value.schemaVersion!==undefined&&value.schemaVersion!==1)throw new Error('에셋 목록 형식');
+ const next=empty();
+ if(value.catalog!==undefined){
+  if(!Array.isArray(value.catalog))throw new Error('에셋 목록 catalog');
+  const seen=new Set();
+  for(const record of value.catalog){
+   if(!object(record)||!kinds.includes(record.kind)||!idOK(record.kind,record.id)||!safePath(record.path))throw new Error('에셋 ID/경로');
+   if(record.crop!==undefined&&!validCrop(record.crop))throw new Error('초상 crop 범위');
+   if(record.dialogueCrop!==undefined&&(record.kind!=='portrait'||!validCrop(record.dialogueCrop)))throw new Error('대화 초상 crop 범위');
+   if(record.framed!==undefined&&typeof record.framed!=='boolean')throw new Error('초상 framed 형식');
+   if(record.storyOnly!==undefined&&(record.kind!=='portrait'||typeof record.storyOnly!=='boolean'))throw new Error('이야기 전용 초상 형식');
+   if(record.priority!==undefined&&(!Number.isFinite(record.priority)||record.priority<0))throw new Error('초상 우선순위');
+   if(record.fallbackFace!==undefined&&!PORTRAIT_FACES.includes(record.fallbackFace))throw new Error('초상 대체 표정');
+   const key=record.kind+':'+record.id;if(seen.has(key))throw new Error('중복 에셋 ID');seen.add(key);
+   next.catalog.push({...record,...(record.crop?{crop:[...record.crop]}:{}),...(record.dialogueCrop?{dialogueCrop:[...record.dialogueCrop]}:{})});
+  }
+ }
+ for(const kind of kinds){
+  const available=value.available?.[kind]??(Array.isArray(value[kind])?value[kind]:[]);
+  if(!Array.isArray(available)||available.some(id=>!idOK(kind,id))||new Set(available).size!==available.length)throw new Error('에셋 사용 목록: '+kind);
+  next.available[kind]=[...available];
+  for(const id of available)if(!next.catalog.some(r=>r.kind===kind&&r.id===id))next.catalog.push({kind,id,path:'assets/'+kind+'/'+id+'.webp',chapters:''});
+ }
+ // Also accept the portrait range shape specified in the handoff manifest example.
+ if(object(value.portrait))for(const [hero,ranges] of Object.entries(value.portrait)){
+  if(!/^[a-z][a-z0-9_]*$/.test(hero)||!Array.isArray(ranges))throw new Error('초상 범위 목록');
+  for(const range of ranges){
+   if(!object(range)||!/^[a-z][a-z0-9_]*$/.test(range.ver)||!Array.isArray(range.faces)||range.faces.some(face=>!PORTRAIT_FACES.includes(face)))throw new Error('초상 버전/표정');
+   const from=stageNumber(range.from),to=stageNumber(range.to);
+   if(from===null||to===null||from>to)throw new Error('초상 화 범위');
+   for(const face of range.faces){
+    const id=hero+'/'+range.ver+'_'+face,record={kind:'portrait',id,path:'assets/portrait/'+id+'.webp',chapters:from+'~'+to};
+    if(!next.catalog.some(r=>r.kind==='portrait'&&r.id===id))next.catalog.push(record);
+    if(!next.available.portrait.includes(id))next.available.portrait.push(id);
+   }
+  }
+ }
+ if(value.fallbackPortraits!==undefined){
+  if(!object(value.fallbackPortraits))throw new Error('초상 대체 목록');
+  for(const [hero,path] of Object.entries(value.fallbackPortraits)){
+   if(!/^[a-z][a-z0-9_]*$/.test(hero)||!safePath(path))throw new Error('초상 대체 경로');
+   next.fallbackPortraits[hero]=path;
+  }
+ }
+ next.source=value.source??null;next.sourceAssetCount=value.sourceAssetCount??next.catalog.length;
+ failedPaths.clear();manifest=next;return manifest;
+}
+export async function loadAssetManifest({fetcher=globalThis.fetch,url=new URL('./assets/manifest.json',import.meta.url)}={}){
+ try{
+  if(typeof fetcher!=='function')throw new Error('에셋 목록 로더 없음');
+  const response=await fetcher(url);if(!response.ok)throw new Error('에셋 목록 응답');
+  return setAssetManifest(await response.json());
+ }catch(error){assetWarning('manifest','unavailable');failedPaths.clear();manifest=empty();return manifest;}
+}
+export function assetURL(kind,id){
+ if(!id)return null;
+ if(!kinds.includes(kind)||!idOK(kind,id))return null;
+ if(!manifest.available[kind].includes(id)){assetWarning(kind,id);return null;}
+ const record=manifest.catalog.find(record=>record.kind===kind&&record.id===id);
+ if(!record||failedPaths.has(record.path)){assetWarning(kind,id);return null;}
+ return urlFor(record.path);
+}
+export function markAssetUnavailable(kind,id){
+ if(kinds.includes(kind))manifest.available[kind]=manifest.available[kind].filter(value=>value!==id);
+ assetWarning(kind,id);
+}
+// Image errors report the resolved source, never a speaker ID that is not a catalog asset ID.
+export function markAssetURLUnavailable(kind,source){
+ if(!kinds.includes(kind)||typeof source!=='string')return false;
+ let matched=false;
+ for(const record of manifest.catalog)if(record.kind===kind&&urlFor(record.path)===source){
+  failedPaths.add(record.path);markAssetUnavailable(kind,record.id);matched=true;
+ }
+ if(kind==='portrait')for(const [hero,path] of Object.entries(manifest.fallbackPortraits))if(urlFor(path)===source){
+  failedPaths.add(path);assetWarning('portrait',hero+':fallback');matched=true;
+ }
+ return matched;
+}
+const portraitRange=record=>{
+ const match=/^(\d+)~(\d+)$/.exec(record.chapters??'');
+ return match?{from:Number(match[1]),to:Number(match[2])}:{from:1,to:56};
+};
+export function portraitAsset(hero,face='normal',chapterId='s01',{faction}={}){
+ if(typeof hero!=='string'||!/^([a-z][a-z0-9_]*)$/.test(hero)||hero==='narrator')return null;
+ const no=typeof chapterId==='number'?chapterId:stageNumber(chapterId)??1;
+ const rows=manifest.catalog.filter(record=>record.kind==='portrait'&&record.storyOnly!==true&&record.id.startsWith(hero+'/')).map(record=>({...record,...portraitRange(record)}));
+ const versions=[...new Set(rows.filter(row=>row.from<=no).sort((a,b)=>Number(b.from<=no&&no<=b.to)-Number(a.from<=no&&no<=a.to)||(b.priority??0)-(a.priority??0)||b.from-a.from).map(row=>row.id.slice(hero.length+1).replace(faceSuffix,'')))];
+ const describe=id=>{
+  const url=assetURL('portrait',id);
+  if(!url)return null;
+  const record=manifest.catalog.find(record=>record.kind==='portrait'&&record.id===id);
+  // Keep gallery/source panel crops unchanged; dialogue uses the reviewed
+  // face-and-shoulder crop without altering or regenerating the source image.
+  const crop=record?.dialogueCrop??record?.crop;
+  return {url,id,crop:crop?[...crop]:null,framed:record?.framed===true};
+ };
+ for(const ver of versions){
+  const fallbackFace=rows.find(row=>row.id.slice(hero.length+1).replace(faceSuffix,'')===ver&&row.fallbackFace)?.fallbackFace;
+  for(const expression of [...new Set([face,'normal',fallbackFace].filter(Boolean))]){
+   const id=hero+'/'+ver+'_'+expression;
+   if(manifest.available.portrait.includes(id)){const selected=describe(id);if(selected)return selected;}
+  }
+ }
+ const fallback=manifest.fallbackPortraits[hero];
+ if(fallback&&!failedPaths.has(fallback))return {url:urlFor(fallback),id:null,crop:null,framed:true};
+ const silhouette=portraitFallbackID(hero,{faction});
+ if(silhouette&&manifest.available.portrait.includes(silhouette))return describe(silhouette);
+ assetWarning('portrait',hero);return null;
+}
+export function portraitURL(hero,face='normal',chapterId='s01',options={}){
+ return portraitAsset(hero,face,chapterId,options)?.url??null;
+}
+
