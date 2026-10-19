@@ -1,0 +1,264 @@
+// 개인용 현재 진행 한 개의 클라우드 준비 모듈. 게임/개인 프로필에는 설치하지 않았다.
+export const CLOUD_SAVE_KEY='progress',CLOUD_MAX_BYTES=1048576;
+const messages={CLOUD_DISABLED:'클라우드 연결 설정이 없습니다.',CLOUD_CONFIG:'클라우드 연결 설정을 확인해 주세요.',CLOUD_LOGIN:'이메일 또는 비밀번호를 확인해 주세요.',CLOUD_LOGIN_REQUIRED:'클라우드에 로그인해 주세요.',CLOUD_ACCOUNT_CHANGED:'로그인 계정이 바뀌어 요청을 중단했습니다.',CLOUD_FORBIDDEN:'이 계정은 클라우드 저장을 사용할 수 없습니다.',CLOUD_NETWORK:'클라우드에 연결하지 못했습니다. 현재 기기의 저장은 유지됩니다.',CLOUD_TIMEOUT:'클라우드 응답을 기다리다 중단했습니다. 현재 기기의 저장은 유지됩니다.',CLOUD_RESPONSE:'클라우드 기록을 안전하게 확인하지 못했습니다.',CLOUD_STALE:'다른 기기의 진행과 충돌했습니다. 양쪽 기록을 보존하고 선택해 주세요.',CLOUD_INVALID_SAVE:'클라우드에 보관할 현재 진행을 확인하지 못했습니다.',CLOUD_NOT_CURRENT:'자동·수동 저장이 완료된 현재 진행만 연동할 수 있습니다.',CLOUD_LOCAL:'현재 기기에 안전하게 보관하지 못해 연동을 중단했습니다.',CLOUD_LOCAL_CHANGED:'현재 기기의 진행이 바뀌어 불러오기를 중단했습니다.',CLOUD_CONFLICT:'현재 기기와 클라우드의 진행이 다릅니다. 사용할 진행을 선택해 주세요.',CLOUD_BACKUP_REQUIRED:'양쪽 기록의 안전한 보관을 확인한 뒤 진행을 선택해 주세요.',CLOUD_SESSION_STORE:'이 기기의 로그인 정보를 저장하거나 지우지 못했습니다.',CLOUD_NO_REMOTE:'클라우드에 불러올 진행이 없습니다.'};
+export class CloudSaveError extends Error{constructor(code){super(messages[code]??messages.CLOUD_RESPONSE);this.name='CloudSaveError';this.code=Object.hasOwn(messages,code)?code:'CLOUD_RESPONSE';}}
+const fail=code=>{throw new CloudSaveError(code);};
+const clone=value=>value===null?null:JSON.parse(JSON.stringify(value));
+const revision=value=>Number.isSafeInteger(value)&&value>=0&&value<Number.MAX_SAFE_INTEGER;
+const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
+const digestShape=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
+export function normalizeCloudConfig(config={}){
+ if(config.enabled!==true)return {enabled:false,projectURL:null,publishableKey:null};
+ let url;try{url=new URL(config.projectUrl);}catch{fail('CLOUD_CONFIG');}
+ let publicKey=typeof config.publishableKey==='string'&&/^sb_publishable_[A-Za-z0-9_-]+$/.test(config.publishableKey);
+ if(!publicKey&&typeof config.publishableKey==='string'&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(config.publishableKey)){try{const part=config.publishableKey.split('.')[1].replaceAll('-','+').replaceAll('_','/'),claims=JSON.parse(atob(part));publicKey=claims.role==='anon';}catch{/* 올바른 공개용 JWT만 허용한다. */}}
+ if(config.version!==1||typeof config.projectUrl!=='string'||!/^https:\/\/[a-z0-9]{20}\.supabase\.co\/?$/.test(config.projectUrl)||url.protocol!=='https:'||url.username||url.password||url.port||url.search||url.hash||url.pathname!=='/'||!/^[a-z0-9]{20}\.supabase\.co$/.test(url.hostname)||!publicKey||config.publishableKey.length>16384)fail('CLOUD_CONFIG');
+ return {enabled:true,projectURL:url.origin,publishableKey:config.publishableKey};
+}
+export async function sha256Save(rawSave,cryptoAPI=globalThis.crypto){
+ if(typeof rawSave!=='string'||new TextEncoder().encode(rawSave).length>CLOUD_MAX_BYTES||!cryptoAPI?.subtle)fail('CLOUD_INVALID_SAVE');
+ const bytes=new Uint8Array(await cryptoAPI.subtle.digest('SHA-256',new TextEncoder().encode(rawSave)));return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+}
+function safeError(error){return error instanceof CloudSaveError?error:new CloudSaveError('CLOUD_RESPONSE');}
+
+export function createSupabaseCloudTransport({config={},fetcher=globalThis.fetch,cryptoAPI=globalThis.crypto,clock=Date.now,timeoutMs=15000,sessionStore=null}={}){
+ const settings=normalizeCloudConfig(config);if(!Number.isFinite(timeoutMs)||timeoutMs<1||timeoutMs>60000)fail('CLOUD_CONFIG');
+ let session=null,epoch=0,refreshing=null,rememberLogin=false,notice=settings.enabled?'로그인하면 현재 진행을 연동할 수 있습니다.':messages.CLOUD_DISABLED;
+ const controllers=new Set();
+ const enabled=()=>{if(!settings.enabled||typeof fetcher!=='function')fail('CLOUD_DISABLED');};
+ const guard=expected=>{if(expected!==epoch)fail('CLOUD_ACCOUNT_CHANGED');};
+ const invalidate=()=>{epoch++;for(const controller of controllers)controller.abort();controllers.clear();session=null;refreshing=null;rememberLogin=false;};
+ const status=()=>({enabled:settings.enabled,mode:'supabase-rest',projectURL:settings.projectURL,authenticated:!!session,userId:session?.userId??null,expiresAt:session?.expiresAt??null,rememberLogin,notice});
+ function sessionFrom(data,expectedUser=null){
+  if(!data||!uuid(data.user?.id)||typeof data.access_token!=='string'||!data.access_token||data.access_token.length>16384||typeof data.refresh_token!=='string'||!data.refresh_token||data.refresh_token.length>16384)fail('CLOUD_RESPONSE');
+  if(expectedUser!==null&&data.user.id!==expectedUser)fail('CLOUD_ACCOUNT_CHANGED');
+  const expiresAt=Number.isFinite(data.expires_at)?data.expires_at*1000:clock()+Number(data.expires_in)*1000;
+  if(!Number.isFinite(expiresAt)||expiresAt<=clock())fail('CLOUD_RESPONSE');
+  return {projectURL:settings.projectURL,userId:data.user.id,accessToken:data.access_token,refreshToken:data.refresh_token,expiresAt};
+ }
+ async function persistSession(next,expected){guard(expected);try{if(next&&rememberLogin)await sessionStore?.write?.({...clone(next),remember:true});else await sessionStore?.clear?.();}catch{fail('CLOUD_SESSION_STORE');}guard(expected);session=next;}
+ async function request(route,{body={},token=null,expected=epoch,allowLogout=false}={}){
+  enabled();if(!allowLogout)guard(expected);
+  const controller=new AbortController();controllers.add(controller);let timer;
+  const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(new CloudSaveError('CLOUD_TIMEOUT'));},timeoutMs);});
+  const operation=(async()=>{
+   let response;try{response=await fetcher(settings.projectURL+route,{method:'POST',headers:{apikey:settings.publishableKey,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(body),signal:controller.signal,redirect:'error',credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer'});}catch{if(!allowLogout)guard(expected);fail('CLOUD_NETWORK');}
+   const text=await response.text();if(text.length>3*CLOUD_MAX_BYTES)fail('CLOUD_RESPONSE');
+   let data=null;if(text){try{data=JSON.parse(text);}catch{fail('CLOUD_RESPONSE');}}
+   if(!allowLogout)guard(expected);
+   if(!response.ok){
+    if(response.status===409&&data?.message==='CLOUD_STALE')fail('CLOUD_STALE');
+    if(response.status===401)fail('CLOUD_LOGIN_REQUIRED');
+    if(data?.message==='CLOUD_FORBIDDEN'||response.status===403)fail('CLOUD_FORBIDDEN');
+    if(route.startsWith('/auth/v1/token?grant_type=password'))fail('CLOUD_LOGIN');
+    fail('CLOUD_RESPONSE');
+   }
+   return data;
+  })();
+  try{return await Promise.race([operation,timeout]);}catch(error){if(error instanceof CloudSaveError)throw error;if(!allowLogout)guard(expected);fail('CLOUD_NETWORK');}finally{clearTimeout(timer);controllers.delete(controller);}
+ }
+ const ready=(async()=>{
+  if(!settings.enabled||!sessionStore?.read)return status();const expected=epoch;
+  let stored;try{stored=await sessionStore.read();}catch{fail('CLOUD_SESSION_STORE');}guard(expected);
+  if(stored===null||stored===undefined)return status();
+  if(stored.projectURL!==settings.projectURL||stored.remember!==true){await persistSession(null,expected);return status();}
+  if(!uuid(stored.userId)||typeof stored.accessToken!=='string'||!stored.accessToken||stored.accessToken.length>16384||typeof stored.refreshToken!=='string'||!stored.refreshToken||stored.refreshToken.length>16384||!Number.isFinite(stored.expiresAt))fail('CLOUD_SESSION_STORE');
+  rememberLogin=true;session={projectURL:settings.projectURL,userId:stored.userId,accessToken:stored.accessToken,refreshToken:stored.refreshToken,expiresAt:stored.expiresAt};return status();
+ })();
+ // The ready rejection is exposed to callers, but never becomes an unhandled log.
+ ready.catch(()=>{});
+ async function refresh(expected){
+  guard(expected);if(!session)fail('CLOUD_LOGIN_REQUIRED');
+  if(refreshing)return refreshing;
+  const old=session;
+  const promise=(async()=>{const data=await request('/auth/v1/token?grant_type=refresh_token',{body:{refresh_token:old.refreshToken},expected});const next=sessionFrom(data,old.userId);await persistSession(next,expected);return next.accessToken;})();
+  refreshing=promise;
+  try{return await promise;}finally{if(refreshing===promise)refreshing=null;}
+ }
+ async function authenticatedRequest(route,body,requestedEpoch=null){
+  await ready;enabled();const expected=requestedEpoch??epoch;guard(expected);if(!session)fail('CLOUD_LOGIN_REQUIRED');
+  let token=session.expiresAt-clock()<=30000?await refresh(expected):session.accessToken;
+  try{return await request(route,{body,token,expected});}catch(error){
+   if(error.code!=='CLOUD_LOGIN_REQUIRED')throw error;
+   token=await refresh(expected);return request(route,{body,token,expected});
+  }
+ }
+ async function normalizedRecord(data){
+  if(!data||data.save_key!==CLOUD_SAVE_KEY||!revision(data.revision)||typeof data.exists!=='boolean')fail('CLOUD_RESPONSE');
+  if(!data.exists){if(data.revision!==0||data.raw_save!==null||data.sha256!==null)fail('CLOUD_RESPONSE');}
+  else if(data.revision<1||typeof data.raw_save!=='string'||!digestShape(data.sha256)||(await sha256Save(data.raw_save,cryptoAPI))!==data.sha256)fail('CLOUD_RESPONSE');
+  return {saveKey:CLOUD_SAVE_KEY,revision:data.revision,rawSave:data.raw_save,sha256:data.sha256,exists:data.exists,updatedAt:data.updated_at??null,...(typeof data.changed==='boolean'?{changed:data.changed}:{})};
+ }
+ return {
+  status,ready:()=>ready,
+  async login(email,password,{remember=false}={}){
+   await ready;enabled();if(typeof email!=='string'||!email.trim()||typeof password!=='string'||!password)fail('CLOUD_LOGIN');
+   if(remember===true&&(!sessionStore||!['read','write','clear'].every(name=>typeof sessionStore[name]==='function')))fail('CLOUD_SESSION_STORE');
+   invalidate();rememberLogin=remember===true;const expected=epoch;await persistSession(null,expected);
+   let data;try{data=await request('/auth/v1/token?grant_type=password',{body:{email:email.trim(),password},expected});}catch(error){if(error.code==='CLOUD_LOGIN_REQUIRED')fail('CLOUD_LOGIN');throw error;}
+   const next=sessionFrom(data);await persistSession(next,expected);notice='로그인했습니다. 현재 진행을 확인해 주세요.';return status();
+  },
+  async logout(){
+   await ready;const old=session;invalidate();const expected=epoch;
+   await persistSession(null,expected);notice='이 기기의 클라우드 연결을 해제했습니다.';
+   if(old){try{await request('/auth/v1/logout?scope=local',{token:old.accessToken,expected,allowLogout:true});}catch{/* 현재 기기의 자격 정보는 이미 지웠다. 원격 실패를 기록 원문과 함께 출력하지 않는다. */}}
+   return status();
+  },
+  async read(){await ready;const expected=epoch;const result=await normalizedRecord(await authenticatedRequest('/rest/v1/rpc/shu_cloud_read',{p_save_key:CLOUD_SAVE_KEY},expected));guard(expected);return result;},
+  async write({rawSave,sha256,expectedRevision}){
+   await ready;enabled();const expected=epoch;if(!session)fail('CLOUD_LOGIN_REQUIRED');
+   if(!revision(expectedRevision)||!digestShape(sha256)||(await sha256Save(rawSave,cryptoAPI))!==sha256)fail('CLOUD_INVALID_SAVE');
+   guard(expected);const result=await normalizedRecord(await authenticatedRequest('/rest/v1/rpc/shu_cloud_write',{p_save_key:CLOUD_SAVE_KEY,p_raw_save:rawSave,p_sha256:sha256,p_expected_revision:expectedRevision},expected));guard(expected);
+   if(!result.exists||result.rawSave!==rawSave||result.sha256!==sha256||(result.revision!==expectedRevision+1&&!(result.revision===expectedRevision&&result.changed===false)))fail('CLOUD_RESPONSE');return result;
+  }
+ };
+}
+
+const ordinary=entry=>entry&&entry.durable===true&&typeof entry.rawSave==='string'&&((entry.kind==='auto'&&entry.slotId==='auto')||(entry.kind==='manual'&&/^manual(?:-([2-9]|[1-4][0-9]|5[0-6]))?$/.test(entry.slotId)));
+const newState=binding=>({version:1,...binding,revision:null,acknowledgedSHA:null,pending:null,conflict:null,syncedAt:null});
+const persistedFields=(value,allowed,required=allowed)=>{
+ if(!value||typeof value!=='object'||Array.isArray(value)||![Object.prototype,null].includes(Object.getPrototypeOf(value))||Object.keys(value).some(key=>!allowed.includes(key))||required.some(key=>!Object.hasOwn(value,key)))fail('CLOUD_LOCAL');
+};
+export function createCloudCoordinator({transport,validateRaw,readCurrentLocal,backupLocal,commitRemote,applyRemote,persistState,state=null,hashRaw=sha256Save,clock=Date.now}){
+ for(const fn of [validateRaw,readCurrentLocal,backupLocal,commitRemote,applyRemote,persistState])if(typeof fn!=='function')fail('CLOUD_CONFIG');
+ if(!transport||!['status','login','logout','read','write'].every(name=>typeof transport[name]==='function'))fail('CLOUD_CONFIG');
+ let current;try{current=structuredClone(state);}catch{fail('CLOUD_LOCAL');}
+ let restored=false,epoch=0,localEpoch=0,tail=Promise.resolve(),busy=0,phase='idle',notice='클라우드 연결을 준비합니다.';const listeners=new Set();
+ const serial=fn=>{const next=tail.then(fn,fn);tail=next.catch(()=>{});return next;};
+ const binding=()=>{const s=transport.status();if(!s.enabled)fail('CLOUD_DISABLED');if(!s.authenticated||!uuid(s.userId)||typeof s.projectURL!=='string')fail('CLOUD_LOGIN_REQUIRED');return {projectURL:s.projectURL,userId:s.userId};};
+ const equalBinding=(a,b)=>a?.projectURL===b?.projectURL&&a?.userId===b?.userId;
+ function guard(expected,bound){if(epoch!==expected||!equalBinding(binding(),bound))fail('CLOUD_ACCOUNT_CHANGED');}
+ async function validated(rawSave){try{if(typeof rawSave!=='string'||new TextEncoder().encode(rawSave).length>CLOUD_MAX_BYTES)fail('CLOUD_INVALID_SAVE');await validateRaw(rawSave);const sha=await hashRaw(rawSave);if(!digestShape(sha))fail('CLOUD_INVALID_SAVE');return sha;}catch{fail('CLOUD_INVALID_SAVE');}}
+ async function candidate(entry){if(entry===null||entry===undefined)return null;if(!ordinary(entry))fail('CLOUD_NOT_CURRENT');return {rawSave:entry.rawSave,sha256:await validated(entry.rawSave),kind:entry.kind,slotId:entry.slotId};}
+ async function saved(next,expected,bound){guard(expected,bound);try{await persistState(clone(next));}catch{fail('CLOUD_LOCAL');}guard(expected,bound);current=next;emit();}
+ async function validateStoredCandidate(value){
+  persistedFields(value,['rawSave','sha256','kind','slotId','baseRevision'],['rawSave','sha256','kind','slotId']);
+  if(!ordinary({...value,durable:true})||!digestShape(value.sha256)||value.baseRevision!==undefined&&value.baseRevision!==null&&!revision(value.baseRevision)||await validated(value.rawSave)!==value.sha256)fail('CLOUD_LOCAL');
+ }
+ async function validateStoredState(value){
+  if(value===null)return;
+  try{
+   persistedFields(value,['version','projectURL','userId','revision','acknowledgedSHA','pending','conflict','syncedAt']);
+   if(value.version!==1||typeof value.projectURL!=='string'||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(value.projectURL)||!uuid(value.userId)||value.revision!==null&&!revision(value.revision)||value.acknowledgedSHA!==null&&!digestShape(value.acknowledgedSHA)||value.syncedAt!==null&&(!Number.isSafeInteger(value.syncedAt)||value.syncedAt<0))fail('CLOUD_LOCAL');
+   if(value.pending!==null)await validateStoredCandidate(value.pending);
+   if(value.conflict!==null){
+    const conflict=value.conflict;persistedFields(conflict,['local','remote','reason','backupsReady','backupProof']);
+    if(typeof conflict.reason!=='string'||conflict.reason.length>300||typeof conflict.backupsReady!=='boolean')fail('CLOUD_LOCAL');
+    if(conflict.local!==null)await validateStoredCandidate(conflict.local);
+    const remote=conflict.remote;persistedFields(remote,['saveKey','revision','rawSave','sha256','exists','updatedAt','changed'],['saveKey','revision','rawSave','sha256','exists']);
+    if(remote.updatedAt!==undefined&&remote.updatedAt!==null&&(typeof remote.updatedAt!=='string'||remote.updatedAt.length>80)||remote.changed!==undefined&&typeof remote.changed!=='boolean')fail('CLOUD_LOCAL');
+    await validateRemote(remote);
+    if(conflict.backupsReady){
+     const proof=conflict.backupProof;persistedFields(proof,['committed','local','remote']);if(proof.committed!==true)fail('CLOUD_LOCAL');
+     for(const item of [proof.local,proof.remote]){persistedFields(item,['committed','sha256','notRequired','id'],['committed']);if(item.committed!==true||item.sha256!==undefined&&!digestShape(item.sha256)||item.notRequired!==undefined&&item.notRequired!==true||item.id!==undefined&&!uuid(item.id))fail('CLOUD_LOCAL');}
+    }else if(conflict.backupProof!==null)fail('CLOUD_LOCAL');
+   }
+  }catch{fail('CLOUD_LOCAL');}
+ }
+ const ready=(async()=>{
+  // Unauthenticated and disabled starts still validate every stored original.
+  // A memory-only login ending is not an instruction to erase the durable outbox.
+  await validateStoredState(current);
+  if(current?.conflict?.backupsReady===true){
+   current={...current,conflict:{...current.conflict,backupsReady:false,backupProof:null}};
+   try{await persistState(clone(current));}catch{fail('CLOUD_LOCAL');}
+  }
+  await transport.ready?.();const s=transport.status();
+  if(!s.enabled||!s.authenticated){
+   if(current?.pending||current?.conflict){phase='waiting';notice='연동 대기 원문을 보존했습니다. 로그인한 뒤 양쪽 진행을 다시 확인해 주세요.';}
+   restored=true;
+   return;
+  }
+  const bound=binding();
+  if(!equalBinding(current,bound))await saved(newState(bound),epoch,bound);
+  restored=true;
+ })();ready.catch(()=>{});
+ const status=()=>{const s=transport.status();return {enabled:s.enabled,authenticated:s.authenticated,rememberLogin:s.rememberLogin===true,projectURL:s.projectURL,userId:s.userId,busy:busy>0,phase,notice,revision:equalBinding(current,s)?current.revision:null,queued:!!current?.pending,conflict:!!current?.conflict,conflictBackupsReady:restored&&current?.conflict?.backupsReady===true,syncedAt:current?.syncedAt??null};};
+ function emit(){for(const listener of listeners){try{listener(status());}catch{/* 화면 구독자의 오류로 원문 보관을 취소하지 않는다. */}}}
+  async function operation(fn){const scheduledEpoch=epoch,identity=transport.status(),scheduledBinding=identity.authenticated?{projectURL:identity.projectURL,userId:identity.userId}:null;return serial(async()=>{await ready;if(scheduledEpoch!==epoch)fail('CLOUD_ACCOUNT_CHANGED');const bound=binding(),expected=scheduledEpoch;if(scheduledBinding&&!equalBinding(scheduledBinding,bound))fail('CLOUD_ACCOUNT_CHANGED');guard(expected,bound);if(!equalBinding(current,bound))await saved(newState(bound),expected,bound);busy++;emit();let result;try{result=await fn(expected,bound);}catch(error){const safe=safeError(error);if(expected===epoch){notice=safe.message;phase=['CLOUD_STALE','CLOUD_CONFLICT','CLOUD_BACKUP_REQUIRED'].includes(safe.code)?'conflict':'waiting';}throw safe;}finally{busy--;emit();}return result&&typeof result.phase==='string'?status():result;});}
+ async function validateRemote(remote){if(!remote||remote.saveKey!==CLOUD_SAVE_KEY||!revision(remote.revision)||typeof remote.exists!=='boolean')fail('CLOUD_RESPONSE');if(remote.exists){if(remote.revision<1||!digestShape(remote.sha256)||await validated(remote.rawSave)!==remote.sha256)fail('CLOUD_RESPONSE');}else if(remote.revision!==0||remote.rawSave!==null||remote.sha256!==null)fail('CLOUD_RESPONSE');return remote;}
+ async function remoteRead(expected,bound){const remote=await validateRemote(await transport.read());guard(expected,bound);return remote;}
+ async function acknowledge(remote,expected,bound){await saved({...current,revision:remote.revision,acknowledgedSHA:remote.sha256,pending:null,conflict:null,syncedAt:clock()},expected,bound);phase='synced';notice='현재 진행을 클라우드에 보관했습니다.';return status();}
+ async function conflict(local,remote,reason,expected,bound,{preservePending=false}={}){await saved({...current,conflict:{local:clone(local),remote:clone(remote),reason,backupsReady:false,backupProof:null},pending:preservePending?current.pending:local?{...local,baseRevision:current.revision}:current.pending},expected,bound);phase='conflict';notice=messages.CLOUD_CONFLICT;return status();}
+ async function pendingWrite(pending,expected,bound){
+  let remote;
+  try{remote=await validateRemote(await transport.write({rawSave:pending.rawSave,sha256:pending.sha256,expectedRevision:pending.baseRevision}));guard(expected,bound);if(!remote.exists||remote.rawSave!==pending.rawSave||remote.sha256!==pending.sha256||(remote.revision!==pending.baseRevision+1&&!(remote.revision===pending.baseRevision&&remote.changed===false)))fail('CLOUD_RESPONSE');}
+  catch(error){
+   guard(expected,bound);
+   if(!['CLOUD_STALE','CLOUD_NETWORK','CLOUD_TIMEOUT','CLOUD_RESPONSE'].includes(error.code))throw error;
+   // 응답 유실/서버 CAS 거부는 읽기로만 복구한다. 게임 진행을 다시 적용하지 않는다.
+   try{remote=await remoteRead(expected,bound);}catch{throw error;}
+   if(remote.exists&&remote.sha256===pending.sha256&&remote.rawSave===pending.rawSave)return acknowledge(remote,expected,bound);
+   if(remote.revision!==pending.baseRevision)return conflict(pending,remote,'다른 기기의 변경',expected,bound);
+   throw error;
+  }
+  return acknowledge(remote,expected,bound);
+ }
+ async function syncInternal(expected,bound,{write=true,reviewCurrent=false}={}){
+  phase='checking';const local=await candidate(await readCurrentLocal());guard(expected,bound);
+  if(reviewCurrent||current.conflict){
+   // A comparison is not a committed local save or upload intent. Preserve the
+   // existing outbox before/during the read, including when that read fails.
+   const remote=await remoteRead(expected,bound),pending=current.pending;
+   if(local&&remote.exists&&remote.rawSave===local.rawSave&&remote.sha256===local.sha256&&(!pending||pending.rawSave===remote.rawSave&&pending.sha256===remote.sha256))return acknowledge(remote,expected,bound);
+   if(!local&&!remote.exists&&!pending){await saved({...current,revision:0,acknowledgedSHA:null,pending:null,conflict:null},expected,bound);phase='empty';notice='연동할 현재 진행이 없습니다.';return status();}
+   return conflict(local,remote,'현재 진행을 비교하고 사용할 원문 선택',expected,bound,{preservePending:true});
+  }
+  if(local){const pending={...local,baseRevision:current.revision};await saved({...current,pending},expected,bound);}
+  const remote=await remoteRead(expected,bound);
+  if(local&&remote.exists&&remote.rawSave===local.rawSave&&remote.sha256===local.sha256)return acknowledge(remote,expected,bound);
+  if(!local&&!remote.exists){await saved({...current,revision:0,acknowledgedSHA:null,pending:null,conflict:null},expected,bound);phase='empty';notice='연동할 현재 진행이 없습니다.';return status();}
+  if(!remote.exists&&current.revision!==null&&current.revision!==0)return conflict(local,remote,'클라우드 기록 변경',expected,bound);
+  if(local&&(!remote.exists||(current.revision!==null&&remote.revision===current.revision))){
+   const pending={...local,baseRevision:remote.revision};await saved({...current,revision:remote.revision,pending},expected,bound);
+   if(write){phase='uploading';return pendingWrite(pending,expected,bound);}phase='queued';notice='현재 진행을 연동할 준비가 됐습니다.';return status();
+  }
+  return conflict(local,remote,'현재 기기와 클라우드가 다름',expected,bound);
+ }
+ async function backup(entry,reason,expected,bound){if(!entry)return {committed:true,notRequired:true};let proof;try{proof=await backupLocal({...clone(entry),reason,...bound});}catch{fail('CLOUD_LOCAL');}guard(expected,bound);if(proof?.committed!==true)fail('CLOUD_LOCAL');return {committed:true,sha256:entry.sha256};}
+ return {
+  status,ready:async()=>{await ready;return status();},snapshot:()=>clone(current),conflictDetails:()=>{const details=clone(current?.conflict??null);if(details&&!restored){details.backupsReady=false;details.backupProof=null;}return details;},subscribe(listener){if(typeof listener!=='function')fail('CLOUD_CONFIG');listeners.add(listener);try{listener(status());}catch{}return ()=>listeners.delete(listener);},
+  async login(email,password,options={}){const expected=++epoch;busy++;phase='signing-in';notice='로그인을 확인합니다.';emit();try{await transport.login(email,password,options);await serial(async()=>{await ready;if(expected!==epoch)fail('CLOUD_ACCOUNT_CHANGED');const bound=binding();if(!equalBinding(current,bound))await saved(newState(bound),expected,bound);phase='connected';notice='로그인했습니다. 양쪽의 현재 진행을 확인해 주세요.';});}catch(error){const safe=safeError(error);if(expected===epoch){notice=safe.message;phase='waiting';}throw safe;}finally{busy--;emit();}return status();},
+  async logout(){const expected=++epoch;busy++;phase='signing-out';notice='클라우드 연결을 해제합니다.';emit();try{const remoteLogout=transport.logout();const cleared=serial(async()=>{await ready;if(expected!==epoch)fail('CLOUD_ACCOUNT_CHANGED');try{await persistState(null);}catch{fail('CLOUD_LOCAL');}if(expected!==epoch)fail('CLOUD_ACCOUNT_CHANGED');current=null;phase='signed-out';notice='클라우드 연결을 해제했습니다. 현재 기기의 저장은 유지됩니다.';});await Promise.all([remoteLogout,cleared]);}catch(error){const safe=safeError(error);if(expected===epoch){notice=safe.message;phase='waiting';}throw safe;}finally{busy--;emit();}return status();},
+  recordDurableSave(entry){
+   if(!ordinary(entry))return Promise.reject(new CloudSaveError('CLOUD_NOT_CURRENT'));localEpoch++;
+   return operation(async(expected,bound)=>{const local=await candidate(entry);await saved({...current,pending:{...local,baseRevision:current.revision},conflict:current.conflict?{...current.conflict,local:clone(local),backupsReady:false,backupProof:null}:null},expected,bound);phase=current.conflict?'conflict':'queued';notice=current.conflict?messages.CLOUD_CONFLICT:'현재 진행을 저장했습니다. 연결되면 연동할 수 있습니다.';return status();});
+  },
+  pull(options={}){if(!options||typeof options!=='object'||Array.isArray(options)||![Object.prototype,null].includes(Object.getPrototypeOf(options))||Object.keys(options).some(key=>key!=='reviewCurrent')||options.reviewCurrent!==undefined&&typeof options.reviewCurrent!=='boolean')return Promise.reject(new CloudSaveError('CLOUD_CONFIG'));return operation((expected,bound)=>syncInternal(expected,bound,{write:false,reviewCurrent:options.reviewCurrent===true}));},
+  sync:()=>operation((expected,bound)=>syncInternal(expected,bound)),
+  flush:()=>operation((expected,bound)=>syncInternal(expected,bound)),
+  prepareConflict:()=>operation(async(expected,bound)=>{
+   if(!current.conflict)fail('CLOUD_CONFLICT');const capturedLocalEpoch=localEpoch,shown=clone(current.conflict),local=await candidate(await readCurrentLocal()),remote=await remoteRead(expected,bound);
+   if(local?.rawSave!==shown.local?.rawSave||remote.revision!==shown.remote.revision||remote.sha256!==shown.remote.sha256){await conflict(local,remote,'보관 전에 진행 변경',expected,bound,{preservePending:true});fail('CLOUD_STALE');}
+   // A pre-existing outbox may be a third original. Preserve it too before a
+   // later explicit choice acknowledges/clears it; identical bytes need no copy.
+   const pending=current.pending;if(pending&&pending.rawSave!==local?.rawSave&&pending.rawSave!==(remote.exists?remote.rawSave:null))await backup(pending,'선택 전 전송 대기 원문 보존',expected,bound);
+   const proof={committed:true,local:await backup(local,'선택 전 현재 기기 진행 보존',expected,bound),remote:await backup(remote.exists?{rawSave:remote.rawSave,sha256:remote.sha256}:null,'선택 전 클라우드 진행 보존',expected,bound)};
+   const latest=await candidate(await readCurrentLocal()),latestRemote=await remoteRead(expected,bound);
+   if(localEpoch!==capturedLocalEpoch||latest?.rawSave!==local?.rawSave){await conflict(latest,latestRemote,'보관 중 현재 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_LOCAL_CHANGED');}
+   if(latestRemote.revision!==remote.revision||latestRemote.sha256!==remote.sha256){await conflict(latest,latestRemote,'보관 중 다른 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_STALE');}
+   await saved({...current,conflict:{...current.conflict,backupsReady:true,backupProof:proof}},expected,bound);notice='양쪽 진행을 안전하게 보관했습니다. 사용할 진행을 선택해 주세요.';return clone(proof);
+  }),
+  chooseLocal:()=>operation(async(expected,bound)=>{
+   if(!current.conflict)fail('CLOUD_CONFLICT');if(!current.conflict.backupsReady)fail('CLOUD_BACKUP_REQUIRED');const local=await candidate(await readCurrentLocal());if(!local)fail('CLOUD_NOT_CURRENT');
+   const remote=await remoteRead(expected,bound),shown=current.conflict.remote;
+   if(remote.revision!==shown.revision||remote.sha256!==shown.sha256){await conflict(local,remote,'선택 중 다른 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_STALE');}
+   if(remote.exists&&remote.rawSave===local.rawSave&&remote.sha256===local.sha256)return acknowledge(remote,expected,bound);
+   if(local.rawSave!==current.conflict.local?.rawSave){await conflict(local,remote,'선택 중 현재 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_LOCAL_CHANGED');}
+   const pending={...local,baseRevision:remote.revision};await saved({...current,revision:remote.revision,pending,conflict:null},expected,bound);phase='uploading';return pendingWrite(pending,expected,bound);
+  }),
+  chooseRemote:()=>operation(async(expected,bound)=>{
+   if(!current.conflict)fail('CLOUD_CONFLICT');if(!current.conflict.backupsReady)fail('CLOUD_BACKUP_REQUIRED');const capturedLocalEpoch=localEpoch,local=await candidate(await readCurrentLocal()),remote=await remoteRead(expected,bound),shown=current.conflict.remote;
+   if(!remote.exists)fail('CLOUD_NO_REMOTE');
+   if(remote.revision!==shown.revision||remote.sha256!==shown.sha256){await conflict(local,remote,'선택 중 다른 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_STALE');}
+   if(local&&remote.rawSave===local.rawSave&&remote.sha256===local.sha256)return acknowledge(remote,expected,bound);
+   if(local?.rawSave!==current.conflict.local?.rawSave){await conflict(local,remote,'선택 중 현재 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_LOCAL_CHANGED');}
+   const latest=await candidate(await readCurrentLocal());guard(expected,bound);
+   if(localEpoch!==capturedLocalEpoch||latest?.rawSave!==local?.rawSave){await conflict(latest,remote,'현재 기기 변경',expected,bound,{preservePending:true});fail('CLOUD_LOCAL_CHANGED');}
+   let proof;try{proof=await commitRemote({...clone(remote),...bound});}catch{fail('CLOUD_LOCAL');}guard(expected,bound);if(proof?.committed!==true)fail('CLOUD_LOCAL');
+   if(localEpoch!==capturedLocalEpoch)fail('CLOUD_LOCAL_CHANGED');
+   try{await applyRemote({...clone(remote),...bound});}catch{fail('CLOUD_LOCAL');}guard(expected,bound);
+   await acknowledge(remote,expected,bound);notice='클라우드 진행을 현재 기기에 보관하고 불러왔습니다.';return status();
+  })
+ };
+}

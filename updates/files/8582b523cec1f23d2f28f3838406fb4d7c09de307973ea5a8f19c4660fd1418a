@@ -1,0 +1,46 @@
+const ordinary=key=>key==='auto'||/^manual(?:-([2-9]|[1-4][0-9]|5[0-6]))?$/.test(key);
+// Historical checkpoints never compete with the explicitly selected journey.
+export function ordinaryResumeSummary(rows,currentSlot=null){
+ const candidates=(Array.isArray(rows)?rows:[]).filter(row=>row?.valid===true&&ordinary(row.key)&&Number.isFinite(Date.parse(row.savedAt)));
+ if(currentSlot!==null)return candidates.find(row=>row.key===currentSlot)??null;
+ return candidates.sort((a,b)=>Date.parse(b.savedAt)-Date.parse(a.savedAt)||a.key.localeCompare(b.key))[0]??null;
+}
+export function saveSyncMessage(state=null){
+ if(!state?.enabled)return '이 기기에 저장됨';
+ if(!state.authenticated)return '이 기기에 저장됨 · 연동 로그인 필요';
+ if(state.errorCode||state.localWritable===false)return '이 기기에 저장됨 · 클라우드 확인 필요';
+ if(state.conflict||state.suppressed)return '이 기기에 저장됨 · 사용할 진행 확인 필요';
+ if(state.uploading)return '이 기기에 저장됨 · 클라우드 전송 중';
+ if(state.queued)return '이 기기에 저장됨 · 클라우드 전송 대기';
+ if(state.phase==='synced')return '이 기기·클라우드 저장 완료';
+ return '이 기기에 저장됨 · 클라우드 확인 필요';
+}
+export function shouldWarnBeforeClose({savePending=0,storagePending=0,cloudState=null}={}){
+ return savePending>0||storagePending>0||cloudState?.metadataPending>0||cloudState?.needsCloudWait===true;
+}
+export async function settleManualCloudSave(cloud,result){
+ if(result?.ok!==true)return {localCommitted:false,cloudAcknowledged:false,message:''};
+ let observed=null;
+ try{
+  if(cloud){observed=await cloud.observeCommit(result);if(observed?.recorded===true&&cloud.getSyncState?.().authenticated)await cloud.retryPending({force:true});}
+ }catch{/* Local commit is durable even when a cloud request cannot finish. */}
+ const state=cloud?.getSyncState?.()??null;
+ const recorded=observed?.recorded===true;let acknowledged=false;
+ if(recorded&&state?.phase==='synced'&&!state.queued&&!state.uploading&&!state.suppressed&&!state.errorCode&&state.localWritable!==false){try{acknowledged=await cloud.acknowledgesCommit?.(result.value)===true;}catch{}}
+ const display=cloud&&(!recorded||state?.phase==='synced'&&!acknowledged)?{...state,phase:'waiting'}:state;
+ return {localCommitted:true,currentRecorded:recorded,excluded:observed?.excluded??null,cloudAcknowledged:acknowledged,message:observed?.excluded==='replay'?'이 기기에 저장됨 · 재도전 기록':saveSyncMessage(display)};
+}
+export async function continueSavedProgress({cloud=null,online=true,loadOrdinary,loadFallback,openSaves,onUnavailable=()=>{}}={}){
+ const local=async()=>{
+  try{
+   const entry=await cloud?.currentLocal?.();
+   if(entry){if(!ordinary(entry.slotId)||typeof entry.rawSave!=='string')throw new Error('Invalid current progress');await loadOrdinary(entry);return true;}
+   return await loadFallback();
+  }catch{onUnavailable();await openSaves();return false;}
+ };
+ if(online){
+  if(cloud?.ui?.open){try{await cloud.ui.open({intent:'continue',onContinue:local,onArchives:openSaves});return {route:'cloud'};}catch{/* Offer an explicit local selection when cloud preparation failed. */}}
+  onUnavailable();await openSaves();return {route:'unavailable',loaded:false};
+ }
+ return {route:'local',loaded:await local()};
+}
