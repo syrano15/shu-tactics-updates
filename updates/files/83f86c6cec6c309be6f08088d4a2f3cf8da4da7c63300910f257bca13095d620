@@ -1,0 +1,84 @@
+// Only save-record keys belong to this operation. Settings and unrelated apps
+// share localStorage and must remain untouched, even when their contents are broken.
+const namespaces=new Set(['shu-tactics','shu-tactics-act1','shu-tactics-trial-legacy','shu-tactics-trial-academy','shu-tactics-trial-baima','shu-tactics-trial-commander']);
+export function isGameSaveKey(key){
+ if(typeof key!=='string')return false;
+ const match=/^(shu-tactics(?:-act1(?:-compare-[AB]-\d{1,10})?|-trial-(?:legacy|academy|baima|commander))?)-(.+)$/.exec(key);
+ if(!match)return false;
+ const [,namespace,record]=match,comparison=/^shu-tactics-act1-compare-[AB]-(\d+)$/.exec(namespace);
+ if(!namespaces.has(namespace)&&!comparison)return false;
+ if(comparison){const seed=Number(comparison[1]);if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||String(seed)!==comparison[1])return false;}
+ const slot=/^(?:save|backup)-v[12]-(auto|manual(?:-(\d+))?)$/.exec(record);
+ if(slot)return slot[2]===undefined||Number.isSafeInteger(Number(slot[2]))&&Number(slot[2])>=2&&String(Number(slot[2]))===slot[2];
+ return /^checkpoint-v1-(?:complete|act-complete-[1-7]|(?:start|clear)-[-a-zA-Z0-9_]{1,100})$/.test(record);
+}
+export function listGameSaveKeys(storage){
+ const keys=[],errors=[];
+ try{
+  const length=storage.length;
+  if(!Number.isSafeInteger(length)||length<0||typeof storage.key!=='function')throw new Error('브라우저 저장 목록을 사용할 수 없습니다.');
+  for(let index=0;index<length;index++){
+   const key=storage.key(index);
+   if(key!==null&&typeof key!=='string')throw new Error('저장 키를 확인할 수 없습니다.');
+   if(isGameSaveKey(key)&&!keys.includes(key))keys.push(key);
+  }
+ }catch(error){errors.push({key:null,message:'저장 목록을 읽지 못했습니다. '+error.message});}
+ return {keys,errors};
+}
+export function deleteGameSaveRecords(storage){
+ const listed=listGameSaveKeys(storage),summary={matched:listed.keys.length,deleted:[],failed:[],errors:[...listed.errors],complete:false};
+ // A partial enumeration is never authorization to delete a partial library.
+ if(summary.errors.length)return summary;
+ if(typeof storage.removeItem!=='function'||typeof storage.getItem!=='function'){
+  summary.errors.push({key:null,message:'브라우저 저장 삭제를 사용할 수 없습니다.'});return summary;
+ }
+ for(const key of listed.keys){
+  try{
+   storage.removeItem(key);
+   if(storage.getItem(key)!==null)throw new Error('저장 기록이 남아 있습니다.');
+   summary.deleted.push(key);
+  }catch(error){summary.failed.push(key);summary.errors.push({key,message:'저장 삭제 실패: '+error.message});}
+ }
+ summary.complete=summary.errors.length===0;
+ return summary;
+}
+
+// Digests are computed only for an explicit inspection/export, never while the
+// synchronous save-library index is rendering its small summaries.
+export async function hashSaveRecord(raw,cryptoAPI=globalThis.crypto){
+ if(typeof raw!=='string'||typeof cryptoAPI?.subtle?.digest!=='function')throw new Error('저장 원문 해시를 확인할 수 없습니다.');
+ const bytes=await cryptoAPI.subtle.digest('SHA-256',new TextEncoder().encode(raw));
+ return [...new Uint8Array(bytes)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+}
+const digestPattern=/^[a-f0-9]{64}$/;
+const pruneError=message=>{throw new Error(message);};
+function pruneRow(row){
+ if(!row||!isGameSaveKey(row.key)||!digestPattern.test(row.sha256??''))pruneError('정리할 저장 원문을 다시 확인하세요.');
+ return {key:row.key,slotId:typeof row.slotId==='string'?row.slotId:null,recordType:typeof row.recordType==='string'?row.recordType:'unknown',known:row.known===true,valid:row.valid===true,sha256:row.sha256};
+}
+function permanentArchive(row){
+ return ['clear','act-complete','complete'].includes(row.recordType)||/-checkpoint-v1-(?:complete|act-complete-[1-7]|clear-[-a-zA-Z0-9_]+)$/.test(row.key);
+}
+// This is a preview only. It never reads, backs up or deletes any record.
+// Execution must re-inspect the exact snapshot and verify durable backups.
+export function planSavePrune(records,{selectedKeys=[],protectedCurrent=[],revision}={}){
+ if(!Array.isArray(records)||!Array.isArray(selectedKeys)||!Array.isArray(protectedCurrent)||!Number.isSafeInteger(revision)||revision<0)pruneError('정리할 저장 목록과 기록 번호를 확인하세요.');
+ const snapshot=records.map(pruneRow).sort((a,b)=>a.key.localeCompare(b.key));
+ if(new Set(snapshot.map(row=>row.key)).size!==snapshot.length)pruneError('저장 목록에 중복된 칸이 있습니다.');
+ const byKey=new Map(snapshot.map(row=>[row.key,row]));
+ if(!protectedCurrent.length)pruneError('현재 진행 원문을 먼저 지정하여 보호하세요.');
+ const pins=protectedCurrent.map(pin=>{
+  const row=byKey.get(pin?.key);
+  if(!row?.known||!row.valid||!digestPattern.test(pin.sha256??'')||row.sha256!==pin.sha256)pruneError('현재 진행 원문이 변경되었습니다. 다시 확인하세요.');
+  return {key:row.key,sha256:row.sha256};
+ }).sort((a,b)=>a.key.localeCompare(b.key));
+ if(new Set(pins.map(pin=>pin.key)).size!==pins.length)pruneError('보호할 현재 진행 칸이 중복되었습니다.');
+ const currentKeys=new Set(pins.map(pin=>pin.key)),requestedKeys=[...new Set(selectedKeys)];
+ if(requestedKeys.some(key=>typeof key!=='string'))pruneError('정리할 저장 칸을 확인하세요.');
+ requestedKeys.sort();
+ const protection=row=>currentKeys.has(row.key)?'current':permanentArchive(row)?'completion':!row.known?'unknown':!row.valid?'unreadable':!['auto','manual','start'].includes(row.recordType)?'unknown':null;
+ const protectedRecords=snapshot.filter(row=>protection(row)).map(row=>({...row,reason:protection(row)}));
+ const candidates=[],rejected=[];
+ for(const key of requestedKeys){const row=byKey.get(key),reason=row?protection(row):'missing';if(reason)rejected.push({key,reason});else candidates.push({...row});}
+ return {version:1,revision,requestedKeys,protectedCurrent:pins,snapshot,candidates,protectedRecords,rejected};
+}

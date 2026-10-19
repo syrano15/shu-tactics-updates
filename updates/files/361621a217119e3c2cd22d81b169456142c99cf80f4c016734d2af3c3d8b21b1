@@ -1,0 +1,19 @@
+.save-dialog {max-height:90dvh;overflow:auto;}
+.save-library-group {margin:12px 0;padding:12px;border:1px solid rgba(211,177,102,.25);border-radius:4px;}
+.save-library-group > h4,.save-library-group > p {margin:4px 0 10px;}
+.save-library-group summary {cursor:pointer;color:var(--gold,#d3b166);font-weight:700;padding:4px 0;}
+.save-library-group > p,.save-library-group .save-slot p {line-height:1.6;}
+.save-choice {display:grid;gap:7px;margin:12px 0;}
+.save-choice select {min-width:0;width:100%;max-width:100%;padding:10px;background:#11231b;color:#efe8d2;border:1px solid rgba(211,177,102,.4);border-radius:3px;font:inherit;}
+.save-library-group .save-slot {margin:0;border:none;padding:8px 0;}
+.save-dialog .save-actions {flex-wrap:wrap;}
+.save-dialog .save-actions button {min-width:0;white-space:normal;}
+@media(max-width:480px) {.save-library-group {padding:10px;}.save-dialog .save-actions>* {flex:1 1 100%;}.save-choice select{font-size:13px;}}
+
+
+.save-tabs{display:flex;gap:8px;margin:12px 0 18px;border-bottom:1px solid #496346;padding-bottom:10px}.save-tabs button{flex:1;padding:12px}.save-tabs button[aria-selected="true"]{background:#d5b570;color:#142018;border-color:#d5b570;font-weight:bold}.save-empty{color:#aabaac}.save-delete{color:#f4b3a6;border-color:#8c5347;margin-top:20px}.save-delete-note{color:#b3b7a5;font-size:12px;line-height:1.6}
+
+.save-tabs button[aria-selected="true"]:hover:not(:disabled),.save-tabs button[aria-selected="true"]:focus-visible{background:#d5b570;color:#142018;border-color:#d5b570}
+
+/* Save maintenance uses its own confirmation dialog. */
+.save-maintenance{margin-top:1rem;border-top:1px solid #52635b;padding-top:.8rem}.save-maintenance summary{cursor:pointer;color:var(--gold,#d6b974)}.save-maintenance-actions{display:flex;flex-wrap:wrap;gap:.5rem}.save-maintenance-dialog{width:min(780px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:1.2rem;box-sizing:border-box;overflow:auto}.save-maintenance-dialog [data-maintenance-records]{max-height:50dvh;overflow:auto;display:grid;gap:.4rem}.save-maintenance-dialog [data-maintenance-records] label{display:flex;align-items:center;gap:.7rem;padding:.6rem;background:#203029}.save-maintenance-dialog input{flex:0 0 20px;width:20px;height:20px}.save-maintenance-dialog span{overflow-wrap:anywhere}.save-maintenance-dialog .dialog-actions{position:sticky;bottom:0;padding-top:.7rem;background:#17251f}.save-maintenance-dialog button{min-height:44px}.save-maintenance [data-maintenance-recovery]{display:grid;gap:.4rem;margin-top:.5rem}#save-sync-info{color:#dbbc77}

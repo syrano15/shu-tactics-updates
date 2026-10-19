@@ -1,0 +1,70 @@
+import {inspectSavePruneRecords,selectCurrentSave,librarySlotLabel} from './save-library.js';
+import {listGameSaveKeys,hashSaveRecord,planSavePrune} from './save-record-deletion.js';
+import {openSaveRecoveryStorage} from './save-recovery-storage.js';
+
+const failure=code=>Object.assign(new Error(code),{code});
+const message=error=>error?.code==='SAVE_CANCELLED'?'정리를 취소했습니다.':error?.code==='SAVE_STALE'?'저장 또는 현재 진행이 바뀌었습니다. 목록을 다시 확인해 주세요.':'작업을 완료하지 못했습니다. 원래 저장과 확인된 복구 원문은 유지됩니다.';
+const pinEqual=(a,b)=>a?.key===b?.key&&a?.sha256===b?.sha256;
+const label=row=>{try{return row.slotId?librarySlotLabel(row.slotId):'이전 형식 기록';}catch{return '확인할 기록';}};
+export function downloadSaveMaintenanceFile({raw,filename},{document=globalThis.document,URL=globalThis.URL,Blob=globalThis.Blob}={}){
+ const url=URL.createObjectURL(new Blob([raw],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=filename;link.hidden=true;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+// The controller never interprets a save as a cloud account or applies gameplay.
+// Inspection, backup/readback and the final CAS operation remain separate steps.
+export function createSaveMaintenanceController({storage,inspectRecords=()=>inspectSavePruneRecords(storage),current,acquireLock=()=>()=>{},refresh=()=>{},onNotice=()=>{},onChange=()=>{},openRecovery=openSaveRecoveryStorage,exportFile=downloadSaveMaintenanceFile,clock=Date.now}={}){
+ if(!storage||typeof current!=='function'||typeof inspectRecords!=='function'||typeof acquireLock!=='function')throw failure('SAVE_STORAGE');
+ let phase='idle',snapshot=null,pins=[],primaryCurrent=null,selected=new Set(),error='',disposed=false,epoch=0,abort=null,recovery=null,recoveryPromise=null,recoveryRows=[],lastResult=null;
+ const requireActive=()=>{if(disposed)throw failure('SAVE_CANCELLED');};
+ const model=()=>{
+  const base=snapshot?planSavePrune(snapshot.records,{selectedKeys:[],protectedCurrent:pins,revision:snapshot.revision}):null,protectedByKey=new Map(base?.protectedRecords.map(row=>[row.key,row.reason])??[]);
+  return {phase,busy:['reading','working'].includes(phase),error,canConfirm:phase==='preview'&&selected.size>0,selectedCount:selected.size,records:(snapshot?.records??[]).map(row=>({key:row.key,label:label(row),savedAt:row.savedAt,protected:protectedByKey.has(row.key),reason:protectedByKey.get(row.key)??'',selected:selected.has(row.key)})),recovery:recoveryRows.map(row=>({id:row.id,key:row.key,createdAt:row.createdAt})),lastResult:lastResult?{...lastResult}:null};
+ };
+ const emit=()=>{if(!disposed)onChange(model());};
+ const getRecovery=async()=>{
+  requireActive();if(!recoveryPromise)recoveryPromise=Promise.resolve().then(openRecovery).then(value=>{if(disposed){value.close();throw failure('SAVE_CANCELLED');}recovery=value;return value;}).catch(next=>{recoveryPromise=null;throw next;});return recoveryPromise;
+ };
+ const currentPins=async(rows,value)=>{
+  value??=await current();if(!value||typeof value.key!=='string'||typeof value.sha256!=='string')throw failure('SAVE_STALE');
+  const required=[{key:value.key,sha256:value.sha256},...(Array.isArray(value.protectedCurrent)?value.protectedCurrent:[])],latest=selectCurrentSave(rows);
+  if(latest)required.push({key:latest.key,sha256:latest.sha256});
+  const byKey=new Map();for(const pin of required){if(byKey.has(pin.key)&&!pinEqual(byKey.get(pin.key),pin))throw failure('SAVE_STALE');byKey.set(pin.key,{key:pin.key,sha256:pin.sha256});}
+  return [...byKey.values()];
+ };
+ async function preview(){
+  if(phase==='working')return {ok:false};const token=++epoch;phase='reading';error='';emit();
+  try{requireActive();await storage.whenIdle?.();const next=await inspectRecords(),active=await current(),nextPins=await currentPins(next.records,active);if(token!==epoch)throw failure('SAVE_CANCELLED');planSavePrune(next.records,{revision:next.revision,protectedCurrent:nextPins});snapshot=next;pins=nextPins;primaryCurrent={key:active.key,sha256:active.sha256};selected=new Set();phase='preview';emit();return {ok:true};}
+  catch(next){if(token===epoch){error=message(next);phase='idle';emit();}return {ok:false};}
+ }
+ function select(key,checked){if(phase!=='preview')return false;const row=model().records.find(row=>row.key===key);if(!row||row.protected)return false;checked?selected.add(key):selected.delete(key);emit();return true;}
+ function cancel(){epoch++;if(phase==='working'){abort?.abort();return {cancelRequested:true};}phase='idle';snapshot=null;pins=[];selected.clear();error='';emit();return {cancelled:true};}
+ async function confirm(){
+  if(phase!=='preview'||!selected.size)return {ok:false};const plan=planSavePrune(snapshot.records,{selectedKeys:[...selected],protectedCurrent:pins,revision:snapshot.revision}),capturedPins=structuredClone(pins),capturedCurrent={...primaryCurrent};phase='working';error='';lastResult=null;abort=new AbortController();const signal=abort.signal;emit();let release=null;
+  const unchangedCurrent=async()=>{const active=await current();if(!pinEqual(active,capturedCurrent))return false;const fresh=await currentPins(snapshot.records,active);return fresh.length===capturedPins.length&&capturedPins.every(pin=>fresh.some(value=>pinEqual(pin,value)));};
+  try{
+   release=await acquireLock();if(typeof release!=='function')throw failure('SAVE_STORAGE');if(signal.aborted)throw failure('SAVE_CANCELLED');if(!await unchangedCurrent())throw failure('SAVE_STALE');
+   const originals=await getRecovery();if(signal.aborted)throw failure('SAVE_CANCELLED');
+   const result=await storage.pruneSaveRecords(plan,{backup:entry=>originals.backup(entry),verifyBackup:receipt=>originals.verifyBackup(receipt),inspectRecords:inspectSavePruneRecords,validateCurrent:unchangedCurrent,signal});
+   lastResult={complete:true,deleted:result.deleted.length};phase='idle';snapshot=null;pins=[];selected.clear();onNotice(result.deleted.length+'개 기록을 정리했습니다. 별도 복구 원문은 이 기기에 남습니다.');try{await refresh();}catch{onNotice('기록 정리는 완료했습니다. 저장 목록을 다시 열어 확인해 주세요.');}emit();return {ok:true,...result};
+  }catch(next){error=message(next);phase=snapshot?'preview':'idle';emit();return {ok:false,error:{code:next?.code??'SAVE_STORAGE'}};}
+  finally{abort=null;if(typeof release==='function'){try{release();}catch{onNotice('기록 처리 결과를 확인한 뒤 창을 다시 열어 주세요.');}}}
+ }
+ async function exportAll(){
+  error='';emit();
+  try{requireActive();await storage.whenIdle?.();const view=await inspectRecords(),records=[];for(const row of view.records){const rawSave=storage.getItem(row.key);if(typeof rawSave!=='string'||await hashSaveRecord(rawSave)!==row.sha256)throw failure('SAVE_STALE');records.push({key:row.key,rawSave,sha256:row.sha256});}const listed=listGameSaveKeys(storage);if(listed.errors.length||storage.revision!==view.revision||listed.keys.length!==records.length||records.some(row=>storage.getItem(row.key)!==row.rawSave))throw failure('SAVE_STALE');requireActive();await exportFile({raw:JSON.stringify({format:'shu-tactics-save-library',version:1,exportedAt:new Date(clock()).toISOString(),records},null,2)+'\n',filename:'촉한전기_저장원문_'+new Date(clock()).toISOString().slice(0,10)+'.json'});onNotice('저장 원문 묶음의 파일 내보내기를 요청했습니다.');return {ok:true,count:records.length};}catch(next){error=message(next);emit();return {ok:false};}
+ }
+ async function listRecovery(){error='';try{recoveryRows=await(await getRecovery()).list();requireActive();emit();return {ok:true};}catch(next){error=message(next);emit();return {ok:false};}}
+ async function exportRecovery(id){error='';try{const store=await getRecovery(),row=recoveryRows.find(row=>row.id===id);if(!row)throw failure('SAVE_STALE');const verified=await store.verifyBackup({committed:true,durable:true,id:row.id,key:row.key,sha256:row.sha256});requireActive();await exportFile({raw:verified.rawSave,filename:'촉한전기_복구원문_'+row.id+'.json'});emit();return {ok:true};}catch(next){error=message(next);emit();return {ok:false};}}
+ return {model,preview,select,cancel,confirm,exportAll,listRecovery,exportRecovery,destroy(){cancel();disposed=true;recovery?.close();}};
+}
+
+export function installSaveMaintenanceUI({document=globalThis.document,host,...options}={}){
+ if(!document?.body||!host)throw failure('SAVE_STORAGE');
+ const details=document.createElement('details');details.className='save-maintenance';details.innerHTML='<summary>백업·이전 기록 정리</summary><p>현재·최신 일반 저장과 클리어·막 완료 기록은 보호합니다. 정리한 원문은 별도 복구 저장소에 남습니다. 기존 전체 삭제로도 이 복구본은 지워지지 않습니다.</p><p data-maintenance-feedback role="status" aria-live="polite"></p><div class="save-maintenance-actions"><button type="button" data-maintenance="export">저장 원문 전체 내보내기</button><button type="button" data-maintenance="preview">이전 기록 정리</button><button type="button" data-maintenance="recovery">복구 원문 보기</button></div><div data-maintenance-recovery></div>';
+ host.append(details);const dialog=document.createElement('dialog');dialog.id='save-maintenance-dialog';dialog.className='save-maintenance-dialog';dialog.setAttribute('aria-labelledby','save-maintenance-title');dialog.innerHTML='<h2 id="save-maintenance-title">이전 기록 정리</h2><p>정리할 기록을 직접 선택하세요. 선택한 원문을 별도 보관하고 다시 읽어 확인한 뒤 정리합니다.</p><p data-maintenance-status role="status" aria-live="polite"></p><div data-maintenance-records></div><div class="dialog-actions"><button type="button" data-maintenance="cancel">취소</button><button type="button" data-maintenance="confirm">선택한 기록 정리</button></div>';document.body.append(dialog);let focus=null,lastRecoverySignature='';
+ const render=model=>{dialog.setAttribute('aria-busy',String(model.busy));details.querySelector('[data-maintenance-feedback]').textContent=model.error;dialog.querySelector('[data-maintenance-status]').textContent=model.error||(model.phase==='working'?'원문을 보관하고 확인하는 중입니다.':'선택 '+model.selectedCount+'개 · 보호된 기록은 정리할 수 없습니다.');dialog.querySelector('[data-maintenance="confirm"]').disabled=!model.canConfirm;const list=dialog.querySelector('[data-maintenance-records]'),focused=document.activeElement?.dataset?.maintenanceKey,scroll=list.scrollTop;list.replaceChildren();for(const row of model.records){const label=document.createElement('label'),input=document.createElement('input'),text=document.createElement('span');input.type='checkbox';input.dataset.maintenanceKey=row.key;input.checked=row.selected;input.disabled=row.protected||model.busy;text.textContent=row.label+(row.protected?' · 보호':'')+(row.savedAt?' · '+row.savedAt:'');label.append(input,text);list.append(label);}list.scrollTop=scroll;if(focused)[...list.querySelectorAll('input')].find(input=>input.dataset.maintenanceKey===focused)?.focus?.({preventScroll:true});const signature=JSON.stringify(model.recovery);if(signature!==lastRecoverySignature){lastRecoverySignature=signature;const backups=details.querySelector('[data-maintenance-recovery]');backups.replaceChildren();for(const row of model.recovery){const button=document.createElement('button');button.type='button';button.dataset.maintenanceRecovery=row.id;button.textContent='복구 원문 내보내기 · '+new Date(row.createdAt).toLocaleString('ko-KR');backups.append(button);}}};
+ const controller=createSaveMaintenanceController({...options,onChange:render});
+ const handle=event=>{const recovery=event.target.closest('[data-maintenance-recovery]')?.dataset.maintenanceRecovery;if(recovery){void controller.exportRecovery(recovery);return;}const action=event.target.closest('[data-maintenance]')?.dataset.maintenance;if(action==='export')void controller.exportAll();if(action==='recovery')void controller.listRecovery();if(action==='preview'){focus=document.activeElement;if(!dialog.open)dialog.showModal();void controller.preview();}if(action==='cancel'){controller.cancel();dialog.close();}if(action==='confirm')void controller.confirm().then(result=>{if(result.ok)dialog.close();});};
+ details.addEventListener('click',handle);dialog.addEventListener('click',handle);dialog.addEventListener('change',event=>{const key=event.target.dataset.maintenanceKey;if(key)controller.select(key,event.target.checked);});dialog.addEventListener('cancel',event=>{event.preventDefault();controller.cancel();dialog.close();});dialog.addEventListener('close',()=>{controller.cancel();focus?.focus?.();});render(controller.model());
+ return {details,dialog,controller,destroy(){controller.destroy();details.removeEventListener('click',handle);dialog.removeEventListener('click',handle);details.remove();dialog.remove();}};
+}

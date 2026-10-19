@@ -1,0 +1,113 @@
+import {CloudSaveError,sha256Save,CLOUD_MAX_BYTES} from './save-cloud.js';
+
+const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const PROJECT=/^https:\/\/[a-z0-9]{20}\.supabase\.co$/;
+const HASH=/^[a-f0-9]{64}$/;
+const unsupportedNotice='클라우드 저장을 사용하려면 새 PC 설치본이 필요합니다. 로컬 저장은 계속 사용할 수 있습니다.';
+const trustedNotices=new Set(['클라우드 연결을 확인하지 못했습니다. 로그인 유지 정보는 보존했으며 연결 후 다시 확인합니다.','클라우드 연결 설정이 바뀌어 로그아웃했습니다.','로그인 유지 정보를 읽지 못했습니다. 다시 로그인해 주세요.','로그인 유지 정보를 확인하지 못했습니다. 다시 로그인해 주세요.','이 PC의 로그인 유지 정보를 확인했습니다.','로그인했습니다. 이 PC에서 로그인을 유지합니다.','로그인했습니다. 안전한 보관을 사용할 수 없어 앱 종료 시 로그아웃됩니다.','로그인했습니다. 앱을 종료하면 로그아웃됩니다.','이 PC에서 로그아웃했습니다.','이 PC에서 로그아웃했습니다. 서버 세션 종료는 연결 후 확인해 주세요.']);
+const fail=code=>{throw new CloudSaveError(code);};
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+function exactKeys(value,allowed,required=allowed){if(!object(value)||Object.keys(value).some(key=>!allowed.includes(key))||required.some(key=>!Object.hasOwn(value,key)))fail('CLOUD_RESPONSE');}
+function safeError(error,action){
+ const aliases={CLOUD_AUTH:action==='login'?'CLOUD_LOGIN':'CLOUD_LOGIN_REQUIRED',CLOUD_SESSION_CHANGED:'CLOUD_ACCOUNT_CHANGED',CLOUD_VAULT:'CLOUD_SESSION_STORE',CLOUD_INPUT:action==='write'?'CLOUD_INVALID_SAVE':'CLOUD_RESPONSE',CLOUD_REDIRECT:'CLOUD_RESPONSE',CLOUD_RATE_LIMIT:'CLOUD_NETWORK'};
+ const code=aliases[error?.code]??error?.code;
+ const known=['CLOUD_DISABLED','CLOUD_CONFIG','CLOUD_LOGIN','CLOUD_LOGIN_REQUIRED','CLOUD_ACCOUNT_CHANGED','CLOUD_FORBIDDEN','CLOUD_NETWORK','CLOUD_TIMEOUT','CLOUD_RESPONSE','CLOUD_STALE','CLOUD_INVALID_SAVE','CLOUD_SESSION_STORE'];
+ const result=new CloudSaveError(known.includes(code)?code:'CLOUD_RESPONSE');
+ if(result.code==='CLOUD_STALE'&&Number.isSafeInteger(error?.currentRevision)&&error.currentRevision>=0)result.currentRevision=error.currentRevision;
+ return result;
+}
+function publicStatus(raw){
+ exactKeys(raw,['enabled','authenticated','projectURL','userId','expiresAt','rememberLogin','notice']);
+ if(typeof raw.enabled!=='boolean'||typeof raw.authenticated!=='boolean'||typeof raw.rememberLogin!=='boolean'||typeof raw.notice!=='string')fail('CLOUD_RESPONSE');
+ if(raw.enabled?typeof raw.projectURL!=='string'||!PROJECT.test(raw.projectURL):raw.projectURL!==null||raw.authenticated)fail('CLOUD_RESPONSE');
+ if(raw.authenticated){if(typeof raw.userId!=='string'||!UUID.test(raw.userId)||!Number.isSafeInteger(raw.expiresAt)||raw.expiresAt<=0)fail('CLOUD_RESPONSE');}
+ else if(raw.userId!==null||raw.expiresAt!==null||raw.rememberLogin)fail('CLOUD_RESPONSE');
+ const notice=trustedNotices.has(raw.notice)?raw.notice:!raw.enabled?'클라우드 연결 설정이 없습니다.':raw.authenticated?'로그인했습니다. 현재 진행을 확인해 주세요.':'로그인하면 현재 진행을 연동할 수 있습니다.';
+ return {supported:true,mode:'native-ipc',enabled:raw.enabled,authenticated:raw.authenticated,projectURL:raw.projectURL,userId:raw.userId,expiresAt:raw.expiresAt,rememberLogin:raw.rememberLogin,notice};
+}
+const binding=value=>value.authenticated?{projectURL:value.projectURL,userId:value.userId}:null;
+const sameBinding=(a,b)=>a?.projectURL===b?.projectURL&&a?.userId===b?.userId;
+
+// The bridge never exposes session tokens or accepts config/URLs from a renderer.
+// This adapter supplies the coordinator's synchronous status contract and rejects
+// old-account responses even though an already-sent main request cannot be undone.
+export function createNativeCloudTransport({bridge=globalThis.window?.shuCloud,cryptoAPI=globalThis.crypto,timeoutMs=20000}={}){
+ if(!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>60000)fail('CLOUD_CONFIG');
+ const supported=!!bridge&&['status','login','logout','read','write'].every(name=>typeof bridge[name]==='function');
+ let cache={supported,mode:'native-ipc',enabled:false,authenticated:false,projectURL:null,userId:null,expiresAt:null,rememberLogin:false,notice:supported?'PC 클라우드 연결을 확인합니다.':unsupportedNotice};
+ let epoch=0,initialization=null;
+ const status=()=>({...cache});
+ const guard=expected=>{if(expected!==epoch)fail('CLOUD_ACCOUNT_CHANGED');};
+ const available=()=>{if(!supported)fail('CLOUD_DISABLED');};
+ const resetIdentity=()=>{cache={...cache,authenticated:false,userId:null,expiresAt:null,rememberLogin:false};};
+ async function invoke(action,args){
+  available();let timer;
+  try{
+   const reply=await Promise.race([Promise.resolve().then(()=>args===undefined?bridge[action]():bridge[action](...args)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new CloudSaveError('CLOUD_TIMEOUT')),timeoutMs);})]);
+   if(!object(reply)||typeof reply.ok!=='boolean')fail('CLOUD_RESPONSE');
+   if(reply.ok){exactKeys(reply,['ok','value']);return reply.value;}
+   exactKeys(reply,['ok','error']);exactKeys(reply.error,['code','currentRevision'],['code']);
+   if(typeof reply.error.code!=='string'||(reply.error.currentRevision!==undefined&&(reply.error.code!=='CLOUD_STALE'||!Number.isSafeInteger(reply.error.currentRevision)||reply.error.currentRevision<0)))fail('CLOUD_RESPONSE');
+   throw safeError(reply.error,action);
+  }
+  catch(error){throw safeError(error,action);}finally{clearTimeout(timer);}
+ }
+ async function refreshStatus(expected,bound=null,{failure=false}={}){
+  const raw=await invoke('status');guard(expected);const next=publicStatus(raw),nextBinding=binding(next);
+  if(bound&&!sameBinding(bound,nextBinding)){
+   cache=next;epoch++;
+   if(failure&&!next.authenticated)return status();
+   fail(next.authenticated?'CLOUD_ACCOUNT_CHANGED':'CLOUD_LOGIN_REQUIRED');
+  }
+  cache=next;return status();
+ }
+ function ready(){
+  if(!supported)return Promise.resolve(status());
+  if(!initialization){const expected=epoch;initialization=(async()=>{const raw=await invoke('status');if(expected!==epoch)return status();cache=publicStatus(raw);return status();})();initialization.catch(()=>{});}
+  return initialization;
+ }
+ async function afterFailure(error,expected,bound,action){
+  guard(expected);const safe=safeError(error,action);
+  try{await refreshStatus(expected,bound,{failure:true});}catch(statusError){if(statusError.code==='CLOUD_ACCOUNT_CHANGED')throw statusError;if(expected!==epoch)fail('CLOUD_ACCOUNT_CHANGED');if(safe.code==='CLOUD_CONFIG'){epoch++;cache={...cache,enabled:false,projectURL:null};resetIdentity();}}
+  throw safe;
+ }
+ async function normalizeRecord(raw,{payload=null}={}){
+  exactKeys(raw,['saveKey','revision','rawSave','sha256','exists','updatedAt','changed'],['saveKey','revision','rawSave','sha256','exists','updatedAt']);
+  if(raw.saveKey!=='progress'||!Number.isSafeInteger(raw.revision)||raw.revision<0||raw.revision>=Number.MAX_SAFE_INTEGER||typeof raw.exists!=='boolean')fail('CLOUD_RESPONSE');
+  if(!raw.exists){if(raw.revision!==0||raw.rawSave!==null||raw.sha256!==null||raw.updatedAt!==null||payload)fail('CLOUD_RESPONSE');}
+  else{
+   if(raw.revision<1||typeof raw.rawSave!=='string'||typeof raw.sha256!=='string'||!HASH.test(raw.sha256)||new TextEncoder().encode(raw.rawSave).length>CLOUD_MAX_BYTES||typeof raw.updatedAt!=='string'||raw.updatedAt.length>60||!Number.isFinite(Date.parse(raw.updatedAt)))fail('CLOUD_RESPONSE');
+   if((await sha256Save(raw.rawSave,cryptoAPI))!==raw.sha256)fail('CLOUD_RESPONSE');
+  }
+  if(raw.changed!==undefined&&typeof raw.changed!=='boolean')fail('CLOUD_RESPONSE');
+  if(payload&&(typeof raw.changed!=='boolean'||raw.rawSave!==payload.rawSave||raw.sha256!==payload.sha256||raw.revision!==payload.expectedRevision+(raw.changed?1:0)))fail('CLOUD_RESPONSE');
+  return {saveKey:'progress',revision:raw.revision,rawSave:raw.rawSave,sha256:raw.sha256,exists:raw.exists,updatedAt:raw.updatedAt,...(raw.changed===undefined?{}:{changed:raw.changed})};
+ }
+ async function recordOperation(action,payload){
+  available();await ready();const expected=epoch,bound=binding(cache);
+  if(!cache.enabled)fail('CLOUD_DISABLED');if(!bound)fail('CLOUD_LOGIN_REQUIRED');
+  try{
+   if(action==='write'){
+    exactKeys(payload,['rawSave','sha256','expectedRevision']);
+    if(typeof payload.rawSave!=='string'||typeof payload.sha256!=='string'||!HASH.test(payload.sha256)||!Number.isSafeInteger(payload.expectedRevision)||payload.expectedRevision<0||payload.expectedRevision>=Number.MAX_SAFE_INTEGER||(await sha256Save(payload.rawSave,cryptoAPI))!==payload.sha256)fail('CLOUD_INVALID_SAVE');guard(expected);
+   }
+   const raw=await invoke(action,action==='write'?[{rawSave:payload.rawSave,sha256:payload.sha256,expectedRevision:payload.expectedRevision}]:undefined);guard(expected);
+   const normalized=await normalizeRecord(raw,{payload:action==='write'?payload:null});guard(expected);await refreshStatus(expected,bound);guard(expected);return normalized;
+  }catch(error){return afterFailure(error,expected,bound,action);}
+ }
+ return {
+  status,ready,
+  async login(email,password,{remember=false}={}){
+   available();const expected=++epoch;resetIdentity();await ready();guard(expected);resetIdentity();
+   if(typeof email!=='string'||!email.trim()||typeof password!=='string'||!password||typeof remember!=='boolean')fail('CLOUD_LOGIN');
+   try{const raw=await invoke('login',[email,password,{remember:remember===true}]);guard(expected);const next=publicStatus(raw);if(!next.enabled||!next.authenticated)fail('CLOUD_LOGIN');cache=next;await refreshStatus(expected,binding(next));guard(expected);return status();}
+   catch(error){return afterFailure(error,expected,null,'login');}
+  },
+  async logout(){
+   available();const expected=++epoch;resetIdentity();await ready();guard(expected);resetIdentity();
+   try{const raw=await invoke('logout');guard(expected);const next=publicStatus(raw);if(next.authenticated)fail('CLOUD_RESPONSE');cache=next;await refreshStatus(expected);guard(expected);if(cache.authenticated){epoch++;fail('CLOUD_ACCOUNT_CHANGED');}return status();}
+   catch(error){return afterFailure(error,expected,null,'logout');}
+  },
+  read:()=>recordOperation('read'),write:payload=>recordOperation('write',payload)
+ };
+}

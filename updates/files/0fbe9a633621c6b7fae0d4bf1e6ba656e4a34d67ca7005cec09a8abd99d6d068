@@ -1,0 +1,75 @@
+import {isGameSaveKey,hashSaveRecord} from './save-record-deletion.js';
+
+// Local recovery originals are independent of game records and cloud accounts.
+// There is deliberately no memory fallback, overwrite, merge or delete API.
+export const SAVE_RECOVERY_DATABASE='shu-tactics-save-recovery-v1',SAVE_RECOVERY_VERSION=1,SAVE_RECOVERY_STORE='originals';
+const messages={SAVE_RECOVERY_STORAGE:'별도 복구 원문을 저장하거나 다시 읽지 못했습니다. 게임 저장은 정리하지 않았습니다.',SAVE_RECOVERY_INVALID:'별도 복구 원문의 칸·내용·해시를 확인하지 못했습니다.',SAVE_RECOVERY_CLOSED:'복구 원문 저장 공간이 닫혔습니다. 저장을 다시 확인해 주세요.'};
+const failure=code=>{const error=new Error(messages[code]??messages.SAVE_RECOVERY_STORAGE);error.code=Object.hasOwn(messages,code)?code:'SAVE_RECOVERY_STORAGE';return error;};
+const fail=code=>{throw failure(code);},sha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value),uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
+const timeout=value=>{if(!Number.isFinite(value)||value<1||value>60000)fail('SAVE_RECOVERY_INVALID');return value;};
+const proof=row=>({committed:true,durable:true,id:row.id,key:row.key,sha256:row.sha256});
+function fields(value,allowed){
+ if(!value||typeof value!=='object'||Array.isArray(value)||![Object.prototype,null].includes(Object.getPrototypeOf(value))||Reflect.ownKeys(value).some(key=>typeof key!=='string'||!allowed.includes(key)))fail('SAVE_RECOVERY_INVALID');
+ for(const key of allowed){const descriptor=Object.getOwnPropertyDescriptor(value,key);if(!descriptor||!descriptor.enumerable||descriptor.get||descriptor.set)fail('SAVE_RECOVERY_INVALID');}
+}
+export async function openSaveRecoveryStorage({indexedDB=globalThis.indexedDB,cryptoAPI=globalThis.crypto,openTimeoutMs=8000,readTimeoutMs=15000,writeTimeoutMs=15000,clock=Date.now,idFactory=()=>cryptoAPI.randomUUID()}={}){
+ for(const ms of [openTimeoutMs,readTimeoutMs,writeTimeoutMs])timeout(ms);
+ if(!indexedDB||typeof indexedDB.open!=='function'||typeof cryptoAPI?.subtle?.digest!=='function'||typeof clock!=='function'||typeof idFactory!=='function')fail('SAVE_RECOVERY_STORAGE');
+ const db=await new Promise((resolve,reject)=>{
+  let settled=false,request,timer;const stop=()=>{if(settled)return;settled=true;clearTimeout(timer);reject(failure('SAVE_RECOVERY_STORAGE'));};
+  timer=setTimeout(stop,openTimeoutMs);
+  try{request=indexedDB.open(SAVE_RECOVERY_DATABASE,SAVE_RECOVERY_VERSION);}catch{stop();return;}
+  request.onupgradeneeded=()=>{if(settled){try{request.transaction.abort();}catch{}return;}try{if(!request.result.objectStoreNames.contains(SAVE_RECOVERY_STORE))request.result.createObjectStore(SAVE_RECOVERY_STORE);}catch{stop();try{request.transaction.abort();}catch{}}};
+  request.onerror=stop;request.onblocked=stop;
+  request.onsuccess=()=>{if(settled){request.result.close();return;}if(!request.result.objectStoreNames.contains(SAVE_RECOVERY_STORE)){request.result.close();stop();return;}settled=true;clearTimeout(timer);resolve(request.result);};
+ });
+ let closed=false;const active=new Map(),requireOpen=()=>{if(closed)fail('SAVE_RECOVERY_CLOSED');};
+ const close=()=>{if(closed)return;closed=true;for(const stop of [...active.values()])stop('SAVE_RECOVERY_CLOSED');db.close();};
+ db.onversionchange=close;
+ function transaction(mode,build,limit){
+  requireOpen();return new Promise((resolve,reject)=>{
+   let tx,settled=false,result,timer;
+   const stop=(code='SAVE_RECOVERY_STORAGE')=>{if(settled)return;settled=true;clearTimeout(timer);active.delete(tx);try{tx?.abort();}catch{}reject(failure(code));};
+   timer=setTimeout(()=>stop(),limit);
+   try{
+    tx=db.transaction([SAVE_RECOVERY_STORE],mode);active.set(tx,stop);
+    tx.oncomplete=()=>{if(settled)return;if(closed){stop('SAVE_RECOVERY_CLOSED');return;}settled=true;clearTimeout(timer);active.delete(tx);resolve(result);};
+    tx.onabort=()=>stop();tx.onerror=()=>stop();
+    build(tx.objectStore(SAVE_RECOVERY_STORE),value=>{result=value;},stop);
+   }catch{stop();}
+  });
+ }
+ async function checkedRecord(record){
+  fields(record,['id','key','rawSave','sha256','createdAt']);
+  if(!uuid(record.id)||!isGameSaveKey(record.key)||typeof record.rawSave!=='string'||!sha(record.sha256)||!Number.isSafeInteger(record.createdAt)||record.createdAt<0)fail('SAVE_RECOVERY_INVALID');
+  // Hashing is also bounded; losing crypto availability cannot grant a proof.
+  let timer;const digest=await Promise.race([hashSaveRecord(record.rawSave,cryptoAPI),new Promise((_,reject)=>{timer=setTimeout(()=>reject(failure('SAVE_RECOVERY_STORAGE')),readTimeoutMs);})]).finally(()=>clearTimeout(timer));
+  requireOpen();if(digest!==record.sha256)fail('SAVE_RECOVERY_INVALID');return {...record};
+ }
+ const read=id=>transaction('readonly',(store,set,stop)=>{const request=store.get(id);request.onsuccess=()=>set(request.result);request.onerror=()=>stop();},readTimeoutMs);
+ async function verifyBackup(receipt){
+  requireOpen();fields(receipt,['committed','durable','id','key','sha256']);
+  if(receipt.committed!==true||receipt.durable!==true||!uuid(receipt.id)||!isGameSaveKey(receipt.key)||!sha(receipt.sha256))fail('SAVE_RECOVERY_INVALID');
+  const expected={...receipt},record=await checkedRecord(await read(expected.id));
+  if(record.id!==expected.id||record.key!==expected.key||record.sha256!==expected.sha256)fail('SAVE_RECOVERY_INVALID');return {...proof(record),rawSave:record.rawSave};
+ }
+ return Object.freeze({
+  async backup(entry){
+   requireOpen();fields(entry,['key','rawSave','sha256']);const input={...entry};
+   let id,createdAt;try{id=idFactory();createdAt=clock();}catch{fail('SAVE_RECOVERY_STORAGE');}
+   const record=await checkedRecord({...input,id,createdAt});
+   await transaction('readwrite',(store,set,stop)=>{const request=store.add(record,record.id);request.onsuccess=()=>set(true);request.onerror=()=>stop();},writeTimeoutMs);
+   // A successful add request is not sufficient: the transaction must complete,
+   // then a separate readonly transaction must return the same exact original.
+   const receipt=proof(record),verified=await verifyBackup(receipt);
+   if(verified.rawSave!==record.rawSave)fail('SAVE_RECOVERY_INVALID');return receipt;
+  },
+  verifyBackup,
+  async list(){
+   requireOpen();const records=await transaction('readonly',(store,set,stop)=>{const rows=[];set(rows);const request=store.openCursor();request.onsuccess=()=>{const cursor=request.result;if(cursor){rows.push({id:cursor.key,record:cursor.value});cursor.continue();}};request.onerror=()=>stop();},readTimeoutMs),checked=[];
+   for(const row of records){const record=await checkedRecord(row.record);if(row.id!==record.id)fail('SAVE_RECOVERY_INVALID');checked.push(record);}
+   requireOpen();return checked.sort((a,b)=>a.createdAt-b.createdAt||a.id.localeCompare(b.id));
+  },
+  close
+ });
+}
