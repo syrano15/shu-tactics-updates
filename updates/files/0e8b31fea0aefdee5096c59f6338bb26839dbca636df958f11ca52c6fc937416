@@ -1,0 +1,47 @@
+// New battle metadata selects these pictures. Legacy display names never opt in.
+const definitions = [
+ ['tiger-cavalry','cavalry','호표기','mounted'],
+ ['armored-cavalry','cavalry','철갑기병','mounted'],
+ ['sniper-archer','archer','저격병 · 활','foot'],
+ ['sniper-crossbow','crossbow','저격병 · 석궁','foot'],
+ ['shield-infantry','infantry','방패병','foot'],
+ ['long-spear','spear','장창병','foot'],
+];
+export const SPECIALIST_ART = Object.freeze(Object.fromEntries(definitions.map(([key,cls,name,kind])=>[key,Object.freeze({
+ key,cls,name,kind,facing:'left',src:`art/specialists-v0740/${key}.webp`,
+ mapSrc:`art/specialists-v0740/map/${key}.webp`,
+})])));
+
+// Measured against the delivered, complete source canvas; raised weapons stay intact.
+// [width, height, visible left, top, right, bottom, human head top]
+export const SPECIALIST_BODY_METRICS = Object.freeze({
+ 'art/specialists-v0740/tiger-cavalry.webp':Object.freeze([384,384,31,28,372,365,69]),
+ 'art/specialists-v0740/armored-cavalry.webp':Object.freeze([384,384,58,15,348,358,58]),
+ 'art/specialists-v0740/sniper-archer.webp':Object.freeze([384,384,25,16,374,357,106]),
+ 'art/specialists-v0740/sniper-crossbow.webp':Object.freeze([384,384,9,59,376,335,59]),
+ 'art/specialists-v0740/shield-infantry.webp':Object.freeze([384,512,20,90,377,445,134]),
+ 'art/specialists-v0740/long-spear.webp':Object.freeze([384,384,29,15,353,365,125]),
+});
+export const SPECIALIST_ART_SOURCES = Object.freeze(Object.values(SPECIALIST_ART).map(record=>record.src));
+export const SPECIALIST_MAP_SPRITES = Object.freeze(Object.fromEntries(Object.values(SPECIALIST_ART).map(record=>[
+ record.src,Object.freeze({src:record.mapSrc}),
+])));
+const gameplayIds=new Set(['tiger-cavalry','armored-cavalry','sniper','shield-infantry','long-spear']);
+
+export function specialistArtKey(unit){
+ if(unit?.team!=='enemy'||unit.generic!==true||unit.combatTier!=='elite')return null;
+ if(!gameplayIds.has(unit.specialistId))return null;
+ const key=unit.specialistId==='sniper'?`sniper-${unit.cls}`:unit.specialistId;
+ return Object.hasOwn(SPECIALIST_ART,key)&&SPECIALIST_ART[key].cls===unit.cls?key:null;
+}
+export function specialistArtFor(unit){
+ const key=specialistArtKey(unit);if(!key)return null;
+ const {src,kind,facing}=SPECIALIST_ART[key];
+ // The reviewed blue cloth uses the existing faction mask; equipment retains its colours.
+ return {src,kind,facing,palette:unit.faction||'wei',specialistArt:key};
+}
+
+export const SPECIALIST_ART_GALLERY = Object.freeze(Object.values(SPECIALIST_ART).filter(record=>Object.hasOwn(SPECIALIST_BODY_METRICS,record.src)).map(record=>Object.freeze({
+ id:`specialist_${record.key.replaceAll('-','_')}`,label:record.name+' · 전용 전장 그림',kind:'units',path:record.src,
+ width:SPECIALIST_BODY_METRICS[record.src][0],height:SPECIALIST_BODY_METRICS[record.src][1],staticReady:true,
+})));

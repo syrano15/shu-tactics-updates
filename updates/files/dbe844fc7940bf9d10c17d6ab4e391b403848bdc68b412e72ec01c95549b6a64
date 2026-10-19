@@ -1,0 +1,259 @@
+import {mapSpriteSource,installMapSpriteFallback} from './map-sprite-source.js';
+import {terrainMovementCost} from './terrain-effects.js';
+import { inside, occupant, key } from './engine.js';
+import { movement } from './spirits.js';
+import {huarongChaser,huarongMovementPath} from './huarong-chase.js';
+import {portraitURL} from './story-assets.js';
+import {mapBodyLayout} from './unit-body-metrics.js';
+import {promotionAuraHTML,unitRankMarkerHTML} from './promotion-visuals.js';
+import {guestHeroIdentity,inheritedGuest} from './guest-allies.js';
+import {SPRITE_REVISIONS} from './unit-art-v0728.js';
+import {laterIdentityArt} from './later-unit-art.js';
+import {EXTRA_SPRITE_REVISIONS} from './extra-unit-art-v0728.js';
+import {specialistArtFor,specialistArtKey} from './specialist-art.js';
+import {PROMOTED_TROOP_ART,PROMOTED_ART_RECORDS} from './promoted-art.js';
+import {armyPresentation} from './army-presentation.js';
+
+// General IDs are independent from class art. Never give Zhang Fei a generic soldier.
+export const GENERAL_ART = {
+  wenchou: { src:'art/v038/wenchou.png', kind:'mounted', facing:'left', mapScale:.9 },
+  yanliang: { src:'art/units/yanliang-v12.png', kind:'foot', facing:'left' },
+  guanyu: { src:'art/units/guanyu-v08.png', kind:'mounted', facing:'right' },
+  zhangfei: { src:'art/units/zhangfei-v09.png', kind:'foot', facing:'right' },
+  zhaoyun: { src:'art/units/zhaoyun-v09.png', kind:'foot', facing:'right', mapScale:.84 },
+  huangzhong: { src:'art/units/huangzhong-v09.png', kind:'foot', facing:'right' },
+  madai: { src:'art/units/madai-v09.png', kind:'mounted', facing:'right' },
+  zhugeliang: { src:'art/v034/identity/zhugeliang.png', kind:'foot', facing:'right' },
+  zhangliao: { src:'art/v034/identity/zhangliao.png', kind:'mounted', facing:'left' },
+  liubei: { src:'art/v034/identity/liubei.png', kind:'foot', facing:'right' },
+  jianyong: { src:'art/v034/identity/jianyong.png', kind:'foot', facing:'right' },
+  sunqian: { src:'art/units/sunqian-v020.webp', kind:'foot', facing:'right' },
+  mizhu: { src:'art/units/mizhu-v020.webp', kind:'foot', facing:'right' },
+  x_kongrong: { src:'art/v032/kongrong-map.png', kind:'foot', facing:'right' },
+};
+// A named allied guest has a generic rules template, but keeps Zhang Liao's identity.
+GENERAL_ART.x_zhangliao=GENERAL_ART.zhangliao;
+// Act 2 bodies are siblings; original heroes and Act 1 art stay intact.
+export const ACT2_GENERAL_ART={
+ chendao:{src:'art/v033/sd/chendao.png',kind:'foot',facing:'right'},
+ zhoucang:{src:'art/v033/sd/zhoucang.png',kind:'foot',facing:'right'},
+ xushu:{src:'art/v033/sd/xushu.png',kind:'foot',facing:'right'},
+ x_carriage:{src:'art/act2/x_carriage-v028.png',kind:'foot',facing:'right'},
+ x_zhaoyun:GENERAL_ART.zhaoyun,
+};
+export const ACT2_OFFICER_ART={
+ wenchou:{...GENERAL_ART.wenchou,name:'문추',cls:'cavalry',faction:'yuan'},
+ pursuit_captain:{name:'조조군 추격대장',cls:'cavalry',src:'art/v033/sd/pursuit_captain.png',kind:'mounted',facing:'right',mapScale:.9},
+ kongxiu:{name:'공수',cls:'infantry',src:'art/v033/sd/kongxiu.png',kind:'foot',facing:'right'},
+ hanfu:{name:'한복',cls:'archer',src:'art/v033/sd/hanfu.png',kind:'foot',facing:'right'},
+ bianxi:{name:'변희',cls:'infantry',src:'art/v034/identity/bianxi.png',kind:'foot',facing:'right'},
+ xiahoudun:{name:'하후돈',cls:'cavalry',src:'art/v034/identity/xiahoudun.png',kind:'mounted',facing:'right',mapScale:.9},
+ caoren:{name:'조인',cls:'infantry',src:'art/v033/sd/caoren.png',kind:'foot',facing:'right'},
+ caocao:{name:'조조',cls:'cavalry',src:'art/v033/sd/caocao.png',kind:'mounted',facing:'right',mapScale:.9},
+ xiahouen:{name:'하후은',cls:'infantry',src:'art/v033/sd/xiahouen.png',kind:'foot',facing:'right'},
+};
+function act2OfficerArt(unit){
+ if(unit.team!=='enemy'||unit.generic||!['officer','boss'].includes(unit.combatTier))return null;
+ return Object.values(ACT2_OFFICER_ART).find(record=>record.name===unit.name&&record.cls===unit.cls&&(record.faction??'cao')===unit.faction)??null;
+}
+
+// Act 3 identities resolve before generic templates and class changes: portraits never become combat bodies.
+const ACT3_REVISED_SOURCE={'wei_commander-mounted':'wei_commander_mounted-v0361.png',wu_officer:'wu_officer-v0361.png',weiyan:'weiyan-v0384.png',zhouyu:'zhouyu-v0384.png'};
+const act3SD=(id,kind='foot')=>({src:'art/act3/sd/'+(ACT3_REVISED_SOURCE[id]??id+'.png'),kind,facing:'right',...(kind==='mounted'?{mapScale:.9}:kind==='boat'?{mapScale:.88}:{} )});
+export const ACT3_GENERAL_ART={
+ weiyan:act3SD('weiyan'),guanping:act3SD('guanping'),masu:act3SD('masu'),liaohua:act3SD('liaohua'),
+ maliang:act3SD('maliang'),liufeng:act3SD('liufeng'),pangtong:act3SD('pangtong'),zhouyu:act3SD('zhouyu'),huanggai:act3SD('huanggai'),
+ x_guanyu:GENERAL_ART.guanyu,x_zhoucang:ACT2_GENERAL_ART.zhoucang,x_huanggai:act3SD('huanggai'),e_zhouyu:act3SD('zhouyu'),
+ x_lady_sun:act3SD('lady_sun','boat'),x_ferry:{...act3SD('ferry','boat'),mapBottom:6},
+};
+export const ACT3_OFFICER_ART={
+ wenpin:{...act3SD('wenpin'),name:'문빙',cls:'spear',faction:'cao'},
+ flagship_commander:{...act3SD('wei_commander'),name:'위군 기함 지휘관',cls:'infantry',faction:'cao'},
+ rearguard:{...act3SD('wei_commander-mounted','mounted'),name:'위군 후위대장',cls:'cavalry',faction:'cao'},
+ gate_captain:{...act3SD('wei_commander'),name:'형남 성문장',cls:'infantry',faction:'cao'},
+ hanxuan:{...act3SD('hanxuan'),name:'한현',cls:'infantry',faction:'cao'},
+ huangzhong:{...GENERAL_ART.huangzhong,name:'황충',cls:'archer',faction:'cao'},
+ caoren:{...ACT2_OFFICER_ART.caoren,faction:'cao'},
+ wu_officer:{...act3SD('wu_officer'),name:'오군 호위선장',cls:'spear',faction:'wu'},
+ wei_commander:{...act3SD('wei_commander-mounted','mounted'),name:'위군 지휘관',cls:'cavalry',faction:'cao'},
+};
+const act4Body=(id,cls,rank=0)=>({src:'art/act4/units/'+id+'-'+cls+'-r'+Math.max(0,Math.min(2,rank))+'.svg',kind:cls==='cavalry'?'mounted':'foot',facing:'right',...(cls==='cavalry'?{mapScale:.83}:{}),palette:'original'});
+export const ACT4_GENERAL_ART=Object.fromEntries(['machao','fazheng','yanyan','huangquan','wangping','liyan','wuban','wuyi','zhangyi'].map(id=>[id,{id}]));
+export const ACT4_OFFICER_ART={
+ zhanghe:{...act4Body('zhanghe','cavalry'),id:'zhanghe',name:'장합',classes:['cavalry']},
+ xiahouyuan:{...act4Body('xiahouyuan','cavalry'),id:'xiahouyuan',name:'하후연',classes:['cavalry']},
+ zhangren:{...act4Body('zhangren','archer'),id:'zhangren',name:'장임',classes:['archer','spear']},
+};
+function act4IdentityArt(unit){
+ const hero=Object.hasOwn(ACT4_GENERAL_ART,unit?.id)?ACT4_GENERAL_ART[unit.id]:null;
+ if(hero&&['infantry','spear','cavalry','archer','crossbow','strategist'].includes(unit.cls))return act4Body(hero.id,unit.cls,unit.promotion??0);
+ if(unit?.team!=='enemy'||unit.generic||!['officer','boss'].includes(unit.combatTier))return null;
+ const officer=Object.values(ACT4_OFFICER_ART).find(r=>r.name===unit.name&&r.classes.includes(unit.cls));
+ // These authored SVGs face right; combat presentation mirrors the opponent.
+ return officer?act4Body(officer.id,unit.cls,unit.promotion??unit.rank??0):null;
+}
+function act3OfficerArt(unit){
+ if(unit.team!=='enemy'||unit.generic||!['officer','boss'].includes(unit.combatTier))return null;
+ return Object.values(ACT3_OFFICER_ART).find(record=>record.name===unit.name&&record.cls===unit.cls&&(record.faction===unit.faction||record.faction==='cao'&&unit.faction==='wei'))??null;
+}
+
+const ACT2_NAMED_BODY={'안량':GENERAL_ART.yanliang,'장료':GENERAL_ART.zhangliao,'여포':{src:'art/units/lvbu-v020.webp',kind:'mounted',facing:'left'}};
+// 서로 다른 장이 e_boss를 재사용하므로 실제 ID·이름·진영·병과를 함께 확인한다.
+export const NAMED_BOSS_ART = {
+  yellow_boss: { src:'art/units/yellow-chief-v020.webp', kind:'foot', facing:'left' },
+  huaxiong: { src:'art/units/huaxiong-v020.webp', kind:'mounted', facing:'left' },
+  guanhai: { src:'art/units/guanhai-v020.webp', kind:'foot', facing:'left' },
+  cao_vanguard: { src:'art/units/cao-vanguard-v020.webp', kind:'mounted', facing:'left' },
+  lvbu: { src:'art/units/lvbu-v020.webp', kind:'mounted', facing:'left' },
+};
+const BOSS_NAMES = Object.freeze({'황건 두목':'yellow_boss','화웅':'huaxiong','관해':'guanhai','조조군 선봉장':'cao_vanguard','여포':'lvbu'});
+const BOSS_FACTIONS = Object.freeze({yellow_boss:'yellow',huaxiong:'dong',guanhai:'yellow',cao_vanguard:'cao',lvbu:'lu'});
+function namedBossKey(unit) {
+  if(unit.id!=='e_boss' || unit.team!=='enemy' || unit.generic || !Object.hasOwn(BOSS_NAMES,unit.name))return null;
+  const id=BOSS_NAMES[unit.name],art=NAMED_BOSS_ART[id];
+  return unit.faction===BOSS_FACTIONS[id] && unit.cls===(art.kind==='mounted'?'cavalry':'infantry') ? id : null;
+}
+export const TROOP_ART = {
+  strategist: { src:'art/v038/strategist.png', kind:'foot', facing:'left' },
+  infantry: { src:'art/units/infantry-v08.png', kind:'foot', facing:'left' },
+  spear: { src:'art/units/spear-v09.png', kind:'foot', facing:'left' },
+  archer: { src:'art/units/archer-v09.png', kind:'foot', facing:'left' },
+  crossbow: { src:'art/units/crossbow-v09.png', kind:'foot', facing:'left' },
+  cavalry: { src:'art/units/cavalry-v020.webp', kind:'mounted', facing:'left' },
+};
+// Replace only selected delivered bodies. Identity, equipment kind, facing and
+// faction palettes stay on their existing authored records, including aliases.
+for(const table of [GENERAL_ART,ACT2_GENERAL_ART,ACT2_OFFICER_ART,ACT3_GENERAL_ART,ACT3_OFFICER_ART,NAMED_BOSS_ART,ACT2_NAMED_BODY,TROOP_ART])for(const record of Object.values(table)){
+ const revised=SPRITE_REVISIONS[record.src]??EXTRA_SPRITE_REVISIONS[record.src];if(revised)Object.assign(record,revised);
+}
+// Populate only when promoted sprites are delivered. Existing hero art stays the fallback.
+export const PROMOTED_ART = {...PROMOTED_TROOP_ART};
+const promotedSources=new Set(PROMOTED_ART_RECORDS.map(record=>record.src));
+const sharedBodySources=new Set([...Object.values(TROOP_ART).map(record=>record.src),...promotedSources]);
+const troopPalette=unit=>unit.faction||(unit.team==='ally'?'shu':'wei');
+function promotedTroop(unit,base){
+ const rank=unit.promotion;
+ const promoted=Number.isInteger(rank)&&rank>=1&&rank<=2?PROMOTED_TROOP_ART[unit.cls]?.[rank]:null;
+ return {...base,...promoted,palette:troopPalette(unit),...(promoted?{fallbackSrc:base.src}:{})};
+}
+function resolveArtFor(unit,scenario) {
+  const specialist=specialistArtFor(unit);if(specialist)return specialist;
+  if(inheritedGuest(unit))return artFor({...unit,id:guestHeroIdentity(unit),extra:false},scenario);
+  const later=laterIdentityArt(unit);if(later)return later;
+  if(unit?.team==='ally'&&unit.extra&&unit.faction==='wu'){
+   if(unit.id==='a_wu_support_0'&&unit.name==='오군 협력 창병'&&unit.cls==='spear')return promotedTroop(unit,TROOP_ART.spear);
+   if(unit.id==='a_wu_support_1'&&unit.name==='오군 협력 활병'&&unit.cls==='archer')return promotedTroop(unit,TROOP_ART.archer);
+  }
+  if(unit?.id==='supply_cart'&&unit.name==='군수 수레'&&unit.team==='ally'&&unit.extra&&unit.nonCombat)return {...ACT2_GENERAL_ART.x_carriage,palette:'original'};
+  const act4=act4IdentityArt(unit);if(act4)return act4;
+  const act3Named=(Object.hasOwn(ACT3_GENERAL_ART,unit?.id)?ACT3_GENERAL_ART[unit.id]:null)??act3OfficerArt(unit);
+  if(act3Named)return {...act3Named,palette:"original"};
+  if(unit?.team==='ally'&&!unit.extra&&unit.classTraining){
+   if(unit.id==='zhaoyun'&&unit.cls==='cavalry')return {src:'art/units/zhaoyun-cavalry-v029.png',kind:'mounted',facing:'right',mapScale:.82,palette:'original'};
+   const portrait=portraitURL(unit.id,'normal',unit.id==='huangzhong'?'s18_changsha':'s12_xinye',{faction:'shu'});
+   if(unit.id==='huangzhong'&&(!portrait||/\/sil_[^/]+\.(?:webp|png)$/.test(portrait)))return {...GENERAL_ART.huangzhong,palette:'original'};
+   if(portrait)return {src:portrait,kind:'class-portrait',facing:'right',palette:'original',classPortrait:true};
+   return null;
+  }
+  const bossKey=namedBossKey(unit),named=(Object.hasOwn(GENERAL_ART,unit.id)?GENERAL_ART[unit.id]:null)??(Object.hasOwn(ACT2_GENERAL_ART,unit.id)?ACT2_GENERAL_ART[unit.id]:null)??(bossKey?NAMED_BOSS_ART[bossKey]:null)??act2OfficerArt(unit)??(unit.combatTier&&Object.hasOwn(ACT2_NAMED_BODY,unit.name)?ACT2_NAMED_BODY[unit.name]:null);
+  const original=named??(unit.generic||unit.combatTier?TROOP_ART[unit.cls]??null:null);
+  const rank=Number.isInteger(unit.promotion)&&unit.promotion>=0&&unit.promotion<=2?unit.promotion:0;
+  const individualPromoted=named?PROMOTED_ART[bossKey??unit.id]?.[rank]:null;
+  if(individualPromoted&&original)return {...original,...individualPromoted,palette:'original',fallbackSrc:original.src};
+  if (named) return {...named,palette:'original'};
+  if (unit.combatTier&&!unit.generic&&original)return {...original,palette:unit.faction??'original'};
+  if (unit.generic && Object.hasOwn(TROOP_ART,unit.cls)) {
+    return promotedTroop(unit,TROOP_ART[unit.cls]);
+  }
+  return null;
+}
+export const UNIT_ART_PALETTES=Object.freeze(['shu','wei','wu','yellow','dong','cao','lu','yuan','nanman','jing','zhanglu','liuzhang','xiliang','rebel','coalition','neutral']);
+export function artFor(unit,scenario=null){
+ const art=resolveArtFor(unit,scenario);if(!art)return null;
+ const presentation=armyPresentation(unit,scenario);
+ if(sharedBodySources.has(art.src)||art.palette&&art.palette!=='original')return {...art,palette:presentation.palette};
+ // This local gate captain reuses a blue Wei commander body. Preserve its
+ // identity/geometry and tint only the cloth in this explicitly identified scene.
+ const chapter=typeof scenario==='string'?scenario:scenario?.id;
+ if(chapter==='s17_jingnan'&&unit?.team==='enemy'&&art.src===ACT3_OFFICER_ART.gate_captain.src)return {...art,palette:presentation.palette};
+ return art;
+}
+// Match the resolved artwork, not class alone: Liu Bei and Zhang Fei are infantry heroes.
+export function troopArtClass(unit,scenario=null) {
+  if(specialistArtKey(unit))return unit.cls;
+  const source=artFor(unit,scenario)?.src;
+  if(promotedSources.has(source))return unit.cls;
+  return Object.keys(TROOP_ART).find(cls=>TROOP_ART[cls].src===source)??null;
+}
+export function spriteHTML(unit,extra='',scenario=null) {
+  const art=artFor(unit,scenario); if(!art)return '';
+  installMapSpriteFallback();
+  const troopClass=troopArtClass(unit,scenario);
+  const palette=UNIT_ART_PALETTES.includes(art.palette)?art.palette:'original';
+  const body=mapBodyLayout(art);
+  const mapScale=!body&&Number.isFinite(art.mapScale)&&art.mapScale>0&&art.mapScale<=1?art.mapScale:null;
+  const baseStyle=body?Object.entries(body).map(([key,value])=>'--unit-body-'+key+':'+value+'%').join(';'):mapScale?'--unit-map-scale:'+mapScale:'';
+  // Source-specific boat hull calibration anchors the painted keel on the
+  // existing map baseline; a lower oar can extend beneath it without moving its cell.
+  const style=[baseStyle,Number.isFinite(art.mapBottom)?'bottom:'+art.mapBottom+'%':''].filter(Boolean).join(';');
+  return promotionAuraHTML(unit)+unitRankMarkerHTML(unit)+'<img class="battle-sprite '+art.kind+(troopClass==='strategist'?' troop-strategist':'')+( ['infantry','crossbow'].includes(troopClass)?' small-troop':'')+(body?' body-normalized':mapScale?' map-normalized':'')+' palette-'+palette+' '+extra+'" '+(style?'style="'+style+'" ':'')+'src="'+mapSpriteSource(art.src)+'" data-map-sprite decoding="async" '+(art.fallbackSrc?'data-fallback-src="'+mapSpriteSource(art.fallbackSrc)+'" ':'')+'alt="" draggable="false">';
+}
+// The blue-cloth mask recolors the shared texture at render time; metal keeps its color.
+export function installPaletteFilters() {
+  // app installs its existing sprite-failure handler immediately after this
+  // initializer. Register the derivative retry first, even with cached SVG defs.
+  installMapSpriteFallback();
+  if(document.getElementById('troop-palette-filters'))return;
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  defs.id='troop-palette-filters';defs.setAttribute('aria-hidden','true');
+  defs.setAttribute('width','0');defs.setAttribute('height','0');defs.style.position='absolute';
+  // Dark navy needs a stronger blue selection only on a shared strategist body.
+  // Existing masks and their primitive graph remain byte-for-byte equivalent.
+  const originalFilters=[['shu',-85],['wu',135],['yellow',180],['dong',70],['cao',0],['lu',100],['strategist-shu',-85,3],['strategist-wu',135,3]].map(([faction,angle,strength=1])=>
+    '<filter id="cloth-'+faction+'" color-interpolation-filters="sRGB" x="-5%" y="-5%" width="110%" height="110%">'+
+    '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 '+(-2*strength)+' '+(-strength)+' '+(3*strength)+' 0 0" result="blueMask"/>'+
+    '<feComposite in="blueMask" in2="SourceAlpha" operator="in" result="clothMask"/>'+
+    '<feColorMatrix in="SourceGraphic" type="hueRotate" values="'+angle+'" result="tinted"/>'+
+    '<feComposite in="tinted" in2="clothMask" operator="in" result="cloth"/>'+
+    '<feComposite in="SourceGraphic" in2="clothMask" operator="out" result="rest"/>'+
+    '<feComposite in="cloth" in2="rest" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>'+
+    '</filter>').join('');
+  // New armies reuse the same bounded cloth mask. Saturation and brightness
+  // affect only the selected cloth; source skin, armour and equipment stay intact.
+  const armies=[['jing',60,.8,1,0],['yuan',170,.9,1.65,.025],['zhanglu',-60,.8,1.15,.015],['liuzhang',180,.65,1.15,0],['xiliang',0,0,1.6,.12],['nanman',135,.6,1,0],['rebel',180,.2,1.05,.01],['coalition',0,0,1.1,.055],['neutral',0,0,1.1,.055]];
+  const addedFilters=armies.flatMap(([id,angle,saturation,gain,bias])=>[[id,1],['strategist-'+id,3]].map(([name,strength])=>
+   '<filter id="cloth-'+name+'" color-interpolation-filters="sRGB" x="-5%" y="-5%" width="110%" height="110%">'+
+   '<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 '+(-2*strength)+' '+(-strength)+' '+(3*strength)+' 0 0" result="blueMask"/>'+
+   '<feComposite in="blueMask" in2="SourceAlpha" operator="in" result="clothMask"/>'+
+   '<feColorMatrix in="SourceGraphic" type="hueRotate" values="'+angle+'" result="hueTint"/>'+
+   '<feColorMatrix in="hueTint" type="saturate" values="'+saturation+'" result="saturatedTint"/>'+
+   '<feColorMatrix in="saturatedTint" type="matrix" values="'+gain+' 0 0 0 '+bias+' 0 '+gain+' 0 0 '+bias+' 0 0 '+gain+' 0 '+bias+' 0 0 0 1 0" result="tinted"/>'+
+   '<feComposite in="tinted" in2="clothMask" operator="in" result="cloth"/>'+
+   '<feComposite in="SourceGraphic" in2="clothMask" operator="out" result="rest"/>'+
+   '<feComposite in="cloth" in2="rest" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>'+
+   '</filter>')).join('');
+  defs.innerHTML='<defs>'+originalFilters+addedFilters+'</defs>';
+  document.body.append(defs);
+}
+export function movementPath(state,unit,x,y) {
+  if(huarongChaser(state,unit))return huarongMovementPath(state,unit,x,y);
+  const start=key(unit.x,unit.y),goal=key(x,y),queue=[{x:unit.x,y:unit.y,cost:0}];
+  const costs=new Map([[start,0]]),prev=new Map(),limit=movement(unit,state);
+  if(!inside(x,y,state))return [];
+  const dest=occupant(state,x,y);if(dest && dest.id!==unit.id)return [];
+  while(queue.length){
+    queue.sort((a,b)=>a.cost-b.cost);const p=queue.shift(),k=key(p.x,p.y);
+    if(p.cost!==costs.get(k))continue;if(k===goal)break;
+    for(const [dx,dy] of [[0,-1],[-1,0],[1,0],[0,1]]){
+      const nx=p.x+dx,ny=p.y+dy;if(!inside(nx,ny,state))continue;
+      const other=occupant(state,nx,ny);if(other && other.team!==unit.team)continue;
+      const cost=p.cost+terrainMovementCost(state,unit,nx,ny),nk=key(nx,ny);
+      if(cost>limit || cost>=(costs.get(nk)??Infinity))continue;
+      costs.set(nk,cost);prev.set(nk,k);queue.push({x:nx,y:ny,cost});
+    }
+  }
+  if(!costs.has(goal))return [];
+  const route=[];let cursor=goal;
+  while(cursor){const [px,py]=cursor.split(',').map(Number);route.unshift({x:px,y:py});cursor=prev.get(cursor);}
+  return route;
+}

@@ -1,0 +1,69 @@
+import {act3LimitedWaves} from './act3-reinforcement-limit.js';
+
+export const CHANGSHA_REINFORCEMENT_VERSION=1;
+export const changshaReinforcementApplies=chapter=>chapter?.id==='s18_changsha'&&chapter.act===3&&chapter.rosterMode==='story'&&chapter.campaignLayoutVersion===1&&chapter.battleEventsVersion===1;
+const ensure=(ok,message)=>{if(!ok)throw new Error('장사 증원 제한 기록 오류: '+message);};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const unique=ids=>Array.isArray(ids)&&ids.every(id=>typeof id==='string')&&new Set(ids).size===ids.length;
+const enemyWaves=chapter=>(chapter.reinforcements??[]).filter(wave=>wave.team!=='ally');
+const sourceWaves=(state,chapter)=>act3LimitedWaves(state,chapter,enemyWaves(chapter));
+
+// The original Act 3 exclusions remain the historical source. This overlay
+// cancels only future waves; an already arrived five- or six-unit wave is exact.
+export function changshaDefaultRemovedIds(state,chapter,spawned=[]){
+ if(!changshaReinforcementApplies(chapter)||state.act3ReinforcementVersion!==1)return [];
+ const pending=sourceWaves(state,chapter).filter(wave=>!spawned.includes(wave.id));
+ const keep=spawned.length===0?pending[0]?.id:null;
+ return pending.flatMap(wave=>wave.id===keep?[]:wave.unitIds);
+}
+export function changshaLimitedWaves(state,chapter,waves){
+ if(state?.changshaReinforcementVersion!==1||!changshaReinforcementApplies(chapter))return waves;
+ const removed=new Set(state.changshaReinforcementRemovedIds??[]);
+ return waves.map(wave=>wave.team==='ally'?wave:{...wave,unitIds:wave.unitIds.filter(id=>!removed.has(id))}).filter(wave=>wave.unitIds.length);
+}
+export function changshaLimitedEnemyOrders(state,chapter,orders){
+ if(state?.changshaReinforcementVersion!==1||!changshaReinforcementApplies(chapter))return orders;
+ const removed=new Set(state.changshaReinforcementRemovedIds??[]);return orders.filter(order=>!removed.has(order.id));
+}
+function validateSource(state,chapter,spawned,removed){
+ ensure(changshaReinforcementApplies(chapter)&&state.act3ReinforcementVersion===1&&state.battleEventsVersion===1,'전장/원천 버전');
+ const waves=enemyWaves(chapter);
+ ensure(unique(spawned)&&spawned.every(id=>waves.some(wave=>wave.id===id)),'과거 도착 명단');
+ ensure(unique(removed)&&same(removed,changshaDefaultRemovedIds(state,chapter,spawned)),'제외 명단 원본/순서');
+}
+export function initializeChangshaReinforcementLimit(state,chapter,{changshaReinforcementVersion=1,changshaReinforcementRemovedIds=null,changshaReinforcementSpawnedWaves=null}={}){
+ ensure([0,1].includes(changshaReinforcementVersion),'지원하지 않는 버전');
+ if(!changshaReinforcementVersion||!changshaReinforcementApplies(chapter)||state.act3ReinforcementVersion!==1)return;
+ const spawned=changshaReinforcementSpawnedWaves===null?[]:[...changshaReinforcementSpawnedWaves];
+ const removed=changshaReinforcementRemovedIds===null?changshaDefaultRemovedIds(state,chapter,spawned):[...changshaReinforcementRemovedIds];
+ validateSource(state,chapter,spawned,removed);
+ state.changshaReinforcementVersion=1;state.changshaReinforcementRemovedIds=removed;state.changshaReinforcementSpawnedWaves=spawned;
+ state.units=state.units.filter(unit=>!removed.includes(unit.id));
+}
+export function validateChangshaReinforcementLimit(state,chapter){
+ const version=state.changshaReinforcementVersion,removed=state.changshaReinforcementRemovedIds,history=state.changshaReinforcementSpawnedWaves;
+ if(version===undefined){ensure(removed===undefined&&history===undefined,'버전 없는 신규 명단');return;}
+ ensure(version===1,'지원하지 않는 버전');validateSource(state,chapter,history,removed);
+ const spawned=(state.reinforcements?.spawned??[]).filter(id=>enemyWaves(chapter).some(wave=>wave.id===id));
+ ensure(history.every(id=>spawned.includes(id)),'과거 도착 기록 누락');
+ ensure(spawned.length<=Math.max(1,history.length),'새 증원 횟수');
+ const units=[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+ ensure(removed.every(id=>!units.some(unit=>unit.id===id)),'취소 예비대의 재등장');
+}
+// Called only after the complete checkpoint has passed its original rules.
+// Completed battles and their reward receipts remain historical snapshots.
+export function upgradeValidatedChangshaReinforcementLimit(value,chapter){
+ const state=value.state;
+ if(!changshaReinforcementApplies(chapter)||state.changshaReinforcementVersion!==undefined||state.act3ReinforcementVersion!==1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const enemyIds=new Set(enemyWaves(chapter).map(wave=>wave.id));
+ const spawned=(state.reinforcements?.spawned??[]).filter(id=>enemyIds.has(id));
+ const removed=changshaDefaultRemovedIds(state,chapter,spawned),removedSet=new Set(removed);
+ if(state.reinforcements){
+  for(const wave of state.reinforcements.pending)wave.units=wave.units.filter(unit=>!removedSet.has(unit.id));
+  state.reinforcements.pending=state.reinforcements.pending.filter(wave=>wave.units.length);
+  if(!state.reinforcements.pending.length&&!state.reinforcements.spawned.length)delete state.reinforcements;
+ }
+ state.changshaReinforcementVersion=1;state.changshaReinforcementRemovedIds=removed;state.changshaReinforcementSpawnedWaves=[...spawned];
+ validateChangshaReinforcementLimit(state,chapter);
+ return {removedIds:[...removed],preservedSpawned:[...spawned]};
+}

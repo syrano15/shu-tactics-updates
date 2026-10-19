@@ -1,0 +1,62 @@
+// Display allegiance is independent of the historical rules faction in a save.
+// Only an explicit chapter and side can reinterpret a reused faction identifier.
+const army=(id,palette,label)=>Object.freeze({id,palette,label});
+const armies=Object.freeze({
+ shu:army('shu','shu','촉군'),wei:army('wei','wei','위군'),cao:army('cao','cao','조조군'),wu:army('wu','wu','오군'),
+ yellow:army('yellow','yellow','황건군'),dong:army('dong','dong','동탁군'),lu:army('lu','lu','여포군'),
+ yuan:army('yuan','yuan','원소군'),nanman:army('nanman','nanman','남만군'),
+ jing:army('jing','jing','형남군'),hanxuan:army('hanxuan','jing','한현군'),
+ zhanglu:army('zhanglu','zhanglu','장로군'),liuzhang:army('liuzhang','liuzhang','유장군'),
+ xiliang:army('xiliang','xiliang','서량군'),rebel:army('rebel','rebel','반란군'),
+ coalition:army('coalition','coalition','연합군'),kongrong:army('kongrong','original','공융군'),
+ militia:army('militia','shu','의병'),unknown:army('unknown','neutral','미상 세력'),ally:army('ally','shu','아군'),
+});
+const enemyArmies=Object.freeze({
+ border:'wei',pass:'wei',
+ s17_jingnan:'jing',s18_changsha:'hanxuan',s22_jiameng:'zhanglu',
+ s23_fucheng:'liuzhang',s24_luofengpo:'liuzhang',s25_luocheng:'liuzhang',s27_chengdu:'liuzhang',
+ s26_machao:'xiliang',s38_langzhong:'rebel',
+});
+const guestArmies=Object.freeze({
+ s03_hulao:Object.freeze({x_coalition1:'coalition',x_coalition2:'coalition'}),
+ s04_beihai:Object.freeze({x_kongrong:'kongrong'}),
+ s07_xiapi:Object.freeze({x_cao_spear:'cao'}),
+ s09_baima:Object.freeze({x_zhangliao:'cao',x_cao_spear:'cao'}),
+ s15_chibi:Object.freeze({huanggai:'wu',x_huanggai:'wu'}),
+ s19_jiangling:Object.freeze({e_zhouyu:'wu'}),
+ s20_adou_river:Object.freeze({x_lady_sun:'wu'}),
+});
+const chapterId=scenario=>typeof scenario==='string'?scenario:scenario?.id;
+const factionArmy=unit=>Object.hasOwn(armies,unit?.faction)?armies[unit.faction]:unit?.team==='ally'?armies.ally:armies.unknown;
+
+export function armyPresentation(unit,scenario=null){
+ const id=chapterId(scenario);
+ if(unit?.team==='ally'){
+  const guests=Object.hasOwn(guestArmies,id)?guestArmies[id]:null;
+  const guest=unit.extra&&guests&&Object.hasOwn(guests,unit.id)?guests[unit.id]:null;
+  if(guest)return armies[guest];
+  if(unit.extra&&/^x_militia[12]$/.test(unit.id??'')&&['s01_zhuoxian','s02_yellow_camp','s04_beihai','s05_xuzhou_relief'].includes(id))return armies.militia;
+  return factionArmy(unit);
+ }
+ if((!unit||unit.team==='enemy')&&Object.hasOwn(enemyArmies,id))return armies[enemyArmies[id]];
+ if(unit)return factionArmy(unit);
+ // A mixed encounter retains its authored aggregate label. Individual units
+ // still use their own explicit faction, so Wu and Wei never merge colours.
+ if(scenario&&typeof scenario==='object'){
+  const factions=[...new Set((Array.isArray(scenario.enemies)?scenario.enemies:[]).map(enemy=>enemy?.faction).filter(Boolean))];
+  if(factions.length===1&&Object.hasOwn(armies,factions[0]))return armies[factions[0]];
+  if(typeof scenario.enemyLabel==='string'&&scenario.enemyLabel.trim())return army('scenario','original',scenario.enemyLabel);
+ }
+ return armies.unknown;
+}
+export const armyLabel=(unit,scenario=null)=>armyPresentation(unit,scenario).label;
+
+const armyPrefix=/^(?:조조군|위군|촉군|오군|원소군|남만군|여포군|동탁군|황건군|형남군|한현군|장로군|유장군|서량군|반란군)(?=\s)/;
+export function armyUnitName(unit,scenario=null){
+ const name=typeof unit?.name==='string'?unit.name:'부대';
+ // Identified officers and heroes retain the exact name used by art resolvers.
+ if(!(unit?.generic===true||['troop','elite'].includes(unit?.combatTier)))return name;
+ const profile=armyPresentation(unit,scenario);
+ if(profile.id==='unknown'||profile.id==='ally')return name;
+ return name.replace(armyPrefix,profile.label);
+}
