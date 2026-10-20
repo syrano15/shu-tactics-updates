@@ -1,0 +1,54 @@
+/* One stable battlefield, with compact chrome and a command dock over the map. */
+.mobile-battle-tools,.mobile-map-help{display:none}
+.mobile-detail-topbar{display:none}
+body.mobile-battle-screen #modal:has(.mobile-detail-topbar){padding:0;width:min(620px,calc(100% - 16px));max-width:calc(100% - 16px);max-height:calc(100dvh - 16px);overflow:hidden}
+body.mobile-battle-screen #modal:has(.mobile-detail-topbar) #modal-content{display:flex;flex-direction:column;min-height:0;max-height:calc(100dvh - 20px);overflow:hidden}
+body.mobile-battle-screen .mobile-detail-topbar{display:flex;flex:none;align-items:center;justify-content:space-between;gap:8px;min-height:52px;padding:4px 8px;background:#203326;border-bottom:1px solid #596046}
+body.mobile-battle-screen .mobile-detail-topbar strong{font-size:15px;color:var(--gold)}
+body.mobile-battle-screen .mobile-detail-topbar button{min-width:48px;min-height:44px;font-size:14px;padding:6px 8px}
+body.mobile-battle-screen .mobile-detail-content{flex:1 1 auto;min-height:0;padding:12px;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom}
+body.mobile-battle-screen .mobile-detail-content .prediction,body.mobile-battle-screen .mobile-detail-content .skill-prediction{max-height:none;overflow:visible;overscroll-behavior:auto}
+body.battle-screen.mobile-battle-screen #game-main{display:flex;flex-direction:column;gap:0;padding:0;margin:0;width:100%;height:100%;min-height:0;overflow:hidden}
+body.mobile-battle-screen #game-main>.battle-heading{flex:0 0 28px;min-height:0;margin:0;padding:3px 8px;align-items:center}
+body.mobile-battle-screen .battle-heading>div{min-width:0;max-width:100%}
+body.mobile-battle-screen .battle-heading #chapter-title{margin:0;font-size:14px;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.mobile-battle-screen #chapter-subtitle,body.mobile-battle-screen #battle-objective,body.mobile-battle-screen #game-main>footer{display:none!important}
+body.mobile-battle-screen #save-notice{position:fixed;top:76px;left:8px;right:8px;z-index:60;pointer-events:none}
+body.mobile-battle-screen #battle-scene:not([hidden]){display:flex;flex:1;min-height:0;height:auto;overflow:hidden}
+#battle-scene[data-mobile-ui=true]>.battlefield{display:flex;flex:1;flex-direction:column;min-height:0;height:100%;margin:0;padding:0;border:0;border-radius:0}
+#battle-scene[data-mobile-ui=true] .field-top{display:flex;flex:0 0 44px;min-height:44px;max-height:44px;flex-wrap:nowrap;gap:6px;padding:0 6px;margin:0;overflow:hidden}
+#battle-scene[data-mobile-ui=true] .field-top .turn-display{min-width:0;flex:1;gap:5px;font-size:11px}
+#battle-scene[data-mobile-ui=true] .turn-display #phase{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#battle-scene[data-mobile-ui=true] .turn-display #round{font-size:17px}
+#battle-scene[data-mobile-ui=true] #weather-info,#battle-scene[data-mobile-ui=true] .battle-victory-goal{display:none!important}
+#battle-scene[data-mobile-ui=true] .mobile-battle-tools{display:flex;gap:5px;flex-shrink:0}
+#battle-scene[data-mobile-ui=true] .mobile-battle-tools button,#battle-scene[data-mobile-ui=true] #battle-menu-open{min-width:44px;min-height:44px;height:44px;padding:5px 8px;font-size:13px;line-height:1.3}
+#battle-scene[data-mobile-ui=true] .battle-workspace{flex:1;min-height:0;margin:0}
+#battle-scene[data-mobile-ui=true] .battle-map-column{display:flex;flex-direction:column;min-height:0;height:100%}
+#battle-scene[data-mobile-ui=true].is-skill-targeting .battle-workspace{display:flex!important;flex:1;min-height:0;overflow:hidden}
+#battle-scene[data-mobile-ui=true].is-skill-targeting .battle-map-column{display:flex;flex:1 1 auto!important;flex-direction:column;min-height:0;height:100%}
+#battle-scene[data-mobile-ui=true] #board-stage{flex:1;min-height:0;height:auto!important;padding:0!important;border:0}
+#battle-scene[data-mobile-ui=true] #board-stage .board-viewport{position:absolute;inset:0;margin:0;width:100%;height:100%;max-width:none;max-height:none;padding:0;box-sizing:border-box}
+#battle-scene[data-mobile-ui=true] .board-navigation{top:6px;left:6px;right:auto;max-width:calc(100% - 12px);width:auto;margin:0;padding:4px;background:#14271ef5;border:1px solid #5c674d;border-radius:7px;gap:4px}
+#battle-scene[data-mobile-ui=true] .board-navigation .board-zoom,#battle-scene[data-mobile-ui=true] .board-navigation .board-pan{gap:4px}
+#battle-scene[data-mobile-ui=true] .board-navigation button{min-width:44px;min-height:44px;padding:5px;font-size:13px;line-height:1.3}
+#battle-scene[data-mobile-ui=true] .board-navigation button[data-board-focus]{min-width:76px}
+#battle-scene[data-mobile-ui=true] .board-navigation output,#battle-scene[data-mobile-ui=true] .board-navigation small{display:none}
+#battle-scene[data-mobile-ui=true] .mobile-map-help{display:block;position:absolute;left:8px;bottom:7px;z-index:12;max-width:calc(100% - 128px);margin:0;padding:3px 5px;background:#102419df;border-radius:4px;font-size:10px;line-height:1.35;color:#cbd5bd;pointer-events:none}
+#battle-scene[data-mobile-ui=true][data-mobile-panel=true] .mobile-map-help{display:none}
+#battle-scene[data-mobile-ui=true] .battle-unit-side,#battle-scene[data-mobile-ui=true] #skill-targeting-panel,#battle-scene[data-mobile-ui=true].is-skill-targeting #skill-targeting-panel{left:6px;right:6px;bottom:6px;top:auto;width:auto;height:auto;min-height:0;max-height:var(--mobile-command-max-height,min(52dvh,calc(100% - 64px)));overflow:hidden;background:#14271ef7;border:1px solid #778160;box-shadow:0 2px 14px #0008;border-radius:9px;z-index:21}
+#battle-scene[data-mobile-ui=true] .end-turn{width:108px;bottom:max(6px,env(safe-area-inset-bottom));right:6px;min-width:108px;min-height:44px;font-size:13px;padding:6px 10px}
+#battle-scene[data-mobile-ui=true][data-mobile-panel=true] .end-turn{visibility:hidden;pointer-events:none}
+#battle-scene[data-mobile-ui=true] .boss-cleanup-finish{bottom:max(6px,env(safe-area-inset-bottom));left:6px;right:calc(6px + 108px + 8px);max-width:none;min-height:44px;font-size:13px}
+#battle-scene[data-mobile-ui=true] .battle-feedback{top:66px;max-width:calc(100% - 20px);padding:7px 10px;font-size:13px;line-height:1.4}
+@media(orientation:landscape) and (min-width:601px){
+ body.mobile-battle-screen #game-main>.battle-heading{display:none!important}
+ #battle-scene[data-mobile-ui=true] .battle-unit-side,#battle-scene[data-mobile-ui=true] #skill-targeting-panel,#battle-scene[data-mobile-ui=true].is-skill-targeting #skill-targeting-panel{left:auto;right:6px;bottom:6px;width:304px;max-height:var(--mobile-command-max-height,calc(100% - 12px))}
+ #battle-scene[data-mobile-ui=true][data-mobile-panel=true] .board-navigation{max-width:calc(100% - 326px)}
+ #battle-scene[data-mobile-ui=true] .battle-feedback{left:8px;translate:0;max-width:calc(100% - 332px)}
+}
+@media(max-width:359px){
+ #battle-scene[data-mobile-ui=true] .board-navigation{gap:3px;padding:3px}
+ #battle-scene[data-mobile-ui=true] .board-navigation .board-zoom,#battle-scene[data-mobile-ui=true] .board-navigation .board-pan{gap:3px}
+ #battle-scene[data-mobile-ui=true] .board-navigation button[data-board-focus]{min-width:64px;font-size:12px}
+}
