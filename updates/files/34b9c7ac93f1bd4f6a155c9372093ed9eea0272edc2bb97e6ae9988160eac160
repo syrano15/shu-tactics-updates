@@ -1,0 +1,84 @@
+/* v0.31: larger portraits occupy the scene, with a separate readable dialogue row. */
+.dialogue-scene{--dialogue-scene-height:clamp(660px,88dvh,880px);height:var(--dialogue-scene-height);grid-template-rows:52px minmax(0,1fr) 212px 20px}
+.dialogue-scene .portrait-stage,.dialogue-scene.paired-dialogue .portrait-stage{justify-content:space-between;align-items:flex-end;padding:12px clamp(22px,4vw,68px) 6px;gap:24px}
+.dialogue-scene .character-portrait,.dialogue-scene.paired-dialogue .character-portrait{width:min(380px,42%,calc(var(--dialogue-scene-height) - 342px));max-width:none;margin:0;opacity:.72;filter:saturate(.82);transform:none;border:0;background:transparent;box-shadow:none}
+.dialogue-scene .character-portrait.speaking,.dialogue-scene.paired-dialogue .character-portrait.speaking{opacity:1;filter:none;transform:none;border:0;box-shadow:none}
+.dialogue-scene .portrait-viewport,.dialogue-scene .portrait-viewport.framed-portrait,.dialogue-scene .portrait-viewport.sheet-portrait{background:transparent;border-radius:0;box-shadow:none}
+.dialogue-scene.paired-dialogue #portrait-right{margin-left:auto}
+/* Mirror only the artwork. Names, shoulder crops and dialogue controls retain their direction. */
+.dialogue-scene.paired-dialogue #portrait-right .portrait-viewport{transform:scaleX(-1)}
+.dialogue-scene .character-portrait figcaption,.dialogue-scene.paired-dialogue .character-portrait figcaption{justify-content:center;height:34px;min-height:34px;padding:4px 12px;font-size:16px;line-height:26px;color:#c9ceb9;background:linear-gradient(90deg,transparent,#13241cbb 18%,#13241cbb 82%,transparent);border-bottom:1px solid #6f786744}
+.dialogue-scene .character-portrait.speaking figcaption,.dialogue-scene.paired-dialogue .character-portrait.speaking figcaption{color:#f7dd91;background:linear-gradient(90deg,transparent,#26351cdd 18%,#26351cdd 82%,transparent);border-color:#cdb570}
+.dialogue-scene .dialogue-box{height:212px}
+.dialogue-scene.paired-dialogue .dialogue-box::before{content:'';position:absolute;top:-6px;width:10px;height:10px;transform:rotate(45deg);background:#091611;border-top:1px solid #9f946c;border-left:1px solid #9f946c;left:15%}
+.dialogue-scene.paired-dialogue[data-speaking-side="right"] .dialogue-box::before{left:auto;right:15%}
+.dialogue-scene.paired-dialogue.narration .dialogue-box::before,.dialogue-scene.paired-dialogue.has-story-cg .dialogue-box::before{display:none}
+.dialogue-scene.paired-dialogue[data-speaking-side="right"] .speaker-row h3::before{content:'◀ ';font-size:13px}
+.dialogue-scene.paired-dialogue[data-speaking-side="left"] .speaker-row h3::before{content:'▶ ';font-size:13px}
+.dialogue-scene .story-cutin .portrait-viewport{width:min(380px,calc(var(--dialogue-scene-height) - 342px));height:auto;aspect-ratio:1}
+/* Facial alignment is independent of hair ornaments; only the lower chest is clipped. */
+.dialogue-scene .character-portrait img[src*="/portrait/v031/zhoucang/"]{transform:translateY(8%)}
+.dialogue-scene .character-portrait img[src*="/portrait/v031/bianxi/"],.dialogue-scene .character-portrait img[src*="/portrait/v031/liubiao/"],.dialogue-scene .character-portrait img[src*="/portrait/v031/simahui/"]{transform:translateY(4%)}
+@media(max-width:620px){
+ .dialogue-scene{--dialogue-scene-height:620px;grid-template-rows:68px minmax(0,1fr) 230px 20px}
+ .dialogue-scene .portrait-stage,.dialogue-scene.paired-dialogue .portrait-stage{padding:10px 10px 6px;gap:12px}
+ .dialogue-scene .character-portrait,.dialogue-scene.paired-dialogue .character-portrait{width:calc(50% - 6px);max-width:200px}
+ .dialogue-scene .portrait-stage:has(#portrait-right[hidden]) .character-portrait,.dialogue-scene.paired-dialogue .portrait-stage:has(#portrait-right[hidden]) .character-portrait{width:min(240px,68%);max-width:none}
+ .dialogue-scene .character-portrait figcaption,.dialogue-scene.paired-dialogue .character-portrait figcaption{height:30px;min-height:30px;font-size:14px;line-height:22px;padding:4px 6px}
+ .dialogue-scene .dialogue-box{height:230px}
+ .dialogue-scene .speaker-row{gap:6px}
+ .dialogue-scene #speaker-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+ .dialogue-scene #line-number{flex:0 0 auto}
+ .dialogue-scene .story-cutin .portrait-viewport{width:220px;max-width:68%;height:auto;aspect-ratio:1}
+}
+
+/* Keep the readable dialogue and its real next/previous buttons inside a
+   mobile viewport. Older clients retain the base scene above without :has. */
+@supports selector(body:has(#dialogue-scene)){
+ @media(max-width:1000px){
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])){height:100dvh;min-height:0;overflow:hidden}
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) .masthead{height:46px;min-height:46px}
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) #game-main{height:calc(100dvh - 46px);min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:6px;gap:6px}
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) .battle-heading{flex:0 0 auto;min-height:0;margin:0;gap:4px}
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) .story-progress,
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) #chapter-label,
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) #chapter-subtitle{display:none}
+  body:not(.on-title):has(#game-main:not([hidden]) #dialogue-scene:not([hidden])) #chapter-title{font-size:18px;line-height:1.35;margin:0}
+  #dialogue-scene:not([hidden]){--dialogue-scene-height:auto;flex:1;min-height:0;height:auto;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(44px,auto) minmax(0,1fr) minmax(210px,.95fr)}
+  #dialogue-scene .scene-top{grid-column:1;grid-row:1;min-height:44px;padding:4px 8px;gap:4px;align-items:center;flex-wrap:nowrap}
+  #dialogue-scene .scene-top>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #dialogue-scene .dialogue-tools{max-width:none;min-width:0;flex:0 1 auto;gap:4px;flex-wrap:nowrap}
+  #dialogue-scene .dialogue-tools button{min-height:44px;min-width:44px;padding:6px 8px;font-size:14px}
+  #dialogue-scene .portrait-stage,#dialogue-scene.paired-dialogue .portrait-stage{grid-column:1;grid-row:2;min-height:0;padding:6px 10px;gap:8px;overflow:hidden;align-items:flex-end}
+  #dialogue-scene .character-portrait,#dialogue-scene.paired-dialogue .character-portrait{width:min(42%,200px);height:auto;max-width:none;margin:0;flex:0 1 auto}
+  #dialogue-scene .portrait-stage:has(#portrait-right[hidden]) .character-portrait{width:min(60%,220px);max-width:none}
+  #dialogue-scene .portrait-viewport,#dialogue-scene .portrait-viewport.framed-portrait,#dialogue-scene .portrait-viewport.sheet-portrait{width:100%;height:auto;aspect-ratio:1}
+  #dialogue-scene .character-portrait figcaption,#dialogue-scene.paired-dialogue .character-portrait figcaption{height:28px;min-height:28px;padding:3px 6px;font-size:14px;line-height:22px}
+  #dialogue-scene .dialogue-box{grid-column:1;grid-row:3;align-self:stretch;height:auto;min-height:0;margin:0 8px max(6px,env(safe-area-inset-bottom));padding:10px 12px;grid-template-rows:30px minmax(0,1fr) 48px;gap:8px}
+  #dialogue-scene .speaker-row{height:30px;min-height:0;gap:6px}
+  #dialogue-scene .speaker-row h3{font-size:20px}
+  #dialogue-scene #speaker-title{font-size:14px}
+  #dialogue-scene #line-number{font-size:13px}
+  #dialogue-scene #dialogue-text{height:100%;min-height:0;margin:0;overflow:auto;font-size:17px;line-height:1.7;overscroll-behavior:contain}
+  #dialogue-scene .dialogue-controls{height:auto;min-height:48px;gap:8px;flex-wrap:nowrap;align-items:stretch}
+  #dialogue-scene .dialogue-controls>span{display:none}
+  #dialogue-scene .dialogue-controls button{min-height:48px;min-width:48px;padding:8px 12px;font-size:16px}
+  #dialogue-scene .dialogue-controls .primary{flex:1 1 auto;min-width:0;max-width:70%}
+  #dialogue-scene .art-note{display:none}
+ }
+ @media(max-width:620px){
+  #dialogue-scene .scene-top{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:18px auto;gap:4px;padding:4px 8px;align-items:stretch}
+  #dialogue-scene .scene-top>span{grid-column:1;grid-row:1;display:block;height:18px;line-height:18px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #dialogue-scene .dialogue-tools{grid-column:1;grid-row:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;max-width:none;min-width:0;margin:0;gap:4px}
+  #dialogue-scene .dialogue-tools button{width:100%;min-width:0;min-height:44px;padding:4px 3px;font-size:14px;line-height:1.25;word-break:keep-all;overflow-wrap:normal;white-space:normal}
+ }
+ @media(max-width:1000px) and (max-height:600px) and (orientation:landscape){
+  #dialogue-scene:not([hidden]){grid-template-columns:minmax(120px,.65fr) minmax(0,1.35fr);grid-template-rows:minmax(44px,auto) minmax(0,1fr)}
+  #dialogue-scene .scene-top{grid-column:1/-1}
+  #dialogue-scene .portrait-stage,#dialogue-scene.paired-dialogue .portrait-stage{grid-column:1;grid-row:2;padding:4px 8px}
+  #dialogue-scene .character-portrait,#dialogue-scene.paired-dialogue .character-portrait{width:min(45%,128px)}
+  #dialogue-scene .portrait-stage:has(#portrait-right[hidden]) .character-portrait{width:min(90%,160px)}
+  #dialogue-scene .dialogue-box{grid-column:2;grid-row:2;margin:0 6px max(6px,env(safe-area-inset-bottom)) 0;padding:8px 10px;grid-template-rows:28px minmax(0,1fr) 48px;gap:4px}
+  #dialogue-scene .speaker-row{height:28px}
+ }
+}
