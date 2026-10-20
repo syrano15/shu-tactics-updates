@@ -1,0 +1,24 @@
+.guest-badge{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:15px;height:15px;flex:0 0 15px;border:1px solid #a7d6ce;border-radius:3px;background:#173d3d;color:#f0eee0;font:700 10px/1 system-ui,sans-serif;vertical-align:middle;pointer-events:none;}
+.guest-badge-board{position:absolute;left:-5px;top:-5px;z-index:3;box-shadow:0 1px 3px #0008;}
+.guest-badge-roster,.guest-badge-inline{margin-inline-start:.3em;}
+.guest-unit-detail{margin:7px 0;padding:6px 8px;border-left:2px solid #9ccfc5;background:#162d29;color:#dbe9dc;font-size:11px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;}
+.guest-unit-detail>b,.guest-unit-detail>span{display:block;}
+.guest-unit-detail>b{margin-bottom:2px;color:#c7e4db;font-weight:600;}
+.guest-kind-escort{border-left-color:#bfb696;background:#292d24;}
+.guest-kind-escort>b{color:#e0d4b3;}
+.guest-legend{display:inline-flex;align-items:center;gap:5px;min-width:0;white-space:normal;}
+.guest-legend .guest-badge{margin-inline-start:0;}
+.guest-legend-copy{min-width:0;}
+.legend:has(.guest-legend){flex-wrap:wrap;row-gap:6px;}
+@media(max-width:600px){.guest-badge{width:14px;height:14px;flex-basis:14px;font-size:9px;}.guest-badge-board{left:-4px;top:-4px;}.guest-unit-detail{padding:5px 6px;font-size:11px;}.guest-legend{font-size:11px;}}
+
+/* Combat permissions stay in the engine; this marker explains protected units. */
+.guest-badge.escort-badge{width:auto;min-width:24px;flex-basis:auto;padding:0 3px;border-color:#e0c47e;background:#44351c;color:#fff1bc;font-size:10px;white-space:nowrap;}
+.escort-badge-short{display:none;}
+#battle-scene .roster .guest-badge.escort-badge{font-size:10px;}
+#unit-ui .guest-kind-escort{font-size:13px;}
+#battle-scene .board-viewport[data-map-detail=compact] .token .guest-badge-board.escort-badge,
+#battle-scene .board-viewport[data-map-detail=strategic] .token .guest-badge-board.escort-badge{display:inline-flex;left:0;top:-2px;min-width:0;width:clamp(12px,calc(var(--board-cell-size)*.8),22px);height:13px;padding:0 1px;font-size:8px;z-index:5;}
+#battle-scene .board-viewport[data-map-detail=strategic] .escort-badge-label{display:none;}
+#battle-scene .board-viewport[data-map-detail=strategic] .escort-badge-short{display:inline;}
+@media(max-width:800px){#unit-ui .guest-kind-escort{font-size:15px;}}

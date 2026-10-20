@@ -1,0 +1,1768 @@
+import {mapBlockedLabel} from './campaign-map-presentation.js';
+import {installWeatherPresentation} from './weather-presentation.js';
+import {installUpdateUI} from './update-ui.js';
+import {installCompactChrome} from './compact-chrome.js';
+import {renderResultHTML,installResultUI} from './result-ui.js';
+import {bindCampaignBattle} from './campaign-events.js';
+import {act2BattleEvents} from './act2-relief-save.js';
+import {huarongChaser} from './huarong-chase.js';
+import {showBattleAnnouncements,primeBattleAnnouncements,showActTransition,clearCampaignNotice} from './campaign-event-presentation.js';
+import {newPreparationUI,requestPreparationTransition,resolvePreparationDiscard,playPreparationAppliedFeedback,preparationHTML,applyPreparation,preparationAppliedMessage,stepPreparationUpgrade,maximizePreparationUpgrade,stepPreparationEquipmentPage} from './preparation-ui.js';
+import {maximumModificationSteps} from './upgrade-preview.js';
+import {showGrowthFeedback,clearGrowthFeedback} from './growth-feedback.js';
+import {terrainProfile,terrainDescription,terrainBattleNote} from './terrain-effects.js';
+import {canInspectTerrain,terrainInfoButtonHTML,terrainDetailHTML,terrainArrivalHTML,terrainPredictionHTML,installTerrainInspector} from './terrain-ui.js';
+import {createSpiritPresentation,playSpiritPresentation,clearSpiritPresentation} from './spirit-presentation.js';
+import {syncSpiritEffects,clearSpiritEffects,attachSpiritMovement} from './spirit-effects.js';
+import {percentage as pct} from './percentage.js';
+import {tacticAccuracyNoteHTML} from './tactic-accuracy-ui.js';
+import {playSfx,playPreparedSfx,stopSfx,prepareSfx,prepareSoundContext,installSoundControls,movementSound,spiritSoundId,skillVoiceSoundId} from './sfx.js';
+import {setBgmProgram,installBgmControls} from './bgm.js';
+import {dialogueMusicAt} from './dialogue-music.js';
+import {createPreparationEntrySoundTracker,preparationAppliedSoundId,areaCastSoundId,outcomeNoticeSoundId,createAllyRetreatSoundSession} from './audio-events.js';
+import {installImageSourceFallback} from './image-source.js';
+import {inventorySourcesHTML} from './inventory-sources.js';
+import {isReplayState} from './replay-mode.js';
+import {openSaveStorage} from './save-storage.js';
+import {createSaveLibraryIndex,inspectSavePruneRecords,selectCurrentSave} from './save-library.js';
+import {installSaveMaintenanceUI} from './save-maintenance-ui.js';
+import {createGameCloudIntegration} from './game-cloud.js';
+import {ordinaryResumeSummary,saveSyncMessage,shouldWarnBeforeClose,settleManualCloudSave,continueSavedProgress} from './save-progress-ui.js';
+import {captureCloudCandidate} from './cloud-commit-observer.js';
+import {MANUAL_SLOTS,libraryKey,librarySlotLabel,readSaveLibrary,writeLibrarySlot,firstEmptyManualSlot,preserveVictoryRecords,preserveInitialRecord,archiveSavedCompletion,archiveExistingCompletion,replayableChapters,buildCurrentPowerReplay,finishReplayGuests,librarySaveDescription,listGameSaveKeys,deleteGameSaveRecords} from './save-library.js';
+import {enemyControlGuardActive} from './enemy-control.js';
+import {act2BridgeDisplayLabel} from './act2-map-art.js';
+import {effectiveClass,changeHeroClass} from './class-change.js';
+import {classChangePanel,upgradeStatPreview,growthContributionRows,equipmentEffectDescription,className as shopClassName} from './class-change-ui.js';
+import {refreshHeroClassState} from './engine.js';
+import {selectSpecialization,specializationChoices} from './specializations.js';
+import {specializationPanel} from './specialization-ui.js';
+import {casterProfile} from './tactics.js';
+let shopClassSelection={key:null,cls:null};
+let shopSpecSelection={key:null,id:null};
+import {paintPresentation,clearPresentation,esc,mapEffect,chapterCard,fateVictory,resetCards,presentationBusy,criticalPreview,rankName,rankStars,lootNote,promotionPanel,salesPanel,rewardPanel,openCatalog,comparisonInfo} from './release-ui.js';
+import {playCombatScene,clearCombatScene,loadCombatPoseManifest} from './combat-scene.js';
+import {createCombatMapView,combatResultModel,showCombatResult,showOfficerMoraleResult,officerMoraleModel,clearCombatResults,syncCombatResultMarks} from './combat-result.js';
+import {attackRangePreview} from './attack-range.js';
+import {combatSkillList,combatSkillTargets,previewCombatSkill,useCombatSkill,combatSkillCrossContains} from './combat-skills.js';
+import {commandTactic} from './battle-command-tactic.js';
+import {skillOptionHTML,skillSummary,skillUseLabel} from './skill-ui-copy.js';
+import {act2BriefHTML,renderAct2Brief,renderEscortFollowUI,growthGoalsHTML,unitGrowthPerksHTML,skillPreviewHTML,tierLabel,playSkillCutin,clearSkillCutin,showSupportResults} from './act2-ui.js';
+import {waitUnit} from './engine.js';
+import {promotionStatus,promote,getPromotionBonuses} from './promotion.js';
+import {enemyLoot,settleBattleRewards} from './battle-rewards.js';
+import {collectStoryEvents,pruneStoryEvents,storyEventLines} from './story-events.js';
+import {supportTargetView,supportTargetState} from './support-target-ui.js';
+import {combatSkillArea,skillAreaOverlayHTML} from './combat-skill-area.js';
+import {createSkillTargetingModel,skillTargetingPanelHTML,skillTargetingCellClass,skillTargetingTileHTML} from './skill-targeting-ui.js';
+import {createCombatSkillPresentation,playCombatSkillPresentation,clearCombatSkillPresentation,usesAreaMapPresentation} from './skill-presentation.js';
+import {freshCriticalBalance,restoredCriticalBalance} from './critical-preferences.js';
+import {loadBattleBarks,createBattleBarkSession,selectBattleBarks} from './battle-barks.js';
+import {showBattleBarks,clearBattleBarks} from './battle-barks-ui.js';
+import {renderBattleConditions,battleGoalGuidance,showTurnTransition,syncTurnTransition,clearTurnTransition} from './battle-chrome.js';
+import {showLootFeedback,clearLootFeedback,lootFeedbackModel} from './loot-feedback.js';
+import {outcome,phaseSteps,chooseBossCleanup,updateBattleOutcome,bossCleanupPending} from './engine.js';
+import {bossCleanupRemaining} from './objectives.js';
+import {armyLabel,armyUnitName} from './army-presentation.js';
+import {HERO_DATA} from './heroes.js';
+import {portraitForUnit,unitPortraitIdentity} from './act5-portraits.js';
+import {portraitForUnit as act6PortraitForUnit,unitPortraitIdentity as act6UnitPortraitIdentity} from './act7-portraits.js';
+import {initializeAct4Progression,act4GrowthCandidates,selectAct4GrowthSupport} from './act4-progression.js';
+import {initializeAct5Progression,act5GrowthCandidates,selectAct5GrowthSupport} from './act5-progression.js';
+import {initializeAct6Progression,act6GrowthCandidates,selectAct6GrowthSupport} from './act6-progression.js';
+import {initializeAct7Progression,act7GrowthCandidates,selectAct7GrowthSupport} from './act7-progression.js';
+import {act7FireProhibited} from './act7-story-mechanics.js';
+import {traitLabel,healingAmount} from './traits.js';
+import {applyRosterVictory} from './roster-events.js';
+import {spiritSlots,spiritTargets,baseSP,maxRange,hasFlash,SLOT_LEVELS} from './spirits.js';
+import {GROWTH_TYPES,growthType,levelBonuses,syncGrowth,settleGrowth} from './growth.js';
+import {growthProgress,growthProgressLabel,growthProgressHTML,growthMilestonesHTML,growthUnlockLabels,growthHelpHTML} from './growth-ui.js';
+import {toggleDraft,reorderDraft,swapDraft,deploymentSlots,validateDeploymentSlots,toggleDeploymentSlots,moveDeploymentSlot} from './deployment.js';
+import {deploymentHTML,deploymentCoordinate,openDeploymentOrderEditor} from './deployment-ui.js';
+import {enemyActionOrder} from './enemy-action-order.js';
+let deploymentSelection={chapter:null,id:null,message:''};
+import { objectiveText } from './objectives.js';
+import { artFor, spriteHTML, installPaletteFilters, movementPath } from './unit-art.js';
+import {movementMotionPlan,startMovementMotion} from './movement-motion.js';
+import {guestPresentation,isGuestUnit,guestBadgeHTML,guestDetailHTML,guestAriaDescription,guestLegendHTML} from './guest-presentation.js';
+import {guestHeroIdentity} from './guest-allies.js';
+import { terrainHTML, createTerrainRenderContext, installTerrainArtFallback, loadStageMapArt } from './terrain-art.js';
+import {installBoardNavigation} from './board-navigation.js';
+import {installBoardBackground} from './board-background.js';
+import {installBoardRenderer} from './board-renderer.js';
+import {installBattleUI,attackPreviewSummary,skillPreviewSummary} from './battle-ui.js';
+import {mobileCommandUIEnabled} from './mobile-command-ui.js';
+import {mobileActionButton,mobileCommandFrameHTML,mobileVitalsHTML,mobileSpiritFrameHTML,replaceMobileCommandHTML,createMobileMoveDraft,mobileMoveDraftValid,createMobileSpiritDraft,mobileSpiritDraftValid,installMobileRoster} from './mobile-command-frame.js';
+import {installMobileBattleShell} from './mobile-battle-shell.js';
+import { makeSave, parseSave, restoreSave, readSlot, writeSlot, saveReason, saveLabel, previousSaves } from './saves.js';
+import { SPIRITS, useSpirit, spiritReason, effectiveAttack, movement, spRecoveryStatus } from './spirits.js';
+import {burningEnemyTile,chibiFleetFireHTML} from './chibi-fire-art.js';
+import { classes, strategistTactics, tacticReason, key, distance, forest, occupant, createUnit, createBattle, reachable, canTarget, preview, attack, heal, moveUnit, nextPhase, decideAI, enemyAIHint, SKILLS, disabled, effectiveDefense, cancelMovement, rationTargets,rationTargetReason } from './engine.js';
+import { DEFAULT_BALANCE, CLASS_IDS, cloneBalance, validateBalance, normalizeBalance } from './balance.js';
+import { Campaign, CHAPTERS, CHARACTERS, sortieIds, sortieInfo } from './campaign.js';
+
+import { HEROES, PARTS, MAX_UPGRADE, createArmy, equip, upgrade, upgradeCost, rewardVictory, troopCost, upgradeTroops, equipmentReason, sellPart } from './equipment.js';
+
+const $ = id => document.getElementById(id);
+$('title-save-info').textContent='저장 기록을 준비하고 있습니다.';
+$('save-open').disabled=true;
+let legacySaveStorage=null;try{legacySaveStorage=localStorage;}catch{}
+let gameSaveStorage;
+try{gameSaveStorage=await openSaveStorage({legacyStorage:legacySaveStorage,indexedDB:globalThis.indexedDB,storageManager:navigator.storage});}
+catch(error){$('title-save-info').textContent='저장 기록을 준비하지 못했습니다. 원본 저장을 초기화하지 않았습니다. 다른 게임 창을 닫고 다시 실행해 주세요.';throw error;}
+const saveLibraryIndex=createSaveLibraryIndex(gameSaveStorage);
+let savePending=0,saveConflict=false,cloudLocked=false,gameCloud=null,gameCloudPromise=null;
+let currentResumeSlot=null,continuePending=false;
+$('save-open').disabled=false;
+window.addEventListener('beforeunload',event=>{if(shouldWarnBeforeClose({savePending,storagePending:(gameCloud?.pendingWrites??0)+(gameSaveStorage.pendingWrites??0),cloudState:gameCloud?.getShutdownState?.()})){event.preventDefault();event.returnValue='';}});
+for(const type of ['click','keydown'])document.addEventListener(type,event=>{if(cloudLocked&&!event.target.closest?.('.cloud-save-dialog,#save-maintenance-dialog')){event.preventDefault();event.stopImmediatePropagation();}},{capture:true});
+comparisonInfo(CHAPTERS[0]);
+const compactChrome=installCompactChrome({onOpen:clearAttackRange});
+installResultUI();
+const updateUI=installUpdateUI();
+const boardNavigation=installBoardNavigation($('board-stage'),$('board'),{reposition:positionMenu});
+const boardBackground=installBoardBackground($('board'));
+const boardRenderer=installBoardRenderer($('board'));
+const weatherPresentation=installWeatherPresentation(boardNavigation.viewport,$('board'));
+const battleUI=installBattleUI($('battle-scene'),{canOpenMenu:()=>!title&&!busy&&!presentationBusy()&&!eventShowing&&!cloudGameBlocked()&&!state.result&&state.phase==='ally'&&campaign.stage==='battle'&&!origin&&!target&&['command','inspect'].includes(mode),onLayout:()=>{if(campaign.stage==='battle'){renderBattle();boardNavigation.focusSelected();}}});
+// These callbacks may receive input while the bark request below is pending.
+let mobileCommandsReady=false;
+$('battle-scene').dataset.mobileRosterBlocked='true';
+const mobileRoster=installMobileRoster(document,{canOpen:()=>mobileCommandsReady&&!title&&!busy&&!eventShowing&&!presentationBusy()&&!cloudGameBlocked()&&!state.result&&state.phase==='ally'&&campaign.stage==='battle',onSelect:(id,context)=>{if(!context||context.battle!==state||context.epoch!==epoch||context.round!==state.round||context.phase!==state.phase||context.selected!==selected||!state.units.some(unit=>unit.id===id&&unit.team==='ally'&&unit.hp>0&&!unit.escaped&&!unit.withdrawn))return;select(id);if(selected===id)boardNavigation.focusUnit(id,{zoom:true});}});
+const mobileBattleShell=installMobileBattleShell($('battle-scene'),{onRoster:()=>openMobileRoster(),onGoals:()=>battleUI.openGoals()});
+const terrainInspector=installTerrainInspector($('board-stage'),{isMobile:()=>mobileCommandUIEnabled($('battle-scene'))});
+function openMobileRoster(){if(mobileCommandsReady)mobileRoster.open(state.units.filter(unit=>unit.team==='ally'),{selectedId:selected,rankName,context:{battle:state,epoch,round:state.round,phase:state.phase,selected}});}
+// All entry pages share this picker; it never changes the saved command placement.
+if(!document.querySelector('link[href$="skill-targeting-ui.css"]')){const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./skill-targeting-ui.css',import.meta.url).href;document.head.append(link);}
+const skillTargetingPanel=document.createElement('section');skillTargetingPanel.id='skill-targeting-panel';skillTargetingPanel.hidden=true;skillTargetingPanel.setAttribute('aria-label','필살기·특수기 대상 선택');battleUI.side.before(skillTargetingPanel);
+skillTargetingPanel.addEventListener('click',event=>{const button=event.target.closest('[data-action]');if(button&&!button.disabled)action(button.dataset.action);});
+const bossChoiceDialog=document.createElement('dialog');bossChoiceDialog.className='boss-cleanup-dialog';bossChoiceDialog.setAttribute('aria-label','승리 조건 달성 후 선택');document.body.append(bossChoiceDialog);
+bossChoiceDialog.addEventListener('cancel',event=>event.preventDefault());
+bossChoiceDialog.addEventListener('click',event=>{const choice=event.target.closest('[data-boss-choice]')?.dataset.bossChoice;if(choice&&!busy)void resolveBossChoice(choice);});
+const cleanupFinishButton=document.createElement('button');cleanupFinishButton.id='cleanup-finish';cleanupFinishButton.className='boss-cleanup-finish';cleanupFinishButton.textContent='지금 승리 확정';$('end-turn').after(cleanupFinishButton);cleanupFinishButton.onclick=()=>{if(!busy&&!state.result)void resolveBossChoice('finish');};
+installSoundControls({toggle:$('sfx-toggle'),volume:$('sfx-volume'),value:$('sfx-value')});
+installBgmControls({toggle:$('bgm-toggle'),volume:$('bgm-volume'),value:$('bgm-value')});
+const preparationEntrySound=createPreparationEntrySoundTracker();
+let defeatMusicOutcome=null;
+// Only actual inputs play UI cues; repaint/focus/hover and combat controls are silent here.
+document.addEventListener('click',event=>{
+ const button=event.target.closest?.('button');if(!button||button.disabled||button.closest('.sfx-settings,#board,#roster,.combat-scene,.combat-map-toast')||['dialogue-next','dialogue-prev','skip-dialogue','dialogue-auto'].includes(button.id)||button.classList.contains('event-next')||button.classList.contains('event-skip'))return;
+ const back=['close','cancel'].includes(button.dataset.dialog)||/close|back/.test(button.id)||button.dataset.action?.includes('back');
+ void playSfx(back?'uiBack':button.classList.contains('primary')?'uiConfirm':'uiCursor');
+},{capture:true});
+void loadCombatPoseManifest();
+let barkData=null,barkMode='all';
+try{barkMode=['all','important','off'].includes(localStorage.getItem('shu-battle-words'))?localStorage.getItem('shu-battle-words'):'all';}catch{}
+try{barkData=await loadBattleBarks();}catch(error){console.warn(error.message);}
+const barkSessions=new WeakMap();
+const introducedBattles=new WeakSet();
+function battleWords(context){
+ if(!barkData)return [];
+ let session=barkSessions.get(state);
+ if(!session){session=createBattleBarkSession(barkData);barkSessions.set(state,session);}
+ return selectBattleBarks(session,{state,scenario:campaign.scenario,mode:barkMode,...context});
+}
+function displayBattleWords(lines,options={}){showBattleBarks($('board-stage'),lines,campaign.scenario,options);}
+const barkButton=document.createElement('button');barkButton.className='quiet';barkButton.id='battle-words';
+const updateBarkButton=()=>{barkButton.textContent='전투 대사 · '+({all:'켬',important:'중요만',off:'끔'})[barkMode];};
+barkButton.onclick=()=>{barkMode=['all','important','off'][(['all','important','off'].indexOf(barkMode)+1)%3];try{localStorage.setItem('shu-battle-words',barkMode);}catch{}clearBattleBarks($('board-stage'));clearBattleBarks($('shop-scene'));updateBarkButton();};
+$('speed').after(barkButton);updateBarkButton();
+let combatMode='all';
+try{const stored=localStorage.getItem('shu-combat-scenes');if(['all','important','map'].includes(stored))combatMode=stored;}catch{}
+const combatModeButton=document.createElement('button');combatModeButton.className='quiet';combatModeButton.id='combat-mode';
+const updateCombatModeButton=()=>{combatModeButton.textContent='교전 연출 · '+({all:'전체',important:'중요만',map:'간략'})[combatMode];};
+combatModeButton.onclick=()=>{combatMode=['all','important','map'][(['all','important','map'].indexOf(combatMode)+1)%3];try{localStorage.setItem('shu-combat-scenes',combatMode);}catch{}updateCombatModeButton();};
+barkButton.after(combatModeButton);updateCombatModeButton();
+let specialCutins=true;try{specialCutins=localStorage.getItem('shu-special-cutins')!=='off';}catch{}
+const specialCutinButton=document.createElement('button');specialCutinButton.id='special-cutins';specialCutinButton.className='quiet';specialCutinButton.hidden=true;
+const updateSpecialCutinButton=()=>{specialCutinButton.textContent='필살기 컷인 · '+(specialCutins?'켬':'생략');};
+specialCutinButton.onclick=()=>{specialCutins=!specialCutins;try{localStorage.setItem('shu-special-cutins',specialCutins?'on':'off');}catch{}updateSpecialCutinButton();};
+combatModeButton.after(specialCutinButton);updateSpecialCutinButton();
+const comparison=CHAPTERS[0].comparison??null;
+const balanceKey=comparison?'shu-balance-v018-compare-'+comparison.seed:'shu-balance-v5';
+let balance = cloneBalance(), storageNotice = '';
+try {
+  const saved = localStorage.getItem(balanceKey);
+  if (saved) { const value = normalizeBalance(JSON.parse(saved)); validateBalance(value); balance = value; }
+} catch { storageNotice = '저장된 조정값을 읽지 못해 기본값으로 시작합니다.'; }
+const startingArmy=()=>createArmy(CHAPTERS[0].rosterMode==='academy'?{ids:Object.keys(HERO_DATA),level:20}:CHAPTERS[0].rosterMode==='story'?{story:true}:{});
+let army = startingArmy(), shopHero = 'guanyu', shopSlot = 0, upgradeSteps = 1, shopMessage = '', victoryReward = 0;
+let campaign = new Campaign(), state = createBattle(balance, 0, army), selected = null, mode = 'command';
+let title = true, saveNotice = gameSaveStorage.notice || '', pendingSave = null, pendingSlot = null, pendingOriginal = null, movingUnitId = null;
+let manualSlot='manual',checkpointSlot=null,clearSlot=null,saveTab='automatic',pendingReplay=null;
+let eventShowing=false,storyEventClose=null;
+let autoDialogue=false, autoTimer=null;
+const readingHistory=[], readingSeen=new Set();
+let tactic = 'fire', pendingSpirit=null, pendingCombatSkill=null;
+let origin = null, target = null, busy = false, fast = false, epoch = 0, logs = [], focusCell = null;
+let mobileMoveDraft=null,mobileSpiritDraft=null;
+let latestOfficerMorale=null;
+let combatMapState=null,shortMovementSound=null;
+let rangeDestination=null,rangePaintKey=null,rangePreviewCache=new Map();
+const current = () => state.units.find(u => u.id === selected);
+mobileCommandsReady=true;
+const living = team => state.units.filter(u => u.team === team && u.hp > 0);
+const pause = ms => new Promise(resolve => setTimeout(resolve, fast ? Math.min(ms, 100) : ms));
+const log = text => { logs.unshift(text); logs = logs.slice(0, 24); };
+let battleFeedbackTimer;
+const tell = text => {
+  $('instruction').textContent = text;
+  let note=$('board-stage').querySelector('.battle-feedback');
+  if(!note){note=document.createElement('p');note.className='battle-feedback';note.setAttribute('role','status');$('board-stage').append(note);}
+  note.textContent=text;clearTimeout(battleFeedbackTimer);battleFeedbackTimer=setTimeout(()=>note.remove(),4200);
+};
+const blockedLabel=()=>mapBlockedLabel(campaign.scenario.id)??campaign.scenario.blockedLabel??(campaign.scenario.id==='s06_xuzhou_fall'?'건물':'강');
+const bridgeDisplayLabel=value=>value.campaignLayoutVersion===1&&value.terrain.join('\n')===campaign.scenario.terrain.join('\n')?act2BridgeDisplayLabel(campaign.scenario):'다리';
+const describedTile=(value,x,y)=>value.terrain[y]?.[x]==='#'&&mapBlockedLabel(campaign.scenario.id)?mapBlockedLabel(campaign.scenario.id)+' · 진입 불가':terrainDescription(value,x,y).replace(/^다리(?= ·|$)/,bridgeDisplayLabel(value));
+// Display allegiance never changes the units used by combat or save validation.
+const displayUnitName=unit=>armyUnitName(unit?.team&&typeof unit.cls==='string'?unit:state.units.find(value=>value.id===unit?.id)??unit,campaign.scenario);
+const enemyLabel=()=>armyLabel(null,campaign.scenario);
+const enemyLootMarker=u=>enemyLoot(campaign.scenario,u).items.length>0;
+const count = n => Math.round(n).toLocaleString('ko-KR');
+
+const className = id => DEFAULT_BALANCE.classes[id].name;
+const cloudGameBlocked=()=>cloudLocked||!!document.querySelector('.cloud-save-dialog[open]');
+const actionable = u => !title && u && campaign.stage === 'battle' && !busy && !cloudGameBlocked() && !presentationBusy() && !state.result && !(state.bossCleanupVersion===1&&state.bossCleanup?.status==='pending') && state.phase === 'ally' && u.team === 'ally' && u.hp > 0 && !u.done && !disabled(u);
+
+const rangeLegend=document.createElement('span');rangeLegend.className='attack-range-legend';rangeLegend.hidden=true;
+rangeLegend.innerHTML='<i class="key attack-key"></i><span></span>';
+const oldAttackLegend=$('battle-scene').querySelector('.legend .attack-key')?.parentElement;
+if(oldAttackLegend)oldAttackLegend.replaceWith(rangeLegend);else $('battle-scene').querySelector('.legend')?.append(rangeLegend);
+const rangeHint=document.createElement('p');rangeHint.id='range-hint';rangeHint.className='range-hint';rangeHint.hidden=true;rangeHint.setAttribute('role','status');rangeHint.setAttribute('aria-live','polite');
+$('instruction').before(rangeHint);
+function attackRangeActive(){
+ const unit=current();
+ return actionable(unit)&&!eventShowing&&!combatMapState&&!state.storyEvents?.pending?.length&&['command','move','attack'].includes(mode)&&!document.querySelector('dialog[open]');
+}
+function paintAttackRange(preview){
+ const board=$('board'),movePreview=preview&&mode==='move',destinationPreview=preview?.kind==='destination',actor=current();
+ const standingOnly=!!preview&&((preview.kind==='move-union'&&!actor?.attackAfterMove)||(destinationPreview&&preview.origin?.x===actor?.x&&preview.origin?.y===actor?.y));
+ board.dataset.rangeKind=preview?.kind??'none';
+ if(preview?.origin){board.dataset.rangeX=String(preview.origin.x);board.dataset.rangeY=String(preview.origin.y);}else{delete board.dataset.rangeX;delete board.dataset.rangeY;}
+ for(const cell of board.querySelectorAll('.cell')){
+  cell.dataset.rangeLabel??=cell.getAttribute('aria-label')??'';
+  const x=Number(cell.dataset.x),y=Number(cell.dataset.y),unit=occupant(state,x,y);
+  const inRange=!!preview?.cells.has(key(x,y)),isTarget=!!unit&&!!preview?.targets.has(unit.id),isOrigin=!!preview?.origin&&preview.origin.x===x&&preview.origin.y===y;
+  cell.classList.toggle('attack-range',inRange);cell.classList.toggle('attack-range-target',isTarget);cell.classList.toggle('range-origin',isOrigin);
+  let label=cell.dataset.rangeLabel;
+  if(inRange)label+=' · '+(standingOnly?'현재 공격 사거리':destinationPreview?'이 위치에서 공격 가능한 범위':movePreview?'이동 후 공격 가능한 범위':'현재 공격 사거리');
+  if(isTarget)label+=' · '+(movePreview&&!standingOnly?'이동 후 공격 가능한 적':'지금 공격 가능한 적');
+  if(isOrigin)label+=' · '+(destinationPreview&&!standingOnly?'이동 미리보기 위치':'사거리 기준 위치');
+  cell.setAttribute('aria-label',label);
+ }
+ rangeLegend.hidden=!preview;rangeHint.hidden=!preview;
+ if(!preview){rangeHint.textContent='';board.removeAttribute('aria-describedby');return;}
+ rangeLegend.querySelector('span').textContent=standingOnly?'제자리 공격 사거리':destinationPreview?'이 칸에서 공격 범위':movePreview?'이동 후 공격 범위':'현재 공격 사거리';
+ const coordinate=preview.origin?String.fromCharCode(65+preview.origin.x)+(preview.origin.y+1):'';
+ rangeHint.textContent=preview.reason||(destinationPreview?coordinate+(standingOnly?'에서 제자리로 공격할 수 있는 범위입니다.':'에서 이동 후 공격할 수 있는 범위입니다.')+' 진한 빨강은 공격 가능한 적입니다.':movePreview?'초록은 이동할 수 있는 칸, 빨강은 이동 후 공격 가능한 칸입니다. 진한 빨강은 이동 후 공격할 수 있는 적입니다.':'빨강은 현재 공격 사거리, 진한 빨강은 지금 공격할 수 있는 적입니다.');
+ board.setAttribute('aria-describedby','range-hint');
+}
+function clearAttackRange(){
+ rangeDestination=null;rangePreviewCache.clear();
+ if(rangePaintKey==='none')return;
+ rangePaintKey='none';paintAttackRange(null);
+}
+function updateAttackRange(destination=null){
+ if(!attackRangeActive()){clearAttackRange();return;}
+ rangeDestination=mode==='move'?destination:null;
+ const rangeTactic=mode==='attack'?commandTactic(current(),tactic):'fire',cacheKey=(rangeDestination?key(rangeDestination.x,rangeDestination.y):'default')+':'+rangeTactic;
+ if(rangePaintKey===cacheKey)return;
+ let preview=rangePreviewCache.get(cacheKey);
+ if(!preview){preview=attackRangePreview(state,current(),{mode:mode==='move'?(rangeDestination?'destination':'move-union'):'current',destination:rangeDestination,skill:rangeTactic});rangePreviewCache.set(cacheKey,preview);}
+ rangePaintKey=cacheKey;paintAttackRange(preview);
+}
+function restoreAttackRange(){rangePaintKey=null;rangePreviewCache.clear();updateAttackRange();}
+function previewRangeCell(cell){
+ const destination=mode==='move'&&cell?.classList.contains('reachable')?{x:Number(cell.dataset.x),y:Number(cell.dataset.y)}:null;
+ updateAttackRange(destination);
+}
+
+
+function prepareFreshBattleBalance(){
+ if(campaign.scenario.rosterMode!=='story'||comparison)return;
+ let preference=null;try{preference=localStorage.getItem('shu-critical-preference-v033');}catch{}
+ balance=freshCriticalBalance(balance,{preference});
+}
+function resetBattle() {
+  stopSfx();clearSpiritPresentation($('board'));clearSpiritEffects($('board'));clearCombatSkillPresentation($('board-stage'));
+  clearLootFeedback(document.body);clearGrowthFeedback(document.body);
+  clearStoryEvent();
+  clearAttackRange();
+  clearSkillCutin();pendingCombatSkill=null;
+  clearCombatScene($('combat'));
+  combatMapState=null;latestOfficerMorale=null;clearCombatResults($('board-stage'));clearCombatResults($('result-scene'));
+  clearBattleBarks($('board-stage'));
+  clearTurnTransition($('phase-banner'));
+  movingUnitId = null; document.querySelectorAll(".unit-traveller").forEach(el=>{el.getAnimations?.({subtree:true})?.forEach(animation=>animation.cancel());el.remove();});
+  prepareFreshBattleBalance();epoch++; state = createBattle(balance, campaign.chapter, army,campaign.sortie??campaign.draft,{deploymentSlots:campaign.sortieSlots??campaign.draftSlots??null}); selected = state.units.find(u=>u.team==='ally')?.id??null; mode = 'command';
+  origin = null; target = null; busy = false; logs = ['촉군이 전장에 도착했습니다.'];
+  $('combat').hidden = true; $('phase-banner').hidden = true;
+}
+function startOver() { prepUI=newPreparationUI(); readingHistory.length=0;readingSeen.clear();autoDialogue=false;clearTimeout(autoTimer);resetCards(); title = false; victoryReward = 0; saveNotice = ''; army = startingArmy(); shopMessage = ''; campaign = new Campaign(); resetBattle(); const data=structuredClone(snapshot());void saveOperation(draft=>preserveInitialRecord(draft,data),'장 시작 기록 보관 완료');render(); }
+function retry() { if(isReplayState(state)){const replay=buildCurrentPowerReplay(snapshot(),campaign.scenario.id);applySave(replay);return;} syncGrowth(state,army); if(campaign.sortie)campaign.sortie=campaign.sortie.filter(id=>!army.heroes[id].departed); campaign.retry(); resetBattle(); render(); }
+function revert() {
+  shortMovementSound?.stop();shortMovementSound=null;
+  if(typeof mobileMoveDraft!=='undefined')mobileMoveDraft=null;
+  if(typeof mobileSpiritDraft!=='undefined')mobileSpiritDraft=null;
+  if (origin) { const u = current(); if (u && !u.done) { cancelMovement(state,u); } origin = null; }
+  target = null;
+}
+function select(id) {
+  if (cloudGameBlocked() || busy || presentationBusy() || state.result || campaign.stage !== 'battle') return;
+  const u = state.units.find(v => v.id === id && v.hp > 0);
+  if (!u) return;
+  if(typeof mobileMoveDraft!=='undefined')mobileMoveDraft=null;
+  if(typeof mobileSpiritDraft!=='undefined')mobileSpiritDraft=null;
+  if(typeof pendingSpirit!=='undefined')pendingSpirit=null;
+  // Reopening the moved unit's own menu must retain its chosen destination.
+  // Switching units or the explicit cancel command still reverses unconfirmed movement.
+  if(selected===id){target=null;mode=actionable(u)?'command':'inspect';render();return;}
+  if(selected!==id)void playSfx('unitSelect',{gain:.5});
+  clearCombatResults($('board-stage'),{preserveMorale:true});revert(); selected = id; mode = actionable(u) ? 'command' : 'inspect'; render();
+}
+function advanceDialogue(skip = false) {
+  if (cloudGameBlocked() || title || presentationBusy()) return;
+  if (!['preDialogue', 'postDialogue','defeatDialogue'].includes(campaign.stage)) return;
+
+  if (skip) campaign.finishDialogue(); else campaign.nextDialogue();
+  if(campaign.stage==='deployment')campaign.draft??=sortieIds(campaign.scenario,army);
+  if (campaign.stage === 'intermission') { shopMessage = ''; upgradeSteps = 1; autosave(); }
+  if (campaign.stage === 'battle') selected = state.units.find(u=>u.team==='ally')?.id??null;
+  render();
+}
+
+function render() {
+ if(typeof terrainInspector!=='undefined')terrainInspector.hide();
+ // Resolve the visible scene after the final strike, not the engine's early result.
+ const musicPhase={preDialogue:'pre',postDialogue:'post',defeatDialogue:'defeat'}[campaign.stage];
+ if(title)setBgmProgram(null);
+ else if(musicPhase){
+  const cue=dialogueMusicAt({chapterId:campaign.scenario.id,phase:musicPhase,lineIndex:campaign.line});
+  const defeatIntro=musicPhase==='defeat'&&defeatMusicOutcome?.epoch===epoch&&defeatMusicOutcome.chapterId===campaign.scenario.id;
+  setBgmProgram(cue?{...cue,entryKey:epoch+':'+cue.entryKey,...(defeatIntro?{introId:'defeat',introSeconds:4}:{})}:null);
+ }else if(campaign.stage==='battle')setBgmProgram({bedId:'battle',entryKey:epoch+':battle:'+campaign.scenario.id});
+ else if(['intermission','deployment'].includes(campaign.stage))setBgmProgram({bedId:'dialogGeneral',entryKey:epoch+':preparation:'+campaign.scenario.id});
+ else if(campaign.stage==='result'&&state.result==='defeat')setBgmProgram({bedId:'dialogSad',entryKey:epoch+':defeat-result:'+campaign.scenario.id});
+ else setBgmProgram(null);
+ const entrySound=preparationEntrySound({epoch,chapter:campaign.scenario.id,stage:campaign.stage,visible:!title});
+ if(entrySound){const entryEpoch=epoch,entryChapter=campaign.scenario.id;void playPreparedSfx(entrySound,{maxWait:800,isCurrent:()=>entryEpoch===epoch&&!title&&campaign.stage==='intermission'&&campaign.scenario.id===entryChapter});}
+ if(title||campaign.stage!=='battle'){skillTargetingPanel.hidden=true;$('battle-scene').classList.remove('is-skill-targeting');}
+ if(title||campaign.stage!=='battle')weatherPresentation.clear();
+  bindCampaignBattle(campaign,state);
+  syncGrowth(state,army);
+  document.body.classList.toggle('on-title',title);document.body.classList.toggle('in-preparation',!title&&campaign.stage==='intermission');
+  $('title-scene').hidden = !title;
+  $('game-main').hidden = title;
+  $('save-notice').textContent = savePending?'저장 중입니다. 완료된 뒤 게임을 종료하세요.':saveNotice;
+  compactChrome.update({stage:campaign.stage,title,chapter:campaign.chapter,noticeText:saveNotice});
+  $('save-open').disabled = busy || presentationBusy();
+  $('title-return').disabled = busy || presentationBusy() || savePending>0;
+  if (title) { $('battle-scene').hidden=true;battleUI.update();boardBackground.clear();clearSpiritEffects($('board'));bossChoiceDialog.close();cleanupFinishButton.hidden=true;clearAttackRange();renderTitle(); return; }
+  const chapter = campaign.scenario, stage = campaign.stage;
+  if(['preDialogue','deployment','battle'].includes(stage))prepareSoundContext('battle');
+  if(stage==='postDialogue')prepareSfx(['preparationEnter']);
+  if(stage==='intermission')prepareSoundContext('preparation');
+  specialCutinButton.hidden=chapter.act!==2&&chapter.combatProfile!=='act2';
+  $('chapter-label').textContent = `CHAPTER ${String(campaign.chapter + 1).padStart(2, '0')} / ${chapter.rosterMode==='story'?(chapter.episodeTitle??'1막 의용'):'시험 전투'}`;
+  $('chapter-title').textContent = chapter.rosterMode==='story'?`${chapter.act??1}막 · ${chapter.no??campaign.chapter+1}장 | ${chapter.title}`:chapter.title;
+  $('chapter-subtitle').textContent = chapter.subtitle;
+  $('battle-objective').textContent = objectiveText(combatMapState??state);
+  const active = stage === 'preDialogue'||stage==='deployment' ? 0 : stage === 'battle' ? 1 : ['result','defeatDialogue'].includes(stage) ? 2 : stage === 'postDialogue' ? 3 : 4;
+  $('progress').innerHTML = [stage==='deployment'?'출전 편성':'출전 대화', '전투', '결과', '전후 대화', '출전 준비'].map((label, i) => `<span class="${i === active ? 'active' : ''}">${label}</span>`).join('');
+  $('dialogue-scene').hidden = !['preDialogue', 'postDialogue','defeatDialogue'].includes(stage);
+  if($('dialogue-scene').hidden)clearPresentation($('dialogue-scene'));
+  $('battle-scene').hidden = stage !== 'battle';
+  if(stage!=='battle'){boardBackground.clear();clearSpiritEffects($('board'));clearAttackRange();clearBattleBarks($('board-stage'));clearTurnTransition($('phase-banner'));clearCombatResults($('board-stage'));}
+  $('result-scene').hidden = !['result', 'complete'].includes(stage);
+  $('deployment-scene').hidden=stage!=='deployment';
+  if(stage==='deployment')renderDeployment();
+  $('shop-scene').hidden = stage !== 'intermission';
+  if (stage === 'intermission') renderShop();
+  $('restart').disabled = busy; $('balance-open').disabled = busy;
+  if (['preDialogue', 'postDialogue','defeatDialogue'].includes(stage)) renderDialogue();
+  if(stage==='preDialogue'&&campaign.line===0){const card=chapterCard(chapter,fast),cardEpoch=epoch;card?.addEventListener('close',()=>{if(cardEpoch===epoch&&!busy)render();},{once:true});}
+  if (stage === 'battle') {renderBattle();if(!busy&&!state.result&&!bossCleanupPending(state)){if(!introducedBattles.has(state)){introducedBattles.add(state);void introduceBattle();}else{collectStoryEvents(state,chapter.events??[],'start');if(state.storyEvents?.pending.length)void resumeEvents();}}}
+  renderBossCleanup();
+  if (stage === 'result' || stage === 'complete') renderResult();
+}
+function renderBossCleanup(){
+ const pending=!title&&campaign.stage==='battle'&&bossCleanupPending(state);
+ cleanupFinishButton.hidden=title||campaign.stage!=='battle'||state.bossCleanup?.status!=='cleanup'||!!state.result;
+ cleanupFinishButton.disabled=busy||presentationBusy()||state.phase!=='ally';
+ if(!pending){bossChoiceDialog.close();return;}
+ if(busy||presentationBusy()||state.storyEvents?.pending?.length||combatMapState)return;
+ if(bossChoiceDialog.open)return;
+ const remaining=bossCleanupRemaining(state).length;
+ const morale=latestOfficerMorale?.epoch===epoch?officerMoraleModel(latestOfficerMorale.result,{units:state.units}):null;
+ const moraleHTML=morale?'<div class="boss-morale-result" role="status"><strong>'+esc(morale.title)+'</strong><p class="morale-enemy">'+esc(morale.enemyText)+'</p><p class="morale-ally">'+esc(morale.allyText)+'</p></div>':'';
+ bossChoiceDialog.innerHTML=moraleHTML+'<h3>승리 조건 달성</h3><p>'+state.bossCleanup.round+'라운드에 승리를 확보했습니다. 남은 적 '+remaining+'부대를 정리할 수 있습니다.</p><p>공적은 승리를 확보한 시점으로 평가합니다. 정리 중에도 승리는 유지되며, 격파 경험치·전리품을 더 얻을 수 있습니다. 생존 보상은 종료 시점의 정규 장수를 기준으로 합니다. 의병·게스트는 생존 보상에서 제외됩니다.</p><div class="dialog-actions"><button class="primary" data-boss-choice="finish" autofocus>지금 승리 확정</button><button data-boss-choice="cleanup">남은 적 정리</button></div>';
+ bossChoiceDialog.showModal();
+}
+async function resolveBossChoice(choice){
+ if(busy||presentationBusy())return;
+ chooseBossCleanup(state,choice);bossChoiceDialog.close();selected=null;target=null;origin=null;mode='command';
+ if(checkResult())return;
+ log('승리 확보 · 남은 적 정리 시작');
+ // A commander killed on a counterattack resumes the same enemy phase.
+ if(state.phase==='enemy'){await enemyTurn({resume:true});return;}
+ render();if(living('ally').every(u=>u.done||disabled(u)))void enemyTurn();
+}
+function renderDeployment(){
+ const contentScroll=$('deployment-scene').querySelector('.deployment-content-scroll')?.scrollTop??0;
+ const deploymentScroll=$('deployment-scene').querySelector('.deployment-roster-track')?.scrollLeft??0;
+ const previousMap=$('deployment-scene').querySelector('.deploy-map-scroll'),mapScroll={left:previousMap?.scrollLeft??0,top:previousMap?.scrollTop??0};
+ const ch=campaign.scenario;campaign.draft??=sortieIds(ch,army);campaign.draftSlots??=deploymentSlots(ch,army,campaign.draft);
+ if(deploymentSelection.chapter!==ch.id)deploymentSelection={chapter:ch.id,id:null,message:''};
+ if(!campaign.draft.includes(deploymentSelection.id))deploymentSelection.id=null;
+ $('deployment-scene').innerHTML=deploymentHTML({chapter:ch,army,ids:campaign.draft,formationSlots:campaign.draftSlots,units:army.joined.map(id=>createUnit(balance,id,'ally',army)),selectedId:deploymentSelection.id,message:deploymentSelection.message,spriteHTML,rankName,traitLabel,guestIds:army.joined.filter(id=>HERO_DATA[id]?.guest),blockedLabel:blockedLabel(),rosterOrder:prepUI.rosterOrder});
+ const track=$('deployment-scene').querySelector('.deployment-roster-track');if(track)track.scrollLeft=deploymentScroll;
+ const map=$('deployment-scene').querySelector('.deploy-map-scroll');if(map){map.scrollLeft=mapScroll.left;map.scrollTop=mapScroll.top;}
+ const content=$('deployment-scene').querySelector('.deployment-content-scroll');if(content)content.scrollTop=contentScroll;
+}
+function editDeploymentOrder(host,ch){
+ const owner=prepUI,stage=campaign.stage,chapterId=ch.id;
+ openDeploymentOrderEditor(host,{chapter:ch,army,ui:owner,units:army.joined.map(id=>createUnit(balance,id,'ally',army)),isCurrent:()=>prepUI===owner&&campaign.stage===stage&&(stage==='deployment'?campaign.scenario.id:CHAPTERS[campaign.chapter+1]?.id)===chapterId,onApply:()=>render()});
+}
+$('deployment-scene').addEventListener('click',e=>{
+ if(campaign.stage!=='deployment')return;const b=e.target.closest('button');if(!b||b.disabled)return;
+ const attr=Array.from(b.attributes).find(a=>a.name.startsWith('data-deploy-'));
+ try{
+  const ch=campaign.scenario;
+  if(b.dataset.deployOrderEdit!==undefined){editDeploymentOrder($('deployment-scene'),ch);return;}
+  if(b.dataset.deploy==='confirm'){
+   prepareFreshBattleBalance();const next=createBattle(balance,campaign.chapter,army,campaign.draft,{deploymentSlots:campaign.draftSlots});
+   campaign.confirmDeployment(army);combatMapState=null;latestOfficerMorale=null;clearCombatResults($('board-stage'));clearCombatResults($('result-scene'));state=next;epoch++;selected=state.units.find(u=>u.team==='ally')?.id??null;mode='command';origin=null;target=null;busy=false;log('출전 편성이 확정되었습니다.');autosave();
+  }else{
+   const result=changeFormationButton(b,ch,campaign.draftSlots,deploymentSelection.id);campaign.draftSlots=result.slots;campaign.draft=result.slots.filter(Boolean);deploymentSelection.id=result.selected;deploymentSelection.message=result.message;if(result.changed)autosave();
+  }
+  render();if(campaign.stage==='deployment'&&attr)$('deployment-scene').querySelector('['+attr.name+'="'+attr.value+'"]')?.focus({preventScroll:true});
+ }catch(error){void playSfx('uiError');deploymentSelection.message=error.message;$('deploy-message').textContent=error.message;}
+});
+function scheduleDialogue() {
+ clearTimeout(autoTimer);
+ const button=$('dialogue-auto');
+ if(button){button.setAttribute('aria-pressed',String(autoDialogue));button.textContent=autoDialogue?'자동 · 멈추기':'자동 넘김';}
+ if(!autoDialogue||title||!['preDialogue','postDialogue','defeatDialogue'].includes(campaign.stage))return;
+ const token=epoch,chapter=campaign.chapter,stage=campaign.stage,line=campaign.line;
+ autoTimer=setTimeout(()=>{
+  if(!autoDialogue||token!==epoch||chapter!==campaign.chapter||stage!==campaign.stage||line!==campaign.line)return;
+  if(document.querySelector('dialog[open]')||presentationBusy()||document.hidden){scheduleDialogue();return;}
+  if(campaign.line===campaign.lines.length-1){autoDialogue=false;scheduleDialogue();return;}
+  advanceDialogue();
+ },Math.max(2400,campaign.lines[campaign.line].text.length*65));
+}
+function rememberDialogue(line) {
+ const identity=campaign.scenario.id+':'+campaign.stage+':'+campaign.line;
+ if(readingSeen.has(identity))return;
+ readingSeen.add(identity);
+ readingHistory.push({name:campaign.scenario.speakers?.[line.speaker]??CHARACTERS[line.speaker]?.name??'',text:line.text,chapter:campaign.chapter+1});
+}
+function openDialogueLog() {
+ const box=document.createElement('dialog');box.className='dialogue-reading-log';box.setAttribute('aria-label','대화 기록');
+ box.innerHTML='<div class="dialog-heading"><h3>여정의 대화</h3><button class="quiet">닫기</button></div><div class="reading-lines">'+readingHistory.map(row=>'<article><strong>'+esc(row.name)+'</strong><small>제'+row.chapter+'화</small><p>'+esc(row.text)+'</p></article>').join('')+'</div>';
+ const close=()=>{box.close();box.remove();scheduleDialogue();};
+ box.querySelector('button').onclick=close;box.addEventListener('cancel',e=>{e.preventDefault();close();});
+ document.body.append(box);box.showModal();const scroll=box.querySelector('.reading-lines');scroll.scrollTop=scroll.scrollHeight;
+}
+function renderDialogue() {
+  const line=campaign.lines[campaign.line],character=CHARACTERS[line.speaker],narrator=line.speaker==='narrator';
+  rememberDialogue(line);
+  scheduleDialogue();
+  const story=campaign.scenario.rosterMode==='story';
+  $('dialogue-scene').classList.toggle('narration',narrator);
+  $('scene-location').textContent=campaign.scenario.location+(campaign.stage==='defeatDialogue'?' · 퇴각':campaign.stage==='postDialogue'?' · 전투 직후':'');
+  if(!story)$('portrait-left').hidden=!character.portrait||narrator;
+  if(!story){$('portrait-right').hidden=campaign.scenario.dialogueCharacters?.length===1;$('portrait-left').classList.toggle('speaking',!narrator&&character.side==='left');$('portrait-right').classList.toggle('speaking',!narrator&&character.side==='right');}
+  if(!story&&character.portrait){const img=$('portrait-left').querySelector('img');if(img.getAttribute('src')!==character.portrait)img.src=character.portrait;img.alt=character.name;$('portrait-left').querySelector('figcaption').textContent=character.name;}
+  $('speaker').textContent=narrator?'':character.name;$('speaker-title').textContent=narrator?'':character.title??'';
+  $('line-number').textContent=(campaign.line+1)+' / '+campaign.lines.length;$('dialogue-text').textContent=line.text;
+  $('dialogue-prev').disabled=campaign.line===0;
+  const last=campaign.line===campaign.lines.length-1;
+  paintPresentation($('dialogue-scene'),campaign.lines,campaign.line,campaign.scenario,{phase:campaign.stage==='postDialogue'?'post':campaign.stage==='defeatDialogue'?'defeat':'pre'});
+  $('dialogue-next').textContent=!last?'다음 대사':campaign.stage==='defeatDialogue'?'패배 결과로':campaign.stage==='preDialogue'?(!campaign.scenario.fixed?'출전 편성으로':'전투 시작'):'정비 상점으로';
+}
+
+function instruction() {
+  const u = current();
+  if(eventShowing)return '전투 중 대화를 확인하세요.';
+  if(busy&&state.phase==='ally')return '행동을 처리하고 있습니다.';
+  if(state.phase==='enemy')return enemyLabel()+'이 행동하고 있습니다.';
+  if (!u) return '아군 장수를 클릭하면 명령 메뉴가 열립니다.';
+  if (mode === 'inspect') return u.team === 'enemy' ? '적의 능력치를 확인한 뒤 아군을 선택하세요.' : '행동을 마쳤습니다. 다른 아군을 선택하세요.';
+  if (mode === 'spirit-target') return `${SPIRITS[pendingSpirit].name} · 대상 장수를 선택한 뒤 확정하세요.`;
+  if (mode === 'spirit') return '정신기는 SP만 소모하며 행동을 종료하지 않습니다. 이동 전에 사용하세요.';
+  if (mode === 'skill-list') return '필살기·특수기를 선택한 뒤 실제 대상을 확인하세요.';
+  if (mode === 'move') return `${displayUnitName(u)} · 초록색 칸을 눌러 이동하세요. 현재 칸은 제자리 행동입니다.`;
+  if (mode === 'attack') return target ? u.cls === 'strategist' ? `${SKILLS[tactic]} 성공률과 효과를 확인한 뒤 확정하세요.` : '병과 상성과 반격 피해를 확인한 뒤 공격을 확정하세요.' : '붉게 표시된 적을 선택하세요.';
+  if (mode === 'combat-skill') {const model=createSkillTargetingModel(state,u,pendingCombatSkill,target,{scenario:campaign.scenario});return model.active?(model.center?model.selectionStatus+' · 지도에서 효과 대상을 확인한 뒤 사용하세요.':model.instruction):'선택 문맥에서 대상과 사용 조건을 확인하세요.';}
+  if (mode === 'heal') return target ? '회복량을 확인한 뒤 사용을 확정하세요.' : '자신 또는 거리 3칸 이내의 부상 아군을 선택하세요.';
+  return `${displayUnitName(u)} · 명령을 선택하세요.${origin ? ' 행동 확정 전에는 이동을 취소할 수 있습니다.' : ''}`;
+}
+function renderBattle() {
+  const viewState=combatMapState??state,viewLiving=team=>viewState.units.filter(unit=>unit.team===team&&unit.hp>0);
+  $('board-stage').dataset.combatPending=String(!!combatMapState);
+  const battleConditions=renderBattleConditions($('battle-conditions-host'),viewState,campaign.scenario,{army,compact:true});
+  battleUI.updateGoal(battleConditions.victory);
+  renderAct2Brief($('battle-conditions-host'),campaign.scenario,viewState);
+  renderEscortFollowUI($('battle-conditions-host'),viewState,{busy});
+  const terrainNote=terrainBattleNote(viewState,campaign.scenario);let noteHost=$('battle-conditions-host').querySelector('.terrain-battle-note');if(terrainNote){if(!noteHost){noteHost=document.createElement('p');noteHost.className='terrain-battle-note';$('battle-conditions-host').append(noteHost);}noteHost.textContent=terrainNote;}else noteHost?.remove();
+  const goalGuide=battleGoalGuidance(viewState);
+  const u = viewState.units.find(unit=>unit.id===selected), ranges = u && mode === 'move' && actionable(u) ? reachable(viewState, u) : new Map();
+  const mobileMovePath=typeof mobileMoveDraft!=='undefined'&&u&&mode==='move'&&mobileMoveDraftValid(mobileMoveDraft,state,u,epoch,ranges)?new Set(movementPath(viewState,u,mobileMoveDraft.x,mobileMoveDraft.y).map(cell=>key(cell.x,cell.y))):new Set();
+  const supportView=supportTargetView(viewState,u,{mode,combatSkill:pendingCombatSkill,spirit:pendingSpirit,busy}),skillTargets=u&&mode==='combat-skill'?combatSkillTargets(viewState,u,pendingCombatSkill):[],skillMeta=u&&pendingCombatSkill?combatSkillList(viewState,u).find(t=>t.id===pendingCombatSkill):null;
+  const skillArea=u&&mode==='combat-skill'?combatSkillArea(viewState,u,pendingCombatSkill,viewState.units.find(v=>v.id===target)):null;
+  const targeting=u&&mode==='combat-skill'&&!busy?createSkillTargetingModel(viewState,u,pendingCombatSkill,target,{scenario:campaign.scenario}):null;
+  $('battle-scene').classList.toggle('is-skill-targeting',!!targeting?.active);
+  renderSkillTargetingPanel(targeting);
+  $('board').dataset.supportMode=supportView.active?supportView.label:'';
+  $('roster').dataset.supportMode=supportView.active?supportView.label:'';
+  const rosterHeading=$('roster').previousElementSibling;rosterHeading.firstChild.textContent=supportView.active?supportView.label+' 대상 ':'출전 장수 ';
+  $('enemy-label').textContent=enemyLabel();
+  $('board').style.gridTemplateColumns=`repeat(${viewState.terrain[0].length},1fr)`;
+  $('board').setAttribute('aria-label',`${viewState.terrain[0].length}열 ${viewState.terrain.length}행 전장`);
+  $('phase').textContent = viewState.phase === 'ally' ? '아군 턴' : enemyLabel()+' 턴';
+  $('phase').className = viewState.phase === 'enemy' ? 'enemy' : '';
+  $('weather-info').textContent = viewState.weather.kind === 'rain' ? '☂ 비' : '☀ 맑음';
+  $('round').textContent = String(viewState.round).padStart(2, '0');
+  $('allies').textContent = viewLiving('ally').length; $('enemies').textContent = viewLiving('enemy').length;
+  $('ready-count').textContent = supportView.active?`사용 가능 ${supportView.ids.size}명 · 밝은 대상 선택`:`행동 가능 ${viewLiving('ally').filter(v => !v.done && !disabled(v)).length} / ${viewLiving('ally').length}`;
+  $('forest-legend').textContent = viewState.terrainRulesVersion===1?'숲 · 방어 +'+balance.terrain.forestDefense+' / 회피 +5%p / 화공 140% · 다리 방어 −3'+(viewState.flood?' · 침수 이동 2 / 기병 3':''):`숲 · 방어 +${balance.terrain.forestDefense}`;
+  const guestLegend=$('guest-legend');if(guestLegend){guestLegend.innerHTML=guestLegendHTML();guestLegend.hidden=!viewState.units.some(v=>v.hp>0&&isGuestUnit(v));}
+  $('end-turn').disabled = busy || eventShowing || cloudGameBlocked() || presentationBusy() || state.bossCleanupVersion===1&&state.bossCleanup?.status==='pending' || viewState.phase !== 'ally' || !!viewState.result || !!origin;
+  $('end-turn').innerHTML=esc(goalGuide.turnLabel)+' <small>'+esc(goalGuide.turnDetail)+'</small>';
+  const plannedFire= !viewState.shipFire&&viewState.terrainRulesVersion===1?campaign.scenario.events?.find((e,i)=>e.terrainEffect?.type==='fire'&&!viewState.storyEvents?.fired.includes(i))?.terrainEffect:null;
+  boardBackground.update({scenarioId:campaign.scenario.id,terrain:viewState.terrain,width:viewState.terrain[0].length,height:viewState.terrain.length});
+  const terrainGeometry={width:viewState.terrain[0].length,height:viewState.terrain.length,terrain:viewState.terrain,shared:true};
+  const terrainView=typeof createTerrainRenderContext==='function'?createTerrainRenderContext(campaign.scenario.id,terrainGeometry):terrainGeometry;
+  const boardOccupants=new Map();for(const unit of viewState.units)if(unit.hp>0&&!boardOccupants.has(key(unit.x,unit.y)))boardOccupants.set(key(unit.x,unit.y),unit);
+  const areaCenter=state.units.find(unit=>unit.id===target);
+  const boardCellHTML = viewState.terrain.map((row, y) => [...row].map((t, x) => {
+    const tileProfile=terrainProfile(viewState,x,y),terrainKind=tileProfile.kind,fireWarning=plannedFire?.cells.some(([cx,cy])=>cx===x&&cy===y);
+    const v = boardOccupants.get(key(x,y)), isTarget = u && v && ((mode === 'spirit-target' && spiritTargets(viewState,u,pendingSpirit).includes(v)) || (mode === 'attack' && canTarget(u, v,viewState,commandTactic(u,tactic))) || (mode === 'heal' && supportView.ids.has(v.id)));
+    const skillTarget=v&&skillTargets.some(t=>t.id===v.id);
+    const tacticSplash=mode==='combat-skill'&&skillMeta?.area==='cross'&&areaCenter&&combatSkillCrossContains(skillMeta,areaCenter,{x,y});
+    const goalTile=goalGuide.tiles.find(tile=>tile.x===x&&tile.y===y),exit=!!goalTile;
+    const cellClass = ['cell',v?'has-unit':'',goalTile&&v?'goal-occupied':'',skillTargetingCellClass(targeting,x,y),burningEnemyTile(viewState,v)?'burning-enemy':'',fireWarning?'planned-fire-zone':'',terrainKind==='burned'?'ship-fire-zone':terrainKind==='flood'?'flooded':terrainKind==='bridge'?'bridge':'',!targeting?.active&&skillArea?.cells.has(key(x,y))?'skill-area '+(skillArea.special?'skill-special-area ':'')+(skillArea.support?'skill-support-area':''):'',!targeting?.active&&v&&skillArea?.ids.has(v.id)?'skill-affected':'',!targeting?.active&&tacticSplash?'tactic-splash':'',!targeting?.active&&skillTarget?'skill-target '+((skillMeta?.actionKind??skillMeta?.kind)==='support'?'support-target':''):'',exit?'exit-tile '+(goalTile.ready?'goal-ready':'goal-locked')+(goalTile.at?' goal-arrived':''):'', t === 'F' ? 'forest' : t === '#' ? 'blocked' : '', ranges.has(key(x, y)) ? 'reachable' : '', mobileMovePath.has(key(x,y))?'mobile-move-path':'', typeof mobileMoveDraft!=='undefined'&&mobileMoveDraft?.battle===state&&mobileMoveDraft.unitId===selected&&mode==='move'&&mobileMoveDraft.x===x&&mobileMoveDraft.y===y?'mobile-move-preview':'', v?.id === selected ? 'selected' : '', isTarget ? 'targetable' : '', !targeting?.active&&v?.id === target ? 'targeted' : ''].join(' ');
+    const guestNote=v?guestAriaDescription(v,{army}):'',guestTitle=v?guestPresentation(v,{army})?.description:'';
+    const supportClass=supportTargetState(supportView,v)??'',spentAlly=v?.team==='ally'&&v.done;
+    const label = `${String.fromCharCode(65 + x)}${y + 1} ${describedTile(viewState,x,y)}${fireWarning?' · 화공 예정 구역 · '+(viewState.act3StageRevisionVersion===1&&campaign.scenario.id==='s15_chibi'?'아군 최대병력 35% · 적 현재 병력에서 최대 3,000 · 혼란 한 턴':viewState.campaignLayoutVersion===1&&campaign.scenario.id==='s15_chibi'?'아군 최대병력 35% · 적 최대병력 75%':'최대병력 35%')+' 일회 피해':''}${v ? ` · ${v.team === 'ally' ? '아군' : '적군'} ${displayUnitName(v)}${guestNote?' · '+guestNote:''} 병력 ${count(v.hp)}/${count(v.maxHp)}${v.commanderPanicRound!==undefined?' 지휘 붕괴·혼란':v.chibiFireConfusionRound!==undefined?' 대화공·혼란':v.status ? ` ${SKILLS[v.status.type]}` : ''}${supportClass?' · '+supportView.label+(supportClass==='support-eligible'?' 사용 가능':' 사용 불가'):spentAlly ? ' 행동 완료' : ''}` : ''}`;
+    const goalLabel=goalTile?(goalTile.act4Goal||goalTile.act5Goal||goalTile.act6Goal||goalTile.act7Goal?' · 기여 목표: ':' · 승리 목표: ')+goalTile.aria:'';
+    const targetingLabel=targeting?.active?[targeting.caster.id===v?.id?'시전자':'',targeting.center?.x===x&&targeting.center?.y===y?'선택한 '+targeting.selectionLabel:'',targeting.choices.some(choice=>choice.id===v?.id)?targeting.selectionLabel+' 선택 가능':'',targeting.affected.some(unit=>unit.id===v?.id)?'효과 대상 '+targeting.affected.find(unit=>unit.id===v.id).index+'번':'',targeting.safeAllies.some(unit=>unit.id===v?.id)?'아군 피해 없음':''].filter(Boolean).map(text=>' · '+text).join(''):'';
+    const token = v ? `<span data-unit-id="${v.id}" class="token ${artFor(v,campaign.scenario) ? 'sprite-token' : ''} ${movingUnitId === v.id ? 'travel-hidden' : ''} ${v.team === 'enemy' ? 'enemy-token' : ''} ${spentAlly ? 'done' : ''} ${supportClass}">${spriteHTML(v,'',campaign.scenario)}${guestBadgeHTML(v,{placement:'board',army})}<span class="unit-name">${v.generic||v.team==='enemy'&&['troop','elite'].includes(v.combatTier) ? rankName(v) : v.id==='x_cao_spear'?'협력창병':v.id==='x_carriage'?'수레':v.combatTier&&displayUnitName(v)==='조조군 추격대장'?'추격장':displayUnitName(v)}${v.team==='enemy'&&enemyLootMarker(v)?' ◆':''}${v.combatTier&&v.combatTier!=='troop'?`<i class="tier-badge tier-${v.combatTier}" title="${tierLabel(v)}">${v.combatTier==='boss'?'S':tierLabel(v)}</i>`:''}</span><span class="unit-class">${v.generic ? armyLabel(v,campaign.scenario) : rankName(v)} ${rankStars(v)}</span><span class="mini-hp"><i style="width:${v.hp / v.maxHp * 100}%"></i></span>${v.team==='ally'&&combatSkillList(state,v).some(skill=>skill.gate&&!skill.reason)?'<span class="special-ready-mark" title="필살기 사용 가능">✦</span>':''}${(v.commanderPanicRound!==undefined||v.chibiFireConfusionRound!==undefined)?'<span class="status-mark">혼란</span>':v.status ? `<span class="status-mark">${SKILLS[v.status.type]}</span>` : spentAlly ? '<span class="done-mark">✓</span>' : ''}</span>` : '';
+    return `<button class="${cellClass}" data-x="${x}" data-y="${y}" aria-label="${esc(label+goalLabel+targetingLabel)}" ${(guestTitle||goalTile)?`title="${esc([goalTile?.aria,guestTitle].filter(Boolean).join(' · '))}"`:""} ${v?.id === selected ? 'aria-pressed="true"' : ''}>${terrainHTML(t,campaign.scenario.id,{...terrainView,x,y})}${targeting?.active?skillTargetingTileHTML(targeting,x,y):skillAreaOverlayHTML(skillArea,x,y)}<span class="terrain-mark" aria-hidden="true">${!exit&&terrainKind==='burned'?'화공':!exit&&terrainKind==='flood'?'침수':!exit&&terrainKind==='bridge'?esc(bridgeDisplayLabel(viewState)):!exit&&t === 'F' ? tileProfile.name==='적재함 엄폐'?'엄폐':'숲' : !exit&&t === '#' ? blockedLabel() : ''}</span>${goalTile?`<span class="goal-marker" aria-hidden="true"><b>${esc(goalTile.coordinate)}</b><span class="goal-tile-name">${esc(goalTile.label)}</span></span>`:''}${token}</button>`;
+  })).flat();
+  const fleetFireHTML=chibiFleetFireHTML(viewState,campaign.scenario.id);
+  if(typeof boardRenderer!=='undefined'&&boardRenderer)boardRenderer.render({key:epoch+':'+campaign.scenario.id+':'+viewState.terrain.join('\n'),cells:boardCellHTML,overlayHTML:fleetFireHTML});
+  else $('board').innerHTML=boardCellHTML.join('')+fleetFireHTML;
+  syncSpiritEffects($('board'),viewState.units,{session:epoch+':'+campaign.scenario.id});
+  rangeDestination=null;rangePaintKey=null;rangePreviewCache.clear();
+  void loadStageMapArt(campaign.scenario.id);
+  syncCombatResultMarks($('board-stage'),viewState.units);
+  renderUnitUI(u);
+  battleUI.update();
+  boardNavigation.update(viewState,selected);
+ weatherPresentation.update({state:viewState,active:!title&&campaign.stage==='battle'});
+  $('roster').innerHTML = viewState.units.filter(v => v.team === 'ally').map(v => {
+   const supportClass=supportTargetState(supportView,v)??'',available=supportClass==='support-eligible',note=supportView.active?(available?supportView.label+' 가능':supportView.label+' 불가'):v.commanderPanicRound!==undefined?'지휘 붕괴·혼란':v.chibiFireConfusionRound!==undefined?'대화공·혼란':v.status?SKILLS[v.status.type]:v.done?'행동 완료':rankName(v);
+   return `<button data-unit="${v.id}" class="${v.id === selected ? 'chosen' : ''} ${!supportView.active&&v.done ? 'spent' : ''} ${supportClass}" ${v.hp<=0||busy||supportView.active&&!available?'disabled':''} aria-label="${displayUnitName(v)}${guestAriaDescription(v,{army})?' · '+guestAriaDescription(v,{army}):''} · ${v.withdrawn?'전장 이탈':v.hp<=0?'퇴각':note}${supportView.active?'':' 선택'}"><span class="initial">${esc(displayUnitName(v).slice(0,1))}</span><span><b>${displayUnitName(v)}${guestBadgeHTML(v,{placement:'roster',army})}</b><small>${v.withdrawn?'전장 이탈':v.hp<=0?'퇴각':note}</small></span></button>`;
+  }).join('');
+  $('latest-log').textContent = logs[0] ?? '촉군이 전장에 도착했습니다.';
+  $('instruction').textContent='';
+  updateAttackRange();
+  if (focusCell) { $('board').querySelector(`[data-x="${focusCell.x}"][data-y="${focusCell.y}"]`)?.focus({ preventScroll: true }); focusCell = null; }
+  requestAnimationFrame(positionMenu);
+  if(typeof mobileBattleShell!=='undefined'){
+    $('battle-scene').dataset.mobileRosterBlocked=String(!mobileCommandsReady||title||busy||eventShowing||presentationBusy()||cloudGameBlocked()||!!state.result||state.phase!=='ally'||campaign.stage!=='battle');
+    mobileBattleShell.update();
+  }
+}
+function renderSkillTargetingPanel(model){
+  skillTargetingPanel.hidden=!model?.active;
+  if(!model?.active)return;
+  const caster=state.units.find(unit=>unit.id===model.caster.id);
+  const accuracyOptions={slots:army.heroes[model.caster.id]?.slots??caster?.guestSource?.hero?.slots??[]};
+  const focus=document.activeElement?.closest?.('#skill-targeting-panel [data-action]')?.dataset.action;
+  const positions=[...skillTargetingPanel.querySelectorAll('[data-skill-scroll]')].map(node=>[node.dataset.skillScroll,node.scrollTop]);
+  const mobile=typeof mobileCommandUIEnabled==='function'&&mobileCommandUIEnabled($('battle-scene'));
+  const terrainNote=model.center&&!model.support?terrainPredictionHTML(state,model.caster,model.center,{kind:model.meta.actionKind??'physical',terrainPierce:model.meta.terrainPierce??0,targets:model.prediction?.targets}):'';
+  if(mobile){
+    const selected=!!model.center;
+    const perTarget=selected&&model.affected.length>1?'<details class="mobile-effect-details"><summary>대상별 예측</summary><div class="mobile-effect-list">'+model.affected.map(unit=>'<p><b>'+esc(displayUnitName(unit)+' · '+unit.coordinate)+'</b><br>'+esc(unit.projectionLabel)+(unit.counterLabel?'<br>'+esc(unit.counterLabel):'')+'</p>').join('')+'</div></details>':'';
+    const body='<p class="command-context">'+esc(model.costLabel)+'</p>'+(selected?'<p class="mobile-selection-note">'+esc(model.center.coordinate+' · '+model.affectedLabel)+'</p>'+skillPreviewSummary(model.meta,model.prediction??{},model.center)+perTarget:'<p class="mobile-selection-note">'+esc(model.reason||(!model.choices.length?model.emptyLabel:model.instruction))+'</p><div class="mobile-target-choices">'+model.choices.map(unit=>mobileActionButton(displayUnitName(unit)+' · '+unit.coordinate+' · '+unit.summary,'skill-target-'+unit.id)).join('')+'</div>');
+    const footer=selected?mobileActionButton('다시 선택','back')+mobileActionButton(model.confirmLabel,'skill-confirm',{disabled:!model.canConfirm,primary:true}):mobileActionButton('취소','skill-back');
+    replaceMobileCommandHTML(skillTargetingPanel,mobileCommandFrameHTML({title:model.meta.name,subtitle:selected?'범위와 예측 확인':'대상 선택',kind:'combat-skill',backAction:'skill-back',bodyHTML:body,footerHTML:footer}),model.caster.id+':'+model.skillId+':'+(selected?'preview':'choose'));
+    $('unit-ui').battlePredictionDetailsHTML=model.prediction?skillPreviewHTML(model.meta,model.prediction,model.center,{unitName:displayUnitName})+tacticAccuracyNoteHTML(model.prediction,accuracyOptions)+terrainNote:'';
+    if(focus)skillTargetingPanel.querySelector('[data-action="'+focus+'"]')?.focus({preventScroll:true});
+    return;
+  }
+  const html=skillTargetingPanelHTML(model,{mobile});if(skillTargetingPanel.innerHTML!==html)skillTargetingPanel.innerHTML=html;
+  for(const[name,top]of positions){const node=skillTargetingPanel.querySelector('[data-skill-scroll="'+name+'"]');if(node)node.scrollTop=top;}
+  if(focus)skillTargetingPanel.querySelector('[data-action="'+focus+'"]')?.focus({preventScroll:true});
+  $('unit-ui').battlePredictionDetailsHTML=model.prediction?skillPreviewHTML(model.meta,model.prediction,model.center,{unitName:displayUnitName})+tacticAccuracyNoteHTML(model.prediction,accuracyOptions)+terrainNote:'';
+}
+function command(label, action, disabled = false, primary = false) {
+  return `<button data-action="${action}" ${disabled ? 'disabled' : ''} class="${primary ? 'primary' : ''}">${label}</button>`;
+}
+function battlePortraitBadge(u){
+ const identity=[6,7].includes(campaign.scenario.act)?act6UnitPortraitIdentity(u):campaign.scenario.act===5?unitPortraitIdentity(u):null;
+ const portrait=identity?([6,7].includes(campaign.scenario.act)?act6PortraitForUnit(u,campaign.scenario.id):portraitForUnit(u,campaign.scenario.id)):null;
+ if(portrait?.id?.startsWith(identity.id+'/')){
+  const [x,y,w,h]=portrait.crop??[.08,.02,.84,.62];
+  const style='width:'+100/w+'%;height:'+100/h+'%;left:'+(-x*100/w)+'%;top:'+(-y*100/h)+'%';
+  return '<span class="float-han has-portrait has-person-portrait" aria-hidden="true"><img class="unit-person-portrait" src="'+esc(portrait.url)+'" alt="" style="'+style+'"></span>';
+ }
+ return '<span class="float-han '+(artFor(u,campaign.scenario)?'has-portrait':'')+'" aria-hidden="true">'+(spriteHTML(u,'',campaign.scenario)||esc(displayUnitName(u).slice(0,1)))+'</span>';
+}
+function renderUnitUI(u) {
+  const panel = $('unit-ui'); panel.hidden = !u || u.hp <= 0 || busy || mode==='combat-skill';
+  if (panel.hidden) return;
+  const a = state.units.find(v => v.id === target);
+  const mobile=typeof mobileCommandUIEnabled==='function'&&mobileCommandUIEnabled($('battle-scene'));
+  const compact = ['move', 'attack', 'heal', 'combat-skill'].includes(mode) && !a;
+  panel.className = `unit-ui ${compact ? 'compact' : ''} ${a ? 'target-preview' : ''} ${mode === 'spirit' ? 'spirit-mode' : ''}`;
+  panel.dataset.mode=mode;panel.dataset.mobileStage=mobile&&['move','attack','heal','spirit-target'].includes(mode)&&!a?'choosing':a?'confirmation':'commands';panel.battlePredictionDetailsHTML='';
+  const guestInfo=guestPresentation(u,{army}),personalAlly=u.team==='ally'&&(!u.extra||!!guestHeroIdentity(u));
+  let summary=mobile?'':`<div class="float-header">${battlePortraitBadge(u)}<div><h3>${displayUnitName(u)}${guestBadgeHTML(u,{army})}${u.extra&&!personalAlly?'':' · Lv'+u.level+(u.team==='ally'?' / '+growthProgress(u).cap:'')}</h3><small>${rankName(u)}${guestInfo?' · '+esc(guestInfo.label):''}</small></div><button type="button" data-action="unit-details" class="quiet unit-detail-open">상세</button></div><div class="float-hp"><span>병력</span><strong>${count(u.hp)}</strong><small>/ ${count(u.maxHp)}</small></div><div class="unit-hp-track"><i style="width:${u.hp/u.maxHp*100}%"></i></div><div class="mental-stats"><span>사기 <b>${u.morale}</b></span>${personalAlly?'<span>SP <b>'+u.sp+'</b> / '+u.maxSp+'</span>':''}</div>`;
+  const activeSpirits=Object.keys(u.spirits).filter(id=>u.spirits[id]);
+  if(activeSpirits.length&&!mobile)summary+=`<div class="spirit-badges">${activeSpirits.map(id=>'<span title="'+esc(SPIRITS[id].description)+'">'+esc(SPIRITS[id].name)+'</span>').join('')}</div>`;
+  if(!mobile)summary+=unitGrowthPerksHTML(u,state);
+  if(u.act6Sleeping&&!mobile)summary+='<p class="status-detail">잠들어 있음 · 2턴에 기상하면 행동할 수 있습니다.</p>';
+  let html='';
+  if(u.commanderPanicRound!==undefined)html+='<p class="status-detail">지휘 붕괴 · 이번 적군 턴 혼란 · 행동·반격 불가 / 방어 50% / 물리 피격 시 치명타</p>';
+  if(u.chibiFireConfusionRound!==undefined)html+='<p class="status-detail">적벽 대화공 · 이번 적군 턴 혼란 · 행동·반격 불가 / 방어 50% / 물리 피격 시 치명타</p>';
+  if(u.status)html+=`<p class="status-detail">${SKILLS[u.status.type]} · ${u.status.type==='confusion'?'행동·반격 불가 / 방어 50% / 물리 피격 시 치명타':(u.team==='enemy'?'다른 적군을 공격·추격 · 우리 아군은 표적 제외':'자기 턴에 가장 가까운 부대 자동 공격')}</p>`;
+  if(u.team==='ally'&&enemyControlGuardActive(state,u))html+=`<p class="status-detail">적 혼란·위보 재시전 보호 · ${u.enemyControlGuardUntilRound}턴 적군 행동까지</p>`;
+  const statusHTML=html;
+  if(guestInfo?.kind==='escort')html+=guestDetailHTML(u,{army});
+  let buttons = '';
+  if (!actionable(u)) buttons = command('닫기', 'dismiss');
+  else if(mode==='spirit-target'){
+    html+=`<p class="command-context">${SPIRITS[pendingSpirit].name} · SP ${SPIRITS[pendingSpirit].cost}<br>${SPIRITS[pendingSpirit].description}</p>`;
+    if(a){const reason=spiritReason(state,u,pendingSpirit,a);html+=`<div class="prediction"><b>${displayUnitName(a)}</b><p>${reason||'이 대상에게 사용합니다.'}</p></div>`;buttons=command('사용 확정','spirit-confirm',!!reason,true)+command('대상 다시 선택','back');}
+    else buttons=spiritTargets(state,u,pendingSpirit).map(v=>command(displayUnitName(v),'spirit-target-'+v.id)).join('');
+    buttons+=command('정신기로 돌아가기','spirit-target-back');
+  } else if(mode==='skill-list'){
+    buttons=combatSkillList(state,u).map(skill=>skillOptionHTML(skill)).join('')+command('명령으로 돌아가기','skill-back');
+  } else if (mode === 'spirit') {
+    html += '<p class="command-hint">이동 전 사용 · 행동 유지</p>';
+    buttons = spiritSlots(u,state).map(slot=>{const id=slot.id,sp=SPIRITS[id],reason=spiritReason(state,u,id);if(u.level<slot.level)return '<button disabled class="spirit-option locked-spirit"><b>????<span>Lv'+slot.level+' 해금</span></b><small>아직 해금되지 않은 정신기입니다.</small></button>';return `<button data-action="cast-${id}" ${reason ? 'disabled' : ''} class="spirit-option" title="${esc(sp.description)}"><b>${sp.name}<span>Lv${slot.level} · SP ${sp.cost}</span></b><small>${esc(sp.description.split(' · ')[0])}</small>${reason ? `<em>${reason}</em>` : ''}</button>`}).join('') + command('명령으로 돌아가기','spirit-back');
+  } else if (a && mode === 'attack') {
+    const p = preview(u, a, state, commandTactic(u,tactic));
+    html += p.kind ? `<div class="prediction"><b>${displayUnitName(a)} · ${SKILLS[p.kind]}</b><p>성공률 <strong>${pct(p.chance)}</strong></p><p>지력 ${u.int} 대 ${a.int}${p.forestBonus ? `<br>수풀 보너스 +${p.forestBonus}%p` : ''}${p.rain ? '<br>비 · 화공 반드시 실패' : ''}</p><p>${p.kind === 'fire' && p.rain ? '병력 변화 없음' : ['fire','water'].includes(p.kind) ? `성공 시 병력 ${count(p.hit)} 감소<br>병력 ${count(a.hp)} → ${count(p.targetHp)}` : p.kind === 'confusion' ? '성공 시 행동·반격 불가 / 방어 50% / 물리 피격 시 치명타' : (a.team==='enemy'?'성공 시 다른 적군 공격·추격 · 우리 아군은 표적 제외':'성공 시 가까운 부대 자동 공격')}<br>실패 시 효과 없음 · 반격 없음</p><p>${!['fire','water'].includes(p.kind) ? '자기 진영 턴 1회 · 중첩 없이 새 상태로 교체<br>' : ''}성공·실패 모두 행동 종료</p></div>` : `<div class="prediction"><b>${displayUnitName(a)} · ${rankName(a)} · 사기 ${a.morale}</b><p>명중 <strong>${pct(p.chance)}</strong>${hasFlash(a) ? ' · 번뜩임 우선' : u.spirits.strike ? ' · 필중' : ''}</p><p>명중 시 병력 <strong>${count(p.hit)}</strong> 감소 <span class="matchup ${p.matchup < 1 ? 'disadvantage' : ''}">상성 ${pct(p.matchup)}</span></p><p>${p.counter ? p.counterChance === 0 ? '번뜩임 · 반격 반드시 회피' : `명중 후 반격 ${count(p.returnHit)} · 명중 ${pct(p.counterChance)}` : '공격 명중 시 반격 없음'}</p>${p.chance < 1 && p.counterIfMiss ? `<p>공격이 빗나가면 반격 ${count(p.returnHitIfMiss)} · 명중 ${pct(p.counterChance)}</p>` : ''}<p>${p.chance === 0 ? `공격 회피 확정 · 적 병력 ${count(a.hp)} 유지` : `공격 명중 시 적 병력 ${count(a.hp)} → ${count(p.targetHp)}`}<br>${p.counterChance === 0 ? '반격 피해 없음' : '반격 피해는 능력치·상성·사기·지형으로 계산합니다.'}</p></div>`;
+    if(!p.kind)html+=criticalPreview(p,state.balance.critical.enabled);
+    if(p.bossCounterWarning)html+='<p class="boss-counter-warning">위험 · S급 적장의 강한 반격입니다. 기습·상성·생존 병력을 확인하세요.</p>';
+    if(p.kind&&(campaign.scenario.act===2||campaign.scenario.combatProfile==='act2'))html+='<p class="tactic-details">'+esc(p.tacticNote??'지력에 따라 화공 피해가 달라집니다.')+'</p>';
+    if(p.kind)html+=tacticAccuracyNoteHTML(p,{slots:army.heroes[u.id]?.slots??u.guestSource?.hero?.slots??[]});
+    const terrainNote=terrainPredictionHTML(state,u,a,{kind:p.kind??'physical',counter:!!(p.counter||p.counterIfMiss)});
+    panel.battlePredictionDetailsHTML=html+terrainNote;html=attackPreviewSummary(p,u,a);if(p.blockedReason)html+='<p class="command-reason">'+esc(p.blockedReason)+'</p>';
+    buttons = command(u.cls === 'strategist' ? `${SKILLS[tactic]} 확정` : '공격 확정', 'confirm', !!p.blockedReason, true) + command('대상 선택 취소', 'back');
+  } else if(mode==='combat-skill'){
+    const meta=combatSkillList(state,u).find(skill=>skill.id===pendingCombatSkill);
+    if(meta&&a){const p=previewCombatSkill(state,u,a,pendingCombatSkill);html+=skillPreviewHTML(meta,p,a,{unitName:displayUnitName})+tacticAccuracyNoteHTML(p,{slots:army.heroes[u.id]?.slots??u.guestSource?.hero?.slots??[]});panel.battlePredictionDetailsHTML=html;const area=combatSkillArea(state,u,pendingCombatSkill,a);html='<p class="skill-area-note">효과 대상 '+area.ids.size+'명</p>'+skillPreviewSummary(meta,p,a);buttons=command(skillUseLabel(meta),'skill-confirm',!!p.reason,true)+command('대상 다시 선택','back');}
+    else if(meta){html+=`<p class="command-hint">${esc(meta.name)} · ${esc(skillSummary(meta))}</p>`;buttons=combatSkillTargets(state,u,pendingCombatSkill).map(v=>command(displayUnitName(v),'skill-target-'+v.id)).join('');}
+    buttons+=command('명령으로 돌아가기','skill-back');
+  } else if (a && mode === 'heal') {
+    html += `<div class="prediction"><b>${displayUnitName(a)} · 군량</b><p>병력 ${count(a.hp)} → <strong>${count(Math.min(a.maxHp, a.hp + healingAmount(state,u)))}</strong></p><p>군량 1개 소비 · 행동 종료</p></div>`;
+    buttons = command('군량 사용 확정', 'confirm', false, true) + command('대상 선택 취소', 'back');
+  } else if (compact) {
+    html += `<p class="command-hint">${mode === 'move' ? '이동할 칸을 선택하세요.' : mode === 'attack' ? '공격할 적을 선택하세요.' : '회복할 아군을 선택하세요.'}</p>`;
+    buttons = command('취소', 'cancel');
+  } else {
+    const attackCount = living('enemy').filter(v => canTarget(u, v,state,commandTactic(u,tactic))).length;
+    const canHeal = rationTargets(state,u).length > 0;
+    if (!origin) buttons += command('이동', 'move');
+    if (!u.moved && personalAlly && spiritSlots(u,state).length) buttons += command(`정신기 · SP ${u.sp}`, 'spirit');
+    if(u.nonCombat)buttons+=command('공격 불가 · 호위 대상','attack',true);
+    else if (u.cls === 'strategist') for (const [id, label] of strategistTactics(u,state)){const count=living('enemy').filter(v=>canTarget(u,v,state,id)).length,reason=tacticReason(state,u,id);buttons += command(`${label}${id==='water'&&reason?' · 승급 필요':count ? ` · ${count}` : ''}`, `tactic-${id}`, !count||!!reason);}
+    else buttons += command(`공격${attackCount ? ` · ${attackCount}` : ''}`, 'attack', !attackCount);
+    if(u.cls==='strategist'&&act7FireProhibited(state))html+='<p class="command-reason">보리밭을 지키기 위해 화공을 사용할 수 없습니다. 혼란·위보와 보급을 활용하세요.</p>';
+    const skills=combatSkillList(state,u);if(skills.length)buttons+=command(skills.some(skill=>skill.gate)?'필살기':'특수기','skills');
+    if (!u.nonCombat) buttons += command(`군량 · ${state.items}`, 'heal', !canHeal);
+    buttons += command('대기', 'wait');
+    buttons += command(origin ? '이동 취소' : '선택 취소', 'cancel');
+    if (!u.nonCombat && u.moved && !u.attackAfterMove) html += '<p class="command-reason">이 병과는 이동 후 공격할 수 없습니다.</p>';
+  }
+  if(mobile){
+    const stateLabel=[guestInfo?.kind==='escort'?'호위 대상 · 공격 불가':'',u.act6Sleeping?'잠들어 있음 · 2턴에 기상':u.commanderPanicRound!==undefined?'지휘 붕괴 · 혼란':u.chibiFireConfusionRound!==undefined?'대화공 · 혼란':u.status?SKILLS[u.status.type]:'',u.team==='ally'&&enemyControlGuardActive(state,u)?'혼란·위보 재시전 보호':'',...activeSpirits.map(id=>SPIRITS[id].name)].filter(Boolean).join(' · ');
+    const vitals=mobileVitalsHTML(u,{personalAlly,stateLabel})+terrainInfoButtonHTML(state,u),identity=[rankName(u),u.level?'Lv'+u.level:'',guestInfo?.label].filter(Boolean).join(' · ');
+    const content=statusHTML&&html.startsWith(statusHTML)?html.slice(statusHTML.length):html;
+    let frame;
+    if(!actionable(u)){
+      frame=mobileCommandFrameHTML({title:displayUnitName(u),subtitle:identity,kind:'inspect',detail:true,bodyHTML:vitals,footerHTML:command('닫기','dismiss')});
+    }else if(mode==='spirit'){
+      const options=spiritSlots(u,state).map(slot=>{const sp=SPIRITS[slot.id],locked=u.level<slot.level;return {id:slot.id,name:sp.name,target:sp.target,level:slot.level,locked,cost:sp.cost,description:sp.description,reason:locked?'':spiritReason(state,u,slot.id)};});
+      frame=mobileSpiritFrameHTML({unit:{...u,name:displayUnitName(u)},options,selectedId:pendingSpirit,personalAlly,stateLabel});
+    }else if(mode==='skill-list'){
+      const list=combatSkillList(state,u).map(skill=>skillOptionHTML(skill,{mobile:true})).join('');
+      frame=mobileCommandFrameHTML({title:'필살기·특수기 · '+displayUnitName(u),kind:'skill-list',bodyHTML:'<div class="mobile-stable-options">'+list+'</div>',footerHTML:command('취소','skill-back')});
+    }else if(mode==='tactic-list'){
+      const list=strategistTactics(u,state).map(([id,label])=>{const targets=living('enemy').filter(v=>canTarget(u,v,state,id)),reason=tacticReason(state,u,id)||(!targets.length?'사거리 안에 대상이 없습니다.':'');return '<button type="button" class="mobile-stable-option" data-action="tactic-'+esc(id)+'"'+(reason?' disabled':'')+'><b>'+esc(label)+'</b><small>'+esc(reason||'대상 '+targets.length+'부대 · 선택 후 예측 확인')+'</small></button>';}).join('');
+      frame=mobileCommandFrameHTML({title:'책략 · '+displayUnitName(u),kind:'tactic-list',bodyHTML:'<div class="mobile-stable-options">'+list+'</div>',footerHTML:command('취소','mobile-command-back')});
+    }else if(mode==='spirit-target'){
+      const sp=SPIRITS[pendingSpirit],reason=a?spiritReason(state,u,pendingSpirit,a):'';
+      const body='<p class="command-context">'+esc(sp.name+' · SP '+sp.cost)+'<br>'+esc(sp.description)+'</p>'+(a?'<p class="mobile-selection-note"><b>'+esc(displayUnitName(a))+'</b><br>'+esc(reason||'이 대상에게 사용합니다.')+'</p>':'<p class="mobile-selection-note">지도 또는 아래 목록에서 '+(sp.target==='enemy'?'적':'아군')+'을 선택하세요.</p><div class="mobile-target-choices">'+spiritTargets(state,u,pendingSpirit).map(v=>mobileActionButton(displayUnitName(v)+' · '+String.fromCharCode(65+v.x)+(v.y+1),'spirit-target-'+v.id)).join('')+'</div>');
+      frame=mobileCommandFrameHTML({title:sp.name+' · 대상 선택',kind:'spirit-target',bodyHTML:body,footerHTML:a?command('다시 선택','back')+command('사용 확정','spirit-confirm',!!reason,true):command('취소','spirit-target-back')});
+    }else if(mode==='move'){
+      const draft=typeof mobileMoveDraft!=='undefined'&&mobileMoveDraftValid(mobileMoveDraft,state,u,epoch,reachable(state,u))?mobileMoveDraft:null;
+      const body='<p class="mobile-selection-note">'+(draft?'<b>도착지 '+String.fromCharCode(65+draft.x)+(draft.y+1)+'</b> · 아직 이동하지 않았습니다.<br>표시된 경로를 확인한 뒤 아래에서 확정하세요.<br>다른 칸을 누르면 도착지가 바뀝니다.':'이동 가능한 칸을 눌러 도착지를 선택하세요.<br>선택한 뒤 이동을 확정합니다.')+'</p>';
+      frame=mobileCommandFrameHTML({title:displayUnitName(u)+' · 이동',kind:'move',bodyHTML:body+(draft?terrainArrivalHTML(state,u,draft.x,draft.y):''),footerHTML:command('취소','cancel')+(draft?command('이동 확정','move-confirm',false,true):'')});
+    }else if(['attack','heal'].includes(mode)){
+      frame=mobileCommandFrameHTML({title:displayUnitName(u)+' · '+(mode==='attack'?(u.cls==='strategist'?SKILLS[tactic]:'공격'):'군량'),kind:mode,bodyHTML:a?content:'<p class="mobile-selection-note">'+(mode==='attack'?'지도에서 공격할 적을 선택하세요.':'지도에서 회복할 아군을 선택하세요.')+'</p>',footerHTML:buttons});
+    }else{
+      let addedTactics=false;
+      const commands=(buttons.match(/<button\b[\s\S]*?<\/button>/g)??[]).flatMap(row=>{const name=row.match(/data-action="([^"]+)"/)?.[1];if(!origin&&name==='cancel')return [];if(!name?.startsWith('tactic-'))return [row];if(addedTactics)return [];addedTactics=true;return [command('책략','mobile-tactics')];}).join('');
+      frame=mobileCommandFrameHTML({title:displayUnitName(u),subtitle:identity,kind:'command',detail:true,bodyHTML:vitals+content,footerHTML:commands});
+    }
+    replaceMobileCommandHTML(panel,frame,u.id+':'+mode+':'+(a?'preview':'choose'));
+  }else panel.innerHTML = '<div class="unit-summary">'+summary+'</div><div class="unit-command-content">'+html+`<div class="unit-actions">${buttons}</div></div>`;
+}
+function positionMenu() {
+  battleUI.positionMenu();
+}
+function battleUnitDetails(u) {
+  const compact=false,a=null;
+  const guestInfo=guestPresentation(u,{army}),personalAlly=u.team==='ally'&&(!u.extra||!!guestHeroIdentity(u));
+  let html = `<div class="float-header">${battlePortraitBadge(u)}<div><h3>${displayUnitName(u)}${guestBadgeHTML(u,{army})}${u.extra&&!personalAlly?' · '+(guestInfo?.label??'지원 부대'):' · Lv'+u.level+(u.team==='ally'?' / '+growthProgress(u).cap:'')}</h3><small>${rankName(u)} ${rankStars(u)} · ${u.team === 'ally' ? (u.extra?'지원 부대':'촉') : armyLabel(u,campaign.scenario)}</small></div></div><div class="float-hp">병력 ${count(u.hp)} / ${count(u.maxHp)}</div>`;
+  if(guestInfo)html+=compact?`<p class="guest-unit-detail guest-kind-${guestInfo.kind}">${esc(guestInfo.aria)}</p>`:guestDetailHTML(u,{army});
+  html += `<div class="mental-stats"><span>사기 <b>${u.morale}</b> / 150</span>${personalAlly ? `<span>SP <b>${u.sp}</b> / ${u.maxSp}</span>` : ''}</div><div class="morale-meter" aria-label="사기 ${u.morale}"><i style="width:${Math.max(0,Math.min(100,(u.morale-(u.moraleFloor??50))/(150-(u.moraleFloor??50))*100))}%"></i></div>`;
+  if(u.team==='ally'&&!u.extra&&!compact)html+=`<p class="growth-inline">${GROWTH_TYPES[growthType(u.id)].name} · ${growthLabel(u)} · 이번 전투 +${u.battleExp} EXP</p>`;
+  const activeSpirits = Object.keys(u.spirits).filter(id=>u.spirits[id]);
+  if(activeSpirits.length)html += `<div class="spirit-badges">${activeSpirits.map(id=>`<span title="${SPIRITS[id].description}">${SPIRITS[id].name}</span>`).join('')}</div>`;
+  html+=unitGrowthPerksHTML(u,state,{detail:true});
+  if(personalAlly){const focus=spRecoveryStatus(u);html+='<p class="table-note">'+esc(focus.name)+' · '+esc(focus.description)+' (상한 '+u.maxSp+')</p>';}
+  if((campaign.scenario.act===2||campaign.scenario.combatProfile==='act2')&&u.cls==='strategist'){const profile=casterProfile(u,state);html+='<p class="caster-profile"><b>'+esc(profile.name)+'</b> · '+esc(profile.description)+'</p>';}
+  if(u.combatTier)html+=`<p class="foe-tier">${tierLabel(u)}${u.combatTier==='boss'?' · 강한 반격 · 기습과 상성을 활용하세요.':''}</p>`;
+  if(u.team==='enemy')html+='<p class="table-note">'+esc(enemyAIHint(state,u))+'</p>';
+  html += `<div class="float-stats"> <span>${u.cls === 'strategist' ? '지력' : '공격'}<b>${u.cls === 'strategist' ? u.int : Math.round(effectiveAttack(u,state)*10)/10}</b></span><span>방어<b>${Math.round((effectiveDefense(u,state) + (forest(u, state) ? balance.terrain.forestDefense : 0))*10)/10}</b></span><span>이동<b>${movement(u,state)}</b></span><span>사거리<b>${u.min === maxRange(u) ? u.min : `${u.min}–${maxRange(u)}`}</b></span></div>`;
+  html+=terrainDetailHTML(state,u);
+  if(!compact&&personalAlly)html+=`<p class="trait-note">${traitLabel(guestHeroIdentity(u)??u.id)}</p>`;
+  if (!compact && !a) html += `<p class="command-hint">${u.cls === 'strategist' ? '책략 '+strategistTactics(u,state).length+'종 · 일반 공격/반격 불가' : ['infantry', 'spear', 'cavalry'].includes(u.cls) ? '상하좌우 직선 사거리' : '대각 포함 · 가로+세로 거리'}${u.cls !== 'strategist' ? ` · 지력 ${u.int}` : ''}</p>`;
+  if(u.commanderPanicRound!==undefined)html+='<p class="status-detail">지휘 붕괴 · 이번 적군 턴 종료 시 해제 · 행동·반격 불가 / 방어 50% / 물리 피격 시 치명타</p>';
+  if(u.chibiFireConfusionRound!==undefined)html+='<p class="status-detail">적벽 대화공 · 이번 적군 턴 종료 시 해제 · 행동·반격 불가 / 방어 50% / 물리 피격 시 치명타</p>';
+  if(u.team==='ally'&&enemyControlGuardActive(state,u))html+=`<p class="status-detail">적 혼란·위보 재시전 보호 · ${u.enemyControlGuardUntilRound}턴 적군 행동까지</p>`;
+  if (u.status && !compact) html += `<p class="status-detail">${SKILLS[u.status.type]} · ${u.status.type === 'confusion' ? '행동·반격 불가 / 방어 50% / 물리 피격 시 치명타' : (u.team==='enemy'?'다른 적군을 공격·추격 · 우리 아군은 표적 제외':'자기 턴에 가장 가까운 부대를 자동 공격')} · 자기 진영 턴 1회</p>`;
+  if(personalAlly&&spiritSlots(u,state).length)html+='<section class="unit-spirit-details"><h4>정신기</h4>'+spiritSlots(u,state).map(slot=>{const spirit=SPIRITS[slot.id];return '<p><b>'+esc(spirit.name)+' · Lv'+slot.level+' · SP '+spirit.cost+'</b><br>'+esc(spirit.description)+(u.level<slot.level?' · 아직 미해금':'')+'</p>';}).join('')+'</section>';
+  if(u.team==='ally'&&!u.extra)html+=growthGoalsHTML(u,army,campaign.scenario);
+  if(u.team==='enemy')html+=lootNote(campaign.scenario,u);
+  return html+'<div class="dialog-actions"><button type="button" class="primary" data-dialog="close">닫기</button></div>';
+}
+let prepUI=newPreparationUI();
+function nextPreparationDraft(){
+ const ch=CHAPTERS[campaign.chapter+1];if(!ch)return null;
+ const owned=army.joined.filter(id=>!army.heroes[id].departed),missing=[...ch.required,...sortieInfo(ch).fixedGuests].some(id=>!owned.includes(id));
+ if(missing)return null;
+ if(campaign.nextDraft?.chapterId===ch.id)return campaign.nextDraft.slots;
+ return deploymentSlots(ch,army);
+}
+function preparationDeployment(ch){
+ const slots=nextPreparationDraft();if(!ch||!slots)return '<section class="prep-panel"><p>다음 전투의 장수 합류는 출전 대화에 이어 반영됩니다. 대화 후 편성을 확정하세요.</p></section>';
+ return deploymentHTML({chapter:ch,army,ids:slots.filter(Boolean),formationSlots:slots,units:army.joined.map(id=>createUnit(balance,id,'ally',army)),selectedId:prepUI.selectedId,message:shopMessage,spriteHTML,rankName,traitLabel,guestIds:army.joined.filter(id=>HERO_DATA[id]?.guest),blockedLabel:blockedLabel(),preparing:true,rosterOrder:prepUI.rosterOrder});
+}
+function preparationRosterViewport(host){
+ const panel=host?.querySelector('.prep-roster'),track=host?.querySelector('.prep-roster-track');
+ let direction='';try{direction=host?.ownerDocument?.defaultView?.getComputedStyle(track)?.flexDirection??'';}catch{}
+ const vertical=direction.startsWith('column')||!direction&&panel?.scrollHeight>panel?.clientHeight&&!(track?.scrollWidth>track?.clientWidth);
+ return {panel,track,vertical};
+}
+function rememberPreparationRosterViewport(host){
+ const {panel,track,vertical}=preparationRosterViewport(host);if(!panel||!track)return;
+ const previous=prepUI.rosterViewport??{top:0,left:0},top=Math.max(0,Number(panel.scrollTop)||0),left=Math.max(0,Number(track.scrollLeft)||0);
+ // Retain the other layout's offset when its axis is temporarily not scrollable.
+ prepUI.rosterViewport={top:top>0||vertical?top:previous.top,left:left>0||!vertical?left:previous.left};
+}
+function restorePreparationRosterViewport(host){
+ const {panel,track}=preparationRosterViewport(host),saved=prepUI.rosterViewport;
+ if(!saved)return;if(panel)panel.scrollTop=saved.top;if(track)track.scrollLeft=saved.left;
+}
+function scrollPreparationRoster(direction){
+ if(![-1,1].includes(direction))return false;
+ const host=$('shop-scene'),{panel,track,vertical}=preparationRosterViewport(host),target=vertical?panel:track;if(!target)return false;
+ const axis=vertical?'scrollTop':'scrollLeft',extent=Number(target[vertical?'clientHeight':'clientWidth'])||0,maximum=Math.max(0,(Number(target[vertical?'scrollHeight':'scrollWidth'])||0)-extent);
+ if(extent<=0||maximum<=0)return false;
+ const before=Number(target[axis])||0,next=Math.max(0,Math.min(maximum,before+direction*Math.max(48,Math.floor(extent*.75))));
+ target[axis]=next;rememberPreparationRosterViewport(host);return next!==before;
+}
+function renderShop(){
+ const ch=CHAPTERS[campaign.chapter+1],draft=nextPreparationDraft();
+ if(ch?.act===4)initializeAct4Progression(army);
+ if(ch?.act===5)initializeAct5Progression(army);
+ if(ch?.act===6)initializeAct6Progression(army);
+ if(ch?.act===7)initializeAct7Progression(army);
+ rememberPreparationRosterViewport($('shop-scene'));
+ const windowScroll=document.scrollingElement?.scrollTop??0;
+ const deploymentScroll=$('shop-scene').querySelector('.deployment-roster-track')?.scrollLeft??0;
+ const contentScroll=$('shop-scene').querySelector('.deployment-content-scroll')?.scrollTop??0;
+ const previousMap=$('shop-scene').querySelector('.deploy-map-scroll'),mapScroll={left:previousMap?.scrollLeft??0,top:previousMap?.scrollTop??0};
+ const pageScroll=$('shop-scene').querySelector('.prep-main')?.scrollTop??0;
+ const saleScroll=$('shop-scene').querySelector('.prep-sale-list')?.scrollTop??prepUI.shopListInnerScroll??0;
+ $('shop-scene').innerHTML=preparationHTML({army,balance,currentChapter:campaign.scenario,chapter:ch,ui:prepUI,draft,deploymentContent:preparationDeployment(ch),message:shopMessage});
+ restorePreparationRosterViewport($('shop-scene'));if(document.scrollingElement)document.scrollingElement.scrollTop=windowScroll;
+ const saleList=$('shop-scene').querySelector('.prep-sale-list');if(saleList)saleList.scrollTop=saleScroll;
+ const deployTrack=$('shop-scene').querySelector('.deployment-roster-track');if(deployTrack)deployTrack.scrollLeft=deploymentScroll;
+ const map=$('shop-scene').querySelector('.deploy-map-scroll');if(map){map.scrollLeft=mapScroll.left;map.scrollTop=mapScroll.top;}
+ const content=$('shop-scene').querySelector('.deployment-content-scroll');if(content)content.scrollTop=contentScroll;
+ const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=pageScroll;
+ $('shop-scene').querySelectorAll('.prep-avatar img').forEach(img=>img.addEventListener('error',()=>{img.replaceWith(document.createTextNode(img.closest('button')?.textContent?.trim().slice(0,1)||'장'));},{once:true}));
+}
+function rememberPreparationScroll(){prepUI.scrolls[prepUI.page]=$('shop-scene').querySelector('.prep-main')?.scrollTop??0;prepUI.windowScrolls??={};prepUI.windowScrolls[prepUI.page]=document.scrollingElement?.scrollTop??0;}
+function navigatePreparation(page){
+ if(prepUI.processing)return;
+ if(!requestPreparationTransition(prepUI,{kind:'nav',page})){render();$('shop-scene').querySelector('[data-prep="discard-stay"]')?.focus({preventScroll:true});return;}
+ if(page==='save'){openSaves();return;}
+ rememberPreparationScroll();const previous=prepUI.page;
+ if(page==='info')prepUI.infoFrom=previous;
+ prepUI.page=page;prepUI.pending=null;shopMessage='';render();
+ requestAnimationFrame(()=>{const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=prepUI.scrolls[page]??0;if(document.scrollingElement)document.scrollingElement.scrollTop=prepUI.windowScrolls?.[page]??0;if(page==='hub')$('shop-scene').querySelector('[data-prep-nav="'+previous+'"]')?.focus({preventScroll:true});else $('shop-scene').querySelector('[data-prep-nav="hub"]')?.focus({preventScroll:true});});
+}
+function focusPreparationContext(){
+ const root=$('shop-scene'),selectors=prepUI.page==='shop'?(prepUI.shopDetail?['[data-prep="sale-list"]','[data-prep="qty-plus"]','[data-prep="qty-minus"]','.prep-sale-list']:['[data-prep-sell="'+CSS.escape(prepUI.pending?.part??'')+'"]','.prep-sale-list']):prepUI.page==='equipment'?['[data-prep="equipment-slots"]','[data-prep-slot="'+prepUI.slot+'"]']:['[data-prep-hero="'+CSS.escape(prepUI.hero??'')+'"]'];
+ selectors.push('[data-prep-nav="hub"]');for(const selector of selectors){const control=root.querySelector(selector);if(control&&!control.disabled&&control.getClientRects().length){control.focus({preventScroll:true});return;}}
+}
+function restoreSaleList(){
+ const main=$('shop-scene').querySelector('.prep-main'),list=$('shop-scene').querySelector('.prep-sale-list');if(main)main.scrollTop=prepUI.shopListScroll??0;if(list)list.scrollTop=prepUI.shopListInnerScroll??0;if(document.scrollingElement)document.scrollingElement.scrollTop=prepUI.shopWindowScroll??0;
+ const part=prepUI.pending?.kind==='sell'?prepUI.pending.part:null;const focus=part?$('shop-scene').querySelector('[data-prep-sell="'+CSS.escape(part)+'"]'):list;focus?.focus({preventScroll:true});
+}
+function preparationSettings(){ $('settings-open').click(); }
+function changeFormationButton(b,ch,slots,selection){
+ const before=JSON.stringify(slots);let next=slots,selected=selection,message='';
+ if(b.dataset.deploySelect!==undefined)selected=b.dataset.deploySelect;
+ if(b.dataset.deployUnit){
+  const id=b.dataset.deployUnit,was=slots.includes(id);next=toggleDeploymentSlots(ch,army,slots,id);selected=was?null:id;message=HEROES[id]+(was?' 대기로 변경했습니다.':' 출전에 추가했습니다.');
+ }
+ if(b.dataset.deploySlot!==undefined){
+  const to=Number(b.dataset.deploySlot),from=slots.indexOf(selected);
+  if(from<0&&slots[to])selected=slots[to];
+  else if(from>=0){next=moveDeploymentSlot(ch,army,slots,from,to);message=HEROES[selected]+' · '+deploymentCoordinate(ch.allyPositions[to])+' 배치 완료';}
+ }
+ if(b.dataset.deploy==='reset'){next=deploymentSlots(ch,army);selected=null;message='기본 편성으로 되돌렸습니다.';}
+ return {slots:next,selected,message,changed:before!==JSON.stringify(next)};
+}
+$('shop-scene').addEventListener('click',async e=>{
+ if(campaign.stage!=='intermission'||prepUI.processing||cloudGameBlocked())return;
+ const b=e.target.closest('button');if(!b||b.disabled)return;
+ if(prepUI.discardTarget){
+  if(!['discard-stay','discard-continue'].includes(b.dataset.prep))return;
+  const destination=resolvePreparationDiscard(prepUI,b.dataset.prep==='discard-continue');
+  if(destination?.kind==='nav'){navigatePreparation(destination.page);return;}
+  if(destination?.kind==='hero'){prepUI.hero=destination.id;prepUI.equipmentDetail=false;shopMessage='';}
+  if(destination?.kind==='slot'){prepUI.slot=destination.slot;prepUI.equipmentDetail=true;shopMessage='';}
+  render();if(destination?.kind==='slot'){const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=0;if(document.scrollingElement)document.scrollingElement.scrollTop=0;}focusPreparationContext();return;
+ }
+ if(b.dataset.prepRosterScroll!==undefined){scrollPreparationRoster(Number(b.dataset.prepRosterScroll));return;}
+ const focusSelector=Array.from(b.attributes).filter(a=>a.name.startsWith('data-prep-')||a.name.startsWith('data-deploy-')).map(a=>'['+a.name+'=\"'+CSS.escape(a.value)+'\"]').join('');
+ try{
+  const ch=CHAPTERS[campaign.chapter+1];
+  if(b.dataset.deployOrderEdit!==undefined){editDeploymentOrder($('shop-scene'),ch);return;}
+  if(b.dataset.act4Support&&ch?.act===4){const candidates=act4GrowthCandidates(army),id=b.dataset.act4Support,ids=candidates.filter(h=>h.selected&&h.remaining>0).map(h=>h.id);selectAct4GrowthSupport(army,ids.includes(id)?ids.filter(v=>v!==id):[...ids,id]);shopMessage=HEROES[id]+' · 성장 지원 '+(ids.includes(id)?'해제':'선택');autosave();render();return;}
+  if(b.dataset.act5Support&&ch?.act===5){const candidates=act5GrowthCandidates(army),id=b.dataset.act5Support,ids=candidates.filter(h=>h.selected&&h.remaining>0).map(h=>h.id);selectAct5GrowthSupport(army,ids.includes(id)?ids.filter(v=>v!==id):[...ids,id]);shopMessage=HEROES[id]+' · 성장 지원 '+(ids.includes(id)?'해제':'선택');autosave();render();return;}
+  if(b.dataset.act6Support&&ch?.act===6){const candidates=act6GrowthCandidates(army),id=b.dataset.act6Support,ids=candidates.filter(h=>h.selected&&h.remaining>0).map(h=>h.id);selectAct6GrowthSupport(army,ids.includes(id)?ids.filter(v=>v!==id):[...ids,id]);shopMessage=HEROES[id]+' · 성장 지원 '+(ids.includes(id)?'해제':'선택');autosave();render();return;}
+  if(b.dataset.act7Support&&ch?.act===7){const candidates=act7GrowthCandidates(army),id=b.dataset.act7Support,ids=candidates.filter(h=>h.selected&&h.remaining>0).map(h=>h.id);selectAct7GrowthSupport(army,ids.includes(id)?ids.filter(v=>v!==id):[...ids,id]);shopMessage=HEROES[id]+' · 성장 지원 '+(ids.includes(id)?'해제':'선택');autosave();render();return;}
+  if(b.dataset.prepNav){navigatePreparation(b.dataset.prepNav);return;}
+  if(b.dataset.prepHero){if(!requestPreparationTransition(prepUI,{kind:'hero',id:b.dataset.prepHero})){render();$('shop-scene').querySelector('[data-prep="discard-stay"]')?.focus({preventScroll:true});return;}prepUI.hero=b.dataset.prepHero;prepUI.equipmentDetail=false;prepUI.pending=null;shopMessage='';}
+  if(b.dataset.prepSlot!==undefined){
+   const slot=Number(b.dataset.prepSlot);if(!prepUI.equipmentDetail){prepUI.equipmentListScroll=$('shop-scene').querySelector('.prep-main')?.scrollTop??0;prepUI.equipmentWindowScroll=document.scrollingElement?.scrollTop??0;}
+   if(slot!==prepUI.slot){if(!requestPreparationTransition(prepUI,{kind:'slot',slot})){render();$('shop-scene').querySelector('[data-prep="discard-stay"]')?.focus({preventScroll:true});return;}prepUI.slot=slot;prepUI.pending=null;}
+   prepUI.equipmentDetail=true;
+  }
+  if(b.dataset.prepUpgradeStep){stepPreparationUpgrade(prepUI,army,balance,ch??campaign.scenario,b.dataset.prepUpgradeStep,Number(b.dataset.prepDelta));}
+  if(b.dataset.prepUpgradeMax){maximizePreparationUpgrade(prepUI,army,balance,ch??campaign.scenario,b.dataset.prepUpgradeMax);}
+  if(b.dataset.prepPartPage!==undefined){stepPreparationEquipmentPage(prepUI,army,Number(b.dataset.prepPartPage));}
+  if(b.dataset.prepPart){prepUI.pending={kind:'equip',part:b.dataset.prepPart,slot:prepUI.slot};}
+  if(b.dataset.prepClass){prepUI.pending={kind:'class',cls:b.dataset.prepClass};}
+  if(b.dataset.prepSpecialization){prepUI.pending={kind:'specialize',key:b.dataset.prepSpecialization};}
+  if(b.dataset.prepFourthSpirit!==undefined){prepUI.pending={kind:'fourthSpirit',key:b.dataset.prepFourthSpirit||null};}
+  if(b.dataset.prepModify){prepUI.pending={kind:'modify',key:b.dataset.prepModify,steps:Math.max(1,maximumModificationSteps(army,prepUI.hero,b.dataset.prepModify,balance,ch??campaign.scenario))};}
+  if(b.dataset.prepSell){if(!prepUI.shopDetail){prepUI.shopListScroll=$('shop-scene').querySelector('.prep-main')?.scrollTop??0;prepUI.shopListInnerScroll=$('shop-scene').querySelector('.prep-sale-list')?.scrollTop??0;prepUI.shopWindowScroll=document.scrollingElement?.scrollTop??0;}prepUI.shopDetail=true;if(prepUI.pending?.kind!=='sell'||prepUI.pending.part!==b.dataset.prepSell){prepUI.quantity=1;prepUI.pending={kind:'sell',part:b.dataset.prepSell,quantity:1};}}
+  if(b.dataset.prepSelect==='unequip')prepUI.pending={kind:'equip',part:null,slot:prepUI.slot};
+  if(b.dataset.prepSelect==='promote')prepUI.pending={kind:'promote'};
+  const action=b.dataset.prep;
+  if(action==='equipment-candidates'){prepUI.equipmentWindowScroll=document.scrollingElement?.scrollTop??0;prepUI.equipmentListScroll=$('shop-scene').querySelector('.prep-main')?.scrollTop??0;prepUI.equipmentDetail=true;render();const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=0;if(document.scrollingElement)document.scrollingElement.scrollTop=0;$('shop-scene').querySelector('[data-prep="equipment-slots"]')?.focus({preventScroll:true});return;}
+  if(action==='equipment-slots'){prepUI.equipmentDetail=false;render();const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=prepUI.equipmentListScroll??0;if(document.scrollingElement)document.scrollingElement.scrollTop=prepUI.equipmentWindowScroll??0;$('shop-scene').querySelector('[data-prep-slot="'+prepUI.slot+'"]')?.focus({preventScroll:true});return;}
+  if(action==='sale-list'){prepUI.shopDetail=false;render();restoreSaleList();return;}
+  if(action==='stock-filter'){prepUI.showUnavailable=!prepUI.showUnavailable;prepUI.equipmentPage=0;}
+  if(action==='cancel'){prepUI.pending=null;prepUI.shopDetail=false;}
+  if(action==='upgrade-max'&&prepUI.pending?.kind==='modify')prepUI.pending.steps=Math.max(1,maximumModificationSteps(army,prepUI.hero,prepUI.pending.key,balance,ch??campaign.scenario));
+  if(action==='qty-minus'||action==='qty-plus'){
+   if(prepUI.pending?.kind==='sell'){prepUI.quantity=Math.max(1,Math.min(army.stock[prepUI.pending.part],prepUI.quantity+(action==='qty-plus'?1:-1)));prepUI.pending.quantity=prepUI.quantity;}
+  }
+  if(action==='apply'){
+   if(!prepUI.pending||savePending)return;
+   const pending=prepUI.pending,uiAtStart=prepUI;uiAtStart.processing=true;
+   try{
+    const result=applyPreparation(army,prepUI.hero,pending,balance,ch??campaign.scenario);
+    const appliedSound=preparationAppliedSoundId(pending,result);if(appliedSound)void playSfx(appliedSound);
+    if(['class','specialize'].includes(pending.kind))refreshHeroClassState(state,army,prepUI.hero);
+    uiAtStart.pending=null;shopMessage=preparationAppliedMessage(result,pending)+' · 저장 중';render();
+    const saved=await autosave();
+    if(prepUI===uiAtStart)shopMessage=preparationAppliedMessage(result,pending,{saved:saved?.ok===true})+(saved?.ok?'':' '+saveNotice);
+   }finally{uiAtStart.processing=false;if(pending.kind==='sell'&&!uiAtStart.pending)uiAtStart.shopDetail=false;}
+   render();if(pending.kind==='sell'&&!uiAtStart.pending)restoreSaleList();playPreparationAppliedFeedback($('shop-scene'),pending,{reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});if(pending.kind!=='sell'){const feedback=$('shop-message');if(feedback){feedback.tabIndex=-1;feedback.focus({preventScroll:true});}}return;
+  }
+  if(action==='settings'){preparationSettings();return;}
+  if(action==='depart'){
+   autosave();const transition=campaign.nextChapter();prepUI=newPreparationUI();if(campaign.stage!=='complete')resetBattle();autosave();render();const transitionEpoch=epoch;await showActTransition(transition,{fast,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,isCurrent:()=>transitionEpoch===epoch});if(transitionEpoch!==epoch)return;
+  }
+  if(b.dataset.deploy!==undefined||b.dataset.deploySelect!==undefined||b.dataset.deployUnit!==undefined||b.dataset.deploySlot!==undefined){
+   const result=changeFormationButton(b,ch,nextPreparationDraft(),prepUI.selectedId);
+   prepUI.selectedId=result.selected;shopMessage=result.message;
+   if(result.changed){campaign.nextDraft={chapterId:ch.id,ids:result.slots.filter(Boolean),slots:result.slots};autosave();}
+  }
+ }catch(error){void playSfx('uiError');shopMessage=error.message;}
+ render();
+ if(b.dataset.prepSlot!==undefined&&prepUI.equipmentDetail){const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=0;if(document.scrollingElement)document.scrollingElement.scrollTop=0;const back=$('shop-scene').querySelector('[data-prep="equipment-slots"]');if(back?.getClientRects().length)back.focus({preventScroll:true});else if(focusSelector)$('shop-scene').querySelector(focusSelector)?.focus({preventScroll:true});}else if(b.dataset.prepSell){const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=0;if(document.scrollingElement)document.scrollingElement.scrollTop=0;const back=$('shop-scene').querySelector('[data-prep="sale-list"]'),control=back?.getClientRects().length?back:$('shop-scene').querySelector('[data-prep="qty-plus"]');control?.focus({preventScroll:true});}else if(focusSelector)$('shop-scene').querySelector(focusSelector)?.focus({preventScroll:true});
+});
+$('shop-scene').addEventListener('change',e=>{
+ if(!e.target.matches('[data-prep-steps]')||campaign.stage!=='intermission'||prepUI.pending?.kind!=='modify')return;
+ const maximum=maximumModificationSteps(army,prepUI.hero,prepUI.pending.key,balance,CHAPTERS[campaign.chapter+1]??campaign.scenario),steps=Number(e.target.value);
+ if(Number.isInteger(steps)&&steps>=1&&steps<=maximum){const selector=e.target.tagName;prepUI.pending.steps=steps;render();$('shop-scene').querySelector(selector+'[data-prep-steps]')?.focus({preventScroll:true});}
+});
+function deploymentKeys(e){
+ const b=e.target.closest('[data-deploy-slot]');if(!b||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
+ const host=b.closest('#deployment-scene,#shop-scene'),ch=campaign.stage==='deployment'?campaign.scenario:CHAPTERS[campaign.chapter+1],index=Number(b.dataset.deploySlot),[x,y]=ch.allyPositions[index],horizontal=e.key==='ArrowLeft'||e.key==='ArrowRight',dir=e.key==='ArrowLeft'||e.key==='ArrowUp'?-1:1;
+ const candidates=ch.allyPositions.map(([sx,sy],i)=>({i,x:sx,y:sy})).filter(p=>horizontal?p.y===y&&(p.x-x)*dir>0:p.x===x&&(p.y-y)*dir>0).sort((a,b)=>horizontal?Math.abs(a.x-x)-Math.abs(b.x-x):Math.abs(a.y-y)-Math.abs(b.y-y));
+ if(candidates.length){e.preventDefault();host.querySelector('[data-deploy-slot="'+candidates[0].i+'"]')?.focus({preventScroll:true});}
+}
+$('shop-scene').addEventListener('keydown',deploymentKeys);
+$('deployment-scene').addEventListener('keydown',deploymentKeys);
+function growthLabel(u){return growthProgressLabel(u);}
+function showGrowth(events,{sound=true}={}){
+ const raised=events.filter(e=>e&&e.to>e.from);if(!raised.length)return;
+ if(sound)void playSfx('levelUp',{dedupe:'level:'+epoch+':'+state.rngState+':'+state.round+':'+state.phase});
+ const message=raised.map(e=>`${e.name} Lv${e.from} → Lv${e.to}${e.from<15&&e.to>=15?' · 정신 집중 습득':''}${growthUnlockLabels(e.id,e.from,e.to).map(label=>' · '+label).join('')}`).join(' · ');log('LEVEL UP · '+message);
+ showGrowthFeedback(document.body,'LEVEL UP · '+message,{fast});
+}
+function growthStats(unit,hero){
+ const rows=growthContributionRows(army,unit.id,balance);
+ const contribution=value=>(value>=0?'+':'')+value;
+ return `<section class="growth-card"><h4>장수 Lv${unit.level} / ${growthProgress(unit).cap} · ${GROWTH_TYPES[growthType(unit.id)].name}</h4>${growthProgressHTML(unit)}${growthMilestonesHTML(unit)}<p>장수 레벨과 부대 개조는 별도입니다.</p><p>${traitLabel(unit.id)}</p><div class="growth-table-wrap"><table><thead><tr><th>능력</th><th>기본</th><th>레벨</th><th>개조·증편</th><th>장비</th><th>승급</th><th>전문화</th><th>MAX·고유</th><th>개인 고유</th><th>최종</th></tr></thead><tbody>${rows.map(row=>`<tr><th>${row.label}</th><td>${row.base}</td><td>${contribution(row.level)}</td><td>${contribution(row.upgrade)}</td><td>${contribution(row.parts)}</td><td>${contribution(row.promotion)}</td><td>${contribution(row.specialization??0)}</td><td>${contribution(row.mastery??0)}</td><td>${contribution(row.personal??0)}</td><td>${row.final}</td></tr>`).join('')}</tbody></table></div><p>현재 병과의 적성과 병력 상한을 반영한 실제 기여치 · 최대 병력은 장수·병과·강화·장비·특성의 합산값 · SP 상한 ${unit.maxSp} (기본 ${baseSP(unit.id)} + 레벨 ${unit.level-1})</p></section>`;
+}
+function growthResults(){
+ return `<section class="growth-card"><h4>장수 성장 기록</h4><div class="growth-result-list">${state.units.filter(u=>u.team==='ally'&&!u.extra).map(u=>`<div><b>${displayUnitName(u)}${u.withdrawn?' · 전장 이탈':u.hp===0?' · 퇴각':''}</b><span>+${u.battleExp} EXP</span><span>Lv${u.startLevel} → Lv${u.level}</span><small>${growthProgressLabel(u,{showCap:false})}${u.startLevel<15&&u.level>=15?'<br>정신 집중 습득 · 아군 턴 시작 SP +5':''}${SLOT_LEVELS.some(l=>l>u.startLevel&&l<=u.level)?'<br>해금 · '+spiritSlots(u,state).filter(slot=>slot.level>u.startLevel&&slot.level<=u.level).map(slot=>SPIRITS[slot.id].name).join(', '):''}${growthUnlockLabels(u.id,u.startLevel,u.level).map(label=>'<br>'+esc(label)).join('')}</small></div>`).join('')}</div>${state.benchGrowth.length?`<p>대기 훈련 · ${state.benchGrowth.map(b=>`${HEROES[b.id]} +${b.gained??0} EXP · ${b.to>b.from?'Lv'+b.from+' → Lv'+b.to:'Lv'+b.to}`).join(' · ')}</p>`:''}</section>`;
+}
+function renderResult() {
+  const complete=campaign.stage==='complete',win=state.result==='victory',replay=isReplayState(state);
+  const completionMessage=CHAPTERS[0].rosterMode==='story'?(CHAPTERS.some(ch=>ch.act===7)?'1막 의용부터 7막 북벌까지 · 1~56장의 여정을 마쳤습니다. 살아남은 이들의 약속과 장수들의 성장은 저장에 남습니다. 엔딩을 다시 감상하거나, 현재 군단의 복사본으로 완료한 전투를 재도전할 수 있습니다.':CHAPTERS.some(ch=>ch.act===6)?'1막 의용부터 6막 삼국 쟁패까지 · 1~45화를 완료했습니다. 관우·장비·유비의 생환과 동맹, 남정의 여정과 장수들의 성장은 저장에 남습니다. 다음 북벌의 여정을 기다립니다.':CHAPTERS.some(ch=>ch.act===5)?'1막 의용부터 5막 형주의 운명까지 · 1~37화를 완료했습니다. 관우가 살아 돌아온 여정과 장수들의 성장은 저장에 남습니다. 다음 막에서 유비의 여정이 이어집니다.':CHAPTERS.some(ch=>ch.act===4)?'1막 의용부터 4막 입촉과 한중까지 · 1~31화를 완료했습니다. 장수들의 성장과 여정은 저장에 남습니다.':CHAPTERS.some(ch=>ch.act===3)?'1막 의용·2막 유랑·3막 적벽과 형주 · 1~21화를 완료했습니다. 장수들의 성장과 여정은 저장에 남습니다.':CHAPTERS.some(ch=>ch.act===2)?'1막 의용과 2막 유랑 · 1~13화를 완료했습니다. 장수들의 성장과 여정은 저장에 남습니다.':'1막 의용 · 1~6화를 완료했습니다. 다음 막에서 유비의 여정이 이어집니다.'):'이번 시험 여정을 마쳤습니다.';
+  $('result-scene').innerHTML=renderResultHTML({complete,endingComplete:complete&&campaign.scenario.id==='s56_changan',win,replay,chapter:campaign.chapter,state,army,victoryReward,completionMessage,growthResultsHTML:complete?'':growthResults(),rewardHTML:complete?'':rewardPanel(state,army)});
+}
+function cellClick(x, y) {
+  if (busy || presentationBusy() || eventShowing || cloudGameBlocked() || document.querySelector('dialog[open]') || state.result || state.phase !== 'ally' || campaign.stage !== 'battle') return;
+  focusCell = { x, y };
+  const u = current(), v = occupant(state, x, y);
+  const mobile=typeof mobileCommandUIEnabled==='function'&&mobileCommandUIEnabled($('battle-scene'));
+  if(typeof terrainInspector!=='undefined'&&canInspectTerrain({mobile,mode,origin,target})){
+    if(v)select(v.id);
+    terrainInspector.show(state,v?.x??x,v?.y??y);return;
+  }
+  if(mobile&&actionable(u)&&mode==='move'){
+    const draft=createMobileMoveDraft(state,u,x,y,epoch,reachable(state,u));
+    if(!draft){void playSfx('uiError');tell('이동할 수 없는 칸입니다. 밝게 표시된 이동 가능한 칸을 선택하세요.');return;}
+    mobileMoveDraft=draft;render();return;
+  }
+  if(actionable(u)&&mode==='combat-skill'){
+    if(v&&combatSkillTargets(state,u,pendingCombatSkill).some(t=>t.id===v.id)){target=v.id;render();}
+    else{const model=createSkillTargetingModel(state,u,pendingCombatSkill,target,{scenario:campaign.scenario});tell(model.support?'초록 테두리 아군이나 지도에서 지원 대상을 선택하세요.':'주황 테두리 적이나 지도에서 공격 중심을 선택하세요. 아군은 피해를 받지 않습니다.');}
+    return;
+  }
+  if(actionable(u)&&mode==='spirit-target'&&(mobile||v)){if(v&&spiritTargets(state,u,pendingSpirit).includes(v)){target=v.id;render();}else if(mobile){void playSfx('uiError');tell('선택할 수 없는 대상입니다. 표시된 대상이나 명령판 목록을 선택하세요.');}return;}
+  if (actionable(u) && mode === 'attack' && v && canTarget(u, v,state,commandTactic(u,tactic))) { target = v.id; render(); return; }
+  if(mobile&&actionable(u)&&mode==='attack'){void playSfx('uiError');tell('사거리 안에서 공격할 수 있는 적을 선택하세요.');return;}
+  if(actionable(u)&&mode==='heal'&&v){const reason=rationTargetReason(state,u,v);if(!reason){target=v.id;render();}else {void playSfx('uiError');tell(reason);}return;}
+  if(mobile&&actionable(u)&&mode==='heal'){void playSfx('uiError');tell('회복할 수 있는 아군을 선택하세요.');return;}
+  if (actionable(u) && mode === 'move' && reachable(state, u).has(key(x, y))) {
+    void moveAlly(u,x,y); return;
+  }
+  if (v) { select(v.id); return; }
+}
+function cellContextMenu(x,y) {
+  if(title||busy||eventShowing||presentationBusy()||cloudGameBlocked()||document.querySelector('dialog[open]')||state.result||campaign.stage!=='battle'||state.phase!=='ally'||boardNavigation.isInteracting?.())return;
+  if(!occupant(state,x,y)&&['command','inspect'].includes(mode)&&!origin&&!target){battleUI.openMenu();return;}
+  cancel();
+}
+async function animateMovement(unit,route,token,unitBefore=null) {
+  if (route.length < 2 || token!==epoch) return;
+  shortMovementSound?.stop();shortMovementSound=null;
+  const soundKind=artFor(unit)?.kind;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    shortMovementSound=movementSound(unit,{durationMs:Math.min(300,Math.max(180,(route.length-1)*65)),kind:soundKind});return;
+  }
+  const stage=$('board-stage'), base=stage.getBoundingClientRect();
+  const original=$('board').querySelector('[data-unit-id="'+unit.id+'"]'); if(!original){shortMovementSound=movementSound(unit,{durationMs:180,kind:soundKind});return;}
+  const ghost=original.cloneNode(true);ghost.classList.remove('travel-hidden');ghost.classList.add('unit-traveller');ghost.removeAttribute('data-unit-id');ghost.setAttribute('aria-hidden','true');
+  const rect=original.getBoundingClientRect(), cell=original.closest('.cell').getBoundingClientRect();
+  ghost.style.width=rect.width+'px';ghost.style.height=rect.height+'px';ghost.style.left='0px';ghost.style.top='0px';
+  const positions=route.map(p=>{
+    const tile=$('board').querySelector('[data-x="'+p.x+'"][data-y="'+p.y+'"]').getBoundingClientRect();
+    return {x:tile.left-base.left+(cell.width-rect.width)/2,y:tile.top-base.top+(cell.height-rect.height)/2};
+  });
+  stage.append(ghost);
+  const clearSpiritMove=attachSpiritMovement(ghost,unitBefore);
+  let motion=null,moveSound=null;
+  try {
+    const plan=movementMotionPlan(unit,route,positions,{fast});
+    moveSound=movementSound(unit,{durationMs:plan.duration,kind:soundKind});
+    const animation=ghost.animate(plan.frames,{duration:plan.duration,easing:'linear',fill:'forwards'});
+    motion=startMovementMotion(ghost,unit,route,{fast,duration:plan.duration,animation,isCurrent:()=>token===epoch});
+    await animation.finished.catch(()=>{});
+  } finally {moveSound?.stop();motion?.stop();clearSpiritMove();ghost.remove();if(token===epoch)movingUnitId=null;}
+}
+async function moveAlly(unit,x,y) {
+  if(busy)return;
+  const route=movementPath(state,unit,x,y),token=epoch,unitBefore=structuredClone(unit);
+  origin={x:unit.x,y:unit.y};busy=true;movingUnitId=unit.id;
+  try {
+    moveUnit(state,unit,x,y);mode='command';target=null;render();
+    await animateMovement(unit,route,token,unitBefore);
+  } catch(error) {void playSfx('uiError');log(error.message);}
+  finally {if(token===epoch){movingUnitId=null;busy=false;render();}}
+}
+function cancel() {
+  if (busy || state.result || campaign.stage !== 'battle') return;
+  if(typeof mobileMoveDraft!=='undefined')mobileMoveDraft=null;
+  const mobile=typeof mobileCommandUIEnabled==='function'&&mobileCommandUIEnabled($('battle-scene'));
+  if(mobile&&mode==='spirit-target'){if(target)target=null;else mode='spirit';render();return;}
+  if(mobile&&mode==='spirit'){mode='command';pendingSpirit=null;mobileSpiritDraft=null;render();return;}
+  if(mode==='combat-skill'){
+    if(target)target=null;else{mode='command';pendingCombatSkill=null;}
+    render();return;
+  }
+  if (origin) { revert(); mode = 'command'; }
+  else if (target) target = null;
+  else if (['move', 'attack', 'heal', 'spirit','spirit-target','skill-list','combat-skill','tactic-list'].includes(mode)) mode = 'command';
+  else { selected = null; mode = 'command'; }
+  render();
+}
+async function performSpirit(unit,id,recipient=null){
+ const token=epoch;let event;
+ try{event=useSpirit(state,unit,id,recipient);}catch(error){void playSfx('uiError');tell(error.message);return;}
+ void playSfx(spiritSoundId(id));
+ busy=true;target=null;pendingSpirit=null;mode='spirit';log(displayUnitName(unit)+' · '+SPIRITS[id].name+' 사용 · SP '+unit.sp+' · 사기 '+unit.morale);
+ render();
+ try{await playSpiritPresentation($('board'),createSpiritPresentation(event),{chapter:campaign.scenario.id,isCurrent:()=>token===epoch,fast,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});}
+ finally{if(token===epoch){busy=false;render();displayBattleWords(battleWords({kind:'spirit',actor:unit,target:recipient,spiritId:id}),{brief:true});}}
+}
+
+function action(name) {
+  if(cloudGameBlocked()||busy||presentationBusy()||(typeof eventShowing!=='undefined'&&eventShowing)||document.querySelector('dialog[open]'))return;
+  const mobile=typeof mobileCommandUIEnabled==='function'&&mobileCommandUIEnabled($('battle-scene'));
+  if(typeof terrainInspector!=='undefined')terrainInspector.hide();
+  if(mobile&&name==='terrain-info'){
+    const unit=current();if(unit&&campaign.stage==='battle'&&!state.result&&['command','inspect'].includes(mode))terrainInspector.show(state,unit.x,unit.y);return;
+  }
+  if(mobile&&name==='mobile-close'){
+    if(state.result||campaign.stage!=='battle')return;
+    revert();selected=null;target=null;mode='command';pendingSpirit=null;pendingCombatSkill=null;render();return;
+  }
+  if(mobile&&name==='mobile-command-back'){
+    if(state.result||campaign.stage!=='battle')return;
+    if(mode==='spirit-target'){mode='spirit';target=null;}
+    else if(target&&['attack','heal'].includes(mode))target=null;
+    else{mode='command';target=null;pendingSpirit=null;pendingCombatSkill=null;mobileMoveDraft=null;mobileSpiritDraft=null;}
+    render();return;
+  }
+  if(name==='prediction-details'){const html=$('unit-ui').battlePredictionDetailsHTML;if(html)dialog('<section class="battle-prediction-detail"><h3>예측 상세</h3>'+html+'<div class="dialog-actions"><button type="button" class="primary" data-dialog="close">닫기</button></div></section>');return;}
+  if(name==='unit-details'){const u=current();if(u)dialog('<section class="battle-unit-detail">'+battleUnitDetails(u)+'</section>');return;}
+  if (name === 'dismiss') { selected = null; render(); return; }
+  const u = current(); if (!actionable(u)) return;
+  clearCombatResults($('board-stage'));
+  if(mobile&&name==='mobile-tactics'&&u.cls==='strategist'){mode='tactic-list';target=null;render();return;}
+  if(mobile&&name==='move-confirm'){
+    if(mode!=='move'||!mobileMoveDraftValid(mobileMoveDraft,state,u,epoch,reachable(state,u))){mobileMoveDraft=null;render();tell('도착지를 다시 선택하세요. 아직 이동하지 않았습니다.');return;}
+    const {x,y}=mobileMoveDraft;mobileMoveDraft=null;void moveAlly(u,x,y);return;
+  }
+  if(mobile&&name.startsWith('mobile-spirit-pick-')){
+    const id=name.slice(19);if(mode!=='spirit'||!spiritSlots(u,state).some(slot=>slot.id===id))return;
+    pendingSpirit=id;mobileSpiritDraft=createMobileSpiritDraft(state,u,id,epoch);target=null;render();return;
+  }
+  if(mobile&&name==='mobile-spirit-target'){
+    if(mode!=='spirit'||!SPIRITS[pendingSpirit]?.target||!mobileSpiritDraftValid(mobileSpiritDraft,state,u,pendingSpirit,epoch))return;
+    const reason=spiritReason(state,u,pendingSpirit);if(reason){void playSfx('uiError');tell(reason);return;}
+    mode='spirit-target';target=null;render();return;
+  }
+  if(name==='skills'){prepareSfx(['skillVoice',...(combatSkillList(state,u).some(skill=>skill.id==='tactic-area-fire')?['areaFireCast']:[])]);mode='skill-list';target=null;pendingCombatSkill=null;render();return;}
+  if(name==='skill-back'){mode='command';target=null;pendingCombatSkill=null;render();return;}
+  if(name.startsWith('skill-target-')){const id=name.slice(13);if(combatSkillTargets(state,u,pendingCombatSkill).some(v=>v.id===id)){target=id;render();boardNavigation.focusUnit(id);}return;}
+  if(name==='skill-confirm'){const b=state.units.find(v=>v.id===target);if(b)void performCombatSkill(u,b,pendingCombatSkill);return;}
+  if(name.startsWith('skill-')){const id=name.slice(6),meta=combatSkillList(state,u).find(s=>s.id===id);if(!meta||meta.reason)return;pendingCombatSkill=id;mode='combat-skill';const possible=combatSkillTargets(state,u,id);target=possible.length===1&&possible[0].id===u.id?u.id:null;render();return;}
+  if(name === 'spirit') { if(!u.moved){prepareSfx([...new Set(spiritSlots(u,state).filter(slot=>!slot.locked).map(slot=>spiritSoundId(slot.id))),'uiError']);mode='spirit';target=null;if(mobile){pendingSpirit=null;mobileSpiritDraft=null;}render();} return; }
+  if(name === 'spirit-back'){mode='command';target=null;if(mobile){pendingSpirit=null;mobileSpiritDraft=null;}render();return;}
+  if(name==='spirit-target-back'){mode='spirit';target=null;if(!mobile)pendingSpirit=null;render();return;}
+  if(name.startsWith('spirit-target-')){const id=name.slice(14);if(!mobile||mode==='spirit-target'&&spiritTargets(state,u,pendingSpirit).some(unit=>unit.id===id)){target=id;render();}return;}
+  if(name==='spirit-confirm'){
+    if(mobile){
+      if(!['spirit','spirit-target'].includes(mode)||!mobileSpiritDraftValid(mobileSpiritDraft,state,u,pendingSpirit,epoch)){tell('정신기를 다시 선택하세요. 아직 사용하지 않았습니다.');return;}
+      if(SPIRITS[pendingSpirit]?.target&&(mode!=='spirit-target'||!target)){tell('대상을 먼저 선택하세요.');return;}
+      const reason=spiritReason(state,u,pendingSpirit,state.units.find(v=>v.id===target));if(reason){void playSfx('uiError');tell(reason);return;}
+      mobileSpiritDraft=null;
+    }
+    void performSpirit(u,pendingSpirit,state.units.find(v=>v.id===target));return;
+  }
+  if(name.startsWith('cast-')){const id=name.slice(5);if(mobile){if(mode==='spirit')action('mobile-spirit-pick-'+id);return;}if(SPIRITS[id]?.target){const reason=spiritReason(state,u,id);if(reason){void playSfx('uiError');tell(reason);return;}pendingSpirit=id;mode='spirit-target';target=null;render();}else void performSpirit(u,id);return;}
+  if (name === 'back') { target = null; render(); return; }
+  if (name === 'cancel') { cancel(); return; }
+  if (name === 'move' && !origin) { mode = 'move'; target = null;if(mobile)mobileMoveDraft=null;render(); return; }
+  if (name.startsWith('tactic-') && u.cls === 'strategist' && Object.hasOwn(SKILLS, name.slice(7))) { const reason=tacticReason(state,u,name.slice(7));if(reason){void playSfx('uiError');tell(reason);return;}tactic = name.slice(7); mode = 'attack'; target = null; render(); return; }
+  if (name === 'attack' || name === 'heal') { mode = name; target = null; render(); return; }
+  if (name === 'wait') { waitUnit(state,u); origin = null; log(`${displayUnitName(u)} · 대기`); finishAction(); return; }
+  if (name === 'confirm') {
+    const b = state.units.find(v => v.id === target); if (!b) return;
+    if (mode === 'attack') void performAttack(u, b);
+    else if (mode === 'heal') { const before=u.level; const amount = heal(state, u, b); if(amount>0)void playSfx('heal'); const growth=[{id:u.id,name:displayUnitName(u),from:before,to:u.level}];showGrowth(growth);displayBattleWords(battleWords({kind:'ration',actor:u,target:b,growth}));origin = null; log(`${displayUnitName(u)} → ${displayUnitName(b)} · 병력 ${amount} 회복`); const supportEpoch=epoch;void finishAction().then(()=>{if(amount>0&&supportEpoch===epoch&&campaign.stage==='battle'&&!state.result)showSupportResults($('board-stage'),[{id:b.id,amount}],'군량');}); }
+  }
+}
+function commitCombatState(resolved){
+  // Preserve live unit identities used by selection, the enemy iterator and presentation sessions.
+  const units=state.units;
+  const live=new Map(units.map(unit=>[unit.id,unit]));
+  const reconciled=resolved.units.map(next=>{const unit=live.get(next.id);if(!unit)return next;for(const key of Object.keys(unit))if(!Object.hasOwn(next,key))delete unit[key];Object.assign(unit,next);return unit;});
+  units.splice(0,units.length,...reconciled);
+  for(const key of Object.keys(state))if(!Object.hasOwn(resolved,key))delete state[key];
+  Object.assign(state,resolved);state.units=units;
+}
+async function playCombatOpening(actor,targets,token){
+  if(token!==epoch||!targets.length)return [];
+  const engaged=[actor.id,...targets.map(unit=>unit.id)];
+  collectStoryEvents(state,campaign.scenario.events??[],'engage',engaged);
+  return await displayStoryEvents({openingOnly:true,engaged});
+}
+
+async function animateCombat(a, b, result, token, beforeA, beforeB, lines=[],options={}) {
+  clearBattleBarks($('board-stage'));
+  let backgroundPaused=false,presentation;
+  const setBackgroundPaused=paused=>{backgroundPaused=paused;boardNavigation.viewport.dataset.mapPresentationPaused=String(paused);weatherPresentation.setPaused(paused);};
+  try{
+   presentation=await playCombatScene($('combat'),beforeA,beforeB,result,{scenario:campaign.scenario,fast,mode:options.mode??combatMode,manualResults:options.manualResults,suppressCast:!!options.suppressCast,skill:options.skill,lines,isCurrent:()=>token===epoch,onFullSceneChange:setBackgroundPaused});
+  }finally{if(backgroundPaused)setBackgroundPaused(false);}
+  if(token!==epoch)return;
+  combatMapState=options.view??null;
+  if(result.officerMoraleEvents?.length)latestOfficerMorale={result:{officerMoraleEvents:structuredClone(result.officerMoraleEvents)},epoch:token,shownAt:performance.now()};
+  for(const event of result.moraleChanges??[])log(event);
+  log(combatResultModel(beforeA,beforeB,result).log);
+  const alreadyClaimed=!!army.rewardReceipts?.[campaign.scenario.id];
+  const drops=[result.loot,result.counterLoot].filter(v=>v&&(v.items?.length||v.gold>0));
+  if(drops.length){
+    const items=drops.flatMap(v=>v.items??[]).map(id=>PARTS[id].name),gold=drops.reduce((n,v)=>n+(v.gold??0),0);
+    log(alreadyClaimed?'이미 정산한 전장 · 전리품 추가 지급 없음':'임시 전리품 · '+[...(items.length?[items.join(', ')]:[]),...(gold?[count(gold)+' 자금']:[])].join(' · ')+' · 승리 시 정산');
+  }
+  render();
+  // Show the hit/critical at impact completion; loot must not delay its feedback.
+  if(campaign.stage==='battle')showCombatResult($('board-stage'),beforeA,beforeB,result,{summary:presentation.full,fast,units:state.units,isCurrent:()=>token===epoch});
+  await showLootFeedback(document.body,result,beforeA,beforeB,{scenarioId:campaign.scenario.id,epoch:token,fast,isCurrent:()=>token===epoch,alreadyClaimed});
+  if(token!==epoch)return;
+  // Give the officer shock its full visible duration after the temporary loot card.
+  if(result.officerMoraleEvents?.length&&campaign.stage==='battle'){
+    latestOfficerMorale.shownAt=performance.now();
+    showOfficerMoraleResult($('board-stage'),result,{units:state.units,isCurrent:()=>token===epoch});
+  }
+  showGrowth(result.growth??[]);
+}
+async function performCombatSkill(a,b,id){
+  const meta=combatSkillList(state,a).find(s=>s.id===id);if(!meta)return;
+  const predicted=previewCombatSkill(state,a,b,id);if(predicted.reason){void playSfx('uiError');tell(predicted.reason);return;}
+  busy=true;const token=epoch,beforeState=createCombatMapView(state),beforeA=structuredClone(a),beforeB=structuredClone(b);
+  clearCombatResults($('board-stage'),{preserveMorale:true});combatMapState=beforeState;render();
+  try{
+    // Resolve once on a private copy so cancelled later exchanges never claim opening dialogue.
+    const resolved=structuredClone(state),ra=resolved.units.find(u=>u.id===a.id),rb=resolved.units.find(u=>u.id===b.id);
+    const r=useCombatSkill(resolved,ra,rb,id);
+    const engaged=r.exchanges?.length?r.exchanges.map(exchange=>exchange.target):r.kind==='support'?[]:[b];
+    const played=await playCombatOpening(a,engaged,token);if(token!==epoch)return;
+    if(meta.gate)await playSkillCutin(a,meta,campaign.scenario,{fast,enabled:specialCutins,isCurrent:()=>token===epoch});
+    if(token!==epoch)return;
+    if(resolved.storyEvents){
+      resolved.storyEvents.fired=[...new Set([...state.storyEvents.fired,...resolved.storyEvents.fired])];
+      resolved.storyEvents.pending=resolved.storyEvents.pending.filter(index=>!played.includes(index));
+    }
+    commitCombatState(resolved);origin=null;log(`${displayUnitName(a)} · ${meta.name}`);
+    const voice=skillVoiceSoundId(meta,r);if(voice)void playSfx(voice);
+    const areaOnMap=usesAreaMapPresentation(meta),skillVisual=createCombatSkillPresentation(meta,beforeA,beforeB,r,beforeState);
+    if(areaOnMap){
+      void playSfx(areaCastSoundId(meta),{dedupe:'area-cast:'+token+':'+state.rngState});
+    }
+    // A single-target signature belongs to its duel. Showing map damage first spoils it.
+    if(areaOnMap||r.kind==='support'){
+     const retreats=areaOnMap?createAllyRetreatSoundSession({isCurrent:()=>token===epoch}):null;let mapCompleted=false;
+     try{mapCompleted=await playCombatSkillPresentation($('board-stage'),skillVisual,{fast,isCurrent:()=>token===epoch,onImpact:()=>{
+      combatMapState=null;render();
+      const impacts=r.exchanges??[];if(areaOnMap)void retreats.emit(impacts);
+      if(areaOnMap&&impacts.some(exchange=>exchange.result.hit>0))void playSfx(impacts.some(exchange=>exchange.result.critical)?'criticalHit':'attackHit',{dedupe:'area-impact:'+token+':'+state.rngState});
+      else if(r.kind==='support'&&r.heals?.some(h=>h.amount>0))void playSfx('heal');
+     }});}finally{retreats?.finish(mapCompleted===true);}
+    }
+    if(token!==epoch)return;
+    if(areaOnMap&&r.exchanges?.length){
+      // All area recipients share the map burst; feedback never starts a duel scene.
+      combatMapState=null;render();
+      const moraleEvents=r.exchanges.flatMap(exchange=>exchange.result.officerMoraleEvents??[]);
+      const feedback={...r,officerMoraleEvents:moraleEvents};
+      for(const exchange of r.exchanges){
+        for(const line of exchange.result.moraleChanges??[])log(line);
+        log(combatResultModel(exchange.actor,exchange.target,exchange.result).log);
+      }
+      for(const line of r.moraleChanges??[])log(line);
+      const alreadyClaimed=!!army.rewardReceipts?.[campaign.scenario.id],drops=lootFeedbackModel(feedback,beforeA,beforeB,{alreadyClaimed});
+      if(drops)log('임시 전리품 · '+drops.rewards.join(' · ')+' · 승리 시 정산');
+      await showLootFeedback(document.body,feedback,beforeA,beforeB,{scenarioId:campaign.scenario.id,epoch:token,fast,isCurrent:()=>token===epoch,alreadyClaimed});
+      if(token!==epoch)return;
+      if(moraleEvents.length&&campaign.stage==='battle'){
+        latestOfficerMorale={result:{officerMoraleEvents:structuredClone(moraleEvents)},epoch:token,shownAt:performance.now()};
+        showOfficerMoraleResult($('board-stage'),feedback,{units:state.units,isCurrent:()=>token===epoch});
+      }
+      showGrowth(r.growth??[]);
+    }else if(r.exchanges?.length){
+      let view=beforeState;
+      for(let i=0;i<r.exchanges.length;i++){
+        const exchange=r.exchanges[i],ea=exchange.actor,eb=exchange.target,er=exchange.result;
+        combatMapState=createCombatMapView(view,ea,eb);render();
+        const after=createCombatMapView(combatMapState);const va=after.units.find(v=>v.id===ea.id),vb=after.units.find(v=>v.id===eb.id);
+        if(va&&Number.isFinite(er.actorHp))va.hp=er.actorHp;if(vb&&Number.isFinite(er.targetHp))vb.hp=er.targetHp;
+        await animateCombat(a,state.units.find(v=>v.id===eb.id)??b,er,token,ea,eb,[],{view:after,mode:i===0?combatMode:'map',suppressCast:i>0,skill:skillVisual});
+        if(token!==epoch)return;view=after;
+      }
+    }else if(r.kind==='support'){
+      combatMapState=null;render();showGrowth(r.growth??[]);
+      for(const line of r.moraleChanges??[])log(line);
+      await pause(200);
+    }else{render();await animateCombat(a,b,r,token,beforeA,beforeB,[],{skill:skillVisual});}
+    if(token!==epoch)return;
+    for(const h of r.heals??[])log(`${h.name??h.id} · ${meta.name} · 병력 ${count(h.before)} → ${count(h.after)} (+${count(h.amount)})`);
+    for(const h of r.spHeals??[])log(`${h.name??h.id} · SP ${h.before} → ${h.after} (+${h.amount})`);
+    for(const effect of r.buffs??[])log(`${effect.name??effect.id} · ${effect.detail??meta.description}${effect.untilRound?' · '+(effect.untilRound-1)+'턴까지':''}`);
+    for(const move of r.moves??[])log(`${move.name??move.id} · ${String.fromCharCode(65+move.from.x)}${move.from.y+1} → ${String.fromCharCode(65+move.to.x)}${move.to.y+1}`);
+    if(r.kind!=='support'&&r.heals?.some(h=>h.amount>0)){combatMapState=null;render();void playSfx('heal');showSupportResults($('board-stage'),r.heals,meta.name);}
+    combatMapState=null;pendingCombatSkill=null;busy=false;void finishAction();
+  }catch(error){if(token!==epoch)return;combatMapState=null;busy=false;clearSkillCutin();clearCombatSkillPresentation($('board-stage'));render();void playSfx('uiError');tell(error.message);}
+}
+async function performAttack(a, b) {
+  busy = true; const token = epoch;
+  try {
+    const beforeActorHP=a.hp,beforeTargetHP=b.hp,beforeA=structuredClone(a),beforeB=structuredClone(b);
+    clearCombatResults($('board-stage'),{preserveMorale:true});combatMapState=createCombatMapView(state);render();
+    const attackTactic=commandTactic(a,tactic);
+    if(state.result||state.phase!==a.team||a.done||a.id===b.id||!canTarget(a,b,state,attackTactic))throw new Error('공격할 수 없는 상태입니다.');
+    await playCombatOpening(a,[b],token);if(token!==epoch)return;
+    const r = attack(state, a, b, undefined, attackTactic); origin = null;
+    const words=battleWords({kind:'attack',actor:a,target:b,result:r,beforeActorHP,beforeTargetHP});
+    render(); await animateCombat(a, b, r, token,beforeA,beforeB,words); if (token !== epoch) return;
+    busy = false; finishAction();
+  } catch (e) { if(token!==epoch)return;combatMapState=null;latestOfficerMorale=null;clearCombatResults($('board-stage'));clearCombatResults($('result-scene'));busy = false; render(); void playSfx('uiError');tell(e.message); }
+}
+function checkResult() {
+  if(bossCleanupPending(state)){busy=false;selected=null;target=null;origin=null;mode='command';render();return true;}
+  if (!state.result) return false;
+  if(campaign.stage==='battle'){if(state.result==='victory')void playSfx('victory');else void playSfx('defeat');}
+  const freshReceipt=!state.rewardsSettled&&!Object.hasOwn(army.rewardReceipts??{},campaign.scenario.id);
+  const receipt=settleBattleRewards(army,state,campaign.scenario);
+  const growth=settleGrowth(state,army),notice=outcomeNoticeSoundId({growth,victory:state.result==='victory',freshReceipt,receipt});
+  if(notice==='itemGet')void playSfx('itemGet',{delay:180,dedupe:'receipt:'+epoch+':'+campaign.scenario.id});
+  showGrowth(growth,{sound:notice==='levelUp'});
+  if(campaign.stage==='battle'&&state.result==='defeat')defeatMusicOutcome={epoch,chapterId:campaign.scenario.id};
+  if(state.result==='victory'&&!isReplayState(state)){const events=applyRosterVictory(army,campaign.scenario.rosterEventId??campaign.scenario.id);for(const id of events.joined)log(`${HEROES[id]} 합류`);for(const id of events.departed)log(`${HEROES[id]} 이탈 · 기록 보존`);for(const id of events.returned??[])log(`${HEROES[id]} 귀환 · 성장 기록 유지`);}
+  if(state.result==='victory'||isReplayState(state))finishReplayGuests(army,campaign.scenario.id,state);
+  if(state.result==='victory')mapEffect(campaign.scenario.victoryFx,state,campaign.scenario.victoryFx?.at??'before');
+  busy = false; victoryReward = state.result === 'victory' ? rewardVictory(army, campaign.scenario.id) : 0; campaign.resolve(state.result); if(state.result==='victory')preserveClearRecord(); render(); if(latestOfficerMorale?.epoch===epoch&&performance.now()-latestOfficerMorale.shownAt<5000)showOfficerMoraleResult($('result-scene'),latestOfficerMorale.result,{units:state.units,isCurrent:()=>latestOfficerMorale?.epoch===epoch}); if(state.result==='victory')fateVictory(campaign.scenario);return true;
+}
+async function finishAction() {
+  const token=epoch;
+  updateBattleOutcome(state);collectStoryEvents(state,campaign.scenario.events??[],'action');updateBattleOutcome(state);busy=true;await displayStoryEvents();if(token!==epoch)return;
+  busy=false;
+  target = null; origin = null; selected = null; mode = 'command'; render();
+  if (checkResult()) return;
+  if (living('ally').every(u => u.done || disabled(u))) void enemyTurn();
+}
+async function enemyTurn({resume=false}={}) {
+  if (busy || (resume?state.phase!=='enemy':state.phase!=='ally') || state.result || bossCleanupPending(state) || campaign.stage !== 'battle') return;
+  const token = epoch;
+  revert();busy=true;render();
+  if(!resume&&checkResult())return;
+  await advancePhase({resumeCurrentPhase:resume});if(token!==epoch)return;if(checkResult())return; selected = null; mode = 'command';
+  log(enemyLabel()+'의 턴이 시작되었습니다.'); render(); if (token !== epoch) return;
+  try {
+    for (const u of enemyActionOrder(state,campaign.scenario).filter(v => !v.done && !disabled(v))) {
+      if (token !== epoch || state.result || bossCleanupPending(state)) break;
+      if(u.done||disabled(u)||u.hp<=0)continue;
+      const decision = decideAI(state, u), route = movementPath(state,u,decision.x,decision.y); movingUnitId = u.id; moveUnit(state, u, decision.x, decision.y); render(); await animateMovement(u,route,token);if(token!==epoch)return;movingUnitId = null; render();
+      if (token !== epoch) return;
+      const b = state.units.find(v => v.id === decision.targetId);
+      if(u.escaped){log(displayUnitName(u)+' · '+(campaign.scenario.id==='s45_rattan'?'북쪽 어귀로 탈출':campaign.scenario.act===6?'동쪽 협곡으로 철수':'동쪽 퇴로로 탈출')+' · 경험치·전리품 없음');}
+      else if (b && canTarget(u, b,state)) {
+        const beforeActorHP=u.hp,beforeTargetHP=b.hp,beforeA=structuredClone(u),beforeB=structuredClone(b);
+        clearCombatResults($('board-stage'),{preserveMorale:true});combatMapState=createCombatMapView(state);
+        render();await playCombatOpening(u,[b],token);if(token!==epoch)return;
+        const r = attack(state, u, b, null, decision.skill??'fire'),words=battleWords({kind:'attack',actor:u,target:b,result:r,beforeActorHP,beforeTargetHP});
+        render(); await animateCombat(u, b, r, token,beforeA,beforeB,words);if(token!==epoch)return;
+      } else {
+        u.done = true;
+        updateBattleOutcome(state);
+        if(huarongChaser(state,u)){log(displayUnitName(u)+' · '+(route.length>1?'동쪽 퇴로로 도주':'퇴로가 막혀 대기'));}
+        else if(campaign.scenario.act===2||campaign.scenario.combatProfile==='act2') {
+          const order=campaign.scenario.enemies.find(e=>e.id===u.id);
+          const waiting=route.length>1?'공격 위치로 접근':order?.advanceRound>state.round?order.advanceRound+'턴 진격 대기':order?.aiMode==='hold'?'거점 주변 경계':'공격 기회 대기';
+          log(displayUnitName(u)+' · '+waiting);
+        } else log(displayUnitName(u)+' · 이동 후 대기');
+      }
+      await displayStoryEvents();if(token!==epoch)return;if (checkResult()) return;
+    }
+    if (token !== epoch) return;
+    await advancePhase();if(token!==epoch)return;if (checkResult()) return; busy = false; selected = null; log(`촉군 ${state.round}턴 · 행동을 시작하세요.`); render();
+    if (living('ally').every(u => u.done || disabled(u))) void enemyTurn();
+  } catch (e) { if(token!==epoch)return;combatMapState=null;latestOfficerMorale=null;clearCombatResults($('board-stage'));clearCombatResults($('result-scene'));busy = false; render(); dialog(`<h3>전투 처리 확인이 필요합니다</h3><p>현재 전투를 다시 시작해 주세요.</p><div class="dialog-actions"><button class="primary" data-dialog="retry">전투 재시작</button></div>`); console.error(e); }
+}
+
+async function advancePhase(){
+ const {resumeCurrentPhase=false}=arguments[0]??{};
+ const token=epoch,exchanges=[],supports=[];let stepBefore;
+ const steps=phaseSteps(state,null,exchange=>{
+  combatMapState=createCombatMapView(stepBefore,exchange.actor,exchange.target);exchanges.push(exchange);
+ },support=>supports.push(support),{resumeCurrentPhase});
+ for(;;){
+  stepBefore=createCombatMapView(state);const next=steps.next();if(next.done)break;
+  const messages=next.value;
+  if(exchanges.length){
+   clearCombatResults($('board-stage'),{preserveMorale:true});render();
+   for(const exchange of exchanges.splice(0)){
+    const {actor,target,result}=exchange;
+    await displayStoryEvents({openingOnly:true,engaged:[actor.id,target.id]});if(token!==epoch)return;
+    const words=battleWords({kind:'attack',actor,target,result,beforeActorHP:actor.hp,beforeTargetHP:target.hp});
+    await animateCombat(actor,target,result,token,actor,target,words);
+    if(token!==epoch)return;
+   }
+   for(const message of messages)log(message);
+  }else{for(const message of messages)log(message);render();}
+  const phaseSupports=supports.splice(0);if(phaseSupports.some(s=>s.heals?.some(h=>h.amount>0)||s.spHeals?.some(h=>h.amount>0)))void playSfx('heal',{gain:phaseSupports.every(s=>s.name==='SP')?.18:.45});
+  for(const support of phaseSupports){showSupportResults($('board-stage'),support.heals,support.name??'인덕');showSupportResults($('board-stage'),support.spHeals,'SP');}
+  await displayStoryEvents();if(token!==epoch)return;
+ }
+ if(token===epoch&&!state.result&&!(state.bossCleanupVersion===1&&state.bossCleanup?.status==='pending')&&!resumeCurrentPhase&&campaign.stage==='battle'){render();await showTurnTransition($('phase-banner'),state,campaign.scenario,{fast,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});}
+}
+
+async function introduceBattle(){
+ const token=epoch;busy=true;render();
+ try{
+  collectStoryEvents(state,campaign.scenario.events??[],'start');
+  await displayStoryEvents();
+  if(token===epoch&&!state.result&&campaign.stage==='battle'){render();await showTurnTransition($('phase-banner'),state,campaign.scenario,{fast,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});}
+ }finally{if(token===epoch){busy=false;render();}}
+}
+async function resumeEvents(){const token=epoch;busy=true;await displayStoryEvents();if(token!==epoch)return;busy=false;render();}
+function clearStoryEvent(){
+ clearCampaignNotice();
+ const close=storyEventClose;storyEventClose=null;if(close)close();eventShowing=false;
+}
+async function displayStoryEvents({openingOnly=false,engaged=null}={}){
+ const events=act2BattleEvents(state,campaign.scenario);pruneStoryEvents(state,events,campaign.scenario);
+ const token=epoch,queue=state.storyEvents?.pending;
+ const eligible=index=>!openingOnly||events[index]?.trigger.type==='unitEngaged'&&(!engaged||engaged.includes(events[index].trigger.unit));
+ if(!openingOnly){render();await showBattleAnnouncements(state,campaign.scenario,{deferPhase:true,fast,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,isCurrent:()=>token===epoch});if(token!==epoch)return [];}
+ if(!queue?.some(eligible))return [];
+ clearCombatResults($('board-stage'));
+ clearBattleBarks($('board-stage'));
+ clearTurnTransition($('phase-banner'));
+ eventShowing=true;render();const played=[];
+ try{while(token===epoch&&queue.some(eligible)){
+  const index=queue.find(eligible),source=events[index];
+  if(source.trigger.type==='reinforcementArrived'){await showBattleAnnouncements(state,campaign.scenario,{fast,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,isCurrent:()=>token===epoch});if(token!==epoch)return played;}
+  const ev={...source,lines:storyEventLines(combatMapState??state,source,campaign.scenario)};if(!ev.lines.length){queue.splice(queue.indexOf(index),1);continue;}let skipped=false;mapEffect(ev.fx,combatMapState??state,'before');
+  await new Promise(resolve=>{let line=0,closed=false;const box=document.createElement('dialog');box.className='story-event';box.dataset.eventIndex=String(index);box.dataset.eventTiming=openingOnly?'before-combat':'after-action';box.setAttribute('aria-label','전투 중 대화');
+   box.innerHTML='<p class="eyebrow gold event-label">전투 중 대화</p><div class="event-visual"></div><div class="event-dialogue"><h3 class="event-speaker"></h3><p class="event-text"></p></div><div class="dialog-actions"><button class="event-skip">이 대화 건너뛰기</button><button class="event-next primary">다음</button></div>';
+   const paint=()=>{paintPresentation(box,ev.lines,line,campaign.scenario,{event:true});const l=ev.lines[line];box.querySelector('.event-speaker').textContent=l.speaker==='narrator'?'':campaign.scenario.speakers[l.speaker];box.querySelector('.event-text').textContent=l.text;box.querySelector('.event-next').textContent=line===ev.lines.length-1?'전투 계속':'다음 대사';};
+   const close=()=>{if(closed)return;closed=true;if(storyEventClose===close)storyEventClose=null;clearPresentation(box);box.close();box.remove();resolve();};const next=()=>{if(token!==epoch){close();return;}if(++line>=ev.lines.length)close();else paint();};
+   storyEventClose=close;
+   box.querySelector('.event-next').onclick=next;box.querySelector('.event-skip').onclick=()=>{skipped=true;close();};
+   box.addEventListener('cancel',e=>e.preventDefault());box.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();next();}});
+   document.body.append(box);paint();box.showModal();box.querySelector('.event-next').focus();
+  });
+  if(token!==epoch)return played;
+  if(!skipped)mapEffect(ev.fx,combatMapState??state,'after');
+  const pendingAt=queue.indexOf(index);if(pendingAt>=0)queue.splice(pendingAt,1);played.push(index);
+ }}finally{if(token===epoch)eventShowing=false;}
+ return played;
+}
+
+function dialog(html) { clearAttackRange();$('modal-content').innerHTML = html; if (!$('modal').open) $('modal').showModal(); }
+
+// Tuning changes are staged in the form, then applied atomically to a fresh battle.
+function balanceFields(value) {
+  const headers = ['병력', '공격', '지력', '방어', '이동', '최소 사거리', '최대 사거리'];
+  const props = ['hp', 'atk', 'int', 'def', 'move', 'min', 'max'];
+  const numeric = (id, prop, min, max) => `<input type="number" name="${id}.${prop}" aria-label="${className(id)} ${headers[props.indexOf(prop)]}" min="${min}" max="${max}" step="1" value="${value.classes[id][prop]}" required>`;
+  $('balance-fields').innerHTML = `<h4 class="balance-section">병과 기본 능력치</h4><div class="table-scroll"><table><thead><tr><th>병과</th>${headers.map(h => `<th>${h}</th>`).join('')}<th>이동 후 공격</th></tr></thead><tbody>${CLASS_IDS.map(id => `<tr><td>${className(id)}</td>${props.map(p => `<td>${numeric(id, p, ['atk', 'int', 'def'].includes(p) ? 0 : 1, p === 'hp' ? 10000 : ['atk', 'int', 'def'].includes(p) ? 200 : 8)}</td>`).join('')}<td><input type="checkbox" name="${id}.attackAfterMove" aria-label="${className(id)} 이동 후 공격" ${value.classes[id].attackAfterMove ? 'checked' : ''}></td></tr>`).join('')}</tbody></table></div><p class="table-note">부대 기준: 아군은 병과 병력+장수 보정, 공격 ×1.6·방어 +4. 정규 전열 보병·기병·창병은 병력 +400·방어 +6, 보병 방어 추가 +4, 장비 방어 추가 +2, 조운 병력 추가 +200·공격 +2·방어 +2. 미축·간옹·손건·제갈량은 전열 보너스에서 제외됩니다. 기본 기병 공격·반격은 인접 1칸입니다. 일반 적병 병력 ×0.55·공격 ×0.6·방어 ×0.7. 아군 최대 병력은 장수·병과·강화·장비·특성을 합산합니다. 3막 일반병은 6,000~6,800, 정예병은 8,000~8,800입니다. 후반 일반병의 병력을 급증시키지 않으며, 6막부터 일부 특수 정예만 약 11,000~12,500 병력과 고유한 강점·약점을 가집니다. 장료는 기본 수치입니다. 장수 고유 보정 후 배율, 마지막에 장비 효과가 적용됩니다. 최소 사거리는 최대 사거리 이하로 설정하세요.</p><h4 class="balance-section">병과 상성표</h4><p class="table-note">행 = 공격자 / 열 = 방어자. 100%는 동일, 125%는 피해 25% 증가입니다. 반격은 공격·방어 병과를 뒤집어 계산합니다.</p><div class="table-scroll"><table><thead><tr><th>공격 ↓ / 방어 →</th>${CLASS_IDS.map(id => `<th>${className(id)}</th>`).join('')}</tr></thead><tbody>${CLASS_IDS.map(id => `<tr><td>${className(id)}</td>${CLASS_IDS.map(other => `<td><input class="matchup-input" type="number" name="match.${id}.${other}" aria-label="${className(id)} 대 ${className(other)} 배율 퍼센트" min="25" max="300" step="1" value="${Math.round(value.matchups[id][other] * 100)}" required> %</td>`).join('')}</tr>`).join('')}</tbody></table></div><h4 class="balance-section">화공 규칙</h4><p class="table-note">일반 공격 없음 · 성공/실패 모두 행동 종료 · 방어/상성 무시 · 반격 없음. 책사의 공격 수치와 상성 행은 화공에 적용하지 않습니다. 2막부터 아군·적군 책사는 단일 화공 위력 +35%, 범위 화공 위력 +25%를 받습니다.</p><div class="rule-fields">${[['damage','성공 시 피해'],['baseChance','기본 성공률 %'],['minChance','최소 성공률 %'],['maxChance','최대 성공률 %'],['forestBonus','수풀 추가 성공률 %p']].map(([key,label]) => `<label>화공 ${label}<input type="number" name="fire.${key}" min="${key === 'damage' ? 1 : 0}" max="${key === 'damage' ? 10000 : 100}" step="1" value="${value.fire[key]}" required></label>`).join('')}</div><h4 class="balance-section">혼란·위보 / 날씨</h4><div class="rule-fields">${[['baseChance','기본 성공률 %'],['minChance','최소 성공률 %'],['maxChance','최대 성공률 %']].map(([key,label]) => `<label>상태 책략 ${label}<input type="number" name="tactics.${key}" min="0" max="100" value="${value.tactics[key]}" required></label>`).join('')}<label>시작 날씨<select name="weather.start"><option value="clear" ${value.weather.start === 'clear' ? 'selected' : ''}>맑음</option><option value="rain" ${value.weather.start === 'rain' ? 'selected' : ''}>비</option></select></label><label>날씨 최소 유지 라운드<input name="weather.minRounds" type="number" min="2" max="6" value="${value.weather.minRounds}" required></label><label>날씨 최대 유지 라운드<input name="weather.maxRounds" type="number" min="2" max="8" value="${value.weather.maxRounds}" required></label><label>날씨 전환 확률 %<input name="weather.changeChance" type="number" min="0" max="100" value="${value.weather.changeChance}" required></label></div><h4 class="balance-section">공통 규칙</h4><div class="rule-fields"><label>기병 숲 이동 비용 <input type="number" name="forestCost" min="1" max="5" step="1" value="${value.terrain.forestCost}" required></label><label>숲 방어 보너스 <input type="number" name="forestDefense" min="0" max="50" step="1" value="${value.terrain.forestDefense}" required></label><label>회복량 <input type="number" name="healing" min="1" max="10000" step="1" value="${value.healing}" required></label><label>반격 배율 % <input type="number" name="counterMultiplier" min="25" max="200" step="1" value="${Math.round(value.counterMultiplier * 100)}" required></label></div><p class="formula">병력 감소 = max(1, 공격×공격 사기 계수 − 방어×사기/100×혼란 보정 − 지형 방어) × 30 × 상성 배율 · 현재 병력 수는 피해량에 곱하지 않음 · 2막 이후 공격 사기100/120/150 = 100%/126%/165%<br>반격에는 반격 배율을 추가 적용 · 마지막에 반올림 · 최소 피해 1</p><p class="table-note">적용하면 현재 장의 전투가 초기화됩니다. 취소하거나 닫으면 변경하지 않습니다. 새로고침 시 전투·스토리는 처음부터 시작하며 조정값만 유지됩니다.</p>`;
+  $('balance-error').textContent = storageNotice;
+}
+function readBalanceForm() {
+  const form = new FormData($('balance-form')), value = cloneBalance(balance);
+  for (const id of CLASS_IDS) {
+    for (const prop of ['hp', 'atk', 'int', 'def', 'move', 'min', 'max']) {
+      const raw = form.get(`${id}.${prop}`); value.classes[id][prop] = raw === '' ? NaN : Number(raw);
+    }
+    value.classes[id].attackAfterMove = form.has(`${id}.attackAfterMove`);
+    for (const other of CLASS_IDS) { const raw = form.get(`match.${id}.${other}`); value.matchups[id][other] = raw === '' ? NaN : Number(raw) / 100; }
+  }
+  value.terrain.forestCost = Number(form.get('forestCost')); value.terrain.forestDefense = Number(form.get('forestDefense'));
+  value.healing = Number(form.get('healing')); value.counterMultiplier = Number(form.get('counterMultiplier')) / 100;
+  for (const key of ['damage', 'baseChance', 'minChance', 'maxChance', 'forestBonus']) value.fire[key] = Number(form.get(`fire.${key}`));
+  for (const key of ['baseChance','minChance','maxChance']) value.tactics[key] = Number(form.get(`tactics.${key}`));
+  value.weather.start = form.get('weather.start');
+  for (const key of ['minRounds','maxRounds','changeChance']) value.weather[key] = Number(form.get(`weather.${key}`));
+  // Critical settings remain in the cloned balance; there is no player toggle.
+  validateBalance(value); return value;
+}
+
+$('dialogue-next').onclick = () => advanceDialogue();
+$('dialogue-prev').onclick = () => { if (campaign.line > 0) { campaign.line--; render(); } };
+$('skip-dialogue').onclick = () => {autoDialogue=false;scheduleDialogue();advanceDialogue(true);};
+if($('dialogue-auto'))$('dialogue-auto').onclick=()=>{autoDialogue=!autoDialogue;scheduleDialogue();};
+if($('dialogue-log'))$('dialogue-log').onclick=openDialogueLog;
+$('result-scene').addEventListener('click', e => {
+  const action = e.target.closest('[data-flow]')?.dataset.flow;
+  if (action === 'post') { campaign.afterVictory(); render(); }
+  if (action === 'retry') retry(); if (action === 'restart') startOver();
+  if (action === 'replay-records') openSaves();
+  if (action === 'ending'&&campaign.stage==='complete') {campaign.revisitEnding();render();}
+});
+$('board').addEventListener('click', e => { const cell = e.target.closest('[data-x]'); if (cell) cellClick(Number(cell.dataset.x), Number(cell.dataset.y)); });
+$('board').addEventListener('mouseover', e => {
+  const cell = e.target.closest('[data-x]'); if (!cell) return;
+  const x = Number(cell.dataset.x), y = Number(cell.dataset.y), t = state.terrain[y][x];
+  $('tile-info').textContent = String.fromCharCode(65+x)+(y+1)+' · '+describedTile(combatMapState??state,x,y);
+});
+$('board').addEventListener('pointerover',e=>{if(e.pointerType!=='touch')previewRangeCell(e.target.closest('[data-x]'));});
+$('board').addEventListener('pointerleave',()=>updateAttackRange());
+$('board').addEventListener('focusin',e=>previewRangeCell(e.target.closest('[data-x]')));
+$('board').addEventListener('focusout',e=>{if(!$('board').contains(e.relatedTarget))updateAttackRange();});
+for(const id of ['modal','balance-dialog','save-dialog','settings-dialog'])$(id).addEventListener('close',restoreAttackRange);
+$('board').addEventListener('keydown', e => {
+  const cell = e.target.closest('[data-x]'), directions = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+  if (!cell || !directions[e.key]) return;
+  e.preventDefault(); const [dx, dy] = directions[e.key];
+  $('board').querySelector(`[data-x="${Number(cell.dataset.x) + dx}"][data-y="${Number(cell.dataset.y) + dy}"]`)?.focus();
+});
+$('board').addEventListener('contextmenu', e => {const cell=e.target.closest('[data-x]');if(!cell)return;e.preventDefault();cellContextMenu(Number(cell.dataset.x),Number(cell.dataset.y));});
+$('roster').addEventListener('click', e => { const b=e.target.closest('[data-unit]');if(!b||b.disabled)return;const v=state.units.find(u=>u.id===b.dataset.unit);if(['heal','combat-skill','spirit-target'].includes(mode)&&v){cellClick(v.x,v.y);return;}select(b.dataset.unit);boardNavigation.focusSelected(); });
+$('unit-ui').addEventListener('click', e => { const b = e.target.closest('[data-action]'); if (b && !b.disabled) action(b.dataset.action); });
+$('speed').onclick = () => { fast = !fast; $('speed').textContent = `연출 · ${fast ? '빠르게' : '보통'}`; };
+$('restart').onclick = () => dialog('<h3>다시 시작할까요?</h3><p>조정한 병과 수치는 유지됩니다. 현재 전투 재도전은 장비·개조·자금을 유지합니다. 첫 대화부터 시작하면 장비·개조·자금도 초기화됩니다.</p><div class="dialog-actions"><button data-dialog="close">취소</button><button data-dialog="retry">현재 전투</button><button class="primary" data-dialog="restart">첫 대화부터</button></div>');
+$('end-turn').onclick = () => {
+  if($('end-turn').disabled||busy||presentationBusy()||eventShowing||cloudGameBlocked()||document.querySelector('dialog[open]'))return;
+  const count = living('ally').filter(u => !u.done && !disabled(u)).length;
+  const guide=battleGoalGuidance(state);
+  dialog(`<h3>${guide.waiting?'대기하고 다음 턴으로 넘어갈까요?':'아군 턴을 종료할까요?'}</h3>${guide.waiting?`<p>${esc(guide.detail)}<br>적은 전멸했습니다. 생존 조건을 채우려면 적 턴 종료까지 진행해야 합니다.</p>`:''}<p>아직 ${count}개 부대가 행동할 수 있습니다.</p><div class="dialog-actions"><button data-dialog="close">돌아가기</button><button class="primary" data-dialog="end">턴 종료</button></div>`);
+};
+$('help').onclick = () => { dialog(`<h3 tabindex="-1" autofocus>전장의 기본</h3>${growthHelpHTML()}${(campaign.scenario.act===2||campaign.scenario.combatProfile==='act2')?'<p class="act2-brief">2막 이후: 추격 부대는 취약한 장수와 격파 가능한 대상을 노리고 수비 부대는 거점을 지킵니다. 정비에서 Lv15부터 병과별 공격·방어 전문화를 선택합니다. 첫 선택은 무료, 이후 변경은 자금300이며 병과를 바꾸면 전문화가 해제됩니다. 필살기는 사기120 이상에서 사용해 사기30을 소비하며 사용 후 2턴을 쉬고 재사용합니다. Lv50 고유 필살기는 전투당 한 번 사용할 수 있으며 사기와 SP를 함께 소모합니다. 일반 필살기와 Lv50 고유기는 사용 후 재사용 대기를 공유합니다. 일반 범위 화공은 SP20(제갈량은 SP16), 중심과 상하좌우의 적 최대5기를 공격하고 행동을 종료합니다. 비에는 사용할 수 없습니다. 지략과 조합하세요. 필중·집중의 명중 보너스는 책략 성공률에 적용되지 않습니다. 책사와 미축의 보급은 SP20, 거리0~3, 병력 회복과 함께 다른 아군 SP15를 회복합니다. 간옹의 군심 수습은 다른 아군 SP20도 회복합니다. 자신에게는 SP를 돌려주지 않으며 이동 후 사용 가능하고 행동을 종료합니다. 유비의 인덕은 아군 턴 시작에 주변 동료를 소량 회복합니다.</p>':''}<ul><li>병과는 보병·기병·창병·활병·석궁병·책사의 6종입니다. 각각 기본 → 강화 → 정예 순서로 승급합니다. 활병과 석궁병은 별도 병과이며 서로의 상위 단계가 아닙니다. 강화는 Lv10 무료, 정예는 Lv15·자금 2,000으로 승급합니다. 책사도 지력과 병력이 증가하고 정예 승급 시 책략 사거리가 1 늘어납니다. 아군 책사는 비가 오면 수계를 사용할 수 있습니다. 수계는 기본 사거리 2~4칸, 기본 화공 피해의 60%에 지력 적용, SP 소모 0이며 성공·실패 모두 행동을 종료하고 반격받지 않습니다.</li><li>정신기는 이동 전 SP를 소모해 사용하며 행동을 종료하지 않습니다. 장수별 기본 정신기 3개는 Lv1·4·8에 해금됩니다. Lv30부터 출전 준비에서 네 번째 정신기를 무료로 선택·교체하며 최대 4개까지 사용합니다. SP는 장수 기본값+레벨−1입니다. Lv15에 정신 집중을 습득하면 막과 관계없이 2라운드부터 아군 턴 시작마다 SP를 5 회복합니다. 책사도 동일하며 별도 중복 회복은 없습니다. </li><li>${(campaign.scenario.act===2||campaign.scenario.combatProfile==='act2')?'2막 이후 물리 명중은 기본95%에 레벨 차이당2%p(최대 ±20%p)를 적용합니다. 적장 회피3%p·보스5%p, 물리 필살기 명중+10%p. 육성 기록을 계승하지 않은 임시 협력부대의 교전은 레벨 차이 보정에서 제외합니다.':'1막 물리 명중 기본90%.'} 필중은 다음 자기 턴까지100%, 집중은 같은 기간 명중/회피+30%p. 번뜩임은 다음 물리 공격/반격1회 회피로 필중보다 우선합니다. 지략은 다음 책략 성공률 +20%p이며 책략 숙련 특기는 +10%p입니다. 비와 최종 상한은 유지됩니다.</li><li>가속은 다음 이동+3칸. 이동 취소 시 효과를 되돌리고 SP는 반환하지 않습니다. 제자리 대기는 가속을 소모하지 않습니다. 기합 효과는 ${esc(SPIRITS.spirit.description)}이며 반복 사용할 수 있습니다.</li><li>사기는 보통100 시작, 50~150 범위이며 화용도의 도주 적은 사기30부터 시작합니다. 1막 공격과 방어는 사기/100을 곱합니다. 2막 이후 물리 공격은 사기100에서100%,120에서126%,150에서165%,50에서35%이며 방어는 사기/100을 유지합니다. 적 명중+1, 피격·회피+1, 신규 본편 격파 부대+5·같은 진영 나머지+2, 아군 퇴각 시 생존 아군-5. 적 장수를 격파하면 추가로 남은 적 사기-20·생존 아군 사기+15가 적용되며, 남은 적은 이번 라운드 적군 턴이 끝날 때까지 확정 혼란에 빠집니다. 기존 책략 상태는 보존됩니다. 위보 강제 공격에는 명중/격파 보상이 없습니다. 책략은 화공 피해에 의한 사기 변화만 적용합니다. 다음 전투에서 사기100(특기에 따라110)·장수별 최대SP로 복귀합니다.</li><li>G는 게스트입니다. 임시 협력부대는 이번 전투만 합류하며 경험치로 성장하지 않습니다. 이전 육성 기록이 있는 장수는 레벨·병과·강화·장비와 정신기를 이어받습니다. 기존 개인 정신기가 있는 장수는 합류 중에도 사용할 수 있습니다. 주력 성장에 도움이 되도록 격파를 주력 장수에게 맡길 수 있습니다. 서서 같은 군단 게스트는 경험치로 성장하지만 개조·증편·승급·장비 장착은 제한됩니다. 의병·게스트의 퇴각은 정규 장수 전원 생존 보너스와 생존 자금에 영향을 주지 않습니다. 공융·호위물 등 보호 임무의 생존 조건은 유지됩니다. 선택 창에서 성장 조건을 확인하세요. 호위 수레는 공격할 수 없는 별도 보호 대상입니다. 수레를 직접 선택해 이동·대기하세요. 수레는 자동으로 이동하거나 대기하지 않으며, 행동 가능한 수레가 남아 있으면 아군 턴이 자동으로 끝나지 않습니다.</li><li>병력은 장수가 지휘하는 부대의 전투 가능 인원입니다. 현재 본편에서는 남은 병력에 따른 공격·반격 위력 배율이 없습니다. 군량은 부상·흩어진 병력의 복귀를 돕습니다.</li><li>창병→기병→보병→창병은 160%, 역상성은 65%. 기병→석궁병은 160%, 석궁병 공격은 중립입니다.</li><li>적 책사도 화공·혼란·위보를 선택합니다. 화공은 대상 수풀에서 +20%p, 비에는 성공률0%. 날씨는 양 진영이 공유하고 기본 설정에서 전환 후 2~4라운드 동안 다시 바뀌지 않습니다.</li><li>혼란은 방어50%·행동/반격 불가이며, 명중한 물리 공격에 반드시 치명타로 피격됩니다. 위보에 걸린 적은 자기 턴에 공격 가능한 가까운 다른 적군을 우선 공격하며, 없으면 가까운 적군을 향해 이동합니다. 우리 아군은 표적에서 제외합니다. 위보에 걸린 아군은 기존대로 가까운 부대를 자동 공격합니다. 사거리 밖이면 접근 후 대기하며, 책사는 화공을 사용합니다. 둘 다 자기 진영 턴1회가 끝나면 해제되고 중첩 없이 교체됩니다.</li><li>대화 → 전투 → 결과 → 전후 대화 → 출전 준비 → 다음 출전 대화로 이어집니다.</li><li>장수를 누르면 우하단에 명령 메뉴가 열립니다.</li><li>이동 후 공격·책략·군량·대기를 선택할 수 있습니다. 군량은 이동 전후 자신 또는 거리 3칸 이내 부상 아군에게 사용하며 행동을 종료합니다.</li><li>공격 전 피해·상성·반격을 확인할 수 있습니다.</li><li>반격은 생존한 적의 병과별 사거리 안에서 한 번만 발생합니다. 책사는 반격하지 않으며 책략에도 반격하지 않습니다.</li><li>군량은 자신 또는 거리 3칸 이내 아군의 병력을 ${balance.healing} 회복합니다.</li><li>석궁병도 이동 후 공격할 수 있습니다. 병과 밸런스에서 개별 변경할 수 있습니다.</li><li>병력 0은 퇴각이며 아군 전원 퇴각 시 패배합니다. 이동 후 취소·Esc·우클릭은 출발 위치로 복귀합니다. 공격 확정·대기 후에는 취소할 수 없습니다. 대화에서는 Enter로 진행합니다.</li></ul><p>저장·불러오기에서 진행을 보관하세요. 정비는 자동 저장됩니다. 브라우저를 옮길 때는 저장 파일을 내보내세요. 다음 전투는 전원 최대 병력과 군량 3개로 시작합니다.</p><div class="dialog-actions"><button class="primary" data-dialog="close">확인</button></div>`); $('modal').scrollTop=0; };
+$('log-open').onclick = () => dialog(`<h3>전투 기록</h3><ul>${logs.map(t => `<li>${escapeHTML(t)}</li>`).join('')}</ul><div class="dialog-actions"><button data-dialog="close">닫기</button></div>`);
+$('credits').onclick = () => dialog('<h3>임시 삽화</h3><p>정식 장수 일러스트로 교체할 수 있도록 고전 판화 2장을 사용했습니다. 현재 아트 방향을 확정한 것은 아닙니다.</p><ul><li><a href="https://commons.wikimedia.org/wiki/File:Guan_Yu_Portrait.jpg" target="_blank" rel="noopener">관우 · 청대 삼국지연의 삽화</a></li><li><a href="https://commons.wikimedia.org/wiki/File:Zhang_Liao_Portrait.jpg" target="_blank" rel="noopener">장료 · 청대 삼국지연의 삽화</a></li></ul><p>Wikimedia Commons의 공개 고전 삽화. 폰트: Noto Sans KR / Noto Serif KR.</p><div class="dialog-actions"><button data-dialog="close">닫기</button></div>');
+$('modal').addEventListener('click', async e => {
+  const setting=e.target.closest('[data-prep-setting]')?.dataset.prepSetting;if(setting){$('modal').close();$(setting)?.click();return;}
+  const b = e.target.closest('[data-dialog]'); if (!b) return;
+  $('modal').close(); const action = b.dataset.dialog;
+  if (action === 'restart') startOver(); if (action === 'retry') retry(); if (action === 'end') void enemyTurn();
+  if (action === 'title') { stopSfx();title = true; render(); }
+  if (action === 'load-pending' && pendingSave) { const value=pendingSave,slot=pendingSlot;pendingSave=null;pendingSlot=null;await loadStoredValue(value,slot); }
+  if (action === 'import-pending' && pendingSave) {
+    const value=pendingSave,original=pendingOriginal;pendingSave=null;pendingOriginal=null;
+    const result=await saveOperation(draft=>{const free=firstEmptyManualSlot(draft);if(free)writeLibrarySlot(draft,free,value,original);archiveSavedCompletion(draft,value);return free;},free=>free?librarySlotLabel(free)+'에 가져온 파일을 보관했습니다.':'수동 저장 56칸이 가득 찼습니다. 가져온 파일을 별도로 보관하세요.');
+    if(result.ok&&result.value)await markCloudCurrent(result.value);
+    const notice=saveNotice;if(result.ok||gameSaveStorage.readOnly){if(result.value){manualSlot=result.value;saveTab='manual';}applySave(value);saveNotice=notice;render();}
+  }
+  if (action === 'overwrite-save') saveManual();
+  if(action==='delete-saves'){
+   if(savePending||cloudLocked)return;
+   cloudLocked=true;savePending++;paintSaveStorage();let result;try{const integration=await gameCloudPromise;await integration.clearBeforeGameDelete();result=await gameSaveStorage.deleteGameRecords();}catch(error){result={complete:false,deleted:[],errors:[{message:'이 기기의 연동 사본 정리를 확인하지 못했습니다. 게임 기록 삭제를 중단했습니다.'}]};}finally{savePending--;cloudLocked=false;startCloudIntegration();paintSaveStorage();}
+   if(result.complete){
+    epoch++;stopSfx();clearLootFeedback(document.body);clearGrowthFeedback(document.body);clearStoryEvent();clearSpiritPresentation($('board'));clearSpiritEffects($('board'));clearCombatSkillPresentation($('board-stage'));clearSkillCutin();clearCombatScene($('combat'));clearCombatResults($('board-stage'));clearBattleBarks($('board-stage'));clearTurnTransition($('phase-banner'));autoDialogue=false;clearTimeout(autoTimer);
+    pendingSave=null;pendingSlot=null;pendingOriginal=null;pendingReplay=null;manualSlot='manual';checkpointSlot=null;clearSlot=null;saveTab='automatic';combatMapState=null;origin=null;target=null;busy=false;title=true;
+    saveNotice='저장 기록 '+result.deleted.length+'개를 삭제했습니다. 새 게임으로 처음부터 시작할 수 있습니다.';
+   }else saveNotice='저장 '+result.deleted.length+'개 삭제 · 일부 삭제 실패. '+result.errors.map(e=>e.message).join(' ');
+   render();openSaves();
+  }
+  if(action==='cancel-delete-saves')openSaves();
+
+  if (action === 'replay-pending' && pendingReplay) {const value=pendingReplay;pendingReplay=null;applySave(value);saveNotice='현재 전력으로 재도전을 시작했습니다. 보관된 고정 기록은 유지됩니다.';render();}
+});
+$('balance-open').onclick = () => { clearAttackRange();balanceFields(balance); $('balance-dialog').showModal(); };
+$('balance-dialog').addEventListener('click', e => {
+  const action = e.target.closest('[data-balance]')?.dataset.balance;
+  if (action === 'close') $('balance-dialog').close();
+  if (action === 'defaults') balanceFields(DEFAULT_BALANCE);
+  if (action === 'export') {
+    try {
+      const value = readBalanceForm(), url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a'); a.href = url; a.download = 'shu-balance.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) { $('balance-error').textContent = e.message; }
+  }
+});
+$('balance-form').addEventListener('submit', e => {
+  e.preventDefault();
+  try {
+    const value = readBalanceForm(); balance = value; storageNotice = '';
+    try { localStorage.setItem(balanceKey, JSON.stringify(value));localStorage.setItem('shu-critical-preference-v033',value.critical.enabled?'on':'off'); } catch { storageNotice = '브라우저 저장을 사용할 수 없어 이번 실행에만 적용됩니다.'; }
+    $('balance-dialog').close(); retry(); if (storageNotice) tell(storageNotice);
+  } catch (error) { $('balance-error').textContent = error.message; }
+});
+document.addEventListener('keydown', e => {
+  if(bossCleanupPending(state))return;
+  if(eventShowing||presentationBusy()||document.querySelector('.catalog-dialog[open],.dialogue-reading-log[open]'))return;
+  if (title || document.querySelector('dialog[open]')) return;
+  if (e.key === 'Enter' && ['preDialogue', 'postDialogue','defeatDialogue'].includes(campaign.stage) && !e.target.closest('button,input,a')) { e.preventDefault(); advanceDialogue(); }
+  if(campaign.stage==='intermission'&&prepUI.processing){if(e.key==='Escape')e.preventDefault();return;}
+  if(campaign.stage==='intermission'&&prepUI.discardTarget){
+   if(e.key==='Escape'){e.preventDefault();resolvePreparationDiscard(prepUI,false);render();focusPreparationContext();}
+   if(e.key==='Tab'){e.preventDefault();const buttons=[...$('shop-scene').querySelectorAll('.prep-discard-dialog button')],at=buttons.indexOf(document.activeElement);buttons[(at+(e.shiftKey?-1:1)+buttons.length)%buttons.length]?.focus();}
+   return;
+  }
+  if(e.key==='Escape'&&campaign.stage==='intermission'){e.preventDefault();if(prepUI.page==='equipment'&&prepUI.equipmentDetail){prepUI.equipmentDetail=false;render();const main=$('shop-scene').querySelector('.prep-main');if(main)main.scrollTop=prepUI.equipmentListScroll??0;if(document.scrollingElement)document.scrollingElement.scrollTop=prepUI.equipmentWindowScroll??0;focusPreparationContext();return;}if(prepUI.page==='shop'&&prepUI.shopDetail){prepUI.shopDetail=false;render();restoreSaleList();return;}if(prepUI.pending){prepUI.pending=null;render();}else if(prepUI.page!=='hub')navigatePreparation(prepUI.page==='info'&&prepUI.infoFrom&&prepUI.infoFrom!=='info'?prepUI.infoFrom:'hub');return;}if (e.key === 'Escape') cancel();
+});
+
+const escapeHTML = text => String(text).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const snapshot = () => { syncGrowth(state,army); return {campaign,state,army,balance,fast,logs,victoryReward,busy:busy||presentationBusy(),origin,target,mode,title}; };
+function paintSaveStorage(){
+ document.body.dataset.savePending=String(savePending>0);
+ const notice=savePending?'저장 중입니다. 완료된 뒤 게임을 종료하세요.':saveNotice;
+ $('save-notice').textContent=notice;$('save-feedback').textContent=notice;
+ if($('save-sync-info'))$('save-sync-info').textContent=saveSyncMessage(gameCloud?.getSyncState?.());
+ let info=$('save-storage-info');if(!info){info=document.createElement('p');info.id='save-storage-info';info.className='save-storage-info';info.setAttribute('role','status');$('save-reason').after(info);}
+ info.textContent=gameSaveStorage.readOnly?gameSaveStorage.notice:saveConflict?'다른 창에서 저장이 변경되었습니다. 저장 관리에서 최신 기록을 다시 불러오세요. 현재 진행을 먼저 파일로 내보낼 수 있습니다.':'저장 공간 확대 적용 · 보관된 기록 '+gameSaveStorage.length+'개';
+ for(const button of document.querySelectorAll('#save-slots [data-load],#save-current,#delete-all-saves')){if(savePending)button.disabled=true;}
+ if(savePending)$('title-continue').disabled=true;
+}
+async function saveOperation(write,message,{allowConflict=false}={}){
+ if(saveConflict&&!allowConflict){saveNotice='다른 창에서 저장이 변경되었습니다. 최신 기록을 다시 불러오기 전까지 덮어쓰지 않습니다. 현재 진행을 파일로 내보낼 수 있습니다.';paintSaveStorage();return {ok:false};}
+ savePending++;paintSaveStorage();
+ try{const value=await gameSaveStorage.transaction(write);saveNotice=typeof message==='function'?message(value):message;return {ok:true,value};}
+ catch(error){if(error.code==='SAVE_STALE')saveConflict=true;saveNotice='저장하지 못했습니다. '+error.message+' 현재 진행은 파일로 내보내어 보관하세요.';return {ok:false};}
+ finally{savePending--;paintSaveStorage();if(title)renderTitle();if($('save-dialog').open)openSaves();}
+}
+async function loadStoredValue(value,slot,{resumeCurrent=false}={}){
+ if(savePending)return;
+ if(saveConflict){try{await gameSaveStorage.reload();const latest=saveLibraryIndex.read(slot);if(!latest?.value)throw new Error('선택한 최신 저장을 읽지 못했습니다. 다른 기록을 선택하거나 파일로 보관하세요.');value=latest.value;}catch(error){saveNotice=error.message;openSaves();return;}}
+ if(!gameSaveStorage.readOnly&&!resumeCurrent){const result=await saveOperation(draft=>{if(MANUAL_SLOTS.includes(slot)||slot==='auto')writeLibrarySlot(draft,slot,value);archiveSavedCompletion(draft,value);},'저장 기록 확인 완료',{allowConflict:true});if(!result.ok){openSaves();return;}}
+ if(!resumeCurrent&&(MANUAL_SLOTS.includes(slot)||slot==='auto'))await markCloudCurrent(slot);
+ applySave(value);saveConflict=false;paintSaveStorage();
+}
+function slots() {
+  try { return readSaveLibrary(gameSaveStorage); }
+  catch { return [...MANUAL_SLOTS,'auto'].map(key=>({key,label:librarySlotLabel(key),value:null,error:'이 브라우저에서 저장 공간을 사용할 수 없습니다.'})); }
+}
+function slotSummaries(){return saveLibraryIndex.list();}
+// A settled victory archive can capture during visual effects; ordinary saves keep their busy guard.
+function preserveClearRecord(){
+ const data={...structuredClone(snapshot()),busy:false},capturedEpoch=epoch,capturedState=state;
+ void (async()=>{
+  const archived=await saveOperation(draft=>preserveVictoryRecords(draft,data,{includeNextStart:false}),written=>written.length?librarySlotLabel(written[0])+' 보관 완료':'클리어 기록 보관 완료');
+  if(!archived.ok)return;
+  if(!isReplayState(data.state)&&capturedEpoch===epoch&&capturedState===state){
+   try{
+    const current=makeSave({...data,origin:null,target:null,mode:'command',title:false},'auto');
+    const saved=await saveOperation(draft=>{if(capturedEpoch!==epoch||capturedState!==state)return null;writeSlot(draft,'auto',current);return captureCloudCandidate(draft,'auto','auto',libraryKey);},'클리어·현재 진행 저장 완료');
+    await observeCloudCommit(saved);
+   }catch{saveNotice='클리어 기록은 보관했습니다. 현재 진행 저장을 다시 확인해 주세요.';paintSaveStorage();}
+  }
+  // Optional next-start failure cannot roll back the completed clear archives.
+  await saveOperation(draft=>preserveVictoryRecords(draft,data),()=>saveNotice);
+ })();
+}
+function renderTitle() {
+  $('title-new').disabled=savePending>0;$('title-saves').disabled=false;
+ updateUI.ready();
+  const values=slotSummaries(),latest=ordinaryResumeSummary(values,currentResumeSlot),cloud=gameCloud?.getSyncState?.();
+  $('title-continue').disabled=(!latest&&!cloud?.authenticated)||savePending>0||continuePending;
+  $('title-save-info').textContent=(gameSaveStorage.readOnly?gameSaveStorage.notice+' ':'')+(latest ? latest.description : values.some(s=>s.error) ? '저장을 읽지 못했습니다. 저장 관리에서 파일을 불러올 수 있습니다.' : previousSaves(gameSaveStorage).length?'이전 버전 저장은 보존되어 있습니다. 본편은 새 게임으로 시작하세요.':'아직 저장된 여정이 없습니다.');
+}
+async function autosave() {
+  try { const value=makeSave(snapshot(),'auto');const result=await saveOperation(draft=>{writeSlot(draft,'auto',value);return captureCloudCandidate(draft,'auto','auto',libraryKey);},'자동 저장 완료');void observeCloudCommit(result);return result; }
+  catch(e) { saveNotice=e.message;paintSaveStorage();return Promise.resolve({ok:false}); }
+}
+async function saveManual() {
+  if(savePending)return;
+  saveTab='manual';
+  try { const slot=manualSlot,value=makeSave(snapshot());const result=await saveOperation(draft=>{writeLibrarySlot(draft,slot,value);return captureCloudCandidate(draft,slot,'manual',libraryKey);},librarySlotLabel(slot)+' · 이 기기에 저장됨');const cloud=await gameCloudPromise.catch(()=>null);const synced=await settleManualCloudSave(cloud,result);if(synced.localCommitted){if(synced.currentRecorded)await refreshCurrentResume();else if(!cloud&&!isReplayState(value.state))currentResumeSlot=slot;saveNotice=librarySlotLabel(slot)+' · '+synced.message;} }
+  catch(e) { saveNotice=e.message; }
+  render();openSaves();
+}
+function applySave(value) {
+  stopSfx();clearSpiritPresentation($('board'));clearSpiritEffects($('board'));clearCombatSkillPresentation($('board-stage'));
+  clearLootFeedback(document.body);clearGrowthFeedback(document.body);
+  clearStoryEvent();
+  clearAttackRange();
+  clearSkillCutin();pendingCombatSkill=null;
+  clearCombatScene($('combat'));
+  combatMapState=null;latestOfficerMorale=null;clearCombatResults($('board-stage'));clearCombatResults($('result-scene'));
+  const v=restoreSave(value);const archiveNotice=gameSaveStorage.readOnly?gameSaveStorage.notice:'';epoch++;
+  movingUnitId = null; document.querySelectorAll(".unit-traveller").forEach(el=>{el.getAnimations?.({subtree:true})?.forEach(animation=>animation.cancel());el.remove();});
+  readingHistory.length=0;readingSeen.clear();autoDialogue=false;clearTimeout(autoTimer);clearBattleBarks($('board-stage'));
+  campaign=v.campaign; state=v.state; army=v.army; balance=v.balance; fast=v.fast; logs=v.logs; victoryReward=v.victoryReward;primeBattleAnnouncements(state);
+  let criticalNotice='';if(campaign.scenario.rosterMode==='story'&&!comparison){let preference=null;try{preference=localStorage.getItem('shu-critical-preference-v033');}catch{}const enabled=state.balance.critical.enabled;balance=restoredCriticalBalance(balance,{preference});state.balance.critical.enabled=balance.critical.enabled;}
+  deploymentSelection={chapter:null,id:null,message:''};
+  introducedBattles.add(state);syncTurnTransition($('phase-banner'),state);
+  title=false; busy=false; selected=null; origin=null; target=null; focusCell=null; mode='command'; tactic='fire';
+  shopHero=army.joined[0];shopSlot=0;upgradeSteps=1;shopMessage='';prepUI=newPreparationUI();
+  $('combat').hidden=true; $('phase-banner').hidden=true;
+  $('speed').textContent='연출 · '+(fast?'빠르게':'보통');
+  saveNotice=[archiveNotice||v.migrationNotice||'저장한 여정을 불러왔습니다.',criticalNotice].filter(Boolean).join(' '); render();
+}
+function confirmLoad(value, imported=false, slot=null) {
+  pendingSlot=slot;
+  pendingSave=value; $('save-dialog').close();
+  dialog('<h3>여정을 불러올까요?</h3><p>'+escapeHTML(saveLabel(value))+'</p><p>현재 저장하지 않은 진행은 사라집니다.'+(imported?' 가져온 파일을 수동 슬롯에도 저장합니다.':'')+'</p><div class="dialog-actions"><button data-dialog="close">취소</button><button class="primary" data-dialog="'+(imported?'import-pending':'load-pending')+'">불러오기</button></div>');
+}
+function downloadSave(value,slot=null) {
+  const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download='촉한전기_'+(slot?librarySlotLabel(slot):'현재 진행').replace(/[\\/:*?"<>|]/g,'_')+'_'+value.savedAt.replace(/[:.]/g,'-')+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function saveSlotArticle(slot){
+ const valid=slot.valid??!!slot.value,savedAt=slot.savedAt??slot.value?.savedAt,original=slot.hasOriginal??(slot.raw!=null);
+ return '<article class="save-slot"><h4>'+escapeHTML(slot.label)+'</h4><p>'+escapeHTML(librarySaveDescription(slot))+'</p><small>'+(valid?escapeHTML(new Date(savedAt).toLocaleString('ko-KR')):'')+'</small><div><button data-load="'+slot.key+'" '+(!valid?'disabled':'')+'>불러오기</button><button data-export="'+slot.key+'" '+(!valid&&!original?'disabled':'')+'>'+(valid?'파일 내보내기':'원본 파일 보관')+'</button></div></article>';
+}
+function openSaves() {
+  clearAttackRange();
+  const reason=saveReason(snapshot()),values=slotSummaries(),manual=values.filter(s=>MANUAL_SLOTS.includes(s.key)),starts=values.filter(s=>s.key.startsWith('start:')&&(s.valid||s.error)),clears=values.filter(s=>s.key.startsWith('clear:')&&(s.valid||s.error)),completion=values.find(s=>s.key==='complete'),actCompletions=values.filter(s=>s.recordType==='act-complete'&&(s.valid||s.error)),replay=!title&&!reason?replayableChapters(snapshot()):[];
+  if(!starts.some(s=>s.key===checkpointSlot))checkpointSlot=starts.at(-1)?.key??null;
+  if(!clears.some(s=>s.key===clearSlot))clearSlot=clears.at(-1)?.key??null;
+  const chosen=manual.find(s=>s.key===manualSlot)??manual[0],point=starts.find(s=>s.key===checkpointSlot),clear=clears.find(s=>s.key===clearSlot);
+  const manualHTML='<section class="save-library-group"><h4>수동 저장 · '+MANUAL_SLOTS.length+'칸</h4><label class="save-choice">저장할 칸<select id="manual-slot-select">'+manual.map(s=>'<option value="'+s.key+'" '+(s.key===manualSlot?'selected':'')+'>'+escapeHTML(s.label+' · '+librarySaveDescription(s))+'</option>').join('')+'</select></label>'+saveSlotArticle(chosen)+'</section>';
+  const automaticHTML=saveSlotArticle(values.find(s=>s.key==='auto'))+'<section class="save-library-group"><h4>장 클리어 자동 저장 · '+clears.filter(s=>s.valid).length+'개</h4><p>각 장의 첫 클리어 당시 성장·장비·보상을 별도 기록으로 보관합니다. 다음 장을 깨도 이전 기록은 남습니다. 장 수에 따른 저장 제한은 없으며, 각 기록을 JSON 파일로 내보낼 수 있습니다.</p>'+(clears.length?'<label class="save-choice">클리어한 장<select id="clear-slot-select">'+clears.map(s=>'<option value="'+s.key+'" '+(s.key===clearSlot?'selected':'')+'>'+escapeHTML(s.label+(s.error?' · 읽기 실패':''))+'</option>').join('')+'</select></label>'+saveSlotArticle(clear):'<p class="save-empty">아직 클리어 자동 저장이 없습니다. 이번 버전부터 클리어하는 장을 자동으로 보관합니다.</p>')+'</section><details class="save-library-group"><summary>장 시작 기록 · '+starts.length+'개</summary><p>기존 장 시작 기록도 보존합니다. 불러오면 당시 성장·장비·진행으로 돌아갑니다.</p>'+(starts.length?'<label class="save-choice">돌아갈 장<select id="checkpoint-slot-select">'+starts.map(s=>'<option value="'+s.key+'" '+(s.key===checkpointSlot?'selected':'')+'>'+escapeHTML(s.label)+'</option>').join('')+'</select></label>'+saveSlotArticle(point):'<p>아직 장 시작 기록이 없습니다.</p>')+'</details>'+(actCompletions.length?'<section class="save-library-group"><h4>막 완료 기록</h4>'+actCompletions.map(saveSlotArticle).join('')+'</section>':'')+(completion&&(completion.valid||completion.error)?'<section class="save-library-group">'+saveSlotArticle(completion)+'<p>재도전 후 이 기록을 불러오면 원래 완료 전력으로 돌아갑니다.</p></section>':'')+(replay.length?'<details class="save-library-group save-replay-group"><summary>현재 전력으로 완료한 장 재도전</summary><p>현재 군단을 복사해 한 장만 다시 진행합니다. 자금·전리품·전공은 다시 받지 않고, 경험치는 복사본에만 남습니다. 본편과 첫 클리어 기록은 바뀌지 않습니다.</p><label class="save-choice">재도전할 장<select id="replay-chapter-select">'+replay.map(ch=>'<option value="'+ch.id+'">'+(CHAPTERS.indexOf(ch)+1)+'장 · '+escapeHTML(ch.title)+'</option>').join('')+'</select></label><button data-replay="current">현재 전력으로 재도전</button></details>':'');
+  $('save-slots').innerHTML='<div class="save-tabs" role="tablist" aria-label="저장 종류">'+[['automatic','자동 저장'],['manual','수동 저장 · '+MANUAL_SLOTS.length+'칸']].map(([key,label])=>'<button id="save-tab-'+key+'" role="tab" aria-controls="save-panel" aria-selected="'+(saveTab===key)+'" tabindex="'+(saveTab===key?0:-1)+'" data-save-tab="'+key+'">'+label+'</button>').join('')+'</div><div id="save-panel" role="tabpanel" aria-labelledby="save-tab-'+saveTab+'">'+(saveTab==='manual'?manualHTML:automaticHTML)+'</div>';
+  $('save-slots').innerHTML+=previousSaves(gameSaveStorage).map(s=>'<article class="save-slot"><h4>'+s.label+'</h4><p>새 본편으로 불러올 수 없습니다. 원본은 보존되며 파일로 내보낼 수 있습니다.</p><button disabled>불러오기 불가</button><button data-old-export="'+s.key+'">원본 파일 보관</button></article>').join('');
+  $('save-current').hidden=saveTab!=='manual';$('save-current').disabled=!!reason||savePending>0||gameSaveStorage.readOnly||saveConflict;$('export-current').disabled=!!reason;
+  $('save-current').textContent=librarySlotLabel(manualSlot)+'에 현재 진행 저장';
+  $('save-reason').textContent=reason||(saveTab==='manual'?'저장할 칸을 고른 뒤 현재 진행을 저장하세요.':'최근 자동 저장과 장별 첫 클리어 기록입니다. 직접 저장하려면 수동 저장 탭을 선택하세요.');
+  $('save-feedback').textContent=savePending?'저장 중입니다. 완료된 뒤 게임을 종료하세요.':saveNotice;
+  paintSaveStorage();
+  if(!document.getElementById('delete-all-saves')){
+   const button=document.createElement('button');button.id='delete-all-saves';button.className='save-delete';button.textContent='모든 저장 기록 삭제';button.onclick=confirmDeleteSaves;
+   const note=document.createElement('p');note.className='save-delete-note';note.textContent='자동·수동·장별 기록과 이전 버전 백업, 이 기기의 클라우드 사본과 로그인 정보를 지웁니다. 내보낸 JSON 파일과 서버 진행은 남습니다.';
+   $('save-dialog').append(button,note);
+  }
+  $('delete-all-saves').disabled=busy||presentationBusy()||savePending>0||gameSaveStorage.readOnly;
+
+  if(!$('save-dialog').open)$('save-dialog').showModal();
+}
+function confirmDeleteSaves(){
+ if(savePending||gameSaveStorage.readOnly)return;
+ const listed=listGameSaveKeys(gameSaveStorage);
+ if(listed.errors.length){saveNotice='저장 목록을 읽지 못해 삭제하지 않았습니다.';openSaves();return;}
+ if(!listed.keys.length){saveNotice='삭제할 저장 기록이 없습니다.';openSaves();return;}
+ $('save-dialog').close();
+ dialog('<h3>모든 저장 기록을 삭제할까요?</h3><p>이 기기의 자동·수동·장 클리어·장 시작·완료 기록과 이전 버전 백업 '+listed.keys.length+'개 및 클라우드 대기·사본·로그인 정보를 삭제합니다. 삭제는 되돌릴 수 없습니다.</p><p>서버에 보관한 진행, 내보낸 JSON 파일과 음량·밸런스 설정은 유지합니다. 삭제 후 타이틀에서 새 게임을 시작할 수 있습니다.</p><div class="dialog-actions"><button data-dialog="cancel-delete-saves">취소</button><button class="save-delete" data-dialog="delete-saves">모두 삭제</button></div>');
+}
+function confirmReplay(chapterId){
+ try{
+  const data=snapshot();if(saveReason(data))throw new Error(saveReason(data));
+  if(campaign.stage==='complete'){const value=makeSave(data);void saveOperation(draft=>archiveSavedCompletion(draft,value),'완료 기록 보관 완료');}
+  pendingReplay=buildCurrentPowerReplay(data,chapterId);
+  $('save-dialog').close();
+  dialog('<h3>한 장을 재도전할까요?</h3><p>'+escapeHTML(saveLabel(pendingReplay))+'</p><p>현재 군단의 성장·장비를 복사해 이 전투만 다시 진행합니다. 클리어 자금·전리품·전공은 다시 받지 않습니다. 재도전 경험치는 복사한 군단에만 남으며, 다음 본편으로 이어지지 않습니다. 현재 저장하지 않은 진행은 바뀝니다.</p><p>보관된 장 시작 기록과 완료 기록은 그대로 남습니다.</p><div class="dialog-actions"><button data-dialog="close">취소</button><button class="primary" data-dialog="replay-pending">재도전 시작</button></div>');
+ }catch(error){saveNotice=error.message;openSaves();}
+}
+$('save-open').onclick=openSaves; $('title-saves').onclick=openSaves;
+$('save-close').onclick=()=>$('save-dialog').close();
+$('title-new').onclick=()=>dialog('<h3>새 여정을 시작할까요?</h3><p>기존 수동 저장은 유지됩니다. 다음 정비에 도착하면 자동 저장이 갱신됩니다.</p><div class="dialog-actions"><button data-dialog="close">취소</button><button class="primary" data-dialog="restart">새 게임</button></div>');
+$('title-continue').onclick=async()=>{
+  if(savePending||continuePending)return;continuePending=true;renderTitle();
+  try{const cloud=await gameCloudPromise.catch(()=>null);await continueSavedProgress({cloud,online:navigator.onLine!==false,
+   loadOrdinary:async entry=>{if(title)await loadStoredValue(parseSave(entry.rawSave),entry.slotId,{resumeCurrent:true});},
+   loadFallback:async()=>{const summary=ordinaryResumeSummary(slotSummaries()),latest=summary?saveLibraryIndex.read(summary.key):null;if(latest?.value){await loadStoredValue(latest.value,latest.key,{resumeCurrent:true});return true;}openSaves();return false;},
+   openSaves,onUnavailable:()=>{saveNotice='현재 진행을 확인하지 못했습니다. 보관 기록에서 사용할 여정을 선택해 주세요.';}
+  });}finally{continuePending=false;if(title)renderTitle();}
+};
+$('title-return').onclick=()=>dialog('<h3>타이틀로 돌아갈까요?</h3><p>돌아가기만으로 저장되지는 않습니다. 현재 진행은 저장·불러오기에서 먼저 보관하세요.</p><div class="dialog-actions"><button data-dialog="close">취소</button><button data-dialog="title">타이틀로</button></div>');
+$('save-current').onclick=()=>{
+  if(savePending||gameSaveStorage.readOnly)return;
+  if(gameSaveStorage.getItem(libraryKey(manualSlot))!==null) {
+    $('save-dialog').close();dialog('<h3>'+librarySlotLabel(manualSlot)+'을 덮어쓸까요?</h3><p>선택한 칸만 현재 진행으로 교체합니다. 다른 수동 저장과 장 시작·완료 기록은 그대로 남습니다.</p><div class="dialog-actions"><button data-dialog="close">취소</button><button data-dialog="overwrite-save">저장</button></div>');
+  } else saveManual();
+};
+$('export-current').onclick=()=>{
+  try {downloadSave(makeSave(snapshot()));saveNotice='저장 파일 다운로드를 요청했습니다.';}
+  catch(e){saveNotice=e.message;} openSaves();
+};
+$('save-slots').onclick=e=>{
+  const b=e.target.closest('button');if(!b || b.disabled)return;
+  if(b.dataset.saveTab){saveTab=b.dataset.saveTab;openSaves();$('save-tab-'+saveTab)?.focus();return;}
+  if(b.dataset.oldExport){const old=previousSaves(gameSaveStorage).find(s=>s.key===b.dataset.oldExport);if(old){const url=URL.createObjectURL(new Blob([old.raw],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=old.key+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}return;}
+  if(b.dataset.replay){confirmReplay($('replay-chapter-select').value);return;}
+  const slot=b.dataset.load||b.dataset.export,record=slot?saveLibraryIndex.read(slot):null,value=record?.value;
+  if(b.dataset.export&&!value&&record?.raw!=null){const url=URL.createObjectURL(new Blob([record.raw],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='촉한전기_'+record.label.replace(/[\\/:*?"<>|]/g,'_')+'_원본.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
+  if(!value)return;
+  if(b.dataset.load){if(!savePending)confirmLoad(value,false,slot);return;}downloadSave(value,slot);
+};
+$('save-slots').addEventListener('change',e=>{
+ if(e.target.id==='manual-slot-select'){manualSlot=e.target.value;openSaves();}
+ if(e.target.id==='clear-slot-select'){clearSlot=e.target.value;openSaves();$('clear-slot-select')?.focus();}
+ if(e.target.id==='checkpoint-slot-select'){checkpointSlot=e.target.value;openSaves();const group=$('checkpoint-slot-select')?.closest('details');if(group)group.open=true;}
+});
+$('save-slots').addEventListener('keydown',e=>{
+ const tab=e.target.closest('[data-save-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+ e.preventDefault();saveTab=e.key==='Home'?'automatic':e.key==='End'?'manual':saveTab==='manual'?'automatic':'manual';openSaves();$('save-tab-'+saveTab)?.focus();
+});
+$('import-save').onchange=async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  try {if(file.size>500000)throw new Error('저장 파일은 500KB 이하만 지원합니다.');const raw=await file.text(); const value=parseSave(raw); pendingOriginal=raw;confirmLoad(value,true);}
+  catch(error){saveNotice='가져오기 실패: '+error.message;openSaves();}
+};
+if(!gameSaveStorage.readOnly){const initialized=await gameSaveStorage.transaction(draft=>archiveExistingCompletion(draft)).catch(error=>({error}));if(initialized?.error)saveNotice=initialized.error.message;else if(initialized?.length)saveNotice=initialized[0];}
+comparisonInfo(CHAPTERS[0]);
+$('catalog-open').onclick=()=>{clearAttackRange();openCatalog(army,campaign.scenario);document.querySelector('.catalog-dialog[open]')?.addEventListener('close',restoreAttackRange,{once:true});};
+installPaletteFilters();
+installTerrainArtFallback();
+installImageSourceFallback();
+document.addEventListener('error',e=>{
+  if(e.target instanceof HTMLImageElement && e.target.classList.contains('battle-sprite')){
+    if(e.target.dataset.fallbackSrc){const fallback=e.target.dataset.fallbackSrc;delete e.target.dataset.fallbackSrc;e.target.src=fallback;return;}
+    const token=e.target.closest('.token');if(token){token.classList.remove('sprite-token');token.classList.add('unit-image-failed');}
+  }
+},true);
+window.addEventListener('resize', positionMenu);
+render();
+
+function readCloudRuntime({captureSave=true}={}){
+ let rawSave=null,unavailable=busy||presentationBusy()||eventShowing;
+ if(captureSave&&!title&&!unavailable){try{rawSave=JSON.stringify(makeSave(snapshot(),'auto'));}catch{unavailable=true;}}
+ return {title,busy:unavailable,savePending,saveConflict,rawSave};
+}
+function acquireCloudGameLock(){
+ if(cloudLocked)throw new Error('현재 진행을 확인하고 있습니다.');
+ cloudLocked=true;autoDialogue=false;clearTimeout(autoTimer);
+ return ()=>{cloudLocked=false;};
+}
+function startCloudIntegration(){
+ gameCloud=null;
+ const eligible=CHAPTERS[0].rosterMode==='story'&&!comparison;
+ gameCloudPromise=createGameCloudIntegration({gameStorage:gameSaveStorage,libraryKey,parseRaw:parseSave,
+  describeRaw:raw=>{const value=parseSave(raw);return {title:saveLabel(value),detail:'현재 진행 · 장수 육성·장비·전투 상태 포함',savedAt:value.savedAt};},
+  saveCurrent:autosave,applyRaw:async raw=>{saveConflict=false;applySave(parseSave(raw));await refreshCurrentResume();},readRuntime:readCloudRuntime,acquireGameLock:acquireCloudGameLock,
+  eligible,entryHosts:eligible?[document.querySelector('.title-menu'),document.querySelector('#settings-dialog .settings-player')]:[],
+  onNotice:text=>{saveNotice=text;paintSaveStorage();}
+ }).then(integration=>{gameCloud=integration;integration.subscribe?.(()=>{paintSaveStorage();if(title)renderTitle();});void refreshCurrentResume();return integration;});
+ gameCloudPromise.catch(()=>{saveNotice='클라우드 연결을 준비하지 못했습니다. 이 기기의 저장은 계속 사용할 수 있습니다.';paintSaveStorage();});
+}
+async function refreshCurrentResume(){try{const current=await gameCloud?.currentLocal?.();currentResumeSlot=current?.slotId??null;}catch{currentResumeSlot=null;}if(title)renderTitle();}
+async function observeCloudCommit(result){if(comparison||CHAPTERS[0].rosterMode!=='story')return {recorded:false};try{const outcome=await (await gameCloudPromise)?.observeCommit(result);if(outcome?.recorded){currentResumeSlot=result.value.slotId;if(title)renderTitle();}return outcome;}catch{return {recorded:false};}}
+async function markCloudCurrent(slot){if(comparison||CHAPTERS[0].rosterMode!=='story')return false;try{const marked=await (await gameCloudPromise)?.markCurrent(slot);if(marked)currentResumeSlot=slot;return marked;}catch{saveNotice='선택한 여정은 불러올 수 있습니다. 클라우드 연결 전에 현재 진행을 다시 저장해 주세요.';return false;}}
+startCloudIntegration();
+installSaveMaintenanceUI({document,host:$('save-dialog'),storage:gameSaveStorage,
+ current:async()=>{
+  if(gameCloud){const entry=await gameCloud.currentLocal();if(entry)return {key:entry.storageKey,sha256:entry.sha256};}
+  const view=await inspectSavePruneRecords(gameSaveStorage),latest=selectCurrentSave(view.records);
+  if(!latest)throw new Error('보호할 현재 진행이 없습니다.');return {key:latest.key,sha256:latest.sha256};
+ },
+ acquireLock:()=>{if(savePending||busy||presentationBusy()||gameSaveStorage.readOnly)throw new Error('지금 기록을 정리할 수 없습니다.');const release=acquireCloudGameLock();savePending++;paintSaveStorage();return ()=>{savePending--;release();paintSaveStorage();if(title)renderTitle();if($('save-dialog').open)openSaves();gameCloud?.notifyIdle?.();};},
+ refresh:()=>{saveLibraryIndex.invalidate?.();if(title)renderTitle();if($('save-dialog').open)openSaves();},
+ onNotice:message=>{saveNotice=message;paintSaveStorage();}
+});
+
+const context = document.modelContext;
+if (context?.registerTool) {
+  const lifecycle = new AbortController();
+  const tools = [
+    { name: 'read_battle_state', description: '대화·전투 진행 단계와 현재 유닛 상태를 읽습니다.', inputSchema: { type: 'object', properties: {}, additionalProperties: false }, annotations: { readOnlyHint: true }, execute: () => ({ chapter: campaign.chapter + 1, stage: campaign.stage, weather: structuredClone(state.weather), army: structuredClone(army), dialogueLine: campaign.line + 1, round: state.round, phase: state.phase, result: state.result, selected, mode, units: state.units.map(({ id, name, team, x, y, hp, maxHp, status, morale, sp, spirits, done }) => ({ id, name, team, x, y, hp, maxHp, status, morale, sp, spirits: {...spirits}, done })) }) },
+    { name: 'select_allied_unit', description: '전투 중 행동 가능한 아군을 선택해 유닛 옆 명령 메뉴를 엽니다. 이동·공격은 실행하지 않습니다.', inputSchema: { type: 'object', properties: { unitId: { type: 'string' } }, required: ['unitId'], additionalProperties: false }, annotations: { readOnlyHint: false }, execute: input => {
+      if (!input || typeof input.unitId !== 'string' || Object.keys(input).some(k => k !== 'unitId')) throw new Error('unitId 문자열만 전달하세요.');
+      const u = state.units.find(v => v.id === input.unitId); if (!actionable(u)) throw new Error('선택할 수 없는 아군입니다.');
+      select(u.id); return { selected, mode };
+    } },
+  ];
+  for (const tool of tools) { try { Promise.resolve(context.registerTool(tool, { signal: lifecycle.signal })).catch(() => {}); } catch {} }
+  window.addEventListener('pagehide', () => lifecycle.abort(), { once: true });
+}
+
