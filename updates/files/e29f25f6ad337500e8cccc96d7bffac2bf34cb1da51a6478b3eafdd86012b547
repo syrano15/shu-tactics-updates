@@ -1,0 +1,48 @@
+import {imageSource} from './image-source.js';
+import {stageMapDisplayFor,observeStageMapArt} from './terrain-art.js';
+import {createMapDecorationLayer} from './map-decoration-layer.js';
+
+const imageURL=source=>"url('"+source.replace(/'/g,'%27').replace(/\\/g,'%5C').replace(/\n/g,'%0A').replace(/\r/g,'%0D')+"')";
+
+// The board's pseudo-element is outside its tile DOM. Updating selected units,
+// ranges or menus therefore never replaces/repositions a full-map image.
+export function installBoardBackground(board,{decorationOptions={}}={}){
+ if(!board)return {update(){return false;},clear(){},destroy(){}};
+ let current=null,paintKey='',destroyed=false,paintedSources=[],paintedArt=null;
+ function clearPaint(){
+  paintedSources=[];paintedArt=null;if(!paintKey)return;
+  delete board.dataset.boardBackground;delete board.dataset.boardBackgroundStage;
+  board.style.removeProperty('--board-map-image');board.style.removeProperty('--board-map-edge-source');board.style.removeProperty('--board-map-edge-mask');delete board.dataset.boardEdgeFeather;paintKey='';
+ }
+ function paintImages(art,images){
+  if(!images.length){clearPaint();return false;}
+  const next=JSON.stringify([art.id,art.terrainKey,images,art.edgeMaskSrc]);
+  if(next===paintKey)return true;
+  board.style.setProperty('--board-map-image',images.map(source=>imageURL(imageSource(source))).join(','));
+  if(art.baseSrc&&art.edgeMaskSrc){board.dataset.boardEdgeFeather='true';board.style.setProperty('--board-map-edge-source',imageURL(imageSource(art.baseSrc)));board.style.setProperty('--board-map-edge-mask',imageURL(imageSource(art.edgeMaskSrc)));}else{delete board.dataset.boardEdgeFeather;board.style.removeProperty('--board-map-edge-source');board.style.removeProperty('--board-map-edge-mask');}
+  board.dataset.boardBackground=art.src?'ready':'preview';
+  board.dataset.boardBackgroundStage=art.id;paintKey=next;paintedSources=images;paintedArt=art;return true;
+ }
+ const decoration=createMapDecorationLayer({...decorationOptions,document:decorationOptions.document??board.ownerDocument??globalThis.document,onChange:()=>paint(),onRelease:source=>{
+  if(paintedArt&&paintedSources.includes(source))paintImages(paintedArt,paintedSources.filter(value=>value!==source));
+ }});
+ function paint(){
+  if(destroyed||!current)return false;
+  const {scenarioId,terrain,width=terrain?.[0]?.length,height=terrain?.length,mapLayoutVersion=0}=current;
+  const art=stageMapDisplayFor(scenarioId,{terrain,width,height,mapLayoutVersion});
+  // No full-map signature match means the original tile fallback stays intact.
+  const images=art?[art.overlaySrc,art.riverSrc,art.src,art.baseSrc].filter(Boolean):[];
+  // A failed, pending or mismatched base keeps the existing tile fallback.
+  // The one transparent decoration image sits in the same persistent paint.
+  let detail=null;
+  if(art?.src)detail=decoration.update({scenarioId,geometry:{terrain,width,height,mapLayoutVersion},baseSource:art.src});else decoration.clear();
+  if(detail)images.unshift(detail);
+  return paintImages(art,images);
+ }
+ const stop=observeStageMapArt(id=>{if(current&&(id===null||id===current.scenarioId))paint();});
+ return {
+  update(value){if(destroyed)return false;current=value??null;if(!current){clearPaint();decoration.clear();return false;}return paint();},
+  clear(){current=null;clearPaint();decoration.clear();},
+  destroy(){if(destroyed)return;destroyed=true;current=null;stop();clearPaint();decoration.destroy();}
+ };
+}

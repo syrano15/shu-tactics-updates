@@ -1,0 +1,109 @@
+/* 지형만 칸 안에 가둔다. 장수 그림의 기존 칸 밖 표현은 유지한다. */
+.cell > .terrain-art{
+  position:absolute;inset:0;z-index:0;overflow:hidden;
+  pointer-events:none;border-radius:inherit;
+}
+.terrain-art-image{
+  display:block;width:100%;height:100%;object-fit:cover;
+  pointer-events:none;user-select:none;
+}
+/* Cells share the board's stacking context: terrain 0, ground cues 1,
+   warriors 2. Later map rows paint in front without elevating a whole tile. */
+.cell > .token{z-index:2}
+/* 칸 경계의 실제 border를 빼서 120개의 crop이 픽셀 손실 없이 이어지게 한다. */
+.cell.stage-map-cell{border:0}
+.cell > .stage-map-ready{
+  background-image:var(--stage-map-image);
+  background-size:var(--stage-map-size);
+  background-position:var(--stage-map-position);
+  background-repeat:no-repeat;
+  box-shadow:none;
+}
+.stage-map-ready > .terrain-art-image{visibility:hidden}
+/* One full-map paint survives tile innerHTML replacements, selection and zoom.
+   Fallback tile images remain below it; tactical cues and units remain above. */
+.board[data-board-background]{position:relative;isolation:isolate}
+.board[data-board-background]::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--board-map-image);background-size:100% 100%;
+  background-position:center;background-repeat:no-repeat;
+}
+/* The reviewed landscape stays one existing WebP. Only the narrow signed edge
+   mask is blurred; the transparent fort overlay remains crisp underneath. */
+.board[data-board-edge-feather]::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.65;
+  background-image:var(--board-map-edge-source);background-size:100% 100%;
+  background-position:center;background-repeat:no-repeat;
+  mask-image:var(--board-map-edge-mask);mask-size:100% 100%;mask-repeat:no-repeat;mask-mode:alpha;
+  filter:blur(calc(var(--board-cell-size,48px)*.022));
+}
+.board[data-board-background]>.cell{background:transparent;border:0}
+.board[data-board-background]>.cell>.terrain-art{z-index:auto;background:none;box-shadow:none}
+.board[data-board-background]>.cell>.terrain-art>.terrain-art-image{position:absolute;z-index:-1}
+.board[data-board-background]>.cell>.terrain-art::after{z-index:1}
+.cell > .terrain-mark{z-index:1}
+.terrain-art-ready ~ .terrain-mark{
+  color:#e1e8ce;background:#102019b8;padding:0 2px;
+  line-height:1.35;border-radius:2px;text-shadow:0 1px 2px #000;
+}
+/* 이어진 풍경이 준비됐을 때만 대표 표식 하나를 남기고 칸별 이름은 탐색 시 보여준다. */
+.cell:not(.exit-tile) > .stage-map-ready[data-map-label="secondary"] ~ .terrain-mark{opacity:0}
+.cell:is(:hover,:focus,.selected,.targeted) > .stage-map-ready[data-map-label="secondary"] ~ .terrain-mark{opacity:1}
+/* 성공적으로 로드된 그림 위에 이동·공격·선택 표시를 올린다. */
+.cell > .terrain-art-ready::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:#0711090d;
+}
+.cell.reachable > .terrain-art-ready::after{
+  background:#4fbd8270;box-shadow:inset 0 0 0 1px #b5edc2b8;
+}
+.cell.reachable:hover > .terrain-art-ready::after{background:#6cdb9990}
+.cell.targetable > .terrain-art-ready::after{
+  background:#bf514885;box-shadow:inset 0 0 0 1px #ffc19bcc;
+}
+.cell:hover > .terrain-art-ready::after{box-shadow:inset 0 0 0 2px #d2dfb3}
+.cell.selected > .terrain-art-ready::after,
+.cell.targeted > .terrain-art-ready::after{
+  box-shadow:inset 0 0 0 3px #f4d18b;
+}
+.cell:focus-visible > .terrain-art-ready::after{
+  box-shadow:inset 0 0 0 3px #fff0b4;
+}
+/* 서문은 그림 위에서도 보이며 이동·선택 표시와 함께 유지한다. */
+.cell.exit-tile > .terrain-art-ready::after{
+  outline:2px solid #f6d77b;outline-offset:-2px;
+}
+
+
+/* 로드된 fallback 물에서만 둑 면을 좁히고, 연결된 물은 칸 경계까지 이어 둔다. */
+.cell > .terrain-art-ready[data-water-shore]:not(.stage-map-ready){
+  background-image:url('art/terrain/ground-v020.webp');background-size:cover;
+}
+.terrain-art-ready[data-water-shore]:not(.stage-map-ready) > .terrain-art-image{
+  position:absolute;top:var(--water-north);right:var(--water-east);bottom:var(--water-south);left:var(--water-west);
+  width:calc(100% - var(--water-east) - var(--water-west));height:calc(100% - var(--water-north) - var(--water-south));
+  border-radius:var(--water-northWest) var(--water-northEast) var(--water-southEast) var(--water-southWest);
+  box-shadow:0 0 3px 1px #243d3299;
+}
+
+/* Chibi's charred cells remain readable after the one-time environmental hit. */
+.cell.ship-fire-zone{box-shadow:inset 0 0 0 2px #ed823aaa;background-color:#6b3926}
+.cell.ship-fire-zone:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 45% 80%,#ffad3b88,transparent 65%);animation:chibi-embers 1.8s ease-in-out infinite}
+.cell.ship-fire-zone .terrain-mark{color:#ffe4bd;background:#642d19df}
+@keyframes chibi-embers{50%{opacity:.5}}
+@media(prefers-reduced-motion:reduce){.cell.ship-fire-zone:after{animation:none}}
+
+.cell.planned-fire-zone{outline:2px dashed #e59547;outline-offset:-3px}.cell.planned-fire-zone:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(135deg,transparent 0 12px,#ee854529 12px 15px)}
+
+/* Keep hazards on the loaded terrain overlay, below unit sprites. */
+.cell.planned-fire-zone > .terrain-art-ready::after{outline:2px dashed #e59547;outline-offset:-3px;background:repeating-linear-gradient(135deg,#da722314 0 12px,#ee854550 12px 15px)}
+.cell.ship-fire-zone > .terrain-art-ready::after{background:radial-gradient(ellipse at 45% 80%,#ffad3b88,#59251e33 70%);box-shadow:inset 0 0 0 2px #ed823aaa;animation:chibi-embers 1.8s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.cell.ship-fire-zone > .terrain-art-ready::after{animation:none}}
+
+/* Detailed generated fire stays below warriors and readable labels. */
+.cell:is(.ship-fire-zone,.burning-enemy)::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:url('art/terrain/chibi-burning-v0384.webp') center / 100% 100% no-repeat;opacity:.94;animation:chibi-burning-glow 2.4s ease-in-out infinite;filter:drop-shadow(0 0 3px #fb792b80)}
+.cell.ship-fire-zone > .terrain-art-ready::after{background:linear-gradient(#33291a50,#2a13095c);animation:none}
+.cell.burning-enemy .token{filter:drop-shadow(0 0 2px #ff83267a)}
+.cell.burning-enemy .unit-name,.cell.burning-enemy .mini-hp{position:relative;z-index:4}
+@keyframes chibi-burning-glow{0%,100%{opacity:.8;filter:brightness(.95) drop-shadow(0 0 2px #fb792b60)}50%{opacity:1;filter:brightness(1.12) drop-shadow(0 0 4px #ff832690)}}
+@media(prefers-reduced-motion:reduce){.cell:is(.ship-fire-zone,.burning-enemy)::after{animation:none}}
