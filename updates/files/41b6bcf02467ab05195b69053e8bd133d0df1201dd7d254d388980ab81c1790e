@@ -1,0 +1,47 @@
+// Presentation order never changes deployment slots or battle action order.
+export const PREPARATION_ORDER_KEY='shu-roster-order-v1';
+const validId=id=>typeof id==='string'&&/^[a-z][a-z0-9_]{0,63}$/.test(id);
+export function normalizePreparationOrder(value,knownIds){
+ const known=new Set(knownIds),seen=new Set();
+ return (Array.isArray(value)?value:[]).filter(id=>validId(id)&&known.has(id)&&!seen.has(id)&&(seen.add(id),true));
+}
+export function readPreparationOrder(knownIds,storage){
+ try{return normalizePreparationOrder(JSON.parse((storage??globalThis.localStorage)?.getItem(PREPARATION_ORDER_KEY)??'null'),knownIds);}catch{return [];}
+}
+export function orderedPreparationIds(ids,order){
+ const preferred=normalizePreparationOrder(order,ids),seen=new Set(preferred);
+ return [...preferred,...ids.filter(id=>!seen.has(id))];
+}
+export const armyPreparationOrder=(army,fallback=[])=>army.rosterOrder??fallback;
+export function orderedPreparationRows(rows,order){
+ const byId=new Map(rows.map(row=>[row.id,row]));
+ return orderedPreparationIds(rows.map(row=>row.id),order).map(id=>byId.get(id));
+}
+export function validateArmyRosterOrder(army){
+ if(!Object.hasOwn(army,'rosterOrder'))return;
+ const order=army.rosterOrder,joined=new Set(army.joined??[]);
+ if(!Array.isArray(order)||order.length>joined.size||new Set(order).size!==order.length||order.some(id=>!validId(id)||!joined.has(id)||!Object.hasOwn(army.heroes,id)))throw new Error('장수 목록 순서가 올바르지 않습니다.');
+}
+export function savePreparationOrder(army,order){
+ const next=orderedPreparationIds(army.joined,order);
+ if(Object.hasOwn(army,'rosterOrder')&&next.every((id,index)=>id===orderedPreparationIds(army.joined,army.rosterOrder)[index]))return false;
+ army.rosterOrder=next;return true;
+}
+export function reorderArmyPreparation(army,visibleIds,id,direction,fallback=[]){
+ const order=armyPreparationOrder(army,fallback),current=orderedPreparationIds(visibleIds,order),from=current.indexOf(id);
+ const to=direction==='first'?0:direction==='last'?current.length-1:from+Number(direction);
+ if(!['first','last',-1,1,'-1','1'].includes(direction)||from<0||to<0||to>=current.length||to===from)return false;
+ const moved=[...current];moved.splice(from,1);moved.splice(to,0,id);
+ const visible=new Set(current),all=orderedPreparationIds(army.joined,order);let index=0;
+ return savePreparationOrder(army,all.map(entry=>visible.has(entry)?moved[index++]:entry));
+}
+export function movePreparationOrder(order,visibleIds,id,delta,knownIds,storage){
+ const current=orderedPreparationIds(visibleIds,order),from=current.indexOf(id),to=from+delta;
+ if(![-1,1].includes(delta)||from<0||to<0||to>=current.length)return normalizePreparationOrder(order,knownIds);
+ // Swap only the two visible neighbours in the complete preference. Hidden
+ // and temporarily departed heroes retain their relative preference slots.
+ const saved=normalizePreparationOrder(order,knownIds),savedIds=new Set(saved),all=[...saved,...current.filter(id=>!savedIds.has(id))],first=all.indexOf(id),second=all.indexOf(current[to]);
+ [all[first],all[second]]=[all[second],all[first]];
+ try{(storage??globalThis.localStorage)?.setItem(PREPARATION_ORDER_KEY,JSON.stringify(all));}catch{}
+ return all;
+}

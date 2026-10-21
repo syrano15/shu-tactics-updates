@@ -1,0 +1,52 @@
+import {PARTS} from './equipment.js';
+
+// Small, self-contained illustrations use the same strokes and materials throughout the armory.
+const horse='<path d="M11 29l1-10 6-7 1-6 5 4 5 1 3 7-5 4-7-4-2 6 2 9M12 24l-4 9M20 24l7 9M29 20l3 11"/><path d="M20 12l4 4 5 1M13 19l7 2"/><circle cx="26" cy="13" r=".8" fill="currentColor" stroke="none"/>';
+const supply='<path d="M7 18l13-6 13 6v14H7z" fill="var(--equipment-fill)"/><path d="M7 18l13 6 13-6M20 24v8M12 16l14 6M26 15l-13 7"/><path d="M10 12l1-6h8l2 6M12 7l6 4"/>';
+const armor='<path d="M13 9l7 3 7-3 6 7-5 4-1 13H13l-1-13-5-4z" fill="var(--equipment-fill)"/><path d="M15 10l5 8 5-8M14 21h12M14 26h12M19 19v12M23 19v12"/>';
+const book='<path d="M10 8h21v25H10z" fill="var(--equipment-fill)"/><path d="M10 8l-4 3v22h25M13 8v25M17 13h10M17 18h8M17 23h10M17 28h6"/>';
+const sword='<path d="M19 5h4l1 18-4 3-3-3z" fill="var(--equipment-fill)"/><path d="M12 25h16M20 26v8M16 35h8M21 8v13"/>';
+const flag='<path d="M10 5v31M11 8h21l-5 6 5 7H11" fill="var(--equipment-fill)"/><path d="M15 11h8M15 17h6M6 35h8"/>';
+const shield='<path d="M8 10l12-5 12 5-2 16-10 10-10-10z" fill="var(--equipment-fill)"/><path d="M20 10v20M12 17h16M12 11l8-3 8 3-2 13-6 7-6-7z"/>';
+const bag='<path d="M13 9h14l-4 7c11 8 11 18-3 18S6 24 17 16z" fill="var(--equipment-fill)"/><path d="M13 9l1-4h12l1 4M15 16h10M21 19l-4 5 6 1-4 5"/>';
+const glyphs={
+ armor:supply,
+ horse,
+ manual:book,
+ ironArmor:armor,
+ banner:flag,
+ talisman:'<path d="M20 4v6M15 10h10l5 15-10 11-10-11z" fill="var(--equipment-fill)"/><path d="M16 15h8M15 20h10M17 25h6M20 13v16"/><circle cx="20" cy="7" r="3"/>',
+ silkPouch:bag,
+ largeSupply:supply+'<path d="M26 6l3-3 3 3-3 3z"/>',
+ famedSword:sword+'<path d="M9 12l2-2 2 2-2 2M29 17l2-2 2 2-2 2"/>',
+ bloodHorse:horse+'<path d="M8 9l2-3 2 3-2 3z" fill="var(--equipment-accent)"/>',
+ warlordArmor:armor+'<path d="M16 21l4-3 4 3-4 3z" fill="var(--equipment-accent)"/>',
+ redHare:horse+'<path d="M6 12l3-5 3 5-3 3z" fill="var(--equipment-accent)"/><path d="M22 26l3 2 3-2"/>',
+ fangtianHalberd:'<path d="M20 4v32M17 7l3-4 3 4-3 5z" fill="var(--equipment-fill)"/><path d="M20 11l8-4c5 7 2 14-8 15M27 8c0 6-2 10-7 11M16 31h8"/>',
+ qinggangSword:sword+'<path d="M18 28l2 2 2-2" fill="var(--equipment-accent)"/>',
+ jueying:horse+'<path d="M7 8l2-2 2 2-2 2M31 6l2-2 2 2-2 2"/>',
+ jianglingShield:shield,
+ whiteHorseBanner:flag+'<path d="M18 11l4 2-2 4M18 14h4"/>',
+ hebeiManual:book+'<path d="M19 10l3 2 3-2M19 29l3-2 3 2"/>',
+ manseok_bow:'<path d="M12 5q23 15 0 30M12 5l8 15-8 15M6 20h28M29 16l5 4-5 4"/><path d="M8 17l3 3-3 3M19 17v6" stroke="var(--equipment-accent)"/>',
+ reliefSeal:'<path d="M12 16h16v18H12zM16 16V9h8v7M15 29h10M17 22h6M20 19v8"/>',
+ breachAxe:'<path d="M17 5v31M18 7l14 4-3 12-11-4M13 33h9" fill="var(--equipment-fill)"/>',
+ featherFan:'<path d="M20 23v13M20 25C1 16 9 3 15 8c0-7 10-7 10 0 6-5 14 8-5 17M20 9v14M12 12l8 11 8-11"/>',
+ riverShield:shield+'<path d="M12 20q4-4 8 0t8 0M13 25q4-4 7 0t7 0"/>',
+ mountainBoots:'<path d="M10 6h15v18l9 5v6H8V20M11 13h9M11 18h9M11 23h9M8 30h25" fill="var(--equipment-fill)"/>',
+ chainManual:book+'<path d="M17 16q3-5 6 0t6 0M17 23q3-5 6 0t6 0"/>',
+ commanderBanner:flag+'<path d="M15 10l4 7 4-7 4 7M6 30h8"/>',
+ veteranBow:'<path d="M10 4q25 16 0 32M10 4l11 16-11 16M6 20h29M30 16l5 4-5 4M16 12l4-1M16 28l4 1"/>',
+ rainCape:'<path d="M15 10l5-6 5 6 10 23H5zM15 10l5 5 5-5M20 15v18M10 21l3-4M27 17l3 4" fill="var(--equipment-fill)"/>',
+ fieldMedicKit:bag+'<path d="M17 24h6M20 21v6" stroke="var(--equipment-accent)"/>',
+ rattanArmor:armor+'<path d="M13 22l14 7M13 27l14-7M15 16l10 15M25 16L15 31"/>',
+ vanguardBlade:sword+'<path d="M9 9l4 4-4 4M28 27l4 3-4 3"/>',
+};
+const empty='<path d="M11 13h18v17H11zM16 13V9a4 4 0 018 0v4"/><circle cx="20" cy="21" r="1.5"/><path d="M20 23v3"/>';
+const vacant='<path d="M9 12h22v21H9zM14 12V8h12v4M15 22h10M20 17v10"/>';
+
+export function equipmentIcon(id,{locked=false}={}){
+ const known=typeof id==='string'&&Object.hasOwn(PARTS,id),advanced=known&&PARTS[id].grade==='advanced';
+ const shape=locked?empty:known?glyphs[id]:vacant,kind=locked?'locked':known?id:'empty';
+ return '<span class="prep-equipment-icon'+(advanced?' is-advanced':'')+(locked?' is-locked':'')+'" data-equipment-icon="'+kind+'" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+shape+'</svg></span>';
+}

@@ -1,0 +1,8 @@
+import {orderedPreparationRows} from './preparation-order.js';
+import {act4GrowthCandidates} from './act4-progression.js';
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function act4GrowthSupportHTML(army,chapter){
+ if(chapter?.act!==4)return '<section class="prep-panel"><h3>성장 지원</h3><p>4막에서 저성장 장수의 지원·목표 경험치를 보강합니다.</p></section>';
+ const candidates=act4GrowthCandidates(army),selected=candidates.filter(h=>h.selected),reference=candidates[0]?.referenceLevel??1;
+ return '<section class="prep-panel act4-growth-panel"><h3>장수 성장 지원</h3><p>기준 Lv'+reference+'보다 3레벨 이상 낮은 장수 중 최대 6명을 선택합니다. 실제 지원과 거점 기여 경험치가 1.5배가 되며, 첫 승리 출전 3회 뒤 끝납니다.</p><p>현재 선택 '+selected.length+' / 6명 · 장수가 기준에 따라 성장하면 일반 경험치로 돌아갑니다.</p><div class="act4-growth-grid">'+orderedPreparationRows(candidates,army.rosterOrder).map(h=>'<button type="button" class="act4-growth-choice'+(h.selected?' selected':'')+'" data-act4-support="'+esc(h.id)+'" aria-pressed="'+h.selected+'" '+(!h.remaining||!h.eligible&&!h.selected?'disabled':'')+'><b>'+esc(h.name)+'</b><span>Lv'+h.level+'</span><small>'+(h.selected?'지원 선택 · 남은 '+h.remaining+'회':h.eligible&&h.remaining?'지원 가능 · 남은 '+h.remaining+'회':h.remaining?'현재 전력 충분':'성장 지원 완료')+'</small></button>').join('')+'</div><p>한 막에서 지원받을 장수는 총 6명까지입니다. 지원 대상을 바꿔도 이미 받은 혜택은 다시 늘어나지 않습니다. 강화와 병과 선택은 출전 준비에서 자유롭게 정합니다.</p></section>';
+}

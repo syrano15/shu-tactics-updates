@@ -1,0 +1,29 @@
+import {HERO_DATA} from './heroes.js';
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const ensure=ok=>{if(!ok)throw new Error('조건부 장비 획득 기록이 올바르지 않습니다.');};
+// Only fresh battles opt into new drops. Restored states and receipts always
+// pass their stored version, so an old defeat never earns a new item.
+export const defaultEquipmentDropsVersion=scenario=>Math.max(1,...(scenario.equipmentDrops??[]).map(drop=>drop.minVersion??1));
+export function validateEquipmentDropsVersion(scenario,version){
+ ensure([0,1,2,3].includes(version)&&(version<2||(scenario.equipmentDrops??[]).some(drop=>drop.minVersion===version)));return version;
+}
+export function versionedEquipmentDrops(scenario,version=defaultEquipmentDropsVersion(scenario)){
+ validateEquipmentDropsVersion(scenario,version);
+ return version===0?[]:(scenario.equipmentDrops??[]).filter(drop=>(drop.minVersion??1)<=version);
+}
+export function equipmentDropItems(scenario,targetId,actorId,version=0,campaignEventsVersion=0){
+ const drops=versionedEquipmentDrops(scenario,version);
+ if(scenario.enemies.find(unit=>unit.id===targetId)?.campaignTemplateId&&campaignEventsVersion!==1)return [];
+ return drops.filter(drop=>drop.targetId===targetId&&(!drop.actorId||drop.actorId===actorId)).map(drop=>drop.itemId);
+}
+export function equipmentDropActors(state,scenario,sources=state.pendingLoot?.sourceUnitIds??[]){
+ const targets=new Set(versionedEquipmentDrops(scenario,state.equipmentDropsVersion??0).map(drop=>drop.targetId));
+ return Object.fromEntries(sources.filter(id=>targets.has(id)).map(id=>[id,state.battleRecords.defeats.find(record=>record.targetId===id)?.actorId]));
+}
+export function validateEquipmentDropsReceipt(receipt,scenario,parts){
+ if(receipt.equipmentDropsVersion===undefined){ensure(receipt.equipmentDropActors===undefined);return;}
+ ensure([1,2,3].includes(receipt.equipmentDropsVersion)&&object(receipt.equipmentDropActors));
+ const targets=new Set(versionedEquipmentDrops(scenario,receipt.equipmentDropsVersion).map(drop=>drop.targetId)),expected=receipt.sourceUnitIds.filter(id=>targets.has(id)),actors=new Set([...Object.keys(HERO_DATA),...(scenario.extraAllies??[]).map(unit=>unit.id)]);
+ ensure(Object.keys(receipt.equipmentDropActors).length===expected.length&&expected.every(id=>Object.hasOwn(receipt.equipmentDropActors,id)&&actors.has(receipt.equipmentDropActors[id])));
+ for(const drop of scenario.equipmentDrops??[])ensure(scenario.enemies.some(unit=>unit.id===drop.targetId)&&Object.hasOwn(parts,drop.itemId)&&(!drop.actorId||actors.has(drop.actorId))&&(drop.minVersion===undefined||[2,3].includes(drop.minVersion)));
+}

@@ -1,0 +1,31 @@
+// New rewards are an overlay, not edits to the historical stage manuscripts.
+// minVersion 3 is captured only by a fresh sortie; old saves keep their marker.
+export const EXPANDED_EQUIPMENT=Object.freeze({
+ reliefSeal:{name:'구호 인장',description:'최대 병력 +600 · 방어 +4 · 책략 성공 +4%p',hp:600,def:4,tactic:4,grade:'advanced'},
+ breachAxe:{name:'파진부',description:'공격 +14 · 방어 +4',atk:14,def:4,grade:'advanced'},
+ featherFan:{name:'백우선',description:'지력 +12 · 책략 성공 +10%p',int:12,tactic:10,grade:'advanced'},
+ riverShield:{name:'수군 대방패',description:'방어 +14 · 최대 병력 +600',def:14,hp:600,grade:'advanced'},
+ mountainBoots:{name:'등산화',description:'이동력 +1 · 방어 +8',move:1,def:8,grade:'advanced'},
+ chainManual:{name:'연환 병법서',description:'지력 +8 · 책략 성공 +14%p',int:8,tactic:14,grade:'advanced'},
+ commanderBanner:{name:'대장군기',description:'최대 병력 +800 · 전투 시작 사기 +15',hp:800,morale:15,grade:'advanced'},
+ veteranBow:{name:'양유궁',description:'공격 +14 · 치명 +15%p',atk:14,critical:15,grade:'advanced'},
+ rainCape:{name:'도수포',description:'지력 +6 · 방어 +12 · 최대 병력 +500',int:6,def:12,hp:500,grade:'advanced'},
+ fieldMedicKit:{name:'군의 약낭',description:'최대 병력 +1,400 · 회피 +6%p',hp:1400,evasion:6,grade:'advanced'},
+ rattanArmor:{name:'등갑',description:'최대 병력 +1,000 · 방어 +12',hp:1000,def:12,grade:'advanced'},
+ vanguardBlade:{name:'선봉도',description:'공격 +16 · 회피 +8%p',atk:16,evasion:8,grade:'advanced'},
+});
+export const EXPANDED_EQUIPMENT_DROPS=Object.freeze({
+ s04_beihai:{targetId:'e_boss',actorId:'jianyong',itemId:'reliefSeal',condition:'간옹으로 관해 격파 · 구호 인장'},
+ s11_bowang:{targetId:'e_boss',actorId:'zhangfei',itemId:'breachAxe',condition:'장비로 하후돈 격파 · 파진부'},
+ s13_changban:{targetId:'e_boss',actorId:'zhugeliang',itemId:'featherFan',condition:'탈출 전 제갈량으로 조조 선택 격파 · 백우선'},
+ s16_huarong:{targetId:'e_boss',actorId:'zhoucang',itemId:'riverShield',condition:'주창으로 후위대장 격파 · 수군 대방패'},
+ s18_changsha:{targetId:'e_boss',actorId:'guanyu',itemId:'mountainBoots',condition:'관우로 한현 격파 · 등산화'},
+ s23_fucheng:{targetId:'e_boss',actorId:'pangtong',itemId:'chainManual',condition:'방통으로 부성 수비대장 격파 · 연환 병법서'},
+ s27_chengdu:{targetId:'e_boss',actorId:'liubei',itemId:'commanderBanner',condition:'유비로 성도 수비대장 격파 · 대장군기'},
+ s29_dingjun:{targetId:'e_boss',actorId:'huangzhong',itemId:'veteranBow',condition:'황충으로 하후연 격파 · 양유궁'},
+ s33_flood:{targetId:'e_boss',actorId:'maliang',itemId:'rainCape',condition:'마량으로 우금 격파 · 도수포'},
+ s40_yiling:{targetId:'e_boss',actorId:'zhugeliang',itemId:'fieldMedicKit',condition:'제갈량으로 육손 격파 · 군의 약낭'},
+ s45_rattan:{targetId:'e_boss',actorId:'madai',itemId:'rattanArmor',condition:'마대로 올돌골 격파 · 등갑'},
+ s49_chencang:{targetId:'e_boss',actorId:'weiyan',itemId:'vanguardBlade',condition:'위연으로 진창 수비대장 격파 · 선봉도'},
+});
+export function expandedEquipmentDrops(stage){const drop=EXPANDED_EQUIPMENT_DROPS[stage.id];return drop?[{...drop,minVersion:3}]:[];}

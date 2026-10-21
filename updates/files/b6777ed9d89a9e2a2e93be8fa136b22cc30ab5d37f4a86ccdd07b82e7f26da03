@@ -1,0 +1,125 @@
+import {HERO_DATA} from './heroes.js';
+import {guestHeroIdentity} from './guest-allies.js';
+
+export const LEGENDARY_SKILLS_VERSION=1;
+export const COMBAT_SKILL_RULES_VERSION_0401=2;
+export const SPECIAL_REST_ROUNDS=3; // Use on R; rest on R+1/R+2; ready on R+3.
+export const LEGENDARY_LEVEL=30,LEGENDARY_MORALE=140,LEGENDARY_MORALE_COST=40;
+const define=(owner,name,kind,description,options={})=>Object.freeze({id:'legendary-'+owner,owner,name,kind,description,level:LEGENDARY_LEVEL,legendary:true,range:[1,3],spCost:50,power:2.2,...options});
+export const LEGENDARY_SKILLS=Object.freeze(Object.fromEntries([
+ define('liubei','한실의 기치','support','거리 3 아군 병력 30% 회복·혼란/위보 정화·사기 +20',{area:'allies',radius:3,spCost:60,effects:{heal:.30,cleanse:true,morale:20}}),
+ define('guanyu','무성 참룡','physical','인접 적장에게 결정적 일격 · 방어 60% 관통 · 적장 위력 ×1.4',{range:[1,1],power:3.2,pierce:.6,officerBonus:1.4,spCost:60}),
+ define('zhangfei','장판 천둥','physical','거리 2 주변 적에 위력 ×1.7 · 사기 −30 · 성공한 적을 1칸 밀기',{area:'diamond-self',radius:2,power:1.7,effects:{enemyMorale:-30,push:1}}),
+ define('zhaoyun','칠진칠출','physical','선택 방향 직선 4칸 관통공격 · 방어 35% 관통 · 반격 없음',{range:[1,4],straight:true,area:'line',radius:4,power:2,pierce:.35,noCounter:true,spCost:60}),
+ define('zhugeliang','팔진 천변','tactic','거리 2~5 중심의 거리 2 적 전체 진법공격 · 비에도 사용 가능',{range:[2,5],area:'diamond-target',radius:2,power:2,weatherIndependent:true,spCost:60}),
+ define('huangzhong','백보 천궁','physical','거리 2~6 무반격 저격 · 지형 방어 무시 · 명중 +40%p',{range:[2,6],power:2.7,noCounter:true,terrainPierce:1,accuracy:40}),
+ define('weiyan','자오곡 혈전','physical','주변 8칸 무반격 난전 · 실제 가한 피해의 50% 병력 회복',{area:'surround',power:1.8,noCounter:true,effects:{lifesteal:.5}}),
+ define('pangtong','봉추 연환','tactic','십자 5칸 진법공격 · 성공한 적 혼란 · 비에도 사용 가능',{range:[2,4],area:'cross',power:1.8,weatherIndependent:true,effects:{control:'confusion'}}),
+ define('machao','서량 철기','physical','선택 방향 전방 3칸의 부채꼴 돌격 · 성공한 적을 2칸 밀기',{range:[1,3],straight:true,area:'cone',radius:3,power:1.9,effects:{push:2}}),
+ define('jiangwei','북벌 계승','physical','적 1부대 강격 후 자신과 거리 1 아군 공격 ×1.3 (2라운드)',{range:[1,3],power:2.4,allyAura:1,persistent:{attackMultiplier:1.3},duration:2}),
+ define('chendao','백이 호위진','support','거리 3 아군을 중심으로 거리 1 호위진 · 물리 피해 65% 경감 (2라운드)',{range:[0,3],area:'allies-target',radius:1,persistent:{guard:.35,guardKind:'physical'},duration:2}),
+ define('guanping','부자 협봉','physical','적 1부대 공격 후 그 적에 인접한 가장 강한 아군 1명이 추가 협공',{range:[1,2],power:2,effects:{cooperation:true}}),
+ define('masu','천험 봉쇄','tactic','중심 거리 1 적 공격·이동 −2·공격 ×0.7 (2라운드) · 비에도 사용 가능',{range:[2,4],area:'diamond-target',radius:1,power:1.3,weatherIndependent:true,enemyPersistent:true,persistent:{moveBonus:-2,attackMultiplier:.7},duration:2}),
+ define('liaohua','노장 불굴','support','자신 병력 80% 회복·정화 · 받는 모든 피해 50% 경감 (2라운드)',{area:'self',range:[0,0],spCost:40,effects:{heal:.8,cleanse:true},persistent:{guard:.5},duration:2}),
+ define('fazheng','기정 상쇄','tactic','십자 5칸 적 방어 ×0.5·반격 차단 (2라운드) · 피해 없는 제압 · 비에도 사용 가능',{range:[2,4],area:'cross',power:0,weatherIndependent:true,enemyPersistent:true,persistent:{defenseMultiplier:.5,counterDisabled:true},duration:2}),
+ define('madai','복병 절명','physical','거리 1~4 무반격 암습 · 병력 35% 이하 적에게 위력 2배',{range:[1,4],power:2.2,noCounter:true,finisherRatio:.35,finisherPower:2}),
+ define('yanyan','노장 철성','support','거리 2 아군에게 원거리 물리 피해 75% 경감 (2라운드)',{area:'allies',radius:2,persistent:{guard:.25,guardKind:'ranged'},duration:2,spCost:40}),
+ define('huangquan','후방 수운','support','거리 3 아군 SP 보급 · 책사 +45/그 외 +20 · 자신 SP 보급 제외',{area:'allies',radius:3,effects:{sp:20,strategistSP:45}}),
+ define('wangping','무당 결진','support','거리 2 아군 혼란/위보 정화·제어 면역·모든 피해 40% 경감 (2라운드)',{area:'allies',radius:2,effects:{cleanse:true},persistent:{guard:.6,controlImmune:true},duration:2}),
+ define('guanxing','청룡 추격','physical','선택 적에서 거리 2씩 이어지는 최대 3부대 연쇄공격',{range:[1,3],area:'chain-enemy',radius:2,maxTargets:3,power:2.2}),
+ define('zhangbao','맹호 파진','physical','선택 적 중심 십자 5칸을 방어 60% 관통으로 공격',{range:[1,3],area:'cross',power:2.1,pierce:.6}),
+ define('jianyong','군심 대수습','support','거리 3 아군 병력 15% 회복·광역정화·혼란으로 잃은 행동 복구',{area:'allies',radius:3,effects:{heal:.15,cleanse:true,restoreConfusionAction:true},spCost:40}),
+ define('sunqian','원군 독려','support','거리 1~4 행동 완료 아군 1명 재행동·사기 +15·이동 +2 (2라운드)',{range:[1,4],effects:{rally:true,morale:15},persistent:{moveBonus:2},duration:2}),
+ define('mizhu','거상 대보급','support','거리 3 아군 병력 25%·SP +40 동시 보급 · 자신 SP 보급 제외',{area:'allies',radius:3,spCost:60,effects:{heal:.25,sp:40}}),
+ define('zhoucang','산채 포박','physical','직선 거리 1~3 적 무반격 공격 후 자신 쪽으로 최대 2칸 끌어오기',{range:[1,3],straight:true,power:2.4,noCounter:true,effects:{pull:2},spCost:40}),
+ define('maliang','백미 구명','support','거리 3 선택 아군과 주변 거리 2 중 가장 부상한 2명 병력 65% 회복',{range:[0,3],area:'triage',radius:2,maxTargets:3,effects:{heal:.65},spCost:60}),
+ define('liufeng','등성 선봉','physical','거리 1~2 진지 돌파 · 지형 방어 무시 · 숲/장애물 인접 적에게 위력 ×1.5',{range:[1,2],power:2.5,terrainPierce:1,fortifiedPower:1.5}),
+ define('wuyi','횡진 철벽','support','자신과 같은 행 또는 열의 모든 아군 피해 50% 경감 (2라운드)',{area:'formation',persistent:{guard:.5},duration:2,spCost:40}),
+ define('liyan','한중 군수','support','거리 2 아군 SP +20·사기 +10 · 다음 아군 턴 SP +15 (2라운드)',{area:'allies',radius:2,effects:{sp:20,morale:10},persistent:{phaseSP:15},duration:2}),
+ define('zhangyi','연노 일제','physical','선택 방향 중심을 가로지르는 5칸 일제공격 · 반격 없음',{range:[2,5],area:'perpendicular',radius:2,power:1.9,noCounter:true}),
+ define('wuban','협익 포위','physical','적 1부대 강격 · 그 적에 인접한 다른 아군마다 위력 +40% (최대 +120%)',{range:[1,2],power:2.2,flankPower:.4,flankCap:3}),
+ define('fengxi','질풍 측진','physical','직선 거리 1~3 무반격 돌격 후 적의 후방 빈 칸으로 전진 · 막히면 제자리',{range:[1,3],straight:true,power:2.3,noCounter:true,effects:{reposition:'behind'}}),
+ define('fudong','충혼 결사','support','거리 3 아군 병력 20% 회복 · 병력 절반 이하일 때 피해 65% 경감 (2라운드)',{area:'allies',radius:3,effects:{heal:.20},persistent:{guard:.35,guardKind:'wounded'},duration:2}),
+ define('dengzhi','화친 중재','support','거리 4 아군 사기 +20 · 자신 거리 2 적 사기 −25 · 공격 판정 없이 적용',{area:'allies',radius:4,effects:{morale:20,enemyMorale:-25,enemyRadius:2},spCost:40}),
+ define('zhangni','남중 선봉','physical','적 1부대 공격 후 그 전선 거리 1의 아군 병력 30% 회복',{range:[1,2],power:2.3,effects:{frontHeal:.30},spCost:50}),
+ define('mazhong','남중 포위','physical','거리 2~5 무반격 제압저격 · 명중한 적 혼란 · 명중 +30%p',{range:[2,5],power:2.2,noCounter:true,accuracy:30,effects:{control:'confusion'}}),
+ define('gaoxiang','연노 전개','support','거리 2 아군 공격 ×1.2 · 궁병/노병 일반공격 사거리 +1 (2라운드)',{area:'allies',radius:2,persistent:{attackMultiplier:1.2,rangeBonus:1},duration:2}),
+].map(skill=>[skill.id,skill])));
+
+export const legendarySkillFor=id=>LEGENDARY_SKILLS[id]??null;
+export const legendaryOwnerSkill=owner=>LEGENDARY_SKILLS['legendary-'+owner]??null;
+export function initializeLegendaryBattle(state){
+ if(state.legendarySkillsVersion!==undefined)return state;
+ if(state.legendaryUsed!==undefined||state.legendaryPhaseRound!==undefined||state.units.some(unit=>unit.legendaryEffects!==undefined))throw new Error('고유필살기 버전 없는 효과 기록입니다.');
+ state.legendarySkillsVersion=1;state.legendaryUsed=[];state.legendaryPhaseRound=state.round;state.combatSkillRulesVersion=2;return state;
+}
+export const legendaryUsedBy=(state,id)=>(state.legendaryUsed??[]).some(row=>row?.ownerId===id);
+const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+const cheb=(a,b)=>Math.max(Math.abs(a.x-b.x),Math.abs(a.y-b.y));
+export function legendaryAreaCells(state,actor,skill,target=null){
+ const cells=new Set(),center=['cross','diamond-target','allies-target','triage','perpendicular'].includes(skill.area)?target:actor;
+ if(!center)return cells;const dx=Math.sign((target?.x??actor.x)-actor.x),dy=Math.sign((target?.y??actor.y)-actor.y),horizontal=Math.abs((target?.x??actor.x)-actor.x)>=Math.abs((target?.y??actor.y)-actor.y);
+ for(let y=0;y<state.terrain.length;y++)for(let x=0;x<state.terrain[0].length;x++){
+  const p={x,y},d=dist(center,p),q=cheb(center,p),forward=horizontal?(x-actor.x)*dx:(y-actor.y)*dy,lateral=horizontal?Math.abs(y-actor.y):Math.abs(x-actor.x);
+  const yes=skill.area==='self'?d===0:skill.area==='surround'?q===1:skill.area==='diamond-self'||skill.area==='allies'?d<=skill.radius:skill.area==='cross'?d<=1:skill.area==='diamond-target'||skill.area==='allies-target'||skill.area==='triage'?d<=skill.radius:skill.area==='formation'?x===actor.x||y===actor.y:skill.area==='line'?forward>=1&&forward<=skill.radius&&lateral===0:skill.area==='cone'?forward>=1&&forward<=skill.radius&&lateral<forward:skill.area==='perpendicular'?horizontal?x===center.x&&Math.abs(y-center.y)<=skill.radius:y===center.y&&Math.abs(x-center.x)<=skill.radius:false;
+  if(yes)cells.add(x+','+y);
+ }
+ return cells;
+}
+export function legendaryAffected(state,actor,target,skill){
+ const alive=state.units.filter(unit=>unit.hp>0&&!unit.escaped),same=unit=>skill.kind==='support'?unit.team===actor.team:unit.team!==actor.team&&(!unit.protectedFromFaction||unit.protectedFromFaction!==actor.faction);
+ if(skill.area==='chain-enemy'){
+  const result=[target];while(result.length<skill.maxTargets){const last=result.at(-1),next=alive.filter(unit=>same(unit)&&!result.includes(unit)&&dist(last,unit)<=skill.radius).sort((a,b)=>dist(last,a)-dist(last,b)||a.y-b.y||a.x-b.x||a.id.localeCompare(b.id))[0];if(!next)break;result.push(next);}return result;
+ }
+ if(skill.area==='triage')return [target,...alive.filter(unit=>same(unit)&&unit.id!==target.id&&dist(target,unit)<=skill.radius).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp||a.id.localeCompare(b.id)).slice(0,skill.maxTargets-1)];
+ if(!skill.area)return [target];
+ const cells=legendaryAreaCells(state,actor,skill,target);return alive.filter(unit=>same(unit)&&cells.has(unit.x+','+unit.y)).sort((a,b)=>Number(b.id===target?.id)-Number(a.id===target?.id)||a.y-b.y||a.x-b.x||a.id.localeCompare(b.id));
+}
+export function addLegendaryEffect(unit,actor,skill,round){
+ if(!skill.persistent)return false;
+ unit.legendaryEffects??=[];unit.legendaryEffects=unit.legendaryEffects.filter(row=>row.skillId!==skill.id);
+ unit.legendaryEffects.push({skillId:skill.id,sourceId:actor.id,untilRound:round+skill.duration});return true;
+}
+const activeEffects=(unit,state)=>(unit.legendaryEffects??[]).filter(row=>!state||row.untilRound>state.round).map(row=>legendarySkillFor(row.skillId)?.persistent).filter(Boolean);
+export function legendaryStatModifiers(unit,state=null){
+ const result={attackMultiplier:1,defenseMultiplier:1,moveBonus:0,rangeBonus:0,counterDisabled:false,controlImmune:false};
+ for(const effect of activeEffects(unit,state)){
+  // Strongest benefit and strongest penalty coexist; matching buffs never multiply repeatedly.
+  result.attackMultiplier=Math.min(result.attackMultiplier,effect.attackMultiplier??1);
+  result.defenseMultiplier=Math.min(result.defenseMultiplier,effect.defenseMultiplier??1);
+  result.moveBonus=Math.min(result.moveBonus,effect.moveBonus??0);result.rangeBonus=Math.max(result.rangeBonus,effect.rangeBonus??0);
+  result.counterDisabled ||= !!effect.counterDisabled;result.controlImmune ||= !!effect.controlImmune;
+ }
+ const benefits=activeEffects(unit,state);result.attackMultiplier*=Math.max(1,...benefits.map(effect=>effect.attackMultiplier??1));result.defenseMultiplier*=Math.max(1,...benefits.map(effect=>effect.defenseMultiplier??1));result.moveBonus+=Math.max(0,...benefits.map(effect=>effect.moveBonus??0));
+ if(!['archer','crossbow'].includes(unit.cls))result.rangeBonus=0;return result;
+}
+export function legendaryIncomingMultiplier(attacker,target,state,kind='physical'){
+ let multiplier=1;for(const effect of activeEffects(target,state)){
+  const condition=effect.guardKind;
+  if(effect.guard===undefined||condition==='physical'&&kind!=='physical'||condition==='ranged'&&(kind!=='physical'||dist(attacker,target)<2)||condition==='wounded'&&target.hp>target.maxHp*.5)continue;
+  multiplier=Math.min(multiplier,effect.guard);
+ }return multiplier;
+}
+export function legendaryPhaseStart(state){
+ const spHeals=[];for(const unit of state.units)if(unit.legendaryEffects){unit.legendaryEffects=unit.legendaryEffects.filter(row=>row.untilRound>state.round);if(!unit.legendaryEffects.length)delete unit.legendaryEffects;}
+ if(state.legendarySkillsVersion!==1||state.legendaryPhaseRound>=state.round)return {spHeals};
+ state.legendaryPhaseRound=state.round;
+ for(const unit of state.units.filter(u=>u.team==='ally'&&u.hp>0)){
+  const amount=Math.min(Math.max(0,unit.maxSp-unit.sp),Math.max(0,...activeEffects(unit,state).map(effect=>effect.phaseSP??0)));if(amount){const before=unit.sp;unit.sp+=amount;spHeals.push({id:unit.id,name:unit.name,amount,before,after:unit.sp});}
+ }return {spHeals};
+}
+
+// Save validation can run after historical marker normalization, without trusting saved coefficients.
+export function validateLegendarySave(state){
+ const fail=message=>{throw new Error('고유필살기 저장: '+message);},integer=(n,a,b)=>Number.isInteger(n)&&n>=a&&n<=b;
+ if(state.legendarySkillsVersion===undefined){if(state.legendaryUsed!==undefined||state.legendaryPhaseRound!==undefined||state.units.some(u=>u.legendaryEffects!==undefined))fail('버전 없는 효과 기록');return true;}
+ if(state.legendarySkillsVersion!==1||state.combatSkillRulesVersion!==2||!Array.isArray(state.legendaryUsed)||state.legendaryUsed.length>37||!integer(state.legendaryPhaseRound,1,state.round))fail('버전 또는 전투 기록 오류');
+ const seen=new Set();for(const row of state.legendaryUsed){
+  const skill=legendarySkillFor(row?.skillId),unit=state.units.find(u=>u.id===row?.ownerId);
+  const owner=guestHeroIdentity(unit)??row?.ownerId;
+  if(!row||Object.keys(row).sort().join(',')!=='ownerId,round,skillId'||!skill||skill.owner!==owner||!HERO_DATA[owner]||HERO_DATA[owner].guest||seen.has(row.ownerId)||!integer(row.round,1,state.round)||!unit||unit.team!=='ally'||unit.extra&&!guestHeroIdentity(unit)||unit.level<LEGENDARY_LEVEL||unit.specialReadyRound<row.round+SPECIAL_REST_ROUNDS)fail('사용 장수/기술/라운드 오류');seen.add(row.ownerId);
+ }
+ for(const unit of state.units){if(unit.legendaryEffects===undefined)continue;if(!Array.isArray(unit.legendaryEffects)||!unit.legendaryEffects.length||unit.legendaryEffects.length>37)fail('효과 목록 오류');const effectKeys=new Set();
+  for(const row of unit.legendaryEffects){const skill=legendarySkillFor(row?.skillId),used=state.legendaryUsed.find(v=>v.skillId===row?.skillId&&v.ownerId===row?.sourceId);if(!row||Object.keys(row).sort().join(',')!=='skillId,sourceId,untilRound'||!skill?.persistent||!used||row.untilRound!==used.round+skill.duration||!integer(row.untilRound,state.round+1,state.round+skill.duration)||effectKeys.has(row.skillId))fail('효과 출처/기간 오류');if(skill.enemyPersistent?unit.team==='ally':unit.team!=='ally')fail('효과 대상 진영 오류');if(skill.persistent.phaseSP&&state.phase==='ally'&&state.legendaryPhaseRound!==state.round)fail('SP 보급 턴 경계 오류');effectKeys.add(row.skillId);}
+ }return true;
+}

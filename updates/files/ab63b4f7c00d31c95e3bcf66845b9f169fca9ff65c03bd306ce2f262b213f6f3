@@ -1,0 +1,21 @@
+const FALLBACK_VERSION='0.74.15';
+export const DEFAULT_UPDATE_FEED='https://raw.githubusercontent.com/syrano15/shu-tactics-updates/main/updates/latest.json';
+export async function connectDefaultUpdateFeed(api,state){
+ // Keep an explicitly configured feed; older launchers receive the public default through their existing API.
+ return state.configured?state:api.setFeed(DEFAULT_UPDATE_FEED);
+}
+export function installUpdateUI(){
+ const title=document.querySelector('.title-menu');if(!title)return {ready(){}};
+ const panel=document.createElement('section');panel.className='title-updates';panel.setAttribute('aria-label','게임 업데이트');
+ panel.innerHTML='<div class="update-heading"><strong id="game-version">v'+FALLBACK_VERSION+'</strong><span id="update-status" role="status">PC 버전은 타이틀에서 업데이트할 수 있습니다.</span></div><div class="update-buttons"><button id="update-check">업데이트 확인</button><button id="update-install" class="primary" hidden>업데이트 적용</button><button id="update-import">패치 파일 선택</button></div><p id="update-notes" hidden></p><details class="update-source"><summary>배포 주소 설정</summary><label>업데이트 배포 주소<input id="update-feed" type="url" placeholder="https://…/latest.json" spellcheck="false"></label><button id="update-feed-save">주소 저장</button><small>배포 주소 연결 전에는 패치 파일을 선택해 업데이트할 수 있습니다.</small></details>';
+ title.after(panel);const api=window.shuUpdates;const status=panel.querySelector('#update-status'),install=panel.querySelector('#update-install'),notes=panel.querySelector('#update-notes');let busy=false,readySent=false;
+ function paint(s){panel.querySelector('#game-version').textContent='v'+s.version;document.querySelector('.title-footer span:last-child').textContent='VERSION '+s.version;
+ status.textContent=s.progress||s.notice||(s.available?'v'+s.available+' 업데이트 가능':'업데이트를 확인하거나 패치 파일을 선택하세요.');install.hidden=!s.available;install.textContent=s.available?'v'+s.available+' 업데이트 · '+(s.bytes/1048576).toFixed(1)+' MB':'업데이트 적용';notes.hidden=!s.notes;notes.textContent=s.notes;
+ if(document.activeElement!==panel.querySelector('#update-feed'))panel.querySelector('#update-feed').value=s.feed||'';}
+ async function run(fn){if(busy)return;if(document.body.dataset.savePending==='true'){status.textContent='저장이 완료된 뒤 업데이트해 주세요.';return;}busy=true;panel.querySelectorAll('button').forEach(b=>b.disabled=true);try{paint(await fn());}catch(e){status.textContent=String(e.message).replace(/^Error invoking remote method '[^']+': (?:Error: )?/,'');}finally{busy=false;panel.querySelectorAll('button').forEach(b=>b.disabled=false);}}
+ if(!api){panel.querySelector('.update-buttons').hidden=true;panel.querySelector('.update-source').hidden=true;status.textContent='현재 웹 버전';return {ready(){}};}
+ panel.querySelector('#update-check').onclick=()=>run(()=>api.check());install.onclick=()=>run(()=>api.install());panel.querySelector('#update-import').onclick=()=>run(()=>api.importPatch());
+ panel.querySelector('#update-feed-save').onclick=()=>run(()=>api.setFeed(panel.querySelector('#update-feed').value.trim()));
+ const poll=setInterval(()=>{if(busy)api.status().then(paint).catch(()=>{});},500);window.addEventListener('pagehide',()=>clearInterval(poll),{once:true});api.status().then(paint).catch(e=>status.textContent=e.message);
+ return {ready(){if(readySent)return;readySent=true;api.ready().then(async s=>{s=await connectDefaultUpdateFeed(api,s);paint(s);if(s.configured)run(()=>api.check());}).catch(e=>status.textContent=e.message);}};
+}

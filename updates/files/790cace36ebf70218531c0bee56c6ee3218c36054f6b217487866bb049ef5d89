@@ -1,0 +1,156 @@
+import {CHAPTERS} from './campaign.js';
+import {FOURTH_SPIRIT_POOL,fixedSpiritIds,fourthSpiritCandidates,FOURTH_SPIRIT_LEVEL} from './fourth-spirit.js';
+import {legendaryStatModifiers} from './legendary-skills.js';
+import {guestHeroIdentity} from './guest-allies.js';
+const act2Spirits=state=>state?.combatProfile==='act2'||CHAPTERS[state?.chapter]?.act===2;
+export const AVAILABLE_SPIRITS=FOURTH_SPIRIT_POOL;
+// Removed commands remain readable only as already-paid effects in historical saves.
+const LEGACY_CLASS_SPIRIT={infantry:'penetrate',cavalry:'charge',spear:'penetrate',archer:'penetrate',crossbow:'penetrate',strategist:'protect'};
+const LEGACY_BRANCH_SPIRITS={infantry_shield:'protect',infantry_assault:'charge',spear_guard:'protect',spear_breakthrough:'charge',cavalry_heavy:'protect',cavalry_mobile:'penetrate',archer_sniper:'charge',archer_mobile:'protect',crossbow_siege:'charge',crossbow_mobile:'protect',strategist_fire:'chant',strategist_control:'chant'};
+export const EXTENDED_SPIRITS=['charge','protect','penetrate','chant'];
+export const physicalSpiritPower=(unit,counter=false)=>counter?1:Math.max(unit.spirits?.fury?1.5:1,unit.spirits?.charge?1.2:1);
+export const spiritDefensePierce=unit=>unit.spirits?.penetrate ? .25 : 0;
+export const spiritTacticPower=unit=>unit.spirits?.chant?1.2:1;
+export const spiritTacticBonus=unit=>Math.max(unit.spirits?.wisdom?20:0,unit.spirits?.chant?10:0);
+export const spiritDamageGuard=(unit,kind='physical')=>Math.min(kind==='physical'&&unit.spirits?.wall ? .5 : 1,unit.spirits?.protect ? .75 : 1);
+export const SP_RECOVERY_LEVEL=15,SP_RECOVERY_AMOUNT=5;
+export function spRecoveryStatus(unit){
+ const id=guestHeroIdentity(unit)??unit?.id,eligible=unit?.team==='ally'&&(!unit.extra||!!guestHeroIdentity(unit))&&!!HERO_DATA[id],learned=eligible&&unit.level>=SP_RECOVERY_LEVEL;
+ return {name:'정신 집중',level:SP_RECOVERY_LEVEL,learned,amount:learned?SP_RECOVERY_AMOUNT:0,description:learned?'해금 완료 · 2라운드부터 아군 턴 시작 SP +5':'Lv15 해금 · 2라운드부터 아군 턴 시작 SP +5'};
+}
+// Kept under its old export name for compatibility; chapter no longer gates it.
+export function recoverAct2SP(state){
+ if(state.phase!=='ally')return {name:'SP',heals:[]};
+ if(state.spRecoveredRound===undefined){state.spRecoveredRound=state.round;return {name:'SP',heals:[]};}
+ if(state.round<2||state.spRecoveredRound>=state.round)return {name:'SP',heals:[]};
+ const heals=[];
+ for(const unit of state.units.filter(unit=>spRecoveryStatus(unit).learned&&unit.hp>0)){
+  const amount=Math.min(SP_RECOVERY_AMOUNT,Math.max(0,unit.maxSp-unit.sp));unit.sp+=amount;if(amount)heals.push({id:unit.id,name:unit.name,amount});
+ }
+ state.spRecoveredRound=state.round;return {name:'SP',heals};
+}
+export function normalizeSPRecoverySave(state,scenario){
+ // Old saves synchronize the ledger at their saved round without granting SP.
+ // A level-based skill is available in every chapter.
+ if(state.spRecoveredRound===undefined)state.spRecoveredRound=state.round;
+ if(!Number.isInteger(state.spRecoveredRound)||state.spRecoveredRound<1||state.spRecoveredRound>state.round)throw new Error('SP 턴 회복 기록이 올바르지 않습니다.');
+ // Restoring an already-started ally turn is not another turn boundary.
+ if(state.phase==='ally')state.spRecoveredRound=state.round;
+ return state;
+}
+import {HERO_DATA} from './heroes.js';
+import {plainMove} from './traits.js';
+import {classDisplayName} from './balance.js';
+export const SPIRIT_MORALE_GAIN=20,SPIRIT_MORALE_COST=25;
+export const SPIRITS={
+ charge:{name:'돌격',cost:20,description:'다음 물리 공격 피해 ×1.2·이동 +1 · 반격 제외·열혈과 큰 계수만 적용 · 다음 아군 턴에 종료'},
+ protect:{name:'수호',cost:20,description:'다음 아군 턴까지 물리·화공 피해 25% 경감 · 철벽과 물리 경감 중첩 없음'},
+ penetrate:{name:'관통',cost:25,description:'다음 물리 공격의 적 방어 25% 무시 · 반격 제외·빗나가도 소모 · 총 관통 상한 60%'},
+ chant:{name:'영창',cost:20,description:'다음 화공 위력 ×1.2·다음 책략 성공 +10%p · 지략과 큰 보너스만·비/상한 유지·성공/실패 모두 소모'},
+ strike:{name:'필중',cost:20,description:'다음 아군 턴까지 물리 명중 100% · 책략에는 미적용 · 번뜩임 우선'},
+ flash:{name:'번뜩임',cost:10,description:'다음 물리 공격·반격 1회를 회피'},
+ focus:{name:'집중',cost:15,description:'다음 아군 턴까지 물리 명중·회피 +30%p · 책략 성공률에는 미적용'},
+ accel:{name:'가속',cost:10,description:'다음 이동 +3 · 이동 취소 시 효과 복원'},
+ spirit:{name:'기합',cost:SPIRIT_MORALE_COST,description:`자신 사기 +${SPIRIT_MORALE_GAIN} · 상한 150`},
+ fury:{name:'열혈',cost:30,description:'다음 물리 공격 피해 ×1.5 · 빗나가도 소모 · 반격 제외'},
+ wall:{name:'철벽',cost:25,description:'다음 아군 턴까지 받는 물리 피해 절반 · 도발: 공격 가능한 적이 자신을 우선 공격, 공격할 수 없으면 접근'},
+ wisdom:{name:'지략',cost:20,description:'다음 책략 성공률 +20%p · 비·성공률 상한 유지'},
+ aim:{name:'조준',cost:15,description:'다음 공격·책략 최대 사거리 +1 · 반격 제외'},
+ calm:{name:'진정',cost:20,target:'ally',description:'인접 아군 1부대 혼란·위보 해제 · 혼란으로 잃은 행동 복구'},
+ ambush:{name:'기습',cost:35,description:'다음 물리 공격에 반격 없음 · 빗나가도 소모'},
+ intimidate:{name:'위압',cost:30,target:'enemy',description:'거리 1~2 적 1부대 사기 −15 · 하한 50'},
+ encourage:{name:'격려',cost:35,description:'자신 제외 인접 아군 전원 사기 +10'},
+ rally:{name:'독려',cost:60,target:'ally',description:'인접 행동 완료 아군 재행동 · 같은 대상 턴당 1회'},
+};
+export const SLOT_LEVELS=[1,4,8];
+export const canonicalSpirit=id=>id==='alert'?'flash':id;
+export function spiritSlots(unit,state=null){
+ const owner=guestHeroIdentity(unit)??unit.id;
+ if(unit.team!=='ally'||unit.extra&&!guestHeroIdentity(unit))return [];
+ let ids=fixedSpiritIds(owner,unit.cls);
+ if(!ids.length)return [];
+ const slots=ids.map((id,i)=>({id,level:SLOT_LEVELS[i],locked:unit.level<SLOT_LEVELS[i],...(id!==HERO_DATA[owner]?.spirits[i]?{source:'class'}:{})}));
+ if(!HERO_DATA[owner]?.guest&&unit.fourthSpirit&&unit.level>=FOURTH_SPIRIT_LEVEL&&fourthSpiritCandidates(owner,unit.cls).includes(unit.fourthSpirit))slots.push({id:unit.fourthSpirit,level:FOURTH_SPIRIT_LEVEL,locked:false,source:'selection'});
+ return slots;
+}
+export const baseSP=id=>HERO_DATA[id]?.baseSP??60;
+export const MORALE={start:100,min:50,max:150,hit:1,damaged:1,dodge:1,kill:3,allyKill:1,allyRetreat:-5};
+export const moraleFactor=u=>(u.morale??100)/100;
+export const moraleAttackFactor=(u,state=null)=>{const morale=Math.max(u.moraleFloor??50,Math.min(150,u.morale??100));return act2Spirits(state)?1+(morale-100)*.013:morale/100;};
+export const effectiveAttack=(u,state=null)=>u.atk*moraleAttackFactor(u,state)*(u.oathUntilRound!==undefined?1.15:1);
+export const movement=(u,s)=>Math.max(0,u.move+(u.spirits?.accel?3:0)+(u.spirits?.charge?1:0)+plainMove(u,s)+legendaryStatModifiers(u,s).moveBonus);
+// Ordinary cavalry attacks are adjacent, including old saves that stored max=2.
+export const maxRange=(u,counter=false)=>(u.cls==='cavalry'?1:u.max)+(!counter&&u.cls!=='cavalry'&&u.spirits?.aim?1:0);
+export const hasFlash=u=>!!(u.spirits?.flash||u.spirits?.alert);
+export function consumeFlash(u){delete u.spirits.flash;delete u.spirits.alert;}
+export function changeMorale(u,delta){u.morale=Math.max(u.moraleFloor??50,Math.min(150,(u.morale??100)+delta));}
+const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+export function spiritTargets(s,u,id){
+ id=canonicalSpirit(id);
+ return s.units.filter(v=>{
+  if(v===u||v.id===u.id||v.hp<=0)return false;const d=distance(u,v);
+  if(id==='intimidate')return v.team!==u.team&&d>=1&&d<=2&&v.morale>50;
+  if(v.team!==u.team||d!==1)return false;
+  if(id==='calm')return !!v.status&&['confusion','deception'].includes(v.status.type);
+  if(id==='rally')return v.done&&!v.status&&v.ralliedRound!==s.round;
+  if(id==='encourage')return v.morale<150;
+  return false;
+ });
+}
+export function spiritReason(s,u,id,target=null){
+ if(s.bossCleanupVersion===1&&s.bossCleanup?.status==='pending')return '보스 격파 후 전투를 끝낼지 먼저 선택하세요.';
+ id=canonicalSpirit(id);const command=SPIRITS[id];
+ if(!command)return '없는 정신기입니다.';
+ if(!AVAILABLE_SPIRITS.includes(id))return '정리된 정신기입니다. 장수의 사용 가능한 정신기를 사용하세요.';
+ if(u.extra&&!guestHeroIdentity(u))return '추가 아군은 정신기가 없습니다.';
+ if(s.result||s.phase!=='ally'||u.team!=='ally'||u.hp<=0||u.done||u.act6Sleeping||u.status)return '행동 가능한 아군만 사용할 수 있습니다.';
+ if(u.moved)return '이동 전에 사용하세요.';
+ const slot=spiritSlots(u,s).find(slot=>slot.id===id);
+ if(!slot)return '이 장수의 정신기가 아닙니다.';
+ if(slot.locked)return `Lv${slot.level}에 해금됩니다.`;
+ if(['strike','fury','ambush','charge','penetrate'].includes(id)&&u.cls==='strategist')return '물리 공격 전용입니다.';
+ if(['wisdom','chant'].includes(id)&&u.cls!=='strategist')return '책사 전용입니다.';
+ if(id==='aim'&&!['archer','crossbow','strategist'].includes(u.cls))return ['archer','crossbow','strategist'].map(classDisplayName).join('·')+' 전용입니다.';
+ if(id==='rally'&&!['liubei','zhugeliang'].includes(u.id))return '유비·제갈량 전용입니다.';
+ if(id==='spirit'&&u.morale>=150)return '사기가 최대입니다.';
+ if(u.spirits?.[id]||(id==='flash'&&hasFlash(u)))return '이미 적용 중입니다.';
+ if(u.sp<command.cost)return 'SP가 부족합니다.';
+ if(command.target||id==='encourage'){
+  const targets=spiritTargets(s,u,id);
+  if(!targets.length)return '효과를 받을 대상이 없습니다.';
+  if(target&&!targets.includes(target))return '선택할 수 없는 대상입니다.';
+ }
+ return '';
+}
+export function useSpirit(s,u,id,target=null){
+ id=canonicalSpirit(id);const reason=spiritReason(s,u,id,target);if(reason)throw new Error(reason);
+ if(SPIRITS[id].target&&!target)throw new Error('대상을 선택하세요.');
+ const recipients=SPIRITS[id].target?[target]:id==='encourage'?spiritTargets(s,u,id):[u];
+ const actorBefore=structuredClone(u),targetsBefore=recipients.map(unit=>structuredClone(unit));
+ u.sp-=SPIRITS[id].cost;
+ if(id==='spirit')changeMorale(u,SPIRIT_MORALE_GAIN);
+ else if(id==='intimidate')changeMorale(target,-15);
+ else if(id==='encourage')for(const v of spiritTargets(s,u,id))changeMorale(v,10);
+ else if(id==='calm'){
+  if(target.status.type==='confusion'&&target.confusionLost){target.done=false;target.moveOrigin=null;}
+  target.status=null;target.confusionLost=false;
+ }else if(id==='rally'){
+  target.done=false;target.moved=false;target.moveOrigin=null;target.confusionLost=false;target.ralliedRound=s.round;
+ }else{u.spirits??={};u.spirits[id]=true;}
+ // Independent display snapshots are returned only after the validated effect succeeds.
+ return {id,name:SPIRITS[id].name,cost:SPIRITS[id].cost,actorBefore,actorAfter:structuredClone(u),targetsBefore,targetsAfter:recipients.map(unit=>structuredClone(unit))};
+}
+export function hitChance(a,b){
+ if(hasFlash(b))return 0;if(a.spirits?.strike)return 1;
+ return Math.max(0,Math.min(100,90+(a.spirits?.focus?30:0)-(b.spirits?.focus?30:0)))/100;
+}
+export function validateExtendedSpiritsSave(state,scenario){
+ const act2=scenario?.act===2||scenario?.combatProfile==='act2';
+ for(const unit of state.units){
+  for(const id of EXTENDED_SPIRITS.filter(id=>unit.spirits?.[id])){
+   const legacyOwned=id===LEGACY_CLASS_SPIRIT[unit.cls]||id===LEGACY_BRANCH_SPIRITS[unit.specialization]||id==='chant'&&unit.cls==='strategist'&&unit.level>=8;
+   if((!act2&&id!=='chant')||unit.team!=='ally'||unit.extra||!legacyOwned)throw new Error('병과·전문화 정신기 저장이 올바르지 않습니다.');
+   if(['charge','penetrate'].includes(id)&&unit.cls==='strategist'||id==='chant'&&unit.cls!=='strategist')throw new Error('병과와 정신기 효과가 다릅니다.');
+  }
+ }
+}

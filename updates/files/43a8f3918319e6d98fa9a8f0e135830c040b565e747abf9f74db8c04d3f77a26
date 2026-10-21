@@ -1,0 +1,92 @@
+import {mapLayoutWallLabel} from './map-layout-v07415.js';
+import {sortieInfo,positionLockedIndices} from './campaign.js';
+import {deploymentSlots,validateDeploymentSlots} from './deployment.js';
+import {deploymentRosterIds} from './preparation-roster.js';
+import {armyPreparationOrder,orderedPreparationIds,normalizePreparationOrder,PREPARATION_ORDER_KEY} from './preparation-order.js';
+import {HERO_DATA} from './heroes.js';
+const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+export const deploymentCoordinate=([x,y])=>String.fromCharCode(65+x)+(y+1);
+export const deploymentOrderDraft=(chapter,army,order)=>orderedPreparationIds(deploymentRosterIds(chapter,army),armyPreparationOrder(army,order));
+export function moveDeploymentOrderDraft(ids,id,position){
+ const next=[...ids],from=next.indexOf(id);
+ if(from<0||!Number.isInteger(position)||position<0||position>=next.length)return next;
+ next.splice(from,1);next.splice(position,0,id);return next;
+}
+export function applyDeploymentOrder(ui,chapter,army,draft,storage){
+ const current=deploymentOrderDraft(chapter,army,ui.rosterOrder),visible=new Set(current);
+ if(!Array.isArray(draft)||draft.length!==current.length||new Set(draft).size!==current.length||draft.some(id=>!visible.has(id)))throw new Error('장수 목록이 바뀌었습니다. 순서 편집을 다시 여세요.');
+ if(draft.every((id,index)=>id===current[index]))return false;
+ const saved=normalizePreparationOrder(ui.rosterOrder,Object.keys(HERO_DATA)),known=new Set(saved),all=[...saved,...current.filter(id=>!known.has(id))];let index=0;
+ const next=all.map(id=>visible.has(id)?draft[index++]:id);
+ // One preference write, only on Apply. Hidden officers keep their slots.
+ try{(storage??globalThis.localStorage)?.setItem(PREPARATION_ORDER_KEY,JSON.stringify(next));}catch{}
+ ui.rosterOrder=next;return true;
+}
+const orderEditors=new WeakMap();
+export function openDeploymentOrderEditor(host,{chapter,army,ui,units,onApply=()=>{},isCurrent=()=>true,storage}={}){
+ orderEditors.get(host)?.close();
+ const doc=host.ownerDocument??globalThis.document,dialog=doc.createElement('dialog'),names=new Map(units.map(unit=>[unit.id,unit.name])),original=deploymentOrderDraft(chapter,army,ui.rosterOrder);
+ let draft=[...original],selected=null,closed=false,observer=null;
+ dialog.className='deployment-order-dialog';dialog.setAttribute('aria-labelledby','deployment-order-title');
+ dialog.innerHTML='<div class="deployment-order-heading"><h3 id="deployment-order-title" tabindex="-1">목록 순서 편집</h3><button type="button" data-deploy-order-close aria-label="순서 편집 닫기">닫기</button></div><p class="deployment-order-help">장수를 고른 뒤 옮길 순서를 누르세요. 출발 위치는 바뀌지 않습니다.</p><p class="deployment-order-status" role="status" aria-live="polite"></p><ol class="deployment-order-list"></ol><div class="deployment-order-actions"><button type="button" data-deploy-order-close>취소</button><button type="button" class="primary" data-deploy-order-apply disabled>순서 적용</button></div>';
+ const list=dialog.querySelector('.deployment-order-list'),status=dialog.querySelector('.deployment-order-status'),apply=dialog.querySelector('[data-deploy-order-apply]');
+ const restoreFocus=()=>host.querySelector('[data-deploy-order-edit]')?.focus({preventScroll:true});
+ const finish=()=>{if(closed)return;closed=true;observer?.disconnect();orderEditors.delete(host);if(dialog.open)dialog.close();dialog.remove();restoreFocus();};
+ const paint=message=>{
+  const top=list.scrollTop;
+  list.innerHTML=draft.map((id,index)=>'<li><button type="button" data-deploy-order-pick="'+esc(id)+'" aria-pressed="'+(id===selected)+'" aria-label="'+esc(selected?(names.get(selected)??selected)+' · '+(index+1)+'번 자리로 이동':(index+1)+'번 · '+(names.get(id)??id)+' 선택')+'"><span>'+(index+1)+'</span><b>'+esc(names.get(id)??id)+'</b>'+(id===selected?'<small>선택됨</small>':'')+'</button></li>').join('');
+  list.scrollTop=top;status.textContent=message??'편집 후 순서 적용을 누르세요.';apply.disabled=draft.every((id,index)=>id===original[index]);
+ };
+ dialog.addEventListener('click',event=>{
+  const button=event.target.closest('button');if(!button||button.disabled)return;
+  if(Object.hasOwn(button.dataset,'deployOrderClose')){finish();return;}
+  if(Object.hasOwn(button.dataset,'deployOrderApply')){
+   if(!isCurrent()){finish();return;}
+   try{const changed=applyDeploymentOrder(ui,chapter,army,draft,storage);finish();if(changed)onApply();restoreFocus();}catch(error){status.textContent=error.message;}
+   return;
+  }
+  const id=button.dataset.deployOrderPick;if(!draft.includes(id))return;
+  if(!selected){selected=id;paint((names.get(id)??id)+' 선택됨 · 옮길 순서를 누르세요.');dialog.querySelector('[data-deploy-order-pick="'+id+'"]')?.focus({preventScroll:true});}
+  else if(selected===id){selected=null;paint('선택을 해제했습니다.');dialog.querySelector('[data-deploy-order-pick="'+id+'"]')?.focus({preventScroll:true});}
+  else{const moving=selected,to=draft.indexOf(id);draft=moveDeploymentOrderDraft(draft,moving,to);selected=null;paint((names.get(moving)??moving)+' · '+(to+1)+'번으로 옮겼습니다.');dialog.querySelector('[data-deploy-order-pick="'+moving+'"]')?.focus({preventScroll:true});}
+ });
+ dialog.addEventListener('keydown',event=>{
+  const button=event.target.closest('[data-deploy-order-pick]');if(!button||!['ArrowUp','ArrowDown','Home','End'].includes(event.key))return;
+  const from=draft.indexOf(button.dataset.deployOrderPick),to=event.key==='Home'?0:event.key==='End'?draft.length-1:Math.max(0,Math.min(draft.length-1,from+(event.key==='ArrowUp'?-1:1)));
+  event.preventDefault();dialog.querySelector('[data-deploy-order-pick="'+draft[to]+'"]')?.focus({preventScroll:true});
+ });
+ dialog.addEventListener('cancel',event=>{event.preventDefault();finish();});dialog.addEventListener('close',finish);
+ const editor={dialog,close:finish};orderEditors.set(host,editor);paint();doc.body.append(dialog);dialog.showModal();dialog.querySelector('h3')?.focus({preventScroll:true});
+ if(typeof MutationObserver==='function'){observer=new MutationObserver(()=>{if(!isCurrent())finish();});observer.observe(host,{attributes:true,childList:true});}
+ return editor;
+}
+// Re-rendered list controls retain focus without scrolling the page or map.
+export function focusDeploymentOrderButton(host,id,direction){
+ const selector=step=>'[data-deploy-order="'+CSS.escape(id)+'"][data-deploy-direction="'+step+'"]';
+ const preferred=host.querySelector(selector(direction)),fallback=host.querySelector(selector(-direction)),button=preferred&&!preferred.disabled?preferred:fallback&&!fallback.disabled?fallback:null;
+ if(!button)return;
+ button.focus({preventScroll:true});
+ const track=button.closest('.deployment-roster-track'),card=button.closest('.deploy-card');
+ if(!track||!card)return;
+ const viewport=track.getBoundingClientRect(),item=card.getBoundingClientRect();
+ if(item.left<viewport.left)track.scrollLeft-=viewport.left-item.left;
+ else if(item.right>viewport.right)track.scrollLeft+=item.right-viewport.right;
+}
+export function deploymentHTML({chapter:ch,army,ids,formationSlots=null,units,selectedId,message='',spriteHTML,rankName,traitLabel,guestIds=[],blockedLabel='강',preparing=false,rosterOrder=[]}){
+ const info=sortieInfo(ch,ids),slots=formationSlots?validateDeploymentSlots(ch,army,formationSlots):deploymentSlots(ch,army,ids),byId=Object.fromEntries(units.map(u=>[u.id,u])),name=id=>byId[id]?.name??id;
+ const eligible=orderedPreparationIds(deploymentRosterIds(ch,army),armyPreparationOrder(army,rosterOrder)),visibleUnits=eligible.map(id=>byId[id]).filter(Boolean);
+ if(selectedId&&!eligible.includes(selectedId))selectedId=visibleUnits.find(unit=>slots.includes(unit.id))?.id??visibleUnits[0]?.id??null;
+ const selectedIndex=selectedId?slots.indexOf(selectedId):-1,fixed=index=>index>=0&&(index>=info.regularMax||positionLockedIndices(ch).includes(index));
+ const chosen=selectedIndex>=0?(fixed(selectedIndex)?name(selectedId)+' · '+deploymentCoordinate(ch.allyPositions[selectedIndex])+' 위치 고정':name(selectedId)+' 선택됨 · 원하는 출발 칸을 누르면 이동하거나 위치를 교환합니다.'):'장수를 고르고 원하는 출발 칸을 선택하세요.';
+ const cards=visibleUnits.map(unit=>{
+  const id=unit.id,index=slots.indexOf(id),inSortie=index>=0,guest=info.fixedGuests.includes(id),required=ch.required.includes(id)||guest,blocked=ch.unavailable.includes(id)||army.heroes[id].departed,full=!inSortie&&info.regularCount>=info.regularMax,status=guest?'고정 동행':required?'필수':inSortie?'출전':'대기';
+  return '<article class="deploy-card '+(inSortie?'in-sortie ':'')+(selectedId===id?'placing':'')+'"><button class="deploy-card-main" '+(inSortie?'data-deploy-select="'+esc(id)+'" aria-pressed="'+(selectedId===id)+'"':'data-deploy-unit="'+esc(id)+'"')+' '+(blocked||full?'disabled':'')+' aria-label="'+esc(unit.name)+' '+(inSortie?'배치 선택':'출전 추가')+'">'+(spriteHTML(unit)||'<span class="hero-placeholder">'+esc(unit.name.slice(0,1))+'</span>')+'<span><b>'+esc(unit.name)+' <small>Lv'+unit.level+'</small></b><small>'+esc(rankName(unit))+'</small><small>'+status+(fixed(index)?' · 고정':'')+(inSortie?' · '+deploymentCoordinate(ch.allyPositions[index]):'')+'</small></span></button>'+(inSortie&&!required?'<button class="deploy-remove" data-deploy-unit="'+esc(id)+'" aria-label="'+esc(unit.name)+' 출전 해제">대기</button>':'')+'</article>';
+ }).join('');
+ const cols=ch.terrain[0].length,rows=ch.terrain.length,map='<span class="deploy-axis"></span>'+Array.from({length:cols},(_,x)=>'<span class="deploy-axis">'+String.fromCharCode(65+x)+'</span>').join('')+ch.terrain.map((row,y)=>'<span class="deploy-axis">'+(y+1)+'</span>'+[...row].map((t,x)=>{
+  const at=ch.allyPositions.findIndex(([sx,sy])=>sx===x&&sy===y),id=at>=0?slots[at]:null,e=ch.enemies.find(e=>e.position[0]===x&&e.position[1]===y),coordinate=deploymentCoordinate([x,y]),classes='deploy-cell '+(t==='F'?'forest':t==='#'?'river':'')+(at>=0?' spawn':'')+(e?' enemy':'')+(id?' occupied':'')+(id===selectedId&&id?' placing':'')+(fixed(at)?' locked':'');
+  if(at>=0)return '<button class="'+classes+'" data-deploy-slot="'+at+'" data-grid-x="'+x+'" data-grid-y="'+y+'" aria-label="'+coordinate+' · '+esc(id?name(id):'빈 출발 칸')+(fixed(at)?' · 위치 고정':'')+'" aria-pressed="'+(!!id&&id===selectedId)+'" title="'+coordinate+' · '+esc(id?name(id):'공석')+'">'+(id?'<b>'+esc(name(id).slice(0,1))+'</b><small>'+esc(name(id))+'</small>':'<small>공석</small>')+(fixed(at)?'<span class="deploy-lock" aria-hidden="true">◆</span>':'')+'</button>';
+  return '<span class="'+classes+'" title="'+coordinate+(e?' · 적 부대':'')+'" '+(e?'aria-label="적 부대"':'aria-hidden="true"')+'>'+(e?'적':t==='F'?'숲':t==='#'?esc(mapLayoutWallLabel(ch,ch,x,y)??blockedLabel):'')+'</span>';
+ }).join('')).join('');
+ const composition=Object.entries(ids.reduce((counts,id)=>{const cls=byId[id]?.cls;counts[cls]=(counts[cls]??0)+1;return counts;},{})).map(([cls,count])=>esc(army.balance?.classes?.[cls]?.name??({infantry:'보병',cavalry:'기병',spear:'창병',archer:'활병',crossbow:'석궁병',strategist:'책사'})[cls])+' '+count).join(' · ');
+ return '<div class="deployment-compact '+(ch.campaignLayoutVersion===1?'expanded-deployment':'')+'"><div class="deploy-top"><h3>출전 편성</h3><strong>정규 '+info.regularCount+' / '+info.regularMax+(info.fixedGuests.length?' + 고정 동행 '+info.fixedGuests.length:'')+'</strong><button class="quiet" data-deployment-details="open">편성 상세</button></div><div class="deployment-content-scroll"><div class="deployment-board-layout"><section class="prep-placement-map"><div class="deploy-map-scroll"><div class="deploy-map" role="group" aria-label="출발 위치 배치 지도" style="--deploy-columns:'+cols+';--deploy-rows:'+rows+';aspect-ratio:'+(cols+1)+' / '+(rows+1)+';grid-template-columns:18px repeat('+cols+',minmax(0,1fr));grid-template-rows:18px repeat('+rows+',minmax(0,1fr))">'+map+'</div></div></section><aside class="deployment-selection-panel"><span class="eyebrow">출발 위치</span><p id="deploy-selection" class="deploy-selection" role="status">'+esc(chosen)+'</p><div class="deployment-map-key"><span><i class="ally"></i>아군 출발 칸</span><span><i class="enemy"></i>적 부대</span><span>◆ 위치 고정</span></div><p class="deploy-key-help">장수 선택 → 출발 칸 선택 → 이동·교환<br>방향키로 칸 이동 · Enter 또는 Space로 배치</p></aside></div><section class="prep-placement-roster"><div class="deployment-roster-heading"><h4>출전 가능한 장수</h4><span>'+visibleUnits.length+'명 · 출전 '+slots.filter(Boolean).length+'명</span><button type="button" class="quiet" data-deploy-order-edit aria-haspopup="dialog">순서 편집</button></div><div class="deployment-roster-track" role="group" aria-label="출전 장수 선택">'+cards+'</div></section></div><div class="deploy-actions"><p class="deploy-message" id="deploy-message" role="status">'+esc(message||(ids.length?'빈칸을 포함해 편성과 위치를 확인하세요.':'최소 한 명을 선택하세요.'))+'</p><button data-deploy="reset">기본 편성으로</button>'+(preparing?'':'<button data-deploy="confirm" class="primary" '+(ids.length?'':'disabled')+'>이 편성으로 출전 · '+ids.length+'명 →</button>')+'</div><dialog class="deployment-details-dialog" id="deployment-details-dialog" aria-labelledby="deployment-details-title"><div class="dialog-heading"><h3 id="deployment-details-title">편성 상세</h3><button data-deployment-details="close" aria-label="편성 상세 닫기">닫기</button></div><section class="prep-panel"><h4>편성 상태</h4><p><b>정규 '+info.regularCount+' / '+info.regularMax+'</b> · '+(ids.length?'출전 가능':'최소 한 명을 선택하세요.')+'</p><p>공석 '+(info.regularMax-info.regularCount)+'칸 · 필수 '+ch.required.length+'명 포함</p>'+(info.fixedGuests.length?'<p>고정 동행 '+info.fixedGuests.map(name).map(esc).join(' · ')+'</p>':'')+'</section><section class="prep-panel"><h4>선택한 장수</h4><p>'+esc(selectedId?name(selectedId):'장수를 선택하세요')+(selectedIndex>=0?' · '+deploymentCoordinate(ch.allyPositions[selectedIndex]):'')+'</p><small>'+esc(selectedId?traitLabel(selectedId):'필수 출전과 위치 고정은 별도입니다.')+'</small></section><section class="prep-panel"><h4>병과 구성</h4><p>'+composition+'</p></section></dialog></div>';
+}

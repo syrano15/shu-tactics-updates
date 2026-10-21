@@ -1,0 +1,225 @@
+{
+  "version": "0.74.15",
+  "layoutVersion": 1,
+  "format": "self-contained SVG; original full landscape plus narrow edge feather and signed fortification",
+  "originalRastersUnchanged": true,
+  "newSVGBytes": 26160780,
+  "maps": [
+    {
+      "id": "s22_jiameng",
+      "path": "dist/art/maps/v07415/s22_jiameng.svg",
+      "bytes": 1051987,
+      "sha256": "82333351c045b92752dca73152890a91b0424ceb4c05267812f1f3a6220f30e3",
+      "source": "dist/art/maps/v0730/s22_jiameng.webp",
+      "sourceSHA256": "89fac4f53137aa52cbab642abedeebd3aa488514a5c8034c7452dd3bd98c0c28",
+      "terrainSHA256": "286f8d37a1eafef1391b3998cd8cbcbef939a476e423640a09e7a85a49ad5f6d"
+    },
+    {
+      "id": "s23_fucheng",
+      "path": "dist/art/maps/v07415/s23_fucheng.svg",
+      "bytes": 1516369,
+      "sha256": "bceb30b232cd8f35d86a8a6968abdf23282897657b95f635350542ba0c2fb32f",
+      "source": "dist/art/maps/v0730/s23_fucheng.webp",
+      "sourceSHA256": "b7db8dfb9fac732801823b06f67fcef0750f05701c42396a4bbcbe2432f75ad1",
+      "terrainSHA256": "68e54143a258f037b520f198b2636ad2b98dc3550dcb9a60503ef03e4c1bce8f"
+    },
+    {
+      "id": "s24_luofengpo",
+      "path": "dist/art/maps/v07415/s24_luofengpo.svg",
+      "bytes": 974998,
+      "sha256": "319a446e5a7c502018f52a6066b7c424526a5be1ae72123374ce471d8ef66b59",
+      "source": "dist/art/maps/v0730/s24_luofengpo.webp",
+      "sourceSHA256": "2c4fcb0926c264ba759a33841e3a583da3c67df015da29187f4751c30651941c",
+      "terrainSHA256": "7b367b5fb9d391d49bcc0ace0b3e65a2fd6baa80ef148982aa1f5cedb9325187"
+    },
+    {
+      "id": "s25_luocheng",
+      "path": "dist/art/maps/v07415/s25_luocheng.svg",
+      "bytes": 1590869,
+      "sha256": "ff40385cf66da9e465640e94be0aa04f776666a96dc5cc0d57e4132a946fac82",
+      "source": "dist/art/maps/v0730/s25_luocheng.webp",
+      "sourceSHA256": "4e4eabe9543b35a8af692e3495abae9dabf20f5b4111751acbac1041e869ddb8",
+      "terrainSHA256": "2347b7a8ae98892a56e0a7b192c3a43d881d51685c15faff25e5c75d6e999241"
+    },
+    {
+      "id": "s26_machao",
+      "path": "dist/art/maps/v07415/s26_machao.svg",
+      "bytes": 970179,
+      "sha256": "7a813ded4b1e02c90face3141f5be2669813696b72844ddf0c1faa0edb042c1d",
+      "source": "dist/art/maps/v0730/s26_machao.webp",
+      "sourceSHA256": "53c3be029fdc164920a560a83c576740901c5154fb9040308efaf5cbb9c467a1",
+      "terrainSHA256": "bf4794352167587cdd399d17454e4638b5ba70e98b0beeb10b7f55eb74e27818"
+    },
+    {
+      "id": "s27_chengdu",
+      "path": "dist/art/maps/v07415/s27_chengdu.svg",
+      "bytes": 1142197,
+      "sha256": "20b733a872fbd4689e41d350e899d1371a2383c516373069e4f702271a02b0e3",
+      "source": "dist/art/maps/v0730/s27_chengdu.webp",
+      "sourceSHA256": "a8b2c3f06fba77d42303fbd5e8a5eb641d77be9821f7fe6c263b29aa577bebe9",
+      "terrainSHA256": "14cf0a40ff173288d7467e0d2ceb148651511546f72deb46e208f605471ac80c"
+    },
+    {
+      "id": "s28_dangqu",
+      "path": "dist/art/maps/v07415/s28_dangqu.svg",
+      "bytes": 1128244,
+      "sha256": "27f5a860fd37a959fbad153f51d6ca8102b24a3d54c81a785eca50956b514d5b",
+      "source": "dist/art/maps/v0730/s28_dangqu.webp",
+      "sourceSHA256": "aa0b12e3a334e8669990db12df53eecd1ffb6dbc908087ba1ef11b61de4d4a80",
+      "terrainSHA256": "698e39d0951c0dd7f0a202ba59804266227a672e5a3b8946a385aa06de0c0103"
+    },
+    {
+      "id": "s29_dingjun",
+      "path": "dist/art/maps/v07415/s29_dingjun.svg",
+      "bytes": 1159328,
+      "sha256": "19fedee02386159e5e1c8ef7901b480d05d552aad6dfa1a7e4fb29cf5dbaebb4",
+      "source": "dist/art/maps/v0730/s29_dingjun.webp",
+      "sourceSHA256": "a1e381279f3b36b624992dbe2c3d7ff6536a6a6932ae985248dbb0e7bcd3c1ec",
+      "terrainSHA256": "b13b7391f88131bd33a0fb254b7905bafec474dc646da0f73689ceb43e056c21"
+    },
+    {
+      "id": "s30_hanshui",
+      "path": "dist/art/maps/v07415/s30_hanshui.svg",
+      "bytes": 884740,
+      "sha256": "adcdf10b6a3821bd18ce26df1a0785e55c9d32afd08edde115f95fc8cfb7e9a2",
+      "source": "dist/art/maps/v0730/s30_hanshui.webp",
+      "sourceSHA256": "9ed71c67b4c78f5192d482600af392b2a14a438adee8a20d16e358ed376c18cf",
+      "terrainSHA256": "69330ee1cf974e6c2909bd75dd5dc5548d1a9583f6e93ce3718eb52e97c235f4"
+    },
+    {
+      "id": "s31_hanzhong",
+      "path": "dist/art/maps/v07415/s31_hanzhong.svg",
+      "bytes": 933747,
+      "sha256": "d308356324efa9580dc9f9e12f92cdfb42e3a6c0af632dad69e19c56890cdab0",
+      "source": "dist/art/maps/v0730/s31_hanzhong.webp",
+      "sourceSHA256": "e6d57630248a80d13f8f25c6f3e23b2357a45f4c23b0f10b42031504298c5c2c",
+      "terrainSHA256": "5358ceedc188efbf4fe0dd6bee3a492ac8f42d056e7806dca0404aed002defc1"
+    },
+    {
+      "id": "s32_fancheng",
+      "path": "dist/art/maps/v07415/s32_fancheng.svg",
+      "bytes": 967066,
+      "sha256": "bd49d5883f0f015de2b228fa543f1df0553f65bb30ce0afb70aac4f978f17c18",
+      "source": "dist/art/maps/v0730/s32_fancheng.webp",
+      "sourceSHA256": "588ba24f78c0f12d140486f8cb2b8fbd732d28df4e11ee721e6d780a3fb2adaa",
+      "terrainSHA256": "18ef4ddebffa273a62abbd061da419aaa78a1505e5699dbbeec468679a1ff9c7"
+    },
+    {
+      "id": "s33_flood",
+      "path": "dist/art/maps/v07415/s33_flood.svg",
+      "bytes": 839738,
+      "sha256": "5749209374412ff09696fd06b485e35e7aa36faa3c27619d8c68fd17ea12dab0",
+      "source": "dist/art/maps/v0730/s33_flood.webp",
+      "sourceSHA256": "ba84606544ad35cf0310855daa8eca7e4dc49c77c20f42064b3160517417e459",
+      "terrainSHA256": "2eef80ab33dda9c4d709857cff386c89e6a4586cd667771dffb15c9796c29a16"
+    },
+    {
+      "id": "s34_xuhuang",
+      "path": "dist/art/maps/v07415/s34_xuhuang.svg",
+      "bytes": 918341,
+      "sha256": "2e317dea0d00cf23bf9784b3add43cc92796f0e2d4621e1c8bb476222c4e42e3",
+      "source": "dist/art/maps/v0730/s34_xuhuang.webp",
+      "sourceSHA256": "2d221a964f1d2ec75abccf9c8bb99226c57ff1150681834e4b863bcfe9b9ae03",
+      "terrainSHA256": "c12029a148e6f121d54d07751690a3850d3c462bb0db7434bb3e4bec44d51785"
+    },
+    {
+      "id": "s35_white_robes",
+      "path": "dist/art/maps/v07415/s35_white_robes.svg",
+      "bytes": 848117,
+      "sha256": "3ba1746c032c9027a0b20bb6a0c28b7433cce0f6d29371e1bd35e171aef164e4",
+      "source": "dist/art/maps/v0730/s35_white_robes.webp",
+      "sourceSHA256": "3a561a991953ffabe341c8a6d52af0071f182912cc659a130f4c1ecd8bb2b4ee",
+      "terrainSHA256": "1db084b06fdf6ee60594804ad08e6cc8cba5646ee375928b43437ada0935c31a"
+    },
+    {
+      "id": "s36_maicheng",
+      "path": "dist/art/maps/v07415/s36_maicheng.svg",
+      "bytes": 1657412,
+      "sha256": "1c195d347ead181ac0e7a7511ed4199e33fd25ed26fb09a3166caf886536b4c5",
+      "source": "dist/art/maps/v0730/s36_maicheng.webp",
+      "sourceSHA256": "b0ad612447db63b5dc3c1bef123454084468d27c397c9ee2cfd8694481b2ac83",
+      "terrainSHA256": "478eb3c62f85c2b7bf605ed1aec989411424a3d689a39c2bf89a4ba70128512b"
+    },
+    {
+      "id": "s37_jiangling_retake",
+      "path": "dist/art/maps/v07415/s37_jiangling_retake.svg",
+      "bytes": 1005427,
+      "sha256": "fbb28dd23d4e779597d371aa2b011c7d5bed3e9c81699662449436b09fd9e86e",
+      "source": "dist/art/maps/v0730/s37_jiangling_retake.webp",
+      "sourceSHA256": "8676954ab66360006b205fc141b76dee8d584a9114afc5ea18b898afe61f012c",
+      "terrainSHA256": "c47fea7f2ea291633789c9b5e945e00aef086a40105ecf981efab15dffcda9d8"
+    },
+    {
+      "id": "s38_langzhong",
+      "path": "dist/art/maps/v07415/s38_langzhong.svg",
+      "bytes": 618927,
+      "sha256": "1f0f471a1fba1a942ba4315537c69e2017cb87e8d7efb294e9a1c36598955667",
+      "source": "dist/art/maps/v0730/s38_langzhong.webp",
+      "sourceSHA256": "bf7a699c14b929ea2c025f8e06c93821871047e70aded1358259a49d7a7e095d",
+      "terrainSHA256": "6627e3ecb4088746c09a3ac8f7e519cd76721d7202e9005e9cb77ab0cc184e07"
+    },
+    {
+      "id": "s39_wuxia",
+      "path": "dist/art/maps/v07415/s39_wuxia.svg",
+      "bytes": 1453957,
+      "sha256": "0afbb4b91ff8c036e3aa569df8ed9b723c51827c2eaeaa736b976d2f09cfb545",
+      "source": "dist/art/maps/v0730/s39_wuxia.webp",
+      "sourceSHA256": "b5ac09bd9263041ccfb91b9ce25a8b9d087d632ef967415559cc9de68322e692",
+      "terrainSHA256": "9aa9d189e8d5f38cc531b6646fe49254f907544f4d708b64430d51b6afc0ca05"
+    },
+    {
+      "id": "s40_yiling",
+      "path": "dist/art/maps/v07415/s40_yiling.svg",
+      "bytes": 842431,
+      "sha256": "ffd312d40eaca4ba4d27cdffbee5a2db5b3270f4fe48510c6b4d1a7026ebdb32",
+      "source": "dist/art/maps/v0730/s40_yiling.webp",
+      "sourceSHA256": "1febd01e7b7cfb57556f481ebec0273e983fe2af166f0b90996314aad6cf11ca",
+      "terrainSHA256": "9613594fcf15c738370aa4e0fe341e84eda0b6a41f68658abd3d148290c32bbf"
+    },
+    {
+      "id": "s41_ruxu",
+      "path": "dist/art/maps/v07415/s41_ruxu.svg",
+      "bytes": 858548,
+      "sha256": "454a78d3cb9cd0a7622f3f8f63064652937742a74673d86de1709bf2bc0187e8",
+      "source": "dist/art/maps/v0730/s41_ruxu.webp",
+      "sourceSHA256": "b2d1dc8f16058e3912ae75afcd408c9becef57a80ec2b223280b27e295a1d6ec",
+      "terrainSHA256": "23fd12b8244cfa3a251b530276d3128c8549ea31e13a3fd16e6d74df8b1f5fb6"
+    },
+    {
+      "id": "s42_alliance",
+      "path": "dist/art/maps/v07415/s42_alliance.svg",
+      "bytes": 856436,
+      "sha256": "03d278c3997596a35f25c70bb6449f2d0a88b4814e6850edcc653568f56b2189",
+      "source": "dist/art/maps/v0730/s42_alliance.webp",
+      "sourceSHA256": "fdefc6d3ac172007322edcade6399f0fa3f31df0e28bfd32283dae759989dd56",
+      "terrainSHA256": "23fd12b8244cfa3a251b530276d3128c8549ea31e13a3fd16e6d74df8b1f5fb6"
+    },
+    {
+      "id": "s43_lushui",
+      "path": "dist/art/maps/v07415/s43_lushui.svg",
+      "bytes": 989085,
+      "sha256": "c15723ed4aa6db73b8a0e8d17e09ad0106b8841d0222453d212c9a33930952f0",
+      "source": "dist/art/maps/v0730/s43_lushui.webp",
+      "sourceSHA256": "450b682d98f8d2ca1b771528a06209812232ba3ff02405fc980926d03eb47176",
+      "terrainSHA256": "fc7727a1cab4cfb960075ff9fe4f7e155d3decb737b280fe8d173b9155a4be5f"
+    },
+    {
+      "id": "s44_menghuo",
+      "path": "dist/art/maps/v07415/s44_menghuo.svg",
+      "bytes": 1424657,
+      "sha256": "0e061a44ff7438ea06d14f74cf5190db093e619ff17bd3455c2c985481de5b79",
+      "source": "dist/art/maps/v0730/s44_menghuo.webp",
+      "sourceSHA256": "39e1533a8b6b0acb32a40c1be323b5dbe8a5411ad0f0ec9da5512081daf2114c",
+      "terrainSHA256": "d0c13b9278aa00bbbd39f8902fbc82595d8f53efc5ac447b4b2bb580e670569e"
+    },
+    {
+      "id": "s45_rattan",
+      "path": "dist/art/maps/v07415/s45_rattan.svg",
+      "bytes": 1527980,
+      "sha256": "ee37a7e8e77b64ea22957a71bea8e7ce1d83319716ca99a954f0b499b97bca25",
+      "source": "dist/art/maps/v0730/s45_rattan.webp",
+      "sourceSHA256": "fd38cdd1302ff6053d7c96771eb3c45b9a1587f734152030bfa2ddfcb17f0f88",
+      "terrainSHA256": "aceb65350ae6d181b5f77a9646fd866de1dfb24439a8b66e0fd0a76b1c5d6904"
+    }
+  ]
+}

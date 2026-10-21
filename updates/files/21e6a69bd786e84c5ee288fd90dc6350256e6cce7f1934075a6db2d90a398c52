@@ -1,0 +1,98 @@
+import {reinforcementPolicyRemovedIds} from './reinforcement-policy.js';
+import {CHAPTERS,CHARACTERS} from './campaign.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {HERO_DATA} from './heroes.js';
+import {readDialogue,FACTION_NAMES,equipmentDropMetadata} from './story-data.js';
+import {DEFAULT_BALANCE} from './balance.js';
+import {mapSize} from './maps.js';
+import {validateObjective,validateDefeat} from './objectives.js';
+import {validateStoryEvents} from './story-events.js';
+import {PARTS} from './equipment.js';
+import {MAX_LEVEL} from './growth-rules.js';
+
+// Install only after all existing 31 chapters. Historical mutable
+// chapter objects, historical IDs, templates and save versions stay untouched.
+export const ACT5_CHAPTER_IDS=Object.freeze(["s32_fancheng","s33_flood","s34_xuhuang","s35_white_robes","s36_maicheng","s37_jiangling_retake"]);
+export const ACT5_SORTIE_CAPS=Object.freeze([5,5,5,4,4,16]);
+const tiers=['troop','elite','officer','boss'];
+const assert=(ok,message)=>{if(!ok)throw new Error('5막 장 데이터 오류: '+message);};
+const object=value=>value&&typeof value==='object'&&!Array.isArray(value);
+const text=value=>typeof value==='string'&&value.length>0&&!/[<>\n\r]/.test(value);
+const integer=(value,min,max)=>Number.isInteger(value)&&value>=min&&value<=max;
+const unique=values=>new Set(values).size===values.length;
+const tileKey=tile=>tile.join(',');
+const validCell=(terrain,tile)=>Array.isArray(tile)&&tile.length===2&&tile.every(Number.isInteger)&&tile[0]>=0&&tile[1]>=0&&terrain[tile[1]]?.[tile[0]]!==undefined&&terrain[tile[1]][tile[0]]!=='#';
+
+function enemyTemplate(value){
+ assert(object(value)&&text(value.name)&&Object.hasOwn(DEFAULT_BALANCE.classes,value.class)&&tiers.includes(value.combatTier),'적 원본/병과/등급');
+ for(const [key,min,max] of [['troops',1,40000],['attack',0,1000],['defense',0,1000],['intellect',0,1000],['move',1,20]])assert(integer(value[key],min,max),'적 원본 수치 '+key);
+ return {name:value.name,han:value.name[0],cls:value.class,hpBonus:0,atkBonus:0,playable:false,generic:['troop','elite'].includes(value.combatTier),combatTier:value.combatTier,baseStats:{hp:value.troops,atk:value.attack,def:value.defense,int:value.intellect,move:value.move}};
+}
+
+function validateMilestones(stage){
+ const goals=stage.act5Objectives;
+ assert(Array.isArray(goals)&&goals.length===2&&unique(goals.map(goal=>goal.key)),'성장 목표 목록');
+ for(const goal of goals)assert(object(goal)&&Object.keys(goal).every(key=>['key','tiles','label'].includes(key))&&/^[a-z][a-z0-9_]*$/.test(goal.key)&&text(goal.label)&&goal.label.length<=40&&Array.isArray(goal.tiles)&&goal.tiles.length>0&&goal.tiles.length<=6&&unique(goal.tiles.map(tileKey))&&goal.tiles.every(tile=>validCell(stage.terrain,tile)),'성장 목표 거점');
+ const optional=stage.act5OptionalObjective;
+ assert(object(optional)&&Object.keys(optional).every(key=>['type','tiles','label'].includes(key))&&optional.type==='occupyTile'&&text(optional.label)&&optional.label.length<=40&&Array.isArray(optional.tiles)&&optional.tiles.length===1&&optional.tiles.every(tile=>validCell(stage.terrain,tile)),'선택 보급 목표');
+ assert(!goals.some(goal=>goal.tiles.some(tile=>tileKey(tile)===tileKey(optional.tiles[0])))&&!(stage.victory.tiles??[]).some(tile=>tileKey(tile)===tileKey(optional.tiles[0])),'선택 목표와 승리/성장 목표 분리');
+}
+
+export function appendAct5(stages,dialogue){
+ assert(stages?.schemaVersion===1&&Array.isArray(stages.stages)&&stages.stages.length===6,'스테이지 형식/6장');
+ assert(CHAPTERS.length===31&&CHAPTERS[30]?.id==='s31_hanzhong'&&CHAPTERS.every(ch=>ch.campaignLayoutVersion===1),'기존 1~4막 확대 후 연결');
+ const story=readDialogue(dialogue);
+ assert(story.chapters.length===6&&story.chapters.every((chapter,index)=>chapter.id===ACT5_CHAPTER_IDS[index]),'원고 장 ID/순서');
+ const templates={};
+ assert(object(stages.namedEnemyTemplates),'적 원본 목록');
+ for(const [id,value] of Object.entries(stages.namedEnemyTemplates)){
+  assert(/^[a-z][a-z0-9_]*$/.test(id),'적 원본 ID');
+  templates['act5_'+id]=enemyTemplate(value);
+ }
+ // Build and validate every new chapter before registering any new templates.
+ // A malformed later chapter cannot leave a partially installed campaign.
+ const installedIds=new Set(CHAPTERS.map(ch=>ch.id));
+ const result=stages.stages.map((stage,index)=>{
+  const expectedId=ACT5_CHAPTER_IDS[index],d=story.chapters[index];
+  assert(stage.id===expectedId&&!installedIds.has(stage.id)&&stage.no===index+32&&stage.act===5&&stage.combatProfile==='act2'&&stage.campaignLayoutVersion===1,'장 ID/순서/전투 프로필');
+  const size=mapSize(stage.terrain,1);
+  assert(Array.isArray(stage.size)&&stage.size[0]===size.width&&stage.size[1]===size.height&&size.width>=24&&size.width<=26&&size.height>=18&&size.height<=20,'맵 크기');
+  const formation=stage.sortie;
+  assert(object(formation)&&formation.fixed===false&&Array.isArray(formation.required)&&formation.required.length>=1&&formation.required.length<=formation.maxSortie&&unique(formation.required)&&Array.isArray(formation.unavailable)&&unique(formation.unavailable)&&formation.maxSortie===ACT5_SORTIE_CAPS[index]&&formation.regularSortie===formation.maxSortie&&!(formation.fixedGuests?.length),'정규/필수 편성');
+  const prior=new Set([...CHAPTERS.map(ch=>ch.id),...ACT5_CHAPTER_IDS.slice(0,index)]);
+  const owned=Object.values(HERO_DATA).filter(hero=>!hero.guest&&(hero.joinAfterChapter==='start'||prior.has(hero.joinAfterChapter))&&!prior.has(hero.leaveAfterChapter)).map(hero=>hero.id);
+  assert(formation.required.every(id=>owned.includes(id)&&UNIT_TEMPLATES[id]?.playable&&!formation.unavailable.includes(id))&&formation.unavailable.every(id=>Object.hasOwn(HERO_DATA,id))&&owned.filter(id=>!formation.unavailable.includes(id)).length>=formation.maxSortie,'합류/출전 가능 장수');
+  assert(Array.isArray(stage.allySlots)&&stage.allySlots.length===formation.maxSortie&&Array.isArray(stage.enemies)&&stage.enemies.length>=1&&Array.isArray(stage.extraAllies)&&stage.extraAllies.length===0&&stage.allySlots.length+stage.enemies.length<80,'부대 수/정규 출발칸');
+  const positions=stage.allySlots.map(tile=>[...tile]),ids=[...owned];
+  const enemies=stage.enemies.map(enemy=>{
+   const templateId='act5_'+enemy.template,base=templates[templateId];
+   assert(base&&enemy.combatTier===base.combatTier&&Object.hasOwn(FACTION_NAMES,enemy.faction),'적 원본/진영/등급');
+   assert(/^[a-z][a-z0-9_]*$/.test(enemy.id)&&integer(enemy.level,1,MAX_LEVEL)&&integer(enemy.rank,0,2)&&['hold','charge'].includes(enemy.aiMode)&&integer(enemy.gold,0,100000000),'적 ID/고정 레벨/승급/AI/금화');
+   assert(enemy.advanceRound===undefined||integer(enemy.advanceRound,1,99),'전진 라운드');
+   assert(enemy.loot===undefined||Array.isArray(enemy.loot)&&enemy.loot.every(id=>Object.hasOwn(PARTS,id)),'적 장비 전리품');
+   positions.push([enemy.x,enemy.y]);ids.push(enemy.id);
+   return {id:enemy.id,templateId,position:[enemy.x,enemy.y],level:enemy.level,rank:enemy.rank,aiMode:enemy.aiMode,faction:enemy.faction,combatTier:enemy.combatTier,gold:enemy.gold,...(enemy.boss?{boss:true}:{}),...(enemy.advanceRound?{advanceRound:enemy.advanceRound}:{}),...(enemy.loot?{loot:[...enemy.loot]}:{})};
+  });
+  assert(unique(enemies.map(enemy=>enemy.id))&&enemies.filter(enemy=>enemy.id==='e_boss'&&enemy.combatTier==='boss').length===1,'적 중복/지휘관');
+  assert(positions.every(tile=>validCell(stage.terrain,tile))&&unique(positions.map(tileKey)),'통행/중복 배치');
+  const objective=validateObjective(stage.victory,[...owned.map(id=>({id,team:'ally'})),...enemies.map(enemy=>({id:enemy.id,team:'enemy'}))],stage.terrain);
+  const defeat=validateDefeat(stage.defeat,owned.map(id=>({id,team:'ally'})));
+  assert(defeat.every(rule=>formation.required.includes(rule.unit)),'보호 장수 필수 출전');
+  assert(text(stage.brief)&&text(stage.intermissionHint)&&text(stage.blockedLabel)&&['rock','water','wall'].includes(stage.blockedKind),'전투/정비/지형 설명');
+  const bridges=stage.bridgeCells??[];
+  assert(Array.isArray(bridges)&&unique(bridges.map(tileKey))&&bridges.every(tile=>validCell(stage.terrain,tile)),'다리 지형');
+  validateMilestones(stage);
+  assert(Array.isArray(stage.act5SuggestedSortie)&&stage.act5SuggestedSortie.length>=formation.maxSortie&&stage.act5SuggestedSortie.length<=38&&unique(stage.act5SuggestedSortie)&&stage.act5SuggestedSortie.every(id=>Object.hasOwn(HERO_DATA,id)&&!HERO_DATA[id].guest),'기본 추천 출전');
+  const reinforcements=structuredClone(stage.reinforcements??[]);
+  assert(Array.isArray(reinforcements)&&reinforcements.length<=3&&unique(reinforcements.map(wave=>wave.id))&&unique(reinforcements.flatMap(wave=>wave.unitIds??[])),'증원 파동 목록');
+  for(const wave of reinforcements)assert(/^[a-z][a-z0-9_]*$/.test(wave.id)&&Array.isArray(wave.unitIds)&&wave.unitIds.length>=1&&wave.unitIds.length<=4&&wave.unitIds.every(id=>enemies.some(e=>e.id===id))&&wave.trigger?.type==='roundStart'&&integer(wave.trigger.round,1,99),'유한 증원 정의');
+  validateStoryEvents(d.events,ids,reinforcements.map(wave=>wave.id),stage.terrain);
+  assert(stage.weatherStart===undefined||['clear','rain'].includes(stage.weatherStart),'초기 날씨');
+  assert(integer(stage.act5EnemyGoldTotal,0,100000000)&&enemies.reduce((sum,enemy)=>sum+enemy.gold,0)===stage.act5EnemyGoldTotal,'전리금 합계');
+  return {id:stage.id,contentVersion:1,aliases:[],title:d.title,location:d.location,subtitle:'5막 형주 결전 · '+d.title,act:5,combatProfile:'act2',rosterMode:'story',campaignLayoutVersion:1,lockRequired:true,positionLocked:formation.required.filter(id=>id==='liubei'),...structuredClone(formation),act5SuggestedSortie:[...stage.act5SuggestedSortie],terrain:[...stage.terrain],allyPositions:structuredClone(stage.allySlots),enemies,extraAllies:[],...equipmentDropMetadata(stage,enemies,[]),battleEventsVersion:1,...(reinforcements.length?{reinforcements}:{}),...(stage.weatherStart?{weatherStart:stage.weatherStart}:{}),objective,defeat,brief:stage.brief,intermissionHint:stage.intermissionHint,blockedLabel:stage.blockedLabel,blockedKind:stage.blockedKind,bridgeCells:structuredClone(bridges),reward:structuredClone(stage.reward),art:structuredClone(stage.art),act5Objectives:structuredClone(stage.act5Objectives),act5OptionalObjective:structuredClone(stage.act5OptionalObjective),act5EnemyGoldTotal:stage.act5EnemyGoldTotal,era:d.era,actMap:d.actMap??'map_act5',fate:structuredClone(stage.fate??d.fate),bg:structuredClone(d.bg),bgm:structuredClone(d.bgm),victoryFx:structuredClone(d.victoryFx),episodeTitle:dialogue.episodeTitle,events:structuredClone(d.events),pre:structuredClone(d.pre),post:structuredClone(d.post),defeatDialogue:structuredClone(d.defeat),speakers:structuredClone(story.speakers),enemyLabel:index<3?'위군':index===3?'위·오 추격군':'오군',campaignLayout:{version:1,width:size.width,height:size.height,enemyTotal:enemies.length-reinforcementPolicyRemovedIds({act:5},reinforcements).length,fronts:index===5?'북측 성문·남측 성문·후방 보급로':index===4?'서쪽 산길·북쪽 복병':index===3?'남측 퇴로·북측 추격군':'북측 진출로·동측 지원로',renderer:'terrainTiles'}};
+ });
+ Object.assign(UNIT_TEMPLATES,templates);
+ for(const [id,name] of Object.entries(story.speakers))if(!CHARACTERS[id])CHARACTERS[id]={name,title:'',han:name[0],side:'left'};
+ CHAPTERS.push(...result);
+ return result;
+}
