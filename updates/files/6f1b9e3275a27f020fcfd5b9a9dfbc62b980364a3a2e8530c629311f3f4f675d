@@ -1,0 +1,51 @@
+// A versioned overlay preserves source formations and every already arrived unit.
+// pending continues to hold all unspawned units; eligible records only readiness.
+export const REINFORCEMENT_POLICY_VERSION=1;
+const ensure=(ok,message)=>{if(!ok)throw new Error('증원 정책 기록 오류: '+message);};
+const unique=ids=>Array.isArray(ids)&&ids.every(id=>typeof id==='string')&&new Set(ids).size===ids.length;
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+export const reinforcementPolicyApplies=chapter=>chapter?.rosterMode==='story'&&chapter.campaignLayoutVersion===1&&chapter.battleEventsVersion===1&&chapter.act>=3&&chapter.act<=7&&(chapter.reinforcements??[]).some(wave=>wave.team!=='ally');
+export function reinforcementPolicyLimits(chapter){return chapter.act===3?{waves:1,units:5}:chapter.act===4?{waves:1,units:6}:chapter.act===5?{waves:2,units:5}:{waves:2,units:6};}
+export function reinforcementPolicyRemovedIds(chapter,waves,spawnedBefore=[]){
+ const {waves:maximum,units}=reinforcementPolicyLimits(chapter),history=new Set(spawnedBefore);let remaining=Math.max(0,maximum-history.size);
+ return waves.filter(wave=>wave.team!=='ally').flatMap(wave=>history.has(wave.id)?[]:remaining-->0?wave.unitIds.slice(units):wave.unitIds);
+}
+export function reinforcementPolicyWaves(state,chapter,waves){
+ if(!state.reinforcementPolicy)return waves;const removed=new Set(state.reinforcementPolicy.removedIds);
+ return waves.map(wave=>wave.team==='ally'?wave:{...wave,unitIds:wave.unitIds.filter(id=>!removed.has(id))}).filter(wave=>wave.unitIds.length);
+}
+export function initializeReinforcementPolicy(state,chapter,waves,{reinforcementPolicyVersion=1,reinforcementPolicyRemovedIds=null,reinforcementPolicySpawnedBefore=null}={}){
+ ensure([0,1].includes(reinforcementPolicyVersion),'지원하지 않는 버전');if(!reinforcementPolicyVersion||!reinforcementPolicyApplies(chapter))return;
+ const spawnedBefore=reinforcementPolicySpawnedBefore===null?[]:[...reinforcementPolicySpawnedBefore],enemyWaves=waves.filter(wave=>wave.team!=='ally');
+ ensure(unique(spawnedBefore)&&spawnedBefore.every(id=>enemyWaves.some(wave=>wave.id===id)),'과거 도착 명단');
+ const expected=reinforcementPolicyRemovedIds===null?reinforcementPolicyRemovedIdsFor(chapter,waves,spawnedBefore):[...reinforcementPolicyRemovedIds];
+ ensure(same(expected,reinforcementPolicyRemovedIdsFor(chapter,waves,spawnedBefore)),'제외 명단 원본/순서');
+ state.reinforcementPolicy={version:1,removedIds:expected,spawnedBefore,eligible:[]};
+ state.units=state.units.filter(unit=>!expected.includes(unit.id));
+}
+// Separate name avoids shadowing the createBattle option of the same meaning.
+const reinforcementPolicyRemovedIdsFor=reinforcementPolicyRemovedIds;
+export function validateReinforcementPolicy(state,chapter,waves,eligibleCondition){
+ const policy=state.reinforcementPolicy;if(policy===undefined)return;
+ ensure(policy&&typeof policy==='object'&&!Array.isArray(policy)&&Object.keys(policy).every(key=>['version','removedIds','spawnedBefore','eligible','victoryPending'].includes(key)),'형식');
+ ensure(policy.version===1&&reinforcementPolicyApplies(chapter)&&state.battleEventsVersion===1,'버전/전장');
+ const source=waves.filter(wave=>wave.team!=='ally'),history=policy.spawnedBefore,record=state.reinforcements;
+ ensure(unique(history)&&history.every(id=>source.some(wave=>wave.id===id)),'과거 도착');
+ ensure(unique(policy.removedIds)&&same(policy.removedIds,reinforcementPolicyRemovedIdsFor(chapter,waves,history)),'제외 명단 원본/순서');
+ const spawned=(record?.spawned??[]).filter(id=>source.some(wave=>wave.id===id));
+ ensure(same(spawned.slice(0,history.length),history),'과거 도착 보존');
+ ensure(spawned.length<=Math.max(reinforcementPolicyLimits(chapter).waves,history.length),'새 증원 횟수');
+ const all=[...state.units,...(record?.pending??[]).flatMap(wave=>wave.units)];ensure(policy.removedIds.every(id=>!all.some(unit=>unit.id===id)),'취소 부대 재등장');
+ const kept=reinforcementPolicyWaves(state,chapter,waves).filter(wave=>wave.team!=='ally');
+ ensure(unique(policy.eligible)&&same(policy.eligible,kept.filter(wave=>policy.eligible.includes(wave.id)).map(wave=>wave.id)),'대기 조건 명단/순서');
+ for(const id of policy.eligible){const wave=kept.find(wave=>wave.id===id);ensure(record?.pending.some(entry=>entry.id===id)&&!record.spawned.includes(id),'조건 대기 부대');ensure(eligibleCondition(state,wave,{validation:true}),'조건 대기 근거');}
+ if(policy.victoryPending!==undefined)ensure(policy.victoryPending===true,'승리 대기 형식');
+}
+// The caller first validates the entire original save under its original policy.
+export function upgradeValidatedReinforcementPolicy(value,chapter,waves){
+ const state=value.state;if(!reinforcementPolicyApplies(chapter)||state.reinforcementPolicy!==undefined||state.battleEventsVersion!==1||state.result!==null||state.rewardsSettled||!['preDialogue','deployment','battle'].includes(value.campaign.stage))return null;
+ const enemyIDs=new Set(waves.filter(wave=>wave.team!=='ally').map(wave=>wave.id)),spawnedBefore=(state.reinforcements?.spawned??[]).filter(id=>enemyIDs.has(id)),removedIds=reinforcementPolicyRemovedIdsFor(chapter,waves,spawnedBefore),removed=new Set(removedIds);
+ if(state.reinforcements){for(const wave of state.reinforcements.pending)if(enemyIDs.has(wave.id))wave.units=wave.units.filter(unit=>!removed.has(unit.id));state.reinforcements.pending=state.reinforcements.pending.filter(wave=>wave.units.length);if(!state.reinforcements.pending.length&&!state.reinforcements.spawned.length)delete state.reinforcements;}
+ state.reinforcementPolicy={version:1,removedIds:[...removedIds],spawnedBefore:[...spawnedBefore],eligible:[]};
+ return {removedIds:[...removedIds],preservedSpawned:[...spawnedBefore]};
+}

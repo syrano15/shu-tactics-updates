@@ -1,0 +1,286 @@
+import {imageSource,installImageSourceFallback} from './image-source.js';
+installImageSourceFallback();
+import { BATTLE_ART_CATALOG } from './battle-art-catalog.js';
+const sectionRoot = document.getElementById('gallery-sections');
+const summary = document.getElementById('gallery-summary');
+const empty = document.getElementById('gallery-empty');
+const dialog = document.getElementById('art-detail');
+const detailImage = document.getElementById('detail-image');
+const characterNames = { liubei: '유비', guanyu: '관우', zhangfei: '장비', caocao: '조조', jianyong: '간옹', sunqian: '손건', mizhu: '미축', gongsunzan: '공손찬', kongrong: '공융', taishici: '태사자', taoqian: '도겸', lvbu: '여포', huaxiong: '화웅', zhaoyun: '조운', zhugeliang: '제갈량', pangtong: '방통', xushu: '서서' };
+const expressionNames = { normal: '기본', resolve: '결의', smile: '미소', sad: '슬픔', angry: '분노·불쾌', worried: '근심·긴장', sneer: '냉소·오만', roar: '포효', thinking: '숙고 동작', frustrated: '좌절 동작', laugh: '호쾌한 웃음', annoyed: '불만·찡그림' };
+const majorOrder = ['liubei', 'guanyu', 'zhangfei', 'caocao'];
+const supportOrder = ['jianyong', 'sunqian', 'mizhu', 'gongsunzan', 'kongrong', 'taishici', 'taoqian', 'lvbu', 'huaxiong'];
+const adoptedOrder = ['liubei', 'guanyu', 'zhangfei', ...supportOrder, 'zhaoyun', 'zhugeliang', 'pangtong', 'xushu'];
+const fixedLabels = {
+  sil_shu: '촉군 장수·병사', sil_wei: '위군 장수·병사', sil_wu: '오군 장수·병사', sil_yellow: '황건군', sil_south: '남만 병사', sil_warlord: '기타 군벌', sil_civil: '문관·사자·전령', sil_people: '백성·의병',
+  bg_field: '봄 들판', bg_rebel_camp: '황건 진채', bg_pass: '거대한 관문', bg_castle_out: '포위된 성 외곽', bg_army_plain: '대군이 늘어선 들판', bg_city_night: '불타는 성안', bg_camp_shu: '소박한 의병 진영', bg_hall: '관청 실내',
+  cg_oath: '도원결의', cg_jianyong_meet: '간옹과의 만남', cg_warm_wine: '식지 않은 술잔', cg_taishici_ride: '포위망을 뚫는 태사자', cg_cao_army: '조조의 대군', cg_taoqian_seal: '서주의 인수', cg_xiapi_fire: '불타는 하비성', cg_zhangfei_vow: '장비의 다짐',
+  ui_title_frame: '타이틀 카드 장식', ui_cutin_ally: '아군 컷인 장식', ui_cutin_enemy: '적군 컷인 장식'
+};
+const groups = [
+  { key: 'adopted', title: '오늘 연결한 인물 그림', note: '기본형 16장·개별 감정 7장·네 표정 시트 7장입니다. 이번에 첨부한 주역 7명의 재생성 기본형을 함께 적용했습니다. 표정과 새 기본형은 화면 영역만 잘라 표시하며, 원본 보기에서 전체 그림을 확인할 수 있습니다.' },
+  { key: 'originals', title: '오늘 연결한 원본 30개', note: '채택 패키지 23개와 이번에 첨부한 재생성 기본형 7개의 전체 원본입니다. 이전 확정 기본형을 복구한 것으로 세지 않습니다.' },
+  { key: 'major', title: '주요 인물 · 네 가지 표정', note: '같은 인물의 얼굴과 복장을 유지하며 기본·결의·미소·슬픔을 비교합니다.' },
+  { key: 'support', title: '이전 보조 인물 그림', note: '기존 그림도 함께 보관합니다. 오늘 채택한 기본형은 별도 항목에서 확인할 수 있습니다.' },
+  { key: 'silhouette', title: '공용 실루엣', note: '세력과 역할을 테두리 빛으로 구분합니다.' },
+  { key: 'bg', title: '대화 배경', note: '인물 초상과 대화창이 함께 놓이는 이야기의 무대입니다.', landscape: true },
+  { key: 'cg', title: '이벤트 장면', note: '1막의 중요한 순간을 담은 삽화입니다.', landscape: true },
+  { key: 'ui', title: '화면 장식', note: '타이틀 카드와 아군·적군 컷인에 사용하는 투명 장식입니다.', landscape: true },
+  { key: 'units', title: '전장 인물', note: '동료·지원군·적 장수·공용 병과와 특수 적의 전용 그림입니다.' },
+  { key: 'terrain', title: '전장 지형', note: '들판·숲·강과 성안의 건물·골목을 칸에 맞춰 표시합니다.' },
+  { key: 'maps', title: '전장 풍경', note: '1막 여섯 전장의 전체 풍경입니다. 실제 지형과 이동 표시는 게임의 격자를 따릅니다.', landscape: true }
+];
+let assets = [];
+let activeFilter = 'all';
+let visibleAssets = [];
+let detailIndex = 0;
+let lastOpener = null;
+
+function groupFor(kind, id, entry) {
+  if (kind === 'portrait') {
+    if (id.startsWith('sil_')) return 'silhouette';
+    if (entry?.sourceDate === '2026-10-07') return 'adopted';
+    if (/^(liubei|guanyu|zhangfei|caocao)\/young_(normal|resolve|smile|sad)$/.test(id)) return 'major';
+    return 'support';
+  }
+  return kind;
+}
+
+function labelFor(entry) {
+  const [person, variant] = entry.id.split('/');
+  if (characterNames[person] && variant) {
+    if (entry.sourceDate === '2026-10-07' && entry.label) return entry.label;
+    const expression = entry.face || variant.split('_').at(-1);
+    return `${characterNames[person]} · ${expressionNames[expression] || '기본'}`;
+  }
+  return fixedLabels[entry.id] || entry.label || '이야기 그림';
+}
+
+function localAssetPath(path) {
+  return typeof path === 'string' && /^(assets\/|art\/(units|units-v0741|units-v07413|terrain|maps|v032|specialists-v0740)\/)/.test(path) && !path.split('/').includes('..') && /^[A-Za-z0-9_./-]+\.(webp|png)$/i.test(path);
+}
+
+function validCrop(crop) {
+  return Array.isArray(crop) && crop.length === 4 && crop.every(Number.isFinite) && crop[0] >= 0 && crop[1] >= 0 && crop[2] > 0 && crop[3] > 0 && crop[0] + crop[2] <= 1 && crop[1] + crop[3] <= 1;
+}
+
+function pictureSize(entry) {
+  if (validCrop(entry.crop) && Array.isArray(entry.sourceSize)) return [entry.sourceSize[0] * entry.crop[2], entry.sourceSize[1] * entry.crop[3]];
+  const match = /^(\d+)x(\d+)$/.exec(entry.size || '');
+  return match ? [Number(match[1]), Number(match[2])] : null;
+}
+
+// Only the browser viewport changes. The adopted source PNG remains byte-identical.
+function setPictureViewport(picture, image, entry) {
+  picture.classList.toggle('crop-picture', validCrop(entry.crop));
+  image.removeAttribute('style');
+  if (!validCrop(entry.crop)) return;
+  const [x, y, width, height] = entry.crop;
+  image.style.width = `${100 / width}%`;
+  image.style.height = `${100 / height}%`;
+  image.style.left = `${-100 * x / width}%`;
+  image.style.top = `${-100 * y / height}%`;
+}
+
+function originalsOf(entries) {
+  const unique = new Map();
+  for (const entry of entries.filter(item => item.sourceDate === '2026-10-07')) {
+    if (unique.has(entry.path)) continue;
+    const person = entry.id.split('/')[0];
+    unique.set(entry.path, {
+      ...entry, group: 'originals', crop: null,
+      size: Array.isArray(entry.sourceSize) ? entry.sourceSize.join('x') : entry.size,
+      label: entry.sheet ? `${characterNames[person]} · 네 표정 시트 원본` : entry.label,
+    });
+  }
+  return [...unique.values()];
+}
+
+function loadEntries(manifest) {
+  const catalog = new Map((manifest.catalog || []).map(entry => [`${entry.kind}:${entry.id}`, entry]));
+  const entries = [];
+  for (const kind of ['portrait', 'bg', 'cg', 'ui']) {
+    for (const id of manifest.available?.[kind] || []) {
+      if (typeof id !== 'string') continue;
+      const entry = catalog.get(`${kind}:${id}`);
+      const path = entry?.path || `assets/${kind}/${id}.webp`;
+      if (!localAssetPath(path)) continue;
+      const item = { ...(entry || {}), kind, id, path, group: groupFor(kind, id, entry) };
+      item.label = labelFor(item);
+      entries.push(item);
+    }
+  }
+  for (const entry of BATTLE_ART_CATALOG) {
+    if (!localAssetPath(entry.path) || !['units', 'terrain', 'maps'].includes(entry.kind)) continue;
+    entries.push({ ...entry, group: entry.kind, size: `${entry.width}x${entry.height}` });
+  }
+  const expressionOrder = ['normal', 'resolve', 'smile', 'sad'];
+  return entries.sort((a, b) => {
+    const groupDifference = groups.findIndex(group => group.key === a.group) - groups.findIndex(group => group.key === b.group);
+    if (groupDifference) return groupDifference;
+    if (a.group === 'adopted') return adoptedOrder.indexOf(a.id.split('/')[0]) - adoptedOrder.indexOf(b.id.split('/')[0]) || (a.panel || 0) - (b.panel || 0);
+    if (a.group === 'major') {
+      return majorOrder.indexOf(a.id.split('/')[0]) - majorOrder.indexOf(b.id.split('/')[0]) || expressionOrder.indexOf(a.id.split('_').at(-1)) - expressionOrder.indexOf(b.id.split('_').at(-1));
+    }
+    if (a.group === 'support') return supportOrder.indexOf(a.id.split('/')[0]) - supportOrder.indexOf(b.id.split('/')[0]);
+    return 0;
+  });
+}
+
+function makeCard(entry) {
+  const card = document.createElement('figure');
+  card.className = 'art-card';
+  if (['units', 'terrain'].includes(entry.group)) card.classList.add('battle-art-card');
+  if (entry.group === 'maps') card.classList.add('map-art-card');
+  if (entry.group === 'ui') card.classList.add('ui-art');
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.setAttribute('aria-label', `${entry.label} 크게 보기`);
+  const picture = document.createElement('span');
+  picture.className = 'art-picture';
+  const image = document.createElement('img');
+  image.src = imageSource(entry.path);
+  image.alt = entry.label;
+  image.loading = 'lazy';
+  image.decoding = 'async';
+  setPictureViewport(picture, image, entry);
+  if (entry.group === 'originals' || entry.group === 'adopted') {
+    const dimensions = pictureSize(entry);
+    if (dimensions) picture.style.aspectRatio = `${dimensions[0]} / ${dimensions[1]}`;
+  }
+  image.addEventListener('error', () => {
+    card.classList.add('image-failed');
+    const message = document.createElement('span');
+    message.className = 'image-error';
+    message.textContent = '그림을 불러오지 못했습니다.';
+    picture.append(message);
+  }, { once: true });
+  picture.append(image);
+  const caption = document.createElement('span');
+  caption.className = 'card-caption';
+  const name = document.createElement('span');
+  name.className = 'card-label';
+  name.textContent = entry.label;
+  const meta = document.createElement('span');
+  meta.className = 'card-meta';
+  const size = (entry.size || '').replace(/x/gi, ' × ');
+  const format = entry.opaque ? (validCrop(entry.crop) ? `${entry.sheet ? '표정 부분 보기' : '기본형 부분 보기'} · 원본 배경` : entry.sheet ? '시트 원본 · 원본 배경' : '원본 배경') : ['major', 'support', 'silhouette', 'ui', 'units'].includes(entry.group) ? '투명 배경' : entry.group === 'terrain' ? '지형 타일' : '장면 그림';
+  meta.textContent = [size, format].filter(Boolean).join(' · ');
+  caption.append(name, meta);
+  button.append(picture, caption);
+  button.addEventListener('click', () => openDetail(entry, button));
+  card.append(button);
+  return card;
+}
+
+function makeGrid(entries, landscape) {
+  const grid = document.createElement('div');
+  grid.className = `art-grid${landscape ? ' landscape' : ''}`;
+  for (const entry of entries) grid.append(makeCard(entry));
+  return grid;
+}
+
+function renderGallery() {
+  visibleAssets = activeFilter === 'originals' ? originalsOf(assets) : assets.filter(entry => activeFilter === 'all' || entry.group === activeFilter);
+  sectionRoot.replaceChildren();
+  for (const group of groups) {
+    const entries = visibleAssets.filter(entry => entry.group === group.key);
+    if (!entries.length) continue;
+    const section = document.createElement('section');
+    section.className = 'art-section';
+    const heading = document.createElement('div');
+    heading.className = 'section-heading';
+    const title = document.createElement('h2');
+    title.textContent = group.title;
+    const count = document.createElement('span');
+    count.textContent = `${entries.length}점`;
+    heading.append(title, count);
+    const note = document.createElement('p');
+    note.className = 'section-intro';
+    note.textContent = group.note;
+    section.append(heading, note);
+    if (group.key === 'major' || group.key === 'adopted') {
+      for (const person of group.key === 'major' ? majorOrder : adoptedOrder) {
+        const portraits = entries.filter(entry => entry.id.startsWith(`${person}/`));
+        if (!portraits.length) continue;
+        const personHeading = document.createElement('h3');
+        personHeading.className = 'character-heading';
+        personHeading.textContent = group.key === 'adopted' ? characterNames[person] : `${characterNames[person]} · 기존 그림`;
+        section.append(personHeading, makeGrid(portraits, false));
+      }
+    } else section.append(makeGrid(entries, group.landscape));
+    sectionRoot.append(section);
+  }
+  empty.hidden = visibleAssets.length !== 0;
+  const originals = new Set(assets.map(entry => entry.path)).size;
+  summary.textContent = `그림 파일 ${originals}개 · 현재 ${visibleAssets.length}개 표시${activeFilter === 'adopted' ? ' (시트 속 표정 포함)' : ''}`;
+  sectionRoot.setAttribute('aria-busy', 'false');
+  document.querySelectorAll('[data-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === activeFilter)));
+}
+
+function showDetail() {
+  const entry = visibleAssets[detailIndex];
+  if (!entry) return;
+  detailImage.src = imageSource(entry.path);
+  detailImage.alt = entry.label;
+  const canvas = document.getElementById('detail-canvas');
+  const viewport = document.getElementById('detail-viewport');
+  canvas.classList.toggle('map-art-detail', entry.group === 'maps');
+  canvas.classList.toggle('crop-detail', validCrop(entry.crop));
+  setPictureViewport(viewport, detailImage, entry);
+  const dimensions = pictureSize(entry);
+  viewport.style.aspectRatio = dimensions ? `${dimensions[0]} / ${dimensions[1]}` : '';
+  document.getElementById('detail-title').textContent = entry.label;
+  document.getElementById('detail-position').textContent = `${detailIndex + 1} / ${visibleAssets.length}`;
+  document.getElementById('detail-meta').textContent = [groups.find(group => group.key === entry.group)?.title, entry.size?.replace(/x/gi, ' × '), entry.opaque ? '원본 배경 유지' : '', validCrop(entry.crop) ? (entry.sheet ? '원본 시트의 표정 부분 보기' : '기본형 상단 정방형 보기') : ''].filter(Boolean).join(' · ');
+  document.getElementById('detail-original').href = entry.path;
+  document.getElementById('detail-prev').disabled = visibleAssets.length < 2;
+  document.getElementById('detail-next').disabled = visibleAssets.length < 2;
+}
+
+function openDetail(entry, opener) {
+  detailIndex = visibleAssets.indexOf(entry);
+  lastOpener = opener;
+  showDetail();
+  dialog.showModal();
+  document.body.classList.add('detail-open');
+  document.getElementById('detail-close').focus();
+}
+
+function stepDetail(direction) {
+  if (!visibleAssets.length) return;
+  detailIndex = (detailIndex + direction + visibleAssets.length) % visibleAssets.length;
+  showDetail();
+}
+
+document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+  activeFilter = button.dataset.filter;
+  renderGallery();
+}));
+document.getElementById('detail-close').addEventListener('click', () => dialog.close());
+document.getElementById('detail-prev').addEventListener('click', () => stepDetail(-1));
+document.getElementById('detail-next').addEventListener('click', () => stepDetail(1));
+dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+dialog.addEventListener('close', () => { document.body.classList.remove('detail-open'); lastOpener?.focus(); });
+document.addEventListener('keydown', event => {
+  if (!dialog.open || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+  event.preventDefault();
+  stepDetail(event.key === 'ArrowLeft' ? -1 : 1);
+});
+
+async function start() {
+  try {
+    const response = await fetch('assets/manifest.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const manifest = await response.json();
+    assets = loadEntries(manifest);
+    renderGallery();
+  } catch (error) {
+    summary.textContent = '그림 목록을 불러오지 못했습니다. 게임 실행기를 켠 뒤 다시 열어주세요.';
+    empty.hidden = false;
+    empty.textContent = '게임 폴더의 그림 목록을 확인할 수 없습니다.';
+    sectionRoot.setAttribute('aria-busy', 'false');
+    console.error('아트 감상실 목록 읽기 실패:', error);
+  }
+}
+start();

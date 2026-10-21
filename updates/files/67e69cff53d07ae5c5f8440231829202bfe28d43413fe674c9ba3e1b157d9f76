@@ -1,0 +1,171 @@
+// Current common infantry, spear and cavalry pictures only. Named identities,
+// archived sources, palettes, ranks and all gameplay remain unchanged.
+const rows=[
+ {
+  "id": "infantry",
+  "cls": "infantry",
+  "rank": 0,
+  "src": "art/units-v07413/infantry.webp",
+  "mapSrc": "art/units-v07413/map/infantry.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   512,
+   46,
+   95,
+   349,
+   455,
+   124
+  ]
+ },
+ {
+  "id": "infantry-r1",
+  "cls": "infantry",
+  "rank": 1,
+  "src": "art/units-v07413/infantry-r1.webp",
+  "mapSrc": "art/units-v07413/map/infantry-r1.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   44,
+   32,
+   328,
+   365,
+   51
+  ]
+ },
+ {
+  "id": "infantry-r2",
+  "cls": "infantry",
+  "rank": 2,
+  "src": "art/units-v07413/infantry-r2.webp",
+  "mapSrc": "art/units-v07413/map/infantry-r2.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   48,
+   49,
+   348,
+   351,
+   76
+  ]
+ },
+ {
+  "id": "spear",
+  "cls": "spear",
+  "rank": 0,
+  "src": "art/units-v07413/spear.webp",
+  "mapSrc": "art/units-v07413/map/spear.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   512,
+   79,
+   38,
+   368,
+   484,
+   130
+  ]
+ },
+ {
+  "id": "spear-r1",
+  "cls": "spear",
+  "rank": 1,
+  "src": "art/units-v07413/spear-r1.webp",
+  "mapSrc": "art/units-v07413/map/spear-r1.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   112,
+   9,
+   327,
+   367,
+   91
+  ]
+ },
+ {
+  "id": "spear-r2",
+  "cls": "spear",
+  "rank": 2,
+  "src": "art/units-v07413/spear-r2.webp",
+  "mapSrc": "art/units-v07413/map/spear-r2.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   99,
+   20,
+   319,
+   352,
+   90
+  ]
+ },
+ {
+  "id": "cavalry",
+  "cls": "cavalry",
+  "rank": 0,
+  "src": "art/units-v07413/cavalry.webp",
+  "mapSrc": "art/units-v07413/map/cavalry.webp",
+  "kind": "mounted",
+  "facing": "left",
+  "metrics": [
+   384,
+   512,
+   56,
+   49,
+   382,
+   448,
+   95
+  ]
+ },
+ {
+  "id": "cavalry-r1",
+  "cls": "cavalry",
+  "rank": 1,
+  "src": "art/units-v07413/cavalry-r1.webp",
+  "mapSrc": "art/units-v07413/map/cavalry-r1.webp",
+  "kind": "mounted",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   35,
+   12,
+   368,
+   372,
+   76
+  ]
+ },
+ {
+  "id": "cavalry-r2",
+  "cls": "cavalry",
+  "rank": 2,
+  "src": "art/units-v07413/cavalry-r2.webp",
+  "mapSrc": "art/units-v07413/map/cavalry-r2.webp",
+  "kind": "mounted",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   21,
+   13,
+   366,
+   365,
+   65
+  ]
+ }
+];
+export const TROOP_ART_V07413=Object.freeze(rows.map(row=>Object.freeze({...row,metrics:Object.freeze(row.metrics)})));
+export const TROOP_BODY_METRICS_V07413=Object.freeze(Object.fromEntries(TROOP_ART_V07413.map(row=>[row.src,row.metrics])));
+export const TROOP_MAP_SPRITES_V07413=Object.freeze(Object.fromEntries(TROOP_ART_V07413.map(row=>[row.src,Object.freeze({src:row.mapSrc})])));
+export const BASE_TROOP_ART_V07413=Object.freeze(Object.fromEntries(TROOP_ART_V07413.filter(row=>row.rank===0).map(row=>[row.cls,Object.freeze({src:row.src,kind:row.kind,facing:row.facing})])));
+export const BASE_TROOP_GALLERY_V07413=Object.freeze(TROOP_ART_V07413.filter(row=>row.rank===0).map(row=>Object.freeze({id:'common_'+row.cls+'_v07413',label:({infantry:'보병',spear:'창병',cavalry:'기병'}[row.cls])+' · 현재 일반 병사 그림',kind:'units',path:row.src,width:row.metrics[0],height:row.metrics[1],staticReady:true})));

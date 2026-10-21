@@ -1,0 +1,273 @@
+import {imageSource} from './image-source.js';
+import {preparationThumbnailSource,installPreparationThumbnailFallback} from './preparation-thumbnails.js';
+import {createUnit} from './engine.js';
+import {act4GrowthSupportHTML} from './act4-growth-ui.js';
+import {act5GrowthSupportHTML} from './act5-growth-ui.js';
+import {act6GrowthSupportHTML} from './act6-growth-ui.js';
+import {act7GrowthSupportHTML} from './act7-growth-ui.js';
+import {fourthSpiritStatus,selectFourthSpirit,fixedSpiritIds} from './fourth-spirit.js';
+import {heroMasteryStatus} from './hero-mastery.js';
+import {PARTS,HEROES,MODIFICATION_MAX,equip,sellPart,validateArmyFeatures,modificationStatus,modifyHero,equipmentReason,modificationMilestones,maximumModificationMilestones,meritBenefits,equipmentSlotCapacity} from './equipment.js';
+import {modificationPreview,maximumModificationSteps} from './upgrade-preview.js';
+import {currentUpgradeTargets,preparationUpgradePlan,PREPARATION_UPGRADE_KINDS} from './preparation-upgrades.js';
+import {promotionStatus,promoteHero,promotionName} from './promotion.js';
+import {classAptitudes,effectiveClass,changeHeroClass} from './class-change.js';
+import {selectSpecialization,specializationStatus,specializationChoices,SPECIALIZATIONS} from './specializations.js';
+import {growthContributionRows,equipmentEffectDescription,unitRange,classSkills} from './class-change-ui.js';
+import {skillDescriptionHTML} from './skill-ui-copy.js';
+import {spiritSlots,SPIRITS} from './spirits.js';
+import {growthProgress,growthProgressHTML,growthMilestonesHTML,growthHelpHTML} from './growth-ui.js';
+import {HERO_DATA} from './heroes.js';
+import {sortieInfo,CHAPTERS} from './campaign.js';
+import {objectiveText} from './objectives.js';
+import {campaignEnemyOrder,objectiveForCampaignVersion} from './campaign-events.js';
+import {equipmentDropSummary} from './equipment-drop-presentation.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {portraitURL} from './story-assets.js';
+import {terrainBattleNote} from './terrain-effects.js';
+import {traitLabel} from './traits.js';
+import {preparationHistoryIds,preparationRosterIds,deploymentRosterIds} from './preparation-roster.js';
+import {readPreparationOrder,orderedPreparationIds,movePreparationOrder} from './preparation-order.js';
+import {equipmentIcon} from './equipment-icons.js';
+export const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const n=v=>Number(v??0).toLocaleString('ko-KR'),signed=v=>(v>0?'+':'')+n(v);
+const chapterName=chapter=>chapter?(chapter.act??1)+'막 · '+(chapter.no??CHAPTERS.indexOf(chapter)+1)+'장 | '+chapter.title:'여정 마무리';
+export const PREPARATION_PAGES={hub:'출전 준비',deployment:'출전 편성',equipment:'장비',classes:'병과',upgrade:'부대 강화',shop:'상점',info:'장수 정보',details:'세부 정보',brief:'작전 브리핑',growth:'성장 지원',spirits:'선택 정신기'};
+export function newPreparationUI(){return {page:'hub',hero:null,slot:0,pending:null,discardTarget:null,processing:false,shopDetail:false,shopListScroll:0,shopListInnerScroll:0,equipmentDetail:false,equipmentListScroll:0,showUnavailable:false,equipmentPage:0,quantity:1,selectedId:null,scrolls:{},rosterViewport:{top:0,left:0},rosterOrder:readPreparationOrder(Object.keys(HERO_DATA))};}
+export function movePreparationRoster(ui,army,chapter,id,delta,storage){
+ const ids=ui.page==='info'?preparationHistoryIds(army):preparationRosterIds(chapter,army);
+ ui.rosterOrder=movePreparationOrder(ui.rosterOrder,ids,id,delta,Object.keys(HERO_DATA),storage);
+}
+export function moveDeploymentRoster(ui,army,chapter,id,delta,storage){
+ ui.rosterOrder=movePreparationOrder(ui.rosterOrder,deploymentRosterIds(chapter,army),id,delta,Object.keys(HERO_DATA),storage);
+}
+// Navigation is a view operation. An unfinished plan stays intact until the
+// player explicitly chooses to discard it; this never applies a transaction.
+export function requestPreparationTransition(ui,destination){
+ const same=destination?.kind==='nav'?destination.page===ui.page:destination?.kind==='hero'?destination.id===ui.hero:destination?.kind==='slot'?destination.slot===ui.slot:false;
+ if(same)return false;
+ if(ui.pending){ui.discardTarget={...destination};return false;}
+ return true;
+}
+export function resolvePreparationDiscard(ui,discard){
+ const destination=ui.discardTarget;ui.discardTarget=null;
+ if(!discard||!destination)return null;
+ ui.pending=null;return destination;
+}
+export function partOwners(army,key){return Object.entries(army.heroes).flatMap(([id,h])=>h.slots.flatMap((part,i)=>part===key?[{id,name:HEROES[id],slot:i}]:[]));}
+export function preparationTransaction(army,id,action,balance,chapter){
+ if(action?.kind==='modifyBatch')return preparationUpgradePlan(army,id,action.targets,balance,chapter);
+ const before=action?.kind==='sell'&&!id?null:createUnit(balance,id,'ally',army),candidate=structuredClone(army);let label='',reason='';
+ try{
+  if(!action)throw new Error('적용할 항목을 선택하세요.');
+  const h=candidate.heroes[id];
+  if(action.kind==='equip'){equip(candidate,id,action.slot,action.part);label=(action.part?PARTS[action.part].name+' 장착':'장비 해제')+' · 장비 '+(action.slot+1);}
+  else if(action.kind==='class'){changeHeroClass(candidate,id,action.cls,chapter);label=balance.classes[action.cls].name+' 병과 변경';}
+  else if(action.kind==='specialize'){const result=selectSpecialization(candidate,id,action.key,chapter);if(!result.changed)throw new Error('현재 전문화입니다.');label=result.name+' 전문화';}
+  else if(action.kind==='promote'){const result=promoteHero(candidate,id);label=result.nextName+' 승급';}
+  else if(action.kind==='fourthSpirit'){selectFourthSpirit(candidate,id,action.key);label=action.key?'네 번째 정신기 · '+SPIRITS[action.key].name:'선택 정신기 해제';}
+  else if(action.kind==='modify'){modifyHero(candidate,id,action.key,action.steps??1,chapter,before.maxHp);label=({weapon:before.cls==='strategist'?'지력 단련':'무기 개조',troops:'병력 증편',defense:'방어 개조'}[action.key])+' '+(action.steps??1)+'단계';}
+  else if(action.kind==='sell'){if(!Number.isInteger(action.quantity)||action.quantity<1||action.quantity>(candidate.stock[action.part]??0))throw new Error('판매 수량을 확인하세요.');for(let i=0;i<action.quantity;i++)sellPart(candidate,action.part);label=PARTS[action.part].name+' '+action.quantity+'개 판매';}
+  else throw new Error('알 수 없는 정비 항목입니다.');
+  validateArmyFeatures(candidate);
+ }catch(e){reason=e.message;}
+ const after=reason?before:before?createUnit(balance,id,'ally',candidate):null;
+ return {before,after,candidate:reason?null:candidate,label,reason,cost:reason?0:army.gold-candidate.gold};
+}
+export function applyPreparation(army,id,action,balance,chapter){
+ const result=preparationTransaction(army,id,action,balance,chapter);if(result.reason)throw new Error(result.reason);
+ // No writes occur until the whole operation, including multi-item sales, has validated.
+ Object.assign(army,result.candidate);return result;
+}
+export function stepPreparationUpgrade(ui,army,balance,chapter,key,delta){
+ if(!PREPARATION_UPGRADE_KINDS.includes(key)||![1,-1].includes(delta))throw new Error('강화 단계를 확인하세요.');
+ const current=currentUpgradeTargets(army,ui.hero,chapter),targets={...(ui.pending?.kind==='modifyBatch'?ui.pending.targets:current)};
+ targets[key]+=delta;const plan=preparationUpgradePlan(army,ui.hero,targets,balance,chapter);
+ if(plan.reason&&plan.changed)throw new Error(plan.reason);
+ if(targets[key]<current[key]||targets[key]>MODIFICATION_MAX)throw new Error('현재 단계부터 15단계까지 목표를 선택하세요.');
+ ui.pending=plan.changed?{kind:'modifyBatch',targets}:null;return plan;
+}
+export function maximizePreparationUpgrade(ui,army,balance,chapter,key){
+ if(!PREPARATION_UPGRADE_KINDS.includes(key))throw new Error('강화 항목을 확인하세요.');
+ const current=currentUpgradeTargets(army,ui.hero,chapter),targets={...(ui.pending?.kind==='modifyBatch'?ui.pending.targets:current)};
+ let target=current[key];
+ for(let level=current[key]+1;level<=MODIFICATION_MAX;level++){
+  if(!preparationUpgradePlan(army,ui.hero,{...targets,[key]:level},balance,chapter).available)break;
+  target=level;
+ }
+ targets[key]=target;const plan=preparationUpgradePlan(army,ui.hero,targets,balance,chapter);
+ if(plan.reason&&plan.changed)throw new Error(plan.reason);
+ ui.pending=plan.changed?{kind:'modifyBatch',targets}:null;return plan;
+}
+export function stepPreparationEquipmentPage(ui,army,delta){
+ if(![1,-1].includes(delta))throw new Error('장비 목록을 확인하세요.');
+ const count=Object.keys(PARTS).filter(key=>ui.showUnavailable||army.stock[key]>0).length;
+ ui.equipmentPage=Math.max(0,Math.min(Math.max(0,Math.ceil(count/6)-1),(ui.equipmentPage??0)+delta));
+}
+const avatar=(id,chapter,{thumbnail=false}={})=>{const original=imageSource(portraitURL(id,'normal',chapter?.id));if(thumbnail)installPreparationThumbnailFallback();const url=thumbnail?preparationThumbnailSource(original):original,base=new URL('./',import.meta.url).href,source=url?.startsWith(base)?url.slice(base.length):url;return '<span class="prep-avatar">'+(source?'<img src="'+esc(source)+'" alt="" loading="lazy" decoding="async"'+(thumbnail?' data-prep-thumbnail':'')+'>':'<span>'+esc(HEROES[id]?.slice(0,1)??'장')+'</span>')+'</span>';};
+const statKeys=[['병력','maxHp'],['공격','atk'],['방어','def'],['지력','int'],['이동','move']];
+function stats(before,after=before){
+ return '<div class="prep-stats" aria-live="polite">'+statKeys.map(([label,key])=>{
+  const a=before[key],b=after[key],d=b-a;return '<div class="'+(d?'changed':'')+'"><small>'+label+'</small><b>'+n(a)+(d?' <span aria-hidden="true">→</span> <span class="'+(d>0?'stat-up':'stat-down')+'">'+n(b)+'</span> <em>('+signed(d)+')</em>':'')+'</b></div>';
+ }).join('')+'<div><small>사거리</small><b>'+esc(unitRange(before))+(unitRange(after)!==unitRange(before)?' → '+esc(unitRange(after)):'')+'</b></div></div>';
+}
+export function preparationStatChanges(before,after){
+ const rows=statKeys.map(([label,key])=>({label,key,before:before[key],after:after[key],delta:after[key]-before[key]})).filter(row=>row.delta!==0);
+ if(unitRange(before)!==unitRange(after))rows.push({label:before.cls==='strategist'?'책략 사거리':'사거리',key:'range',before:unitRange(before),after:unitRange(after),delta:after.max-before.max});
+ if(after.cavalryDamageReceived!==null&&after.cavalryDamageReceived!==before.cavalryDamageReceived)rows.push({label:'기병 피해 감소 강화',key:'cavalryGuard'});
+ if(after.cavalryDamageDealt!==null&&after.cavalryDamageDealt!==before.cavalryDamageDealt)rows.push({label:'기병 상대 피해 강화',key:'cavalryStrike'});
+ return rows;
+}
+export function preparationGrowthSummary(before,after){
+ return preparationStatChanges(before,after).map(row=>row.key==='range'?row.label+' '+row.before+' → '+row.after:row.delta===undefined?row.label:row.label+' '+signed(row.delta)).join(' · ');
+}
+export function preparationPromotionPreview(army,id,balance){
+ const status=promotionStatus(army,id),before=createUnit(balance,id,'ally',army);
+ if(status.nextRank===null)return {status,before,after:before,rows:[],summary:''};
+ const draft=structuredClone(army);draft.heroes[id].promotion=status.nextRank;
+ const after=createUnit(balance,id,'ally',draft);
+ return {status,before,after,rows:preparationStatChanges(before,after),summary:preparationGrowthSummary(before,after)};
+}
+export function preparationAppliedMessage(result,action,{saved}={}){
+ const name=action?.kind==='sell'?'공용 재고':result.before?.name??'장수';
+ const storage=saved===true?' · 저장 완료':saved===false?' · 저장 실패 · 현재 진행을 파일로 보관하세요.':'';
+ if(action?.kind==='promote'){
+  const growth=preparationGrowthSummary(result.before,result.after);
+  return name+' · '+result.label+' 완료'+(growth?' · '+growth:'')+storage;
+ }
+ return name+' · '+result.label+' 적용 완료'+storage;
+}
+// Call once after an actual apply has rendered; ordinary preview renders do not
+// replay success feedback. Reduced motion uses the existing textual result.
+export function playPreparationAppliedFeedback(host,action,{reducedMotion=false}={}){
+ if(reducedMotion||!host||!action)return;
+ const selector=action.kind==='sell'?'.prep-funds,.prep-sale-list':action.kind==='equip'?'.prep-equipped-slots':action.kind==='modifyBatch'||action.kind==='modify'?'.prep-upgrades':action.kind==='fourthSpirit'?'.prep-spirit-overview':'.prep-stats';
+ for(const node of host.querySelectorAll(selector))node.animate?.([{outline:'3px solid #E1BF7E',outlineOffset:'2px'},{outline:'3px solid transparent',outlineOffset:'2px'}],{duration:420,easing:'ease-out'});
+}
+const button=(label,attrs,disabled=false)=>'<button '+attrs+(disabled?' disabled':'')+'>'+label+'</button>';
+const spiritChoiceLabel=status=>status.selectedId?'정신기 다시 선택':'정신기 추가 선택';
+function heading(unit,pending){return '<div class="prep-hero-heading"><h3>'+esc(unit.name)+' <small>Lv'+unit.level+' / '+growthProgress(unit).cap+' · '+esc(promotionName(unit.cls,unit.rank,unit.specialization))+'</small></h3>'+button('장수 정보','data-prep-nav="info"')+'</div>'+(pending?'<p class="prep-preview-label"><b>미리보기</b> '+esc(pending.label||pending.reason)+'</p>':'');}
+function roster(army,balance,chapter,ui){
+ const ids=orderedPreparationIds(ui.page==='info'?preparationHistoryIds(army):preparationRosterIds(chapter,army),ui.rosterOrder);
+ const editable=new Set(preparationRosterIds(chapter,army));
+ const controls='<div class="prep-roster-controls" aria-label="장수 목록 이동">'+button('<span class="prep-roster-vertical" aria-hidden="true">↑</span><span class="prep-roster-horizontal" aria-hidden="true">←</span>','type="button" data-prep-roster-scroll="-1" aria-label="이전 장수 목록 보기"')+button('<span class="prep-roster-vertical" aria-hidden="true">↓</span><span class="prep-roster-horizontal" aria-hidden="true">→</span>','type="button" data-prep-roster-scroll="1" aria-label="다음 장수 목록 보기"')+'</div>';
+ return '<aside class="prep-roster" aria-label="군단 장수"><div class="prep-roster-toolbar"><h3>장수 <small>'+(ui.page==='info'?'군단 기록 ':'출전 가능 ')+ids.length+'명</small></h3>'+controls+'</div><div class="prep-roster-track" tabindex="0" aria-label="장수 선택">'+ids.map(id=>{
+  const u=createUnit(balance,id,'ally',army),h=army.heroes[id],p=promotionStatus(army,id);
+  const status=h.departed?'이탈':HERO_DATA[id]?.guest?'고정 게스트':ui.page==='upgrade'?'무기 '+modificationStatus(army,id,'weapon',chapter).level+' · 병력 '+modificationStatus(army,id,'troops',chapter).level+' · 방어 '+modificationStatus(army,id,'defense',chapter).level:ui.page==='equipment'?'장착 '+h.slots.filter(Boolean).length+'/'+equipmentSlotCapacity(army,id):ui.page==='classes'?p.available?'승급 가능':'적성 '+classAptitudes(id).find(r=>r.cls===u.cls).grade:balance.classes[u.cls].name;
+  const fourth=fourthSpiritStatus(army,id),spiritReady=editable.has(id)&&fourth.needsSelection;
+  return '<div class="prep-roster-card'+(ui.hero===id?' selected':'')+(spiritReady?' needs-spirit':'')+'">'+button(avatar(id,chapter,{thumbnail:true})+'<span><b>'+esc(u.name)+'</b><small>Lv'+u.level+' / '+growthProgress(u).cap+' · '+esc(balance.classes[u.cls].name)+'</small><small'+(status==='승급 가능'?' class="prep-promotion-ready"':'')+'>'+esc(status)+'</small>'+(spiritReady?'<small class="prep-spirit-ready">'+spiritChoiceLabel(fourth)+'</small>':'')+'</span>','data-prep-hero="'+esc(id)+'" aria-pressed="'+(ui.hero===id)+'"')+'</div>';
+ }).join('')+'</div>'+(!ids.length?'<p class="prep-empty">다음 출전에 정비할 수 있는 장수가 없습니다.</p>':'')+'</aside>';
+}
+function equipmentPage(army,balance,ch,ui,u,model){
+ const h=army.heroes[ui.hero],keys=Object.keys(PARTS).filter(key=>ui.showUnavailable||army.stock[key]>0),capacity=equipmentSlotCapacity(army,ui.hero);
+ const oldPart=h.slots[ui.slot]??null,newPart=ui.pending?.kind==='equip'?ui.pending.part:oldPart;
+ const itemName=key=>key?PARTS[key].name:'빈 장비칸',effect=key=>key?equipmentEffectDescription(army,ui.hero,key,balance):'장비 효과 없음',pending=ui.pending?.kind==='equip';
+ const pages=Math.max(1,Math.ceil(keys.length/6));ui.equipmentPage=Math.max(0,Math.min(pages-1,ui.equipmentPage??0));
+ const comparison='<div class="prep-equipment-comparison" aria-label="장비 교체 비교"><h4>장비 '+(ui.slot+1)+' · '+(pending?'교체 미리보기':'현재 장착')+'</h4><b class="prep-equipment-change-name">'+esc(itemName(oldPart))+(pending?' <span aria-hidden="true">→</span> '+esc(itemName(newPart)):'')+'</b><div class="prep-equipment-effects'+(pending?' is-comparing':'')+'"><div>'+equipmentIcon(oldPart)+'<span>'+(pending?'<small>현재 효과</small>':'')+'<p>'+esc(effect(oldPart))+'</p></span></div>'+(pending?'<div class="prep-equipment-next">'+equipmentIcon(newPart)+'<span><small>교체 후 효과</small><p>'+esc(effect(newPart))+'</p></span></div>':'')+'</div>'+(!pending?'<p class="prep-equipment-hint">장비를 선택하면 위 능력치에 교체 결과가 표시됩니다.</p>':'')+'</div>';
+ return heading(u,null)+stats(u,model?.after??u)+'<div class="prep-two prep-equipment-grid"><section class="prep-equipment-current"><h4>현재 장비 · 교체할 슬롯 선택</h4><div class="prep-equipped-slots">'+Array.from({length:3},(_,i)=>{const key=h.slots[i]??null,locked=i>=capacity;return button(equipmentIcon(key,{locked})+'<small>장비 '+(i+1)+(locked?' · 잠김':'')+'</small><b>'+esc(locked?'무기·지력 15단계 해금':itemName(key))+'</b><span class="prep-slot-effect">'+esc(locked?'세 번째 장비 슬롯':effect(key))+'</span>','data-prep-slot="'+i+'" class="prep-slot '+(key&&PARTS[key].grade==='advanced'?'is-advanced ':'')+(ui.slot===i?'selected':'')+'" aria-pressed="'+(ui.slot===i)+'"',locked);}).join('')+'</div>'+'<div class="prep-equipment-bottom">'+button('선택 슬롯 해제','data-prep-select="unequip"',!h.slots[ui.slot]||!!equipmentReason(army,ui.hero))+'<small>같은 상급 장비는 중복 장착 불가</small></div>'+button('장비 후보 보기 →','data-prep="equipment-candidates" class="prep-equipment-forward"')+'</section><section class="prep-equipment-candidates">'+button('← 장비 슬롯','data-prep="equipment-slots" class="prep-equipment-back"')+'<div class="prep-panel-title"><h4>공용 장비고 <small>'+keys.length+'종</small></h4>'+button(ui.showUnavailable?'보유 장비만':'미보유 장비도 보기','data-prep="stock-filter" aria-pressed="'+ui.showUnavailable+'"')+'</div><div class="prep-part-grid">'+keys.slice(ui.equipmentPage*6,ui.equipmentPage*6+6).map(key=>{
+  const stock=army.stock[key],part=PARTS[key];
+  return button(equipmentIcon(key)+'<span class="prep-equipment-copy"><b>'+esc(part.name)+'</b><small>'+esc(effect(key))+'</small></span><span class="prep-equipment-stock">재고 <b>'+n(stock)+'</b></span>','data-prep-part="'+key+'" class="prep-equipment-item '+(part.grade==='advanced'?'is-advanced ':'')+(pending&&ui.pending.part===key?'selected':'')+'" aria-pressed="'+(pending&&ui.pending.part===key)+'"',stock<=0||!!equipmentReason(army,ui.hero));
+ }).join('')+'</div>'+(!keys.length?'<p class="prep-empty">장착 가능한 공용 장비가 없습니다.</p>':'')+'<div class="prep-equipment-pager">'+button('‹','data-prep-part-page="-1" aria-label="장비 목록 이전 페이지"',ui.equipmentPage===0)+'<span>'+(ui.equipmentPage+1)+' / '+pages+'</span>'+button('›','data-prep-part-page="1" aria-label="장비 목록 다음 페이지"',ui.equipmentPage===pages-1)+'<details><summary>보유 · 장착 내역</summary><div class="prep-stock-ledger"><table><thead><tr><th>장비</th><th>총 보유</th><th>장착</th><th>재고</th></tr></thead><tbody>'+keys.map(key=>{const owners=partOwners(army,key);return '<tr><th>'+esc(PARTS[key].name)+'</th><td>'+n(army.stock[key]+owners.length)+'</td><td>'+esc(owners.map(o=>o.name+' '+(o.slot+1)).join(' · ')||'—')+'</td><td>'+n(army.stock[key])+'</td></tr>';}).join('')+'</tbody></table></div></details></div></section></div>'+(pending?comparison:'');
+}
+function classesPage(army,balance,ch,ui,u,model){
+ const promotion=preparationPromotionPreview(army,ui.hero,balance),p=promotion.status,choices=specializationChoices(u.cls);
+ const defaultPreview=!model&&p.nextRank!==null,previewLabel=defaultPreview?'<p class="prep-preview-label"><b>다음 승급 후 능력치</b> '+esc(p.name)+' → '+esc(p.nextName)+'</p>':'';
+ return heading(u,model)+previewLabel+stats(u,model?.after??(defaultPreview?promotion.after:u))+'<section class="prep-panel prep-promotion-panel"><div class="prep-promotion-heading"><h4>1 · 승급</h4><span>'+(p.nextRank===null?'최종 단계':'현재 '+esc(p.name))+'</span></div>'+button('<b>'+esc(p.nextName??'최종 승급 완료')+'</b><small>'+(p.requiredLevel?'Lv'+p.requiredLevel+' · '+(p.cost?'비용 '+n(p.cost):'비용 없음'):'')+'</small><span class="prep-promotion-growth">'+esc(p.nextRank===null?'현재 승급의 능력치 보너스가 적용되어 있습니다.':promotion.summary||'병력 상한으로 추가 증편 없음')+'</span><small>'+esc(p.reason||'선택 후 적용 확정')+'</small>','data-prep-select="promote" class="prep-choice" aria-pressed="'+(ui.pending?.kind==='promote')+'"',!p.available)+'<p>승급하면 위 능력치가 실제로 증가합니다. 강화 Lv10 · 정예 Lv15 · 레벨·경험치와 전문화는 유지됩니다.</p></section><section class="prep-panel"><h4>2 · 전문화</h4><p>강화 승급 완료 + Lv15 · 2막 출전 준비부터 · 전문화 변경 비용 300</p><div class="prep-choices">'+choices.map(s=>{
+  const status=specializationStatus(army,ui.hero,s.id,ch);return button('<b>'+esc(s.name)+'</b><small>'+esc(s.description)+'</small><small>'+esc(status.reason||(status.cost?'비용 '+n(status.cost):'선택 가능'))+'</small>','data-prep-specialization="'+s.id+'" aria-pressed="'+(ui.pending?.key===s.id||u.specialization===s.id)+'" class="prep-choice"',!!status.reason);
+ }).join('')+'</div></section><section class="prep-panel"><h4>3 · 병과 변경</h4><p>2막부터 · 다른 병과를 선택하면 전문화가 해제됩니다.</p><div class="prep-class-choices">'+classAptitudes(ui.hero).map(row=>button('<b>'+esc(balance.classes[row.cls].name)+'</b><small class="grade-'+row.grade+'">적성 '+row.grade+(u.cls===row.cls?' · 현재':'')+'</small>','data-prep-class="'+row.cls+'" aria-pressed="'+(ui.pending?.cls===row.cls||u.cls===row.cls)+'"',(ch?.act!==2&&ch?.combatProfile!=='act2')||HERO_DATA[ui.hero]?.guest||army.heroes[ui.hero].departed)).join('')+'</div>'+(model?.after&&model.after.cls!==u.cls?'<p class="prep-warning">전문화 해제 · 공격·방어·지력은 선택 병과의 적성에 따라 바뀝니다.</p>':'')+'</section>';
+}
+
+function milestoneHTML(army,id){
+ return '<section class="prep-panel prep-milestones"><h4>10단계 강화 보너스</h4><p>항목별 누적 10단계 달성 시 자동 적용됩니다. 이전 투자도 환산 단계에 포함하며, 반복 구매로 중복 지급되지 않습니다. 최종 능력치에는 병과 적성과 장수·장비·성장에 따른 자연 병력을 반영합니다.</p>'+modificationMilestones(army,id).map(m=>'<p class="'+(m.achieved?'stat-up':'')+'"><b>'+({weapon:'무기·지력',troops:'병력',defense:'방어'}[m.kind])+' '+m.level+'/10 · '+(m.achieved?'달성':'미달성')+'</b><br>'+esc(m.description)+'</p>').join('')+'<p><b>15단계 무기·지력 보너스</b><br>세 번째 장비 슬롯 '+(equipmentSlotCapacity(army,id)===3?'해금 완료':'해금 예정')+'</p>'+maximumModificationMilestones(army,id).map(m=>'<p class="'+(m.achieved?'stat-up':'')+'"><b>'+({troops:'병력',defense:'방어'}[m.kind])+' MAX · '+(m.achieved?'달성':'미달성')+'</b><br>'+esc(m.description)+'</p>').join('')+'</section>';
+}
+function meritHTML(army){
+ const m=meritBenefits(army);return '<section class="prep-panel prep-merit"><h4>누적 공적 '+m.points+' · '+esc(m.name)+'</h4><p>전장별 추가 목표를 달성하면 공적을 얻습니다. 같은 전장의 재도전으로 중복 획득하지 않습니다.</p><p class="stat-up">현재 군단 보너스 · 정규 장수 출전 사기 +'+m.morale+'</p><p>3공적 +3 · 6공적 +6 · 10공적 +10 (가장 높은 단계만 적용)</p><p>'+(m.next?'다음 '+m.next.points+'공적까지 '+(m.next.points-m.points)+' · '+esc(m.next.name)+' / 출전 사기 +'+m.next.morale:'최종 공적 보너스 달성')+'</p></section>';
+}
+function upgradePage(army,balance,ch,ui,u,model){
+ const kinds=PREPARATION_UPGRADE_KINDS,current=currentUpgradeTargets(army,ui.hero,ch),targets=ui.pending?.kind==='modifyBatch'?ui.pending.targets:current;
+ const plan=model?.rows?model:preparationUpgradePlan(army,ui.hero,targets,balance,ch);
+ return heading(u,null)+'<p class="prep-section-note">세 목표 단계를 함께 정하고, 실제 능력치와 합계 비용을 확인하세요.</p>'+(ui.pending?.kind==='modify'?stats(u,model?.after??u):'')+'<div class="prep-upgrades">'+plan.rows.map(row=>{
+  const key=row.key,label=key==='weapon'?(u.cls==='strategist'?'지력 단련':'무기 개조'):key==='troops'?'병력 증편':'방어 개조',field=key==='weapon'?(u.cls==='strategist'?'int':'atk'):key==='troops'?'maxHp':'def',statLabel=key==='weapon'?(u.cls==='strategist'?'지력':'공격'):key==='troops'?'최대 병력':'방어';
+  const plusTargets={...targets,[key]:row.target+1},next=row.target<row.max?preparationUpgradePlan(army,ui.hero,plusTargets,balance,ch):null;
+  const preview=row.steps?modificationPreview(army,ui.hero,key,row.steps,balance,ch):null,after=preview?.after??u;
+  return '<section class="prep-upgrade '+(row.steps?'selected':'')+'" aria-label="'+label+' 목표"><div class="prep-upgrade-heading"><h4>'+label+'</h4>'+button('MAX','data-prep-upgrade-max="'+key+'" aria-label="'+label+' 자금으로 가능한 최대"',!next?.available)+'</div><p class="prep-upgrade-current">현재 <b>'+row.current+'</b> / '+row.max+(row.current===row.max?' · MAX':'')+'</p><div class="prep-upgrade-stepper">'+button('‹','data-prep-upgrade-step="'+key+'" data-prep-delta="-1" aria-label="'+label+' 목표 한 단계 낮추기"',row.target<=row.current)+'<div><small>목표 단계</small><output>'+row.target+' <small>/ '+row.max+'</small></output></div>'+button('›','data-prep-upgrade-step="'+key+'" data-prep-delta="1" aria-label="'+label+' 목표 한 단계 높이기"',!next?.available)+'</div><div class="prep-upgrade-track" aria-label="현재 '+row.current+' · 목표 '+row.target+'단계">'+Array.from({length:row.max},(_,i)=>'<i class="'+(i<row.current?'filled':i<row.target?'planned':'')+'"></i>').join('')+'</div><div class="prep-upgrade-benefit"><small>'+statLabel+'</small><b>'+n(u[field])+' <span>→</span> <strong>'+n(after[field])+'</strong></b><em>'+signed(after[field]-u[field])+'</em></div><div class="prep-upgrade-cost"><small>'+row.steps+'단계 합계</small><b>'+n(row.cost)+'</b></div>'+(row.target===row.max?'<p class="prep-upgrade-bonus">MAX · '+esc(key==='weapon'?'세 번째 장비 슬롯':key==='troops'?'추가 병력 +1,000':'추가 방어 +5')+'</p>':'')+(!next?.available&&row.target<row.max?'<p class="prep-upgrade-limit">'+esc(next?.reason??'강화 제한')+'</p>':'')+'</section>';
+ }).join('')+'</div>'+modificationSelector(army,balance,ch,ui,u,model)+'<details class="prep-upgrade-details"><summary>10단계·MAX 보너스와 강화 현황</summary>'+milestoneHTML(plan.candidate??army,ui.hero)+'<div class="prep-table-scroll"><table><thead><tr><th>장수</th><th>무기·지력</th><th>병력</th><th>방어</th><th>최대 병력</th></tr></thead><tbody>'+preparationRosterIds(ch,army).map(id=>'<tr class="'+(id===ui.hero?'selected':'')+'"><th>'+button(esc(HEROES[id]),'data-prep-hero="'+esc(id)+'"')+'</th>'+kinds.map(key=>'<td>'+modificationStatus(army,id,key,ch).level+'/'+MODIFICATION_MAX+'</td>').join('')+'<td>'+n(createUnit(balance,id,'ally',army).maxHp)+'</td></tr>').join('')+'</tbody></table></div><p>장과 관계없이 15단계까지 강화할 수 있습니다. 15단계 기본 효과와 10단계·MAX 보너스를 합하면 공격·지력 +43, 병력 +6,000, 방어 +31입니다. 세 축 모두 MAX이면 장수별 고유 특성이 추가됩니다. 최종 능력치에는 병과 적성과 장수·장비·성장에 따른 자연 병력을 반영합니다. 정비는 다음 출전부터 적용되며 확정 후 되돌릴 수 없습니다.</p></details>';
+}
+function upgradeFooter(army,plan,hasPending){
+ return '<div class="prep-apply-bar prep-upgrade-apply" role="region" aria-label="강화 목표 일괄 적용"><div class="prep-apply-explanation"><small>세 항목 일괄 적용 · 미리보기</small><p>'+esc(plan.changed?plan.reason||'목표와 능력치를 확인한 뒤 적용하세요.':'목표 단계를 선택하세요.')+'</p></div><div class="prep-upgrade-total"><small>합계 비용</small><b>'+n(plan.cost)+'</b></div><div class="prep-upgrade-total"><small>남는 자금</small><b class="'+(plan.remainingGold<0?'stat-down':'')+'">'+n(plan.remainingGold)+'</b></div>'+button('목표 취소','data-prep="cancel"',!hasPending)+button('한 번에 적용',(hasPending?'data-prep="apply" ':'')+'class="primary"',!plan.available)+'</div>';
+}
+function discardDialog(ui){
+ if(!ui.discardTarget)return '';
+ return '<div class="prep-discard-backdrop"><section class="prep-discard-dialog" role="alertdialog" aria-modal="true" aria-labelledby="prep-discard-title" aria-describedby="prep-discard-description"><h3 id="prep-discard-title">미확정 선택을 취소할까요?</h3><p id="prep-discard-description">현재 선택은 아직 적용되지 않았습니다. 취소하고 이동하면 미리보기만 사라집니다.</p><div>'+button('계속 정비','data-prep="discard-stay"')+button('선택 취소 후 이동','data-prep="discard-continue" class="primary"')+'</div></section></div>';
+}
+function modificationSelector(army,balance,ch,ui,u,model){
+ if(ui.pending?.kind!=='modify')return '';
+ const key=ui.pending.key,status=modificationStatus(army,ui.hero,key,ch),maximum=maximumModificationSteps(army,ui.hero,key,balance,ch),steps=ui.pending.steps;
+ return '<section class="prep-panel prep-bulk-upgrade" aria-label="한 번에 강화할 단계 선택"><h4>한 번에 강화</h4><div class="prep-bulk-controls"><label>강화할 단계<select id="prep-upgrade-steps" data-prep-steps '+(!maximum?'disabled':'')+'>'+Array.from({length:maximum||1},(_,i)=>{const q=i+1,p=modificationPreview(army,ui.hero,key,q,balance,ch);return '<option value="'+q+'" '+(steps===q?'selected':'')+'>+'+q+'단계 → '+(status.level+q)+'/'+MODIFICATION_MAX+ ' · '+n(p.cost)+'</option>';}).join('')+'</select></label>'+button('자금으로 가능한 최대 · +'+maximum+'단계','data-prep="upgrade-max"',!maximum)+'</div><label class="prep-bulk-slider">목표 '+(status.level+steps)+' / '+status.max+'<input type="range" min="1" max="'+Math.max(1,maximum)+'" value="'+steps+'" data-prep-steps aria-label="강화 단계" '+(!maximum?'disabled':'')+'></label><p>선택한 '+steps+'단계의 누진 비용을 합산합니다. 위 능력치와 아래 총비용을 확인하고 한 번에 적용하세요. 무기·지력 / 병력 / 방어는 각 15단계까지만 선택합니다.</p></section>';
+}
+function shopPage(army,ui,model){
+ const keys=Object.keys(PARTS).filter(key=>army.stock[key]>0),selected=ui.pending?.kind==='sell'?ui.pending.part:null,quantity=selected?ui.pending.quantity:0;
+ const owners=selected?partOwners(army,selected):[],price=selected?(PARTS[selected].grade==='advanced'?1000:300):0;
+ return '<div class="prep-sale-layout"><section class="prep-panel prep-sale-inventory" aria-label="판매 가능한 공용 재고"><div class="prep-panel-title"><h3>공용 재고 판매</h3><small>'+keys.length+'종</small></div><p class="prep-section-note">장착하지 않은 재고만 판매합니다.</p><div class="prep-sale-list" tabindex="0" aria-label="공용 재고 목록">'+keys.map(key=>{
+  const stock=army.stock[key],unitPrice=PARTS[key].grade==='advanced'?1000:300;
+  return button(equipmentIcon(key)+'<span><b>'+esc(PARTS[key].name)+'</b><small>'+(PARTS[key].grade==='advanced'?'상급':'일반')+' · 판매 가능 '+n(stock)+'개</small></span><span class="prep-sale-price"><small>개당</small><b>'+n(unitPrice)+'</b></span>','data-prep-sell="'+key+'" class="prep-sale-item '+(key===selected?'selected':'')+'" aria-pressed="'+(key===selected)+'"');
+ }).join('')+(!keys.length?'<div class="prep-empty"><h4>판매 가능한 공용 재고가 없습니다.</h4><p>장착 중인 장비는 판매 목록에 포함하지 않습니다.</p></div>':'')+'</div>'+button('장비 메뉴로','data-prep-nav="equipment"')+'</section><section class="prep-panel prep-sale-selection" aria-label="선택 장비 판매 미리보기">'+button('← 공용 재고 목록','data-prep="sale-list" class="prep-sale-back"')+'<small>선택한 장비 · 미리보기</small><h3>'+esc(selected?PARTS[selected].name:'장비를 선택하세요')+'</h3>'+(selected?'<p>'+esc(PARTS[selected].description??PARTS[selected].effect??'')+'</p><dl class="prep-sale-detail"><dt>등급 · 판매가</dt><dd>'+(PARTS[selected].grade==='advanced'?'상급':'일반')+' · 개당 '+n(price)+'</dd><dt>총 보유</dt><dd>'+n(army.stock[selected]+owners.length)+'개</dd><dt>장착 중</dt><dd>'+n(owners.length)+'개'+(owners.length?' · '+esc(owners.map(o=>o.name+' 장비 '+(o.slot+1)).join(' · ')):'')+'</dd><dt>판매 가능</dt><dd>'+n(army.stock[selected])+'개</dd><dt>판매 수량</dt><dd><div class="prep-quantity">'+button('−','data-prep="qty-minus" aria-label="판매 수량 한 개 줄이기"',quantity<=1)+'<output aria-live="polite">'+quantity+'</output>'+button('+','data-prep="qty-plus" aria-label="판매 수량 한 개 늘리기"',quantity>=army.stock[selected])+'</div></dd><dt>판매 후 재고</dt><dd>'+(model?.candidate?n(model.candidate.stock[selected])+'개':'—')+'</dd><dt>받는 자금</dt><dd class="stat-up">'+(model?.candidate?'+'+n(-model.cost):'—')+'</dd><dt>판매 후 자금</dt><dd>'+(model?.candidate?n(model.candidate.gold):'—')+'</dd></dl>':'<p>목록에서 장비를 선택하면 판매 수량과 판매 후 자금을 확인할 수 있습니다.</p>')+'<p>선택과 미리보기는 재고를 바꾸지 않습니다. 판매 확정 후 저장 결과를 표시합니다.</p></section></div>';
+}
+function infoPage(army,balance,ch,ui,u){
+ const rows=growthContributionRows(army,ui.hero,balance),slots=spiritSlots(u,{combatProfile:ch?.combatProfile??(ch?.act===2?'act2':undefined)}),p=promotionStatus(army,ui.hero);
+ const matchup=Object.entries(balance.matchups[u.cls]??{}).filter(([,value])=>value!==1).map(([id,value])=>'<span>'+esc(balance.classes[id].name)+' 대상 '+Math.round(value*100)+'%</span>').join(' · ')||'추가 병과 상성 없음';
+ return '<section class="prep-panel"><div class="prep-info-top"><div class="prep-officer-profile">'+avatar(ui.hero,ch)+'<h3>'+esc(u.name)+' <small>Lv'+u.level+' / '+growthProgress(u).cap+'</small></h3></div></div><p>'+esc(promotionName(u.cls,u.rank,u.specialization))+' · 적성 '+classAptitudes(ui.hero).find(r=>r.cls===u.cls).grade+' · 최대 SP '+u.maxSp+'</p>'+stats(u)+growthProgressHTML(u)+growthMilestonesHTML(u)+'</section><details class="prep-panel prep-details"><summary>부대 강화 보너스</summary>'+milestoneHTML(army,ui.hero)+'</details><div class="prep-two"><details class="prep-panel prep-details prep-contributions"><summary>능력치 출처</summary><div class="prep-table-scroll"><table><thead><tr><th>능력</th><th>기본</th><th>레벨</th><th>개조·증편</th><th>장비</th><th>승급</th><th>전문화</th><th>최대 강화</th><th>개인 고유</th><th>최종</th></tr></thead><tbody>'+rows.map(row=>'<tr><th>'+row.label+'</th>'+['base','level','upgrade','parts','promotion','specialization','mastery','personal','final'].map(key=>'<td>'+n(row[key])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div><p>장수별 자연 병력 · 사거리 '+esc(unitRange(u))+' · 다음 출전 기준 실제 기여치</p></details><div><section class="prep-panel"><h4>정신기</h4>'+slots.map(slot=>'<details class="prep-spirit"><summary><b>'+esc(SPIRITS[slot.id].name)+'</b><span>'+(slot.locked?'Lv'+slot.level+' 해금':'습득')+' · 사용 시 SP '+SPIRITS[slot.id].cost+'</span></summary><p>'+esc(SPIRITS[slot.id].description)+'</p></details>').join('')+'</section><section class="prep-panel"><h4>특성·전용 능력</h4><p>'+esc(traitLabel(u.id))+'</p>'+classSkills(u).map(skill=>skillDescriptionHTML(skill)).join('')+'<p><b>물리 공격 상성</b><br>'+matchup+'</p></section><section class="prep-panel"><h4>승급과 부대 강화</h4><p>'+esc(p.nextName?(p.reason||p.nextName+' 승급 가능'):'최종 승급 완료')+'</p><p>무기·지력 / 병력 / 방어 개조는 장과 관계없이 각 15단계까지 한 번에 선택할 수 있습니다.</p></section></div></div>';
+}
+function equipmentDropBrief(ch){const drops=equipmentDropSummary(null,ch);return drops.length?'<div class="prep-condition-equipment"><h4>조건 장비 · 특정 격파 보상</h4><ul>'+drops.map(drop=>'<li><strong>'+esc(drop.condition)+'</strong><small>'+esc(PARTS[drop.itemId].description)+'</small></li>').join('')+'</ul><p>'+esc(ch.objective.type==='reachTile'?'탈출 전 선택 격파는 추가 장비 보상입니다. 기존 탈출 승리 목표는 유지됩니다.':'표기한 장수의 마지막 일격으로 조건을 달성하면 승리 후 장비를 얻습니다.')+'</p></div>':'';}
+function briefPage(ch,army){
+ if(!ch)return '<section class="prep-panel"><h3>준비된 여정을 모두 마쳤습니다.</h3></section>';
+ const info=sortieInfo(ch),references=[...Object.entries(UNIT_TEMPLATES).filter(([,t])=>t.playable||t.extra).map(([id,t])=>({id,name:t.name,team:'ally'})),...(ch.extraAllies??[]).map(e=>({id:e.id,name:UNIT_TEMPLATES[e.templateId]?.name??'동행 부대',team:'ally'})),...ch.enemies.map(entry=>{const e=campaignEnemyOrder(ch,entry,1);return {id:e.id,name:UNIT_TEMPLATES[e.templateId]?.name??'적장',team:'enemy'};})];
+ const conditions=objectiveText({objective:objectiveForCampaignVersion(ch,1),defeat:ch.defeat,units:references,terrain:ch.terrain}),parts=conditions.split(' · 패배: '),victory=parts[0].replace('승리: ',''),defeat=parts[1];
+
+ return '<section class="prep-panel prep-brief"><small>'+(ch.act??1)+'막 · '+(ch.no??CHAPTERS.indexOf(ch)+1)+'장'+'</small><h3>'+esc(ch.title)+'</h3><dl><dt>출전</dt><dd>'+(ch.fixed?'고정 출전':'정규 최대 '+info.regularMax+'명')+' · 필수 '+esc(ch.required.map(id=>HEROES[id]).join(' · '))+(info.fixedGuests.length?' + 고정 동행 '+esc(info.fixedGuests.map(id=>HEROES[id]).join(' · ')):'')+'</dd><dt>승리</dt><dd>'+esc(victory)+'</dd><dt>패배</dt><dd>'+esc(defeat)+'</dd><dt>주의</dt><dd>'+esc(ch.brief??ch.intermissionHint??ch.subtitle)+'</dd></dl>'+equipmentDropBrief(ch)+(terrainBattleNote(null,ch)?'<p class="terrain-battle-note">'+esc(terrainBattleNote(null,ch))+'</p>':'')+'<p>출전 대화 후 편성과 위치를 최종 확인합니다. 공석을 남겨도 출전할 수 있습니다.</p></section>';
+}
+function hubPage(army,balance,ch,ui,draft){
+ const ids=draft?.filter(Boolean)??[],info=ch?sortieInfo(ch,ids):null,eligible=preparationRosterIds(ch,army),promotable=eligible.filter(id=>promotionStatus(army,id).available).length;
+ const brief=briefPage(ch,army),victory=brief.match(/<dt>승리<\/dt><dd>(.*?)<\/dd>/)?.[1]??'여정 완료';
+ const menu=[['deployment','출전 편성',info?'정규 '+info.regularCount+' / '+info.regularMax+' · 공석 '+(info.regularMax-info.regularCount):'여정 완료'],['equipment','장비','현재 효과 · 교체 비교'],['classes','병과 · 승급','변경 · 전문화'+(promotable?' · 승급 가능 '+promotable+'명':'')],['upgrade','부대 강화','세 목표 · 합계 비용 · 일괄 적용'],['shop','상점','공용 장비 판매'],['info','장수 정보','Lv99 성장 · 능력치 · 정신기'],['brief','작전 브리핑',ch?.title??'여정 마무리'],['details','세부 정보','공적 · 군단 보너스'],['save','저장 · 불러오기','자동 저장 · 수동 기록']];
+ if([4,5,6,7].includes(ch?.act))menu.splice(4,0,['growth','성장 지원','저성장 6명 · 지원 경험치 1.5배']);
+ const spiritReady=eligible.map(id=>({id,status:fourthSpiritStatus(army,id)})).filter(row=>row.status.needsSelection),unselected=spiritReady.length;
+ const hubNotice=unselected?'<section class="prep-panel prep-action-notice" role="status"><h3>Lv30 · 네 번째 정신기 선택 가능 '+unselected+'명</h3><p>아래 장수에게 선택할 정신기가 남아 있습니다. 선택·교체는 무료이며, 선택하지 않아도 출전할 수 있습니다.</p><ul class="prep-ready-officers" aria-label="정신기 선택이 필요한 장수">'+spiritReady.map(({id,status})=>'<li><b>'+esc(HEROES[id])+'</b><span>'+spiritChoiceLabel(status)+'</span></li>').join('')+'</ul>'+button('선택 정신기 바로 보기','data-prep-nav="spirits" class="primary"')+'</section>':'';
+ menu.splice(4,0,['spirits','선택 정신기','Lv30 · 무료 선택·교체']);
+ const groups=[['출전',['deployment','brief']],['장수 정비',['equipment','classes','upgrade','spirits','shop','growth','info']],['기록·설정',['details','save']]];
+ const menuHTML=groups.map(([label,ids])=>'<section class="prep-menu-group"><h3>'+label+'</h3><nav class="prep-hub-menu" aria-label="'+label+'">'+menu.filter(([id])=>ids.includes(id)).map(([id,label,note])=>{const ready=id==='spirits'&&unselected>0;return button('<b>'+label+(ready?'<span class="prep-action-badge">선택 가능 '+unselected+'명</span>':'')+'</b><small>'+esc(note)+'</small><span aria-hidden="true">›</span>','data-prep-nav="'+id+'"'+(ready?' class="prep-action-ready"':''));}).join('')+'</nav></section>').join('');
+ return hubNotice+'<div class="prep-hub"><div class="prep-hub-groups">'+menuHTML+'</div><div><section class="prep-panel prep-hub-brief"><small>'+(ch?(ch.act??1)+'막 · '+(ch.no??CHAPTERS.indexOf(ch)+1)+'장':'여정 완료')+'</small><h3>'+esc(ch?.title??'여정 마무리')+'</h3><details class="prep-details prep-mission-summary"><summary>현재 임무 요약</summary><p>승리 · '+victory+'</p>'+button('작전 상세 보기','data-prep-nav="brief"')+'</details></section><section class="prep-panel prep-draft-panel"><h4>편성 초안 <small>'+ (info?'정규 '+info.regularCount+' / '+info.regularMax:'')+'</small></h4><div class="prep-draft-roster">'+(draft??[]).map(id=>'<div>'+ (id?avatar(id,ch,{thumbnail:true})+'<b>'+esc(HEROES[id])+'</b><small>'+esc(balance.classes[effectiveClass(army,id)].name)+'</small>':'<span class="prep-avatar vacant">공석</span>')+'</div>').join('')+'</div></section></div></div>';
+}
+function spiritPage(army,ui,u,model){
+ const status=fourthSpiritStatus(army,ui.hero),mastery=heroMasteryStatus(army,ui.hero);
+ const selected=status.selectedId?SPIRITS[status.selectedId].name+(status.active?' · 적용 중':' · 비활성'):'빈 선택 자리';
+ const previewId=ui.pending?.kind==='fourthSpirit'?ui.pending.key:status.selectedId,preview=previewId?SPIRITS[previewId]:null,basic=spiritSlots(u).filter(slot=>slot.source!=='selection');
+ return heading(u,model)+'<section class="prep-panel prep-spirit-overview"><div class="prep-panel-title"><h4>Lv30 · 네 번째 자리 1개</h4><b>선택·교체 무료</b></div><p>기본 세 정신기는 유지하며, 선택한 하나는 다음 출전에 적용합니다.</p><div class="prep-fixed-spirits" aria-label="유지되는 기본 세 정신기">'+basic.map(slot=>'<details class="prep-spirit"><summary><b>'+esc(SPIRITS[slot.id].name)+'</b><span>'+(slot.locked?'Lv'+slot.level+' 해금':'기본')+' · 사용 시 SP '+SPIRITS[slot.id].cost+'</span></summary><p>'+esc(SPIRITS[slot.id].description)+'</p></details>').join('')+'</div><p>현재 선택 · <b>'+esc(selected)+'</b></p>'+(status.reason?'<p role="status">'+esc(status.reason)+'</p>':'')+'<div class="prep-spirit-selection"><div class="prep-spirit-candidates"><h4>선택 가능한 후보</h4><div class="prep-choices">'+status.candidates.map(id=>button('<span class="prep-spirit-mark" aria-hidden="true">'+esc(SPIRITS[id].name.slice(0,1))+'</span><b>'+esc(SPIRITS[id].name)+'</b><small>사용 시 SP '+SPIRITS[id].cost+(status.active&&status.selectedId===id?' · 현재 선택':'')+'</small>','data-prep-fourth-spirit="'+id+'" class="prep-choice" aria-pressed="'+(ui.pending?.kind==='fourthSpirit'?ui.pending.key===id:status.active&&status.selectedId===id)+'"',status.active&&status.selectedId===id)).join('')+'</div></div><section class="prep-spirit-detail" aria-label="선택 정신기 상세" aria-live="polite"><small>'+(ui.pending?.kind==='fourthSpirit'?'선택 미리보기':'현재 선택')+'</small><h4>'+esc(preview?.name??(ui.pending?.kind==='fourthSpirit'?'빈 선택 자리':'후보를 선택하세요'))+'</h4>'+(preview?'<p>사용 시 SP '+preview.cost+'</p><p>'+esc(preview.description)+'</p>':'')+'<p>정비 선택 비용 0 · 전투에서 사용할 때만 SP를 소모합니다.</p></section></div>'+button('선택 해제 · 무료','data-prep-fourth-spirit=""',!status.selectedId||!status.eligible)+'</section>'+(mastery.definition?'<details class="prep-panel prep-details"><summary>세 항목 MAX · '+esc(mastery.definition.name)+'</summary><p>'+esc(mastery.definition.description)+'</p><p>'+ (mastery.achieved?'15/15/15 달성 · 자동 적용 중':'무기·지력 / 병력 / 방어를 모두 15단계로 강화하면 자동 적용')+'</p></details>':'');
+}
+function detailsPage(army){return meritHTML(army)+'<section class="prep-panel"><h4>장수 성장 · Lv99</h4>'+growthHelpHTML()+'</section><section class="prep-panel"><h4>군단 기록과 정비</h4><p>장수 정보에서 합류·이탈 기록, 능력치 출처와 성장 상황을 확인할 수 있습니다.</p>'+button('장수 정보 보기','data-prep-nav="info"')+'<p>정비를 확정하면 자동 저장됩니다. 현재 전장의 병력·SP는 바꾸지 않으며 다음 출전에 정비 결과를 반영합니다.</p>'+button('저장 · 불러오기','data-prep-nav="save"')+'</section>';}
+
+export function preparationHTML({army,balance,currentChapter,chapter,ui,draft,deploymentContent='',message=''}){
+ const history=preparationHistoryIds(army),ids=ui.page==='info'?history:preparationRosterIds(chapter,army);
+ if(!ids.includes(ui.hero)){ui.hero=ids[0]??null;ui.slot=0;if(ui.pending?.kind!=='sell')ui.pending=null;}
+ if(ui.hero)ui.slot=Math.max(0,Math.min(ui.slot,equipmentSlotCapacity(army,ui.hero)-1));
+ const u=ui.hero?createUnit(balance,ui.hero,'ally',army):null,transactionId=ui.hero??history[0],model=ui.pending&&(u||ui.pending.kind==='sell'&&transactionId)?preparationTransaction(army,transactionId,ui.pending,balance,chapter??currentChapter):null;
+ let body;
+ if(ui.page==='hub')body=hubPage(army,balance,chapter,ui,draft);
+ else if(ui.page==='growth')body=chapter?.act===7?act7GrowthSupportHTML(army,chapter):chapter?.act===6?act6GrowthSupportHTML(army,chapter):chapter?.act===5?act5GrowthSupportHTML(army,chapter):act4GrowthSupportHTML(army,chapter);
+ else if(ui.page==='deployment')body=deploymentContent;
+ else if(ui.page==='details')body=detailsPage(army);
+ else if(['equipment','classes','upgrade','info','spirits'].includes(ui.page)&&!u)body='<section class="prep-panel prep-empty"><p>'+(ui.page==='info'?'조회할 장수 기록이 없습니다.':'다음 출전에 정비할 수 있는 장수가 없습니다.')+'</p>'+button('장수 기록 보기','data-prep-nav="info"',ui.page==='info'||!history.length)+'</section>';
+ else if(ui.page==='equipment')body=equipmentPage(army,balance,chapter,ui,u,model);
+ else if(ui.page==='classes')body=classesPage(army,balance,chapter,ui,u,model);
+ else if(ui.page==='upgrade')body=upgradePage(army,balance,chapter??currentChapter,ui,u,model);
+ else if(ui.page==='shop')body=shopPage(army,ui,model);
+ else if(ui.page==='info')body=infoPage(army,balance,chapter??currentChapter,ui,u);
+ else if(ui.page==='spirits')body=spiritPage(army,ui,u,model);
+ else body=briefPage(chapter,army);
+ const showRoster=!['hub','deployment','brief','details','growth','shop'].includes(ui.page);
+ let footer=model?'<div class="prep-apply-bar'+(ui.page==='equipment'?' prep-equipment-apply':'')+'" role="region" aria-label="선택 항목 적용"><div><small>선택 · '+esc(model.label||'적용 불가')+'</small><p>'+esc(model.reason||(ui.pending.kind==='promote'?preparationGrowthSummary(model.before,model.after):'실제 능력치와 재고를 확인한 뒤 확정하세요.'))+'</p></div><p>'+(model.cost<0?'받는 자금 <b class="stat-up">+'+n(-model.cost)+'</b>':'비용 <b>'+(model.cost?n(model.cost):'0')+'</b>')+' · 적용 후 자금 '+n(army.gold-model.cost)+'</p>'+button('선택 취소','data-prep="cancel"')+button(ui.pending.kind==='sell'?'판매 확정':ui.pending.kind==='promote'?'승급 확정':'적용 확정','data-prep="apply" class="primary"',!!model.reason)+'</div>':'';
+ if(ui.page==='upgrade'&&u&&ui.pending?.kind!=='modify')footer=upgradeFooter(army,model?.rows?model:preparationUpgradePlan(army,ui.hero,currentUpgradeTargets(army,ui.hero,chapter??currentChapter),balance,chapter??currentChapter),!!ui.pending);
+ if(ui.page==='equipment'&&u&&!model)footer='<div class="prep-apply-bar prep-equipment-apply"><div><small>장비 교체</small><p>'+esc(message||'슬롯과 장비를 선택하면 실제 능력치 변화를 확인할 수 있습니다.')+'</p></div>'+button('선택 취소','disabled',true)+button('적용 확정','class="primary"',true)+'</div>';
+ if(ui.page==='hub')footer='<div class="prep-depart prep-apply-bar"><p>정비를 마치면 출전 대화와 편성을 확인합니다.</p>'+button(chapter?'정비 완료 · 출전 대화로 →':'정비 완료 · 여정 마무리 →','data-prep="depart" class="primary"')+'</div>';
+ return '<div class="prep-screen"'+(ui.discardTarget||ui.processing?' inert':'')+(ui.processing?' aria-busy="true"':'')+'><header class="prep-top">'+(ui.page==='hub'?'<div><small>'+esc(chapterName(currentChapter))+' · 전투 후 정비</small><h2>출전 준비</h2></div>':button('← 출전 준비','data-prep-nav="hub"')+'<div><h2>'+PREPARATION_PAGES[ui.page]+'</h2><small>'+esc(chapter?chapterName(chapter)+' · 다음 출전 준비':'여정 마무리')+'</small></div>')+'<div class="prep-funds"><small>공용 자금</small><b>'+n(army.gold)+'</b></div>'+button('⚙','data-prep="settings" aria-label="설정"')+'</header><div class="prep-content '+(showRoster?'with-roster':'')+'" data-page="'+esc(ui.page)+'" data-equipment-detail="'+!!ui.equipmentDetail+'" data-shop-detail="'+!!(ui.shopDetail&&ui.pending?.kind==='sell')+'"'+(ui.discardTarget?' inert':'')+'>'+(showRoster?roster(army,balance,chapter,ui):'')+'<div class="prep-main">'+body+'</div></div><p class="prep-message" id="shop-message" role="status">'+esc(message)+'</p>'+footer+'</div>'+discardDialog(ui);
+}
