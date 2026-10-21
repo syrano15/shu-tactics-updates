@@ -1,0 +1,128 @@
+import {artFor} from './unit-art.js';
+import {footBodyMetrics} from './unit-body-metrics.js';
+import {mapSpriteSource} from './map-sprite-source.js';
+import {imageSource} from './image-source.js';
+
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const number=n=>Math.round(n*10000)/10000;
+const polygon=points=>points.map(([x,y])=>[number(clamp(x,0,1)),number(clamp(y,0,1))]);
+const outline=points=>'M'+points.map(([x,y])=>x+' '+y).join('L')+'Z';
+const cssPolygon=points=>'polygon('+points.map(([x,y])=>number(x*100)+'% '+number(y*100)+'%').join(',')+')';
+let nextClip=0;
+
+/** Classify the delivered picture, including old saves, rather than its combat class. */
+export function movementVisualKind(unit={},art=artFor(unit)){
+ if(art?.kind==='boat')return 'boat';
+ if(unit.id==='x_carriage'||unit.id==='supply_cart'||/(?:^|\/)(?:x_carriage|supply_cart)[-./]/.test(art?.src??''))return 'cart';
+ if(art?.kind==='mounted')return 'mounted';
+ if(art?.kind==='class-portrait'||art?.classPortrait)return 'portrait';
+ return art?.kind==='foot'?'foot':'symbol';
+}
+
+/** The source canvas and its existing head/feet measurements are never rewritten. */
+export function movementRigProfile(unit={},art=artFor(unit)){
+ const kind=movementVisualKind(unit,art),body=art?.src?footBodyMetrics(art.src):null;
+ const top=body?.bodyTop??(kind==='mounted'?.16:.18),bottom=body?.bodyBottom??.98;
+ const span=bottom-top,left=body?.visibleBounds[0]??.07,right=body?.visibleBounds[2]??.94;
+ const facing=art?.facing==='left'?'left':'right',parts=[];
+ const robe=kind==='foot'&&(unit.cls==='strategist'||/(?:zhugeliang|jianyong|sunqian|mizhu|maliang|pangtong|lady_sun)/.test(art?.src??''));
+ if(kind==='foot'){
+  // Work below the clothing/hip joint. Weapons outside these two polygons stay rigid.
+  const joint=top+span*(robe?.83:.66),knee=top+span*.84,center=clamp((left+right)/2,.43,.57);
+  const reach=Math.min((right-left)*.42,robe?.18:.34);
+  parts.push({id:'left-foot',role:robe?'hem':'leg',phase:0,pivot:[center-.10,joint],points:polygon([[center-.13,joint],[center,joint],[center,bottom],[center-reach,bottom],[center-.22,knee]])});
+  parts.push({id:'right-foot',role:robe?'hem':'leg',phase:.5,pivot:[center+.10,joint],points:polygon([[center,joint],[center+.13,joint],[center+.22,knee],[center+reach,bottom],[center,bottom]])});
+ }else if(kind==='mounted'){
+  const joint=top+span*.68,ends=[Math.max(.08,left),.36,.50,.66,Math.min(.96,right)];
+  // Four existing lower-leg regions use diagonal pairs; no extra horse legs are drawn.
+  for(let i=0;i<4;i++){
+   const a=ends[i],b=ends[i+1];
+   parts.push({id:'horse-leg-'+i,role:'horse-leg',phase:[0,.5,.5,0][i],pivot:[(a+b)/2,joint],points:polygon([[a,joint],[b,joint],[b,bottom],[a,bottom]])});
+  }
+  const riderEnd=top+span*.43,riderLeft=facing==='left'?.36:.08,riderRight=facing==='left'?.94:.66;
+  parts.push({id:'rider',role:'rider',phase:0,pivot:[(riderLeft+riderRight)/2,riderEnd],points:polygon([[riderLeft,0],[riderRight,0],[riderRight,riderEnd],[riderLeft,riderEnd]])});
+ }
+ return {kind,src:art?.src??null,facing,bodyTop:top,bodyBottom:bottom,robe,parts};
+}
+
+/** One cycle has a planted support interval and a distinct lifted recovery interval. */
+export function movementRigFrame(profile,position,height=48,heading={dx:1,dy:0},geometry={}){
+ const kind=profile.kind,cycle=position*(kind==='mounted'?.82:.72),axis=profile.facing==='left'?-1:1;
+ const size=clamp(height,12,180),stride=clamp(size*(kind==='mounted'?.095:profile.robe?.035:.072),.7,7.2);
+ const bodyPulse=Math.sin(cycle*Math.PI*4),bodyLift=Math.abs(bodyPulse);
+ const drawHeight=geometry.height??size,drawWidth=geometry.width??size;
+ const bodyY=kind==='mounted'?-bodyLift*clamp(size*.010,.2,1.1):kind==='foot'?-bodyLift*clamp(size*.006,.15,.6):0;
+ const parts=profile.parts.map(part=>{
+  if(part.role==='rider')return {id:part.id,role:part.role,planted:false,lift:0,footX:0,angle:bodyPulse*.35,transform:'translateY('+number(-bodyY*.65)+'px) rotate('+number(bodyPulse*.35)+'deg)'};
+  const phase=((cycle+part.phase)%1+1)%1,planted=phase<.55;
+  const progress=planted?phase/.55:(phase-.55)/.45;
+  const footX=(planted?1-2*progress:-Math.cos(progress*Math.PI))*stride*axis*(heading.dx===0?.7:1);
+  const lift=planted?0:Math.sin(progress*Math.PI)*clamp(size*(kind==='mounted'?.040:profile.robe?.012:.027),.25,2.8);
+  const lever=Math.max(4,size*(profile.bodyBottom-part.pivot[1]));
+  const angle=clamp(Math.atan2(footX,lever)*180/Math.PI,-18,18);
+  const radians=-angle*Math.PI/180,px=part.pivot[0]*drawWidth,py=part.pivot[1]*drawHeight;
+  const rotatedBottom=Math.max(...part.points.map(([x,y])=>py+(x*drawWidth-px)*Math.sin(radians)+(y*drawHeight-py)*Math.cos(radians)));
+  // Keep the planted region on the existing painted feet line; rotation must not
+  // push a boot/hoof below the board. Recovery lifts above that same line.
+  const groundY=profile.bodyBottom*drawHeight,translateY=groundY-rotatedBottom-lift;
+  return {id:part.id,role:part.role,phase:number(phase),planted,lift:number(lift),footX:number(footX),angle:number(angle),groundY:number(groundY),bottomY:number(rotatedBottom+translateY),transform:'translate('+number(footX*.12)+'px,'+number(translateY)+'px) rotate('+number(-angle)+'deg)'};
+ });
+ return {kind,bodyY:number(bodyY),parts};
+}
+
+const set=(node,key,value)=>node.style.setProperty(key,String(value));
+const element=(doc,name,cls)=>{const node=doc.createElement(name);if(cls)node.className=cls;return node;};
+/** A promoted picture can fail over to a different body: matching proportions alone is unsafe. */
+export function movementLoadedSourceMatches(img,art,baseURL=import.meta.url){
+ if(!art?.src)return false;
+ const identity=source=>{try{if(typeof source!=='string'||!source)return null;const url=new URL(source,baseURL);if(!['http:','https:','file:'].includes(url.protocol)&&!url.host)return null;url.search='';url.hash='';return url.href;}catch{return null;}};
+ const actual=identity(img?.currentSrc||img?.src);if(!actual)return false;
+ const expected=[art.src,mapSpriteSource(art.src),imageSource(art.src)].map(identity).filter(Boolean);
+ if(!expected.includes(actual))return false;
+ const body=footBodyMetrics(art.src);
+ if(body&&img.naturalWidth>0&&img.naturalHeight>0){const ratio=body.width/body.height;if(Math.abs(img.naturalWidth/img.naturalHeight-ratio)>Math.max(.015,ratio*.02))return false;}
+ return true;
+}
+function geometry(ghost,img,computed){
+ const rect=img.getBoundingClientRect?.(),outer=ghost.getBoundingClientRect?.();
+ const width=Number.parseFloat(computed?.width)||img.offsetWidth||rect?.width;
+ const height=Number.parseFloat(computed?.height)||img.offsetHeight||rect?.height;
+ if(!(width>0&&height>0&&img.naturalWidth>0&&img.naturalHeight>0))return null;
+ const sourceRatio=img.naturalWidth/img.naturalHeight,drawWidth=Math.min(width,height*sourceRatio),drawHeight=drawWidth/sourceRatio;
+ return {left:(Number.isFinite(img.offsetLeft)?img.offsetLeft:(rect?.left??0)-(outer?.left??0))+(width-drawWidth)/2,top:(Number.isFinite(img.offsetTop)?img.offsetTop:(rect?.top??0)-(outer?.top??0))+height-drawHeight,width:drawWidth,height:drawHeight};
+}
+
+/** Temporary clipped copies of the loaded map picture; no image data or saved state changes. */
+export function createMovementRig(ghost,img,unit,options={}){
+ const doc=ghost?.ownerDocument;
+ if(!doc?.createElementNS||!img?.cloneNode)return null;
+ const art=options.art??artFor(unit??{}),profile=movementRigProfile(unit,art);
+ if(!['foot','mounted'].includes(profile.kind))return null;
+ if(!movementLoadedSourceMatches(img,art,options.sourceBaseURL??import.meta.url))return null;
+ const computed=doc.defaultView?.getComputedStyle?.(img),box=geometry(ghost,img,computed);
+ if(!box||img.complete===false)return null;
+ const rig=element(doc,'span','movement-rig movement-rig-'+profile.kind);rig.setAttribute('aria-hidden','true');
+ for(const key of ['left','top','width','height'])set(rig,key,box[key]+'px');
+ set(rig,'filter',computed?.filter??'none');set(rig,'opacity',computed?.opacity??'1');
+ const defs=doc.createElementNS('http://www.w3.org/2000/svg','svg');defs.classList.add('movement-rig-defs');defs.setAttribute('aria-hidden','true');
+ const clip=doc.createElementNS('http://www.w3.org/2000/svg','clipPath'),path=doc.createElementNS('http://www.w3.org/2000/svg','path'),clipID='movement-core-'+(++nextClip);
+ clip.id=clipID;clip.setAttribute('clipPathUnits','objectBoundingBox');
+ path.setAttribute('d','M0 0H1V1H0Z'+profile.parts.map(part=>outline(part.points)).join(''));
+ path.setAttribute('clip-rule','evenodd');path.setAttribute('fill-rule','evenodd');clip.append(path);defs.append(clip);rig.append(defs);
+ const copy=(id,clipPath)=>{
+  const layer=element(doc,'span','movement-rig-part movement-rig-'+id);layer.dataset.movementPart=id;
+  const picture=img.cloneNode(false);picture.removeAttribute('id');picture.className='movement-rig-image';picture.alt='';picture.setAttribute('aria-hidden','true');
+  picture.removeAttribute('style');picture.removeAttribute('data-map-sprite');picture.removeAttribute('data-fallback-src');
+  set(layer,'clip-path',clipPath);layer.append(picture);rig.append(layer);return layer;
+ };
+ const core=copy('core','url(#'+clipID+')'),layers=new Map();
+ for(const part of profile.parts){const layer=copy(part.id,cssPolygon(part.points));set(layer,'transform-origin',number(part.pivot[0]*100)+'% '+number(part.pivot[1]*100)+'%');layers.set(part.id,layer);}
+ const priorVisibility=[img.style.getPropertyValue('visibility'),img.style.getPropertyPriority?.('visibility')??''],priorRig=ghost.dataset.movementRig;
+ let closed=false;ghost.append(rig);set(img,'visibility','hidden');ghost.dataset.movementRig=profile.kind;
+ return {profile,element:rig,paint(position,height,heading){
+  if(closed)return;const frame=movementRigFrame(profile,position,height,heading,box);
+  set(rig,'scale',heading.mirror?'-1 1':'1 1');set(core,'transform','translateY('+frame.bodyY+'px)');
+  for(const part of frame.parts){const layer=layers.get(part.id);layer.dataset.planted=String(part.planted);set(layer,'transform',part.transform);}
+  return frame;
+ },stop(){if(closed)return;closed=true;rig.remove();if(priorVisibility[0])img.style.setProperty('visibility',...priorVisibility);else img.style.removeProperty('visibility');if(priorRig===undefined)delete ghost.dataset.movementRig;else ghost.dataset.movementRig=priorRig;}};
+}

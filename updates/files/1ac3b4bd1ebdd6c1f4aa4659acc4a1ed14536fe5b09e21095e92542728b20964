@@ -1,0 +1,32 @@
+// Display geometry from tooling/map-art-v0730/compose-maps.py paint_bridges.
+// These maps use its timber compositor. Baima preserves an earth causeway;
+// Chibi/Adou use dedicated fleet paintings, so that geometry must not be inferred.
+const NATIVE_TIMBER_MAPS=new Set(['s07_xiapi','s12_xinye','s13_changban','s21_jingzhou_hold','s30_hanshui','s31_hanzhong','s33_flood','s35_white_robes','s41_ruxu','s42_alliance','s43_lushui','s53_wuzhangyuan','s55_weishui']);
+const EMPTY=Object.freeze([]),key=(x,y)=>x+','+y;
+
+// Tile-unit rectangles are visual exclusions only. They never add bridge cells,
+// movement bonuses, passability or any state/save field.
+export function bridgeVisualFootprintsFor(chapter,art){
+ const terrain=chapter?.terrain,columns=art?.columns,rows=art?.rows,cells=chapter?.bridgeCells;
+ if(!chapter||!NATIVE_TIMBER_MAPS.has(chapter.id)||chapter.id!==art?.id||chapter.campaignLayoutVersion!==1||!Number.isInteger(columns)||columns<1||columns>26||!Number.isInteger(rows)||rows<1||rows>20||!Array.isArray(terrain)||terrain.length!==rows||terrain.some(row=>typeof row!=='string'||row.length!==columns||!/^[.F#]+$/.test(row))||terrain.join('\n')!==art.terrainKey||!Array.isArray(cells)||cells.length>columns*rows||cells.some(p=>!Array.isArray(p)||p.length!==2||!p.every(Number.isInteger)||p[0]<0||p[1]<0||p[0]>=columns||p[1]>=rows||terrain[p[1]][p[0]]!=='.'))return EMPTY;
+ const selected=new Set(cells.map(p=>key(...p))),seen=new Set(),result=[];
+ for(const [x,y]of cells){
+  if(seen.has(key(x,y)))continue;
+  const group=[[x,y]];seen.add(key(x,y));
+  for(const [cx,cy]of group)for(const [nx,ny]of [[cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]])if(selected.has(key(nx,ny))&&!seen.has(key(nx,ny))){seen.add(key(nx,ny));group.push([nx,ny]);}
+  const xs=group.map(p=>p[0]),ys=group.map(p=>p[1]);let left=Math.min(...xs),right=Math.max(...xs);const top=Math.min(...ys),bottom=Math.max(...ys),w=right-left+1,h=bottom-top+1;
+  const blocked=points=>points.filter(([px,py])=>terrain[py]?.[px]==='#'&&!selected.has(key(px,py))).length;
+  const vertical=blocked(group.flatMap(([px,py])=>[[px,py-1],[px,py+1]])),horizontal=blocked(group.flatMap(([px,py])=>[[px-1,py],[px+1,py]]));
+  const horizontalDeck=vertical>horizontal||vertical===horizontal&&w>=h;
+  // Ordinary H/V decks remain inside their existing logical cell mask. Only
+  // a broad, short horizontal deck has extra ground-only approaches in native art.
+  if(!horizontalDeck||w>=h)continue;
+  const gapColumn=px=>px>=0&&px<columns&&terrain.slice(top,bottom+1).every(row=>row[px]==='.')&&[top-1,bottom+1].some(py=>terrain[py]?.[px]==='#');
+  for(let i=0;i<2&&gapColumn(left-1);i++)left--;
+  for(let i=0;i<2&&gapColumn(right+1);i++)right++;
+  // Native CELL=100, bank apron=70px. Canvas bounds clip the original too.
+  const x1=Math.max(0,left-.7),x2=Math.min(columns,right+1.7);
+  result.push(Object.freeze({x:x1,y:top,width:Number((x2-x1).toFixed(10)),height:h}));
+ }
+ return Object.freeze(result);
+}

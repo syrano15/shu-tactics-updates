@@ -1,0 +1,101 @@
+// Current common bodies: four v0.74.13 rows remain exact; only five
+// root-selected head-direction edits replace their active source.
+import {TROOP_ART_V07413} from './unit-art-v07413.js';
+const revised=[
+ {
+  "id": "infantry-r1",
+  "cls": "infantry",
+  "rank": 1,
+  "src": "art/units-v07414/infantry-r1.webp",
+  "mapSrc": "art/units-v07414/map/infantry-r1.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   46,
+   29,
+   335,
+   367,
+   49
+  ]
+ },
+ {
+  "id": "infantry-r2",
+  "cls": "infantry",
+  "rank": 2,
+  "src": "art/units-v07414/infantry-r2.webp",
+  "mapSrc": "art/units-v07414/map/infantry-r2.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   48,
+   46,
+   359,
+   360,
+   67
+  ]
+ },
+ {
+  "id": "spear",
+  "cls": "spear",
+  "rank": 0,
+  "src": "art/units-v07414/spear.webp",
+  "mapSrc": "art/units-v07414/map/spear.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   512,
+   77,
+   35,
+   371,
+   478,
+   117
+  ]
+ },
+ {
+  "id": "spear-r1",
+  "cls": "spear",
+  "rank": 1,
+  "src": "art/units-v07414/spear-r1.webp",
+  "mapSrc": "art/units-v07414/map/spear-r1.webp",
+  "kind": "foot",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   113,
+   8,
+   336,
+   373,
+   86
+  ]
+ },
+ {
+  "id": "cavalry-r2",
+  "cls": "cavalry",
+  "rank": 2,
+  "src": "art/units-v07414/cavalry-r2.webp",
+  "mapSrc": "art/units-v07414/map/cavalry-r2.webp",
+  "kind": "mounted",
+  "facing": "left",
+  "metrics": [
+   384,
+   384,
+   21,
+   12,
+   377,
+   371,
+   62
+  ]
+ }
+];
+const byId=new Map(revised.map(row=>[row.id,Object.freeze({...row,metrics:Object.freeze(row.metrics)})]));
+export const TROOP_ART_V07414=Object.freeze(TROOP_ART_V07413.map(row=>byId.get(row.id)??row));
+export const TROOP_BODY_METRICS_V07414=Object.freeze(Object.fromEntries(TROOP_ART_V07414.map(row=>[row.src,row.metrics])));
+export const TROOP_MAP_SPRITES_V07414=Object.freeze(Object.fromEntries(TROOP_ART_V07414.map(row=>[row.src,Object.freeze({src:row.mapSrc})])));
+export const BASE_TROOP_ART_V07414=Object.freeze(Object.fromEntries(TROOP_ART_V07414.filter(row=>row.rank===0).map(row=>[row.cls,Object.freeze({src:row.src,kind:row.kind,facing:row.facing})])));
+export const BASE_TROOP_GALLERY_V07414=Object.freeze(TROOP_ART_V07414.filter(row=>row.rank===0).map(row=>Object.freeze({id:'common_'+row.cls+'_v07414',label:({infantry:'보병',spear:'창병',cavalry:'기병'}[row.cls])+' · 현재 일반 병사 그림',kind:'units',path:row.src,width:row.metrics[0],height:row.metrics[1],staticReady:true})));

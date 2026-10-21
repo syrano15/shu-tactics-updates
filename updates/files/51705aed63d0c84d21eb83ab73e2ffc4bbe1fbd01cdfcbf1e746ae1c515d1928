@@ -1,0 +1,219 @@
+{
+  "version": "0.74.14",
+  "count": 5,
+  "records": [
+    {
+      "id": "infantry-r1",
+      "cls": "infantry",
+      "rank": 1,
+      "src": "art/units-v07414/infantry-r1.webp",
+      "mapSrc": "art/units-v07414/map/infantry-r1.webp",
+      "kind": "foot",
+      "facing": "left",
+      "width": 384,
+      "height": 384,
+      "bytes": 38872,
+      "sha256": "84a17b1b0a824ffcd9d53077a0e70d47014ae730c2f9f7629e7a8d0bea4347f2",
+      "mapWidth": 256,
+      "mapHeight": 256,
+      "mapBytes": 17990,
+      "mapSHA256": "3ebb845e7d2a417d77b573dba77f9cf13fa0d8f0a4d4a396f8a2f75644305f5e",
+      "metrics": [
+        384,
+        384,
+        46,
+        29,
+        335,
+        367,
+        49
+      ],
+      "transparentRatio": 0.6855400933159722,
+      "blueMaskRatio": 0.08904351128472222,
+      "originalAsset": "art/units-v07413/infantry-r1.webp",
+      "originalSHA256": "9e321e2c09cc2ab34e6ef05aab66f42a52212ea61d471180bbde0ce2f538fdeb",
+      "originalMapAsset": "art/units-v07413/map/infantry-r1.webp",
+      "originalMapSHA256": "913472a07d52fe9f9827dcb5c2352d0b23089dcdf573063fa52ff48d52c016a7",
+      "master": "tooling/unit-art-v07414/masters/infantry-r1.png",
+      "masterSHA256": "f0e0b54ac715d45c5b9681b9631a139bd674e45908fc39ac8ada12a517ef86f6",
+      "generatedDimensions": [
+        1254,
+        1254
+      ],
+      "headReference": {
+        "sourcePixelY": 159,
+        "kind": "manual metal helmet crown excluding plume and raised weapons"
+      }
+    },
+    {
+      "id": "infantry-r2",
+      "cls": "infantry",
+      "rank": 2,
+      "src": "art/units-v07414/infantry-r2.webp",
+      "mapSrc": "art/units-v07414/map/infantry-r2.webp",
+      "kind": "foot",
+      "facing": "left",
+      "width": 384,
+      "height": 384,
+      "bytes": 43236,
+      "sha256": "11028254f0c5af2e37c9e731a42663f0c31c470e81124762048a11d96114a88b",
+      "mapWidth": 256,
+      "mapHeight": 256,
+      "mapBytes": 19864,
+      "mapSHA256": "4c916ed9a3b942681cd2470ffd349cb7177b057782bb253b749a4f4d4643705d",
+      "metrics": [
+        384,
+        384,
+        48,
+        46,
+        359,
+        360,
+        67
+      ],
+      "transparentRatio": 0.6781073676215278,
+      "blueMaskRatio": 0.11883544921875,
+      "originalAsset": "art/units-v07413/infantry-r2.webp",
+      "originalSHA256": "f418726727ee2be767eaef2ccead45fa2b0edf49a3efd894764d2b04bd18c9ea",
+      "originalMapAsset": "art/units-v07413/map/infantry-r2.webp",
+      "originalMapSHA256": "f83b387f99770b4f02516327fa648906163f06c75cc020cd01da2081fd93a402",
+      "master": "tooling/unit-art-v07414/masters/infantry-r2.png",
+      "masterSHA256": "84f9abafca295f7cfb439bf611ecbeb6a0bb1c63af1f3915ac597892b6eb5681",
+      "generatedDimensions": [
+        1254,
+        1254
+      ],
+      "headReference": {
+        "sourcePixelY": 220,
+        "kind": "manual metal helmet crown excluding plume and raised weapons"
+      }
+    },
+    {
+      "id": "spear",
+      "cls": "spear",
+      "rank": 0,
+      "src": "art/units-v07414/spear.webp",
+      "mapSrc": "art/units-v07414/map/spear.webp",
+      "kind": "foot",
+      "facing": "left",
+      "width": 384,
+      "height": 512,
+      "bytes": 49568,
+      "sha256": "b91ac992db3e216e8edab92383243b3e82640646859aae1d4ff2bc456ae9121d",
+      "mapWidth": 192,
+      "mapHeight": 256,
+      "mapBytes": 15200,
+      "mapSHA256": "5f7633e910242454556777a4f155cafb8d1a6d4a6351aa432026f426f88b007c",
+      "metrics": [
+        384,
+        512,
+        77,
+        35,
+        371,
+        478,
+        117
+      ],
+      "transparentRatio": 0.6882069905598959,
+      "blueMaskRatio": 0.13991292317708334,
+      "originalAsset": "art/units-v07413/spear.webp",
+      "originalSHA256": "c9c177d2e0c73d6ef83f0b910d1c8f98f534f529694a4001bfc2c2296f2d3449",
+      "originalMapAsset": "art/units-v07413/map/spear.webp",
+      "originalMapSHA256": "3421c6ba774e94419c0b74e7c0e81b962196440d9e11ff0f7d9579bcf38f4117",
+      "master": "tooling/unit-art-v07414/masters/spear.png",
+      "masterSHA256": "ec376545a5caa8f721ea31f9c5e4cd7d8d3d2eb33f50ef2899342b4237a541cc",
+      "generatedDimensions": [
+        1086,
+        1448
+      ],
+      "headReference": {
+        "sourcePixelY": 332,
+        "kind": "manual metal helmet crown excluding plume and raised weapons"
+      }
+    },
+    {
+      "id": "spear-r1",
+      "cls": "spear",
+      "rank": 1,
+      "src": "art/units-v07414/spear-r1.webp",
+      "mapSrc": "art/units-v07414/map/spear-r1.webp",
+      "kind": "foot",
+      "facing": "left",
+      "width": 384,
+      "height": 384,
+      "bytes": 36802,
+      "sha256": "9ca0957c884238ca76d039b8eb50a373b51797ec26a39152cf1c2459ce8e0df2",
+      "mapWidth": 256,
+      "mapHeight": 256,
+      "mapBytes": 17442,
+      "mapSHA256": "1525c6f5e68bda7e3b6acbe676ae1f38335e37f61f1889560e1258d7a0af4b11",
+      "metrics": [
+        384,
+        384,
+        113,
+        8,
+        336,
+        373,
+        86
+      ],
+      "transparentRatio": 0.7258436414930556,
+      "blueMaskRatio": 0.12548828125,
+      "originalAsset": "art/units-v07413/spear-r1.webp",
+      "originalSHA256": "d6ac622de873a5ef662843c5fdf85240a9c28b48d1303db9579337fc807eb45e",
+      "originalMapAsset": "art/units-v07413/map/spear-r1.webp",
+      "originalMapSHA256": "ed836f53d169113700322aa3b5e38718770b111b1b5147f5b52a37d5bfeee129",
+      "master": "tooling/unit-art-v07414/masters/spear-r1.png",
+      "masterSHA256": "707eeadee32352cf0205a063f772bcb541618da5e591c8eca23f895559b1da61",
+      "generatedDimensions": [
+        1254,
+        1254
+      ],
+      "headReference": {
+        "sourcePixelY": 281,
+        "kind": "manual metal helmet crown excluding plume and raised weapons"
+      }
+    },
+    {
+      "id": "cavalry-r2",
+      "cls": "cavalry",
+      "rank": 2,
+      "src": "art/units-v07414/cavalry-r2.webp",
+      "mapSrc": "art/units-v07414/map/cavalry-r2.webp",
+      "kind": "mounted",
+      "facing": "left",
+      "width": 384,
+      "height": 384,
+      "bytes": 53832,
+      "sha256": "a961f6bf19c4bfa300ea9712e72b277dc43f14cf72538f7d54a3b2ccf417355a",
+      "mapWidth": 256,
+      "mapHeight": 256,
+      "mapBytes": 25386,
+      "mapSHA256": "56ee220a36133db6d893ddff6663c85e3dac868cc767daddac1669bede6e5104",
+      "metrics": [
+        384,
+        384,
+        21,
+        12,
+        377,
+        371,
+        62
+      ],
+      "transparentRatio": 0.5862562391493056,
+      "blueMaskRatio": 0.11315239800347222,
+      "originalAsset": "art/units-v07413/cavalry-r2.webp",
+      "originalSHA256": "71dc90aba2282a08ab0e1ada3cdcd78a2cf81dec3ea711c4b5a8b11ed3d5b71a",
+      "originalMapAsset": "art/units-v07413/map/cavalry-r2.webp",
+      "originalMapSHA256": "209f7922fad5911b2b3c63fd29c7f87821b8656e140d31cc570b9d8f68150cf8",
+      "master": "tooling/unit-art-v07414/masters/cavalry-r2.png",
+      "masterSHA256": "52ea697fa4da650dda9ded9387a4154df0e7cfc0274513315c754c256cd90441",
+      "generatedDimensions": [
+        1254,
+        1254
+      ],
+      "headReference": {
+        "sourcePixelY": 202,
+        "kind": "manual metal helmet crown excluding plume and raised weapons"
+      }
+    }
+  ],
+  "previousVersionOriginalBytesPreserved": true,
+  "roleBodyHeightAndFeetRulesUnchanged": true,
+  "faceDirectionReview": "Five generated edits were selected and inspected by root; metadata alone is not a face-direction visual test."
+}
