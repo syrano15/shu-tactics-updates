@@ -1,0 +1,184 @@
+import {act4BattleScenario,validateAct4DeploymentVersion} from './map-layout-v07419.js';
+import {additionalLootItems,LOOT_VERSION} from './loot-policy-v07419.js';
+import {act4RewardStatus,validateAct4RewardReceipt} from './act4-progression.js';
+import {act5RewardStatus,validateAct5RewardReceipt} from './act5-progression.js';
+import {act6RewardStatus,validateAct6RewardReceipt} from './act6-progression.js';
+import {act7RewardStatus,validateAct7RewardReceipt} from './act7-progression.js';
+import {equipmentDropItems,equipmentDropActors,validateEquipmentDropsReceipt,validateEquipmentDropsVersion} from './equipment-drops.js';
+import {survivalBonusStatus,validateSurvivalBonusReceipt,validateSurvivalBonusRecords} from './survival-bonus.js';
+export {survivalBonusStatus} from './survival-bonus.js';
+import {survivorRewardStatus,validateSurvivorRewardReceipt,validateSurvivorRewardRecords} from './survivor-reward.js';
+export {survivorRewardStatus} from './survivor-reward.js';
+import {storyUnitSurvived,campaignEnemyOrder} from './campaign-events.js';
+import {meritEvaluationState} from './objectives.js';
+import {regularRewards,regularMeritAllies,meritRetreatedIds} from './regular-rewards.js';
+import {PARTS,normalizeArmyFeatures,validateArmyFeatures} from './equipment.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {MAX_LEVEL} from './growth-rules.js';
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+const integer=(v,max=100000000)=>Number.isInteger(v)&&v>=0&&v<=max;
+const ensure=(ok,message='전투 보상 기록이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+export const ACT1_MERITS={
+ s01_zhuoxian:{id:'merit_s01',condition:'유비·관우·장비 모두 병력 50% 이상으로 승리',gold:500,items:[]},
+ s02_yellow_camp:{id:'merit_s02',condition:'4라운드 안에 황건 두목 격파',gold:500,items:[]},
+ s03_hulao:{id:'merit_s03',condition:'관우가 화웅 격파',gold:0,items:['manual']},
+ s04_beihai:{id:'merit_s04',condition:'공융 병력 70% 이상으로 승리',gold:0,items:['armor']},
+ s05_xuzhou_relief:{id:'merit_s05',condition:'6라운드 생존을 마치기 전에 적 전멸로 승리',gold:0,items:['ironArmor']},
+ s06_xuzhou_fall:{id:'merit_s06',condition:'아군 퇴각 없이 유비가 서문으로 탈출',gold:0,items:['banner']},
+};
+export const ACT2_MERITS={
+ s07_xiapi:{id:'merit_s07',condition:'8라운드 안에 아군 퇴각 없이 여포 격파',gold:1000,items:['ironArmor']},
+ s08_xiaopei:{id:'merit_s08',condition:'아군 퇴각 없이 유비 병력 60% 이상으로 탈출',gold:800,items:['manual']},
+ s09_baima:{id:'merit_s09',condition:'관우가 5라운드 안에 안량 격파',gold:600,items:['famedSword']},
+ s10_thousand_li:{id:'merit_s10',condition:'세 수문장 격파 후 수레 병력 70% 이상으로 도달',gold:800,items:['largeSupply']},
+ s11_bowang:{id:'merit_s11',condition:'7라운드 안에 아군 퇴각 없이 하후돈 격파',gold:1000,items:['silkPouch']},
+ s12_xinye:{id:'merit_s12',condition:'6라운드 방어 또는 예정 증원까지 전멸, 유비·제갈량 병력 50% 이상 유지',gold:1000,items:['talisman']},
+ s13_changban:{id:'merit_s13',condition:'하후은 격파 후 핵심 네 장수 병력 50% 이상으로 탈출',gold:1200,items:['banner']},
+};
+export const ACT3_MERITS={
+ s14_jiangxia:{id:'merit_s14',condition:'7라운드 안에 피난선 병력 70%·유비 50% 이상으로 탈출',gold:1000,items:['largeSupply']},
+ s15_chibi:{id:'merit_s15',condition:'화공 발동 후 7라운드 안에 정규 아군 퇴각 없이 승리',gold:1500,items:['silkPouch']},
+ s16_huarong:{id:'merit_s16',condition:'6라운드 안에 관우·주창 병력 50% 이상으로 승리',gold:1000,items:['ironArmor']},
+ s17_jingnan:{id:'merit_s17',condition:'8라운드 안에 정규 아군 퇴각 없이 두 성문 동시 점령',gold:1000,items:['banner']},
+ s18_changsha:{id:'merit_s18',condition:'황충이 퇴각하지 않은 채 한현 격파',gold:1000,items:['famedSword']},
+ s19_jiangling:{id:'merit_s19',condition:'8라운드 안에 주유 병력 60% 이상을 지키며 조인 격파',gold:1500,items:['talisman']},
+ s20_adou_river:{id:'merit_s20',condition:'7라운드 안에 공자선 70%·조운 50% 이상으로 승선',gold:1500,items:['largeSupply']},
+ s21_jingzhou_hold:{id:'merit_s21',condition:'8라운드 안에 정규 아군 퇴각 없이 형주 방어 완료',gold:1500,items:['banner']},
+};
+const meritFor=id=>ACT1_MERITS[id]??ACT2_MERITS[id]??ACT3_MERITS[id];
+const ACT1_DROPS={s02_yellow_camp:{items:['manual']},s03_hulao:{items:['horse']},s04_beihai:{items:['armor']},s05_xuzhou_relief:{items:['ironArmor']},s06_xuzhou_fall:{items:['banner'],extraGold:2000}};
+const entryFor=(scenario,id)=>scenario?.enemies?.find(e=>e.id===id);
+function itemsFrom(raw){
+ const items=raw===undefined?[]:typeof raw==='string'?[raw]:Array.isArray(raw)?raw:object(raw)&&Array.isArray(raw.items)?raw.items:null;
+ ensure(Array.isArray(items)&&items.length<=100&&items.every(id=>typeof id==='string'&&Object.hasOwn(PARTS,id)),'적의 장비 획득 설정이 올바르지 않습니다.');return [...items];
+}
+export function enemyLoot(scenario,unit,lootVersion=0,{equipmentDropsVersion=0,actorId=null,campaignEventsVersion=0,act4DeploymentVersion=0}={}){
+ scenario=act4BattleScenario(scenario,{act4DeploymentVersion});
+ ensure([0,1,2,3].includes(lootVersion),'전리품 저장 버전이 올바르지 않습니다.');
+ validateEquipmentDropsVersion(scenario,equipmentDropsVersion);
+ if(unit?.team!=='enemy')return {gold:0,items:[]};
+ const raw=entryFor(scenario,unit.id);if(!raw)return {gold:0,items:[]};const entry=campaignEnemyOrder(scenario,raw,campaignEventsVersion);
+ const template=UNIT_TEMPLATES[entry.templateId??entry.template],generic=template?.generic??unit.generic??false,level=entry.level??unit.level??1;
+ ensure(Number.isInteger(level)&&level>=1&&level<=MAX_LEVEL);
+ const boss=entry.boss===true||entry.id==='e_boss'||scenario.objective?.targetId===entry.id||scenario.victory?.unit===entry.id;
+ const fallback=entry.id==='e_boss'?ACT1_DROPS[scenario.id]:null;
+ const originalGold=entry.gold!==undefined?entry.gold:(boss?500+50*level:generic?30+10*level:200+30*level)+(fallback?.extraGold??0);
+ ensure(integer(originalGold),'적의 전리 금화 설정이 올바르지 않습니다.');
+ const tier=entry.combatTier??entry.tier??unit.combatTier??template?.combatTier;const denomination=boss||['elite','officer','boss'].includes(tier)||!tier&&!generic?1000:100;
+ const act=Number(scenario.act)||1;
+ const increased=denomination===100?Math.max(300,200+100*act+Math.floor((level-1)/4)*100):Math.max(boss?3000:2000,Math.ceil((originalGold+1000)/1000)*1000);
+ const gold=[4,5,6,7].includes(act)&&entry.gold!==undefined?originalGold:lootVersion>=2?Math.max(increased,Math.ceil(originalGold/denomination)*denomination):lootVersion===1?Math.max(denomination,Math.ceil(originalGold/denomination)*denomination):originalGold;
+ const items=[...(entry.loot!==undefined?itemsFrom(entry.loot):[...(fallback?.items??[])]),...equipmentDropItems(scenario,unit.id,actorId,equipmentDropsVersion,campaignEventsVersion)];
+ return {gold,items:[...items,...(lootVersion===LOOT_VERSION?additionalLootItems(scenario,entry,{tier,generic,boss,existingItems:items,parts:PARTS}):[])]};
+}
+export function ensurePendingLoot(state){state.pendingLoot??={gold:0,items:[],sourceUnitIds:[]};return state.pendingLoot;}
+export function recordDefeatLoot(state,actor,target,scenario){
+ scenario=act4BattleScenario(scenario,state);
+ const pending=ensurePendingLoot(state);
+ if(state.rewardsSettled||actor?.team!=='ally'||target?.team!=='enemy'||target.hp!==0||target.escaped||target.withdrawn||pending.sourceUnitIds.includes(target.id))return null;
+ const entry=entryFor(scenario,target.id);if(!entry)return null;
+ const loot=enemyLoot(scenario,target,state.lootVersion??0,{equipmentDropsVersion:state.equipmentDropsVersion??0,actorId:actor.id,campaignEventsVersion:state.campaignEventsVersion??0,act4DeploymentVersion:state.act4DeploymentVersion??0});pending.gold+=loot.gold;pending.items.push(...loot.items);pending.sourceUnitIds.push(target.id);
+ return {...loot,sourceUnitId:target.id};
+}
+function defeatedBy(state,targetId,actorId=null){return state.battleRecords?.defeats?.some(d=>d.targetId===targetId&&(!actorId||d.actorId===actorId))??false;}
+export function completeXinyeClear(state,scenario){return scenario?.id==='s12_xinye'&&state.campaignEventsVersion===1&&state.result==='victory'&&!(state.reinforcements?.pending??[]).some(w=>w.units.some(u=>u.team==='enemy'))&&state.units.filter(u=>u.team==='enemy').length>0&&state.units.filter(u=>u.team==='enemy').every(u=>u.hp===0&&!u.withdrawn&&!u.escaped);}
+export function validMeritAward(merit,stageId,spec){if(!merit||!spec)return false;const clear=merit.variant==='completeClear';return (merit.variant===undefined||clear&&stageId==='s12_xinye')&&merit.gold===spec.gold+(clear?2000:0);}
+export function meritStatus(state,scenario){
+ state=meritEvaluationState(state);
+ const spec=meritFor(scenario?.id);if(!spec)return null;
+ const unit=id=>state.units.find(u=>u.id===id),ratio=id=>{const u=unit(id);return u&&u.maxHp>0?u.hp/u.maxHp:0;};
+ const survivalAllies=regularMeritAllies(state),survivalRetreated=meritRetreatedIds(state),act3Allies=regularMeritAllies(state,{excludeExtras:true}),act3Retreated=meritRetreatedIds(state,{excludeExtras:true});
+ let achieved=false;
+ if(state.result==='victory')switch(scenario.id){
+  case 's01_zhuoxian':achieved=['liubei','guanyu','zhangfei'].every(id=>ratio(id)>=.5);break;
+  case 's02_yellow_camp':achieved=state.round<=4&&defeatedBy(state,'e_boss');break;
+  case 's03_hulao':achieved=defeatedBy(state,'e_boss','guanyu');break;
+  case 's04_beihai':achieved=ratio('x_kongrong')>=.7;break;
+  case 's05_xuzhou_relief':achieved=(state.completedRounds??0)<6&&state.units.filter(u=>u.team==='enemy').every(u=>u.hp===0&&!u.escaped&&!u.withdrawn);break;
+  case 's07_xiapi':achieved=state.round<=8&&defeatedBy(state,'e_boss')&&survivalAllies.every(u=>u.hp>0)&&survivalRetreated.length===0;break;
+  case 's08_xiaopei':achieved=ratio('liubei')>=.6&&survivalAllies.every(u=>storyUnitSurvived(state,u))&&survivalRetreated.length===0;break;
+  case 's09_baima':achieved=state.campaignEventsVersion===1?state.battleRecords?.defeats.some(record=>record.targetId==='e_boss'&&record.actorId==='guanyu'&&record.round<=5):state.round<=5&&defeatedBy(state,'e_boss','guanyu');break;
+  case 's10_thousand_li':achieved=ratio('x_carriage')>=.7&&['e_gate1','e_gate2','e_gate3'].every(id=>defeatedBy(state,id));break;
+  case 's11_bowang':achieved=state.round<=7&&defeatedBy(state,'e_boss')&&survivalAllies.every(u=>u.hp>0)&&survivalRetreated.length===0;break;
+  case 's12_xinye':achieved=((state.completedRounds??0)>=6||completeXinyeClear(state,scenario))&&['liubei','zhugeliang'].every(id=>ratio(id)>=.5);break;
+  case 's14_jiangxia':achieved=state.round<=7&&ratio('x_ferry')>=.7&&ratio('liubei')>=.5;break;
+  case 's15_chibi':achieved=!!state.shipFire&&state.round<=7&&act3Allies.every(u=>u.hp>0)&&act3Retreated.length===0;break;
+  case 's16_huarong':achieved=state.round<=6&&['guanyu','zhoucang'].every(id=>ratio(id)>=.5);break;
+  case 's17_jingnan':case 's21_jingzhou_hold':achieved=state.round<=8&&act3Allies.every(u=>u.hp>0)&&act3Retreated.length===0;break;
+  case 's18_changsha':achieved=ratio('e_hz')>0;break;
+  case 's19_jiangling':achieved=state.round<=8&&ratio('e_zhouyu')>=.6;break;
+  case 's20_adou_river':achieved=state.round<=7&&ratio('x_lady_sun')>=.7&&ratio('zhaoyun')>=.5;break;
+  case 's13_changban':achieved=defeatedBy(state,'e_tiger')&&['liubei','zhangfei','zhaoyun','zhugeliang'].every(id=>ratio(id)>=.5);break;
+  case 's06_xuzhou_fall':{const u=unit('liubei'),tiles=scenario.objective?.tiles??state.objective?.tiles??[[0,3],[0,4]];achieved=!!u&&u.hp>0&&u.done&&tiles.some(([x,y])=>u.x===x&&u.y===y)&&survivalAllies.every(v=>v.hp>0)&&survivalRetreated.length===0;break;}
+ }
+ const completeClear=scenario.id==='s12_xinye'&&completeXinyeClear(state,scenario);
+ const condition=regularRewards(state)&&['s06_xuzhou_fall','s07_xiapi','s08_xiaopei','s11_bowang'].includes(scenario.id)?spec.condition.replace('아군 퇴각 없이','정규 아군 퇴각 없이'):spec.condition;
+ return {...spec,condition,...(completeClear?{variant:'completeClear',gold:spec.gold+2000,condition:'예정 증원까지 완전 소탕 · 유비·제갈량 병력 50% 이상 · 추가 공적금 +2,000'}:{}),items:[...spec.items],achieved};
+}
+export function normalizeBattleFeatures(state){
+ ensure(object(state)&&Array.isArray(state.units));ensurePendingLoot(state);state.rewardsSettled??=false;
+ state.battleRecords??={defeats:[],engagements:{},hitCounts:{},minHpRatios:Object.fromEntries(state.units.map(u=>[u.id,u.maxHp>0?u.hp/u.maxHp:0])),retreatedIds:state.units.filter(u=>u.team==='ally'&&u.hp===0).map(u=>u.id)};
+ return state;
+}
+function expectedLoot(state,scenario,sources){
+ const expected={gold:0,items:[],sourceUnitIds:[...sources]};
+ for(const id of sources){const unit=state.units.find(u=>u.id===id);ensure(entryFor(scenario,id));ensure(unit&&unit.team==='enemy'&&unit.hp===0&&!unit.escaped&&!unit.withdrawn&&defeatedBy(state,id));const killer=state.units.find(u=>u.id===state.battleRecords.defeats.find(d=>d.targetId===id).actorId);ensure(killer?.team==='ally');const loot=enemyLoot(scenario,unit,state.lootVersion??0,{equipmentDropsVersion:state.equipmentDropsVersion??0,actorId:killer.id,campaignEventsVersion:state.campaignEventsVersion??0,act4DeploymentVersion:state.act4DeploymentVersion??0});expected.gold+=loot.gold;expected.items.push(...loot.items);}
+ return expected;
+}
+export function validateBattleFeatures(state,scenario){
+ scenario=act4BattleScenario(scenario,state);
+ ensure(state?.equipmentDropsVersion===undefined||[1,2,3].includes(state.equipmentDropsVersion),'조건부 장비 획득 저장 버전이 올바르지 않습니다.');
+ validateEquipmentDropsVersion(scenario,state?.equipmentDropsVersion??0);
+ ensure(state?.lootVersion===undefined||[1,2,3].includes(state.lootVersion),'전리품 저장 버전이 올바르지 않습니다.');
+ ensure(object(state)&&Array.isArray(state.units)&&typeof state.rewardsSettled==='boolean'&&object(state.pendingLoot)&&object(state.battleRecords));
+ const pending=state.pendingLoot,records=state.battleRecords,ids=new Set(state.units.map(u=>u.id));
+ ensure(integer(pending.gold)&&Array.isArray(pending.items)&&pending.items.length<=1000&&pending.items.every(id=>Object.hasOwn(PARTS,id))&&Array.isArray(pending.sourceUnitIds)&&new Set(pending.sourceUnitIds).size===pending.sourceUnitIds.length&&pending.sourceUnitIds.length<=state.units.length);
+ ensure(Array.isArray(records.defeats)&&new Set(records.defeats.map(d=>d.targetId)).size===records.defeats.length&&records.defeats.length<=state.units.length);
+ for(const d of records.defeats)ensure(object(d)&&ids.has(d.actorId)&&ids.has(d.targetId)&&d.actorId!==d.targetId&&Number.isInteger(d.round)&&d.round>=1&&d.round<=state.round&&typeof d.critical==='boolean'&&(state.units.find(u=>u.id===d.targetId).hp===0||(state.survivalBonusVersion===1||state.survivorRewardVersion===1)&&state.units.find(u=>u.id===d.targetId).team==='ally'&&records.retreatedIds.includes(d.targetId)));
+ ensure(object(records.engagements)&&object(records.hitCounts)&&object(records.minHpRatios)&&Array.isArray(records.retreatedIds));
+ for(const [pair,count] of Object.entries(records.engagements)){const units=pair.split('|');ensure(units.length===2&&units[0]!==units[1]&&units.every(id=>ids.has(id))&&integer(count,100000)&&count>0);}
+ for(const [id,count] of Object.entries(records.hitCounts))ensure(ids.has(id)&&integer(count,100000)&&count>0);
+ ensure(Object.keys(records.minHpRatios).length===ids.size);
+ for(const [id,ratio] of Object.entries(records.minHpRatios))ensure(ids.has(id)&&Number.isFinite(ratio)&&ratio>=0&&ratio<=1);
+ ensure(new Set(records.retreatedIds).size===records.retreatedIds.length&&records.retreatedIds.every(id=>state.units.some(u=>u.id===id&&u.team==='ally'&&(u.hp===0||state.survivalBonusVersion===1||state.survivorRewardVersion===1))));
+ validateSurvivalBonusRecords(state);validateSurvivorRewardRecords(state);
+ if(state.rewardsSettled){ensure(state.result!==null&&pending.gold===0&&pending.items.length===0&&pending.sourceUnitIds.length===0);}
+ else ensure(same(pending,expectedLoot(state,scenario,pending.sourceUnitIds)));
+ return state;
+}
+export function validateRewardReceipts(army,scenarios){
+ for(const [stageId,receipt] of Object.entries(army.rewardReceipts??{})){
+  const original=scenarios.find(ch=>ch.id===stageId);ensure(original,'알 수 없는 전투 보상 영수증입니다.');
+  ensure(receipt.act4DeploymentVersion===undefined||receipt.act4DeploymentVersion===1);validateAct4DeploymentVersion(original,receipt.act4DeploymentVersion??0);const scenario=act4BattleScenario(original,receipt);
+  ensure(receipt.campaignEventsVersion===undefined||receipt.campaignEventsVersion===1&&scenario.battleEventsVersion===1,'전리품 전장 사건 버전이 올바르지 않습니다.');
+  validateEquipmentDropsReceipt(receipt,scenario,PARTS);validateAct4RewardReceipt(receipt,scenario);validateAct5RewardReceipt(receipt,scenario);validateAct6RewardReceipt(receipt,scenario);validateAct7RewardReceipt(receipt,scenario);
+  let gold=0;const items=[];
+  for(const id of receipt.sourceUnitIds){const entry=entryFor(scenario,id);ensure(entry,'알 수 없는 전리품 출처입니다.');const loot=enemyLoot(scenario,{id,team:'enemy',level:entry.level??1},receipt.lootVersion??0,{equipmentDropsVersion:receipt.equipmentDropsVersion??0,actorId:receipt.equipmentDropActors?.[id]??null,campaignEventsVersion:receipt.campaignEventsVersion??0,act4DeploymentVersion:receipt.act4DeploymentVersion??0});gold+=loot.gold;items.push(...loot.items);}
+  ensure(receipt.lootGold===gold&&same(receipt.lootItems,items));
+  validateSurvivalBonusReceipt(receipt,scenario);validateSurvivorRewardReceipt(receipt,scenario);
+  const merit=meritFor(stageId);
+  ensure(merit?object(receipt.merit)&&receipt.merit.id===merit.id&&validMeritAward(receipt.merit,stageId,merit)&&same(receipt.merit.items,merit.items):receipt.merit===null);
+ }
+ return army;
+}
+export function discardPendingLoot(state){normalizeBattleFeatures(state);const lost={gold:state.pendingLoot.gold,items:[...state.pendingLoot.items]};state.pendingLoot={gold:0,items:[],sourceUnitIds:[]};state.rewardsSettled=state.result!==null;state.rewardSummary={gold:0,items:[],merit:null,lost};return lost;}
+export function settleBattleRewards(army,state,scenario){
+ scenario=act4BattleScenario(scenario,state);
+ normalizeArmyFeatures(army);normalizeBattleFeatures(state);
+ if(state.result==='defeat'){discardPendingLoot(state);return state.rewardSummary;}
+ if(state.result!=='victory')return {gold:0,items:[],merit:null};
+ validateArmyFeatures(army);validateBattleFeatures(state,scenario);
+ if(state.rewardsSettled)return state.rewardSummary??{gold:0,items:[],merit:meritStatus(state,scenario)};
+ if(Object.hasOwn(army.rewardReceipts,scenario.id)){state.pendingLoot={gold:0,items:[],sourceUnitIds:[]};state.rewardsSettled=true;state.rewardSummary={gold:0,items:[],merit:meritStatus(state,scenario),...(state.survivalBonusVersion===1?{survivalBonus:survivalBonusStatus(state,scenario)}:{}),...(state.survivorRewardVersion===1?{survivorReward:survivorRewardStatus(state,scenario)}:{}),alreadyClaimed:true};return state.rewardSummary;}
+ const act4Rewards=act4RewardStatus(state,scenario);
+ const act5Rewards=act5RewardStatus(state,scenario);
+ const act6Rewards=act6RewardStatus(state,scenario);
+ const act7Rewards=act7RewardStatus(state,scenario);
+ const pending=state.pendingLoot,merit=meritStatus(state,scenario),survivalBonus=survivalBonusStatus(state,scenario),survivorReward=survivorRewardStatus(state,scenario),gold=(act4Rewards?(act4Rewards.militaryGold+act4Rewards.optionalGold):0)+(act5Rewards?(act5Rewards.militaryGold+act5Rewards.optionalGold):0)+(act6Rewards?(act6Rewards.militaryGold+act6Rewards.optionalGold):0)+(act7Rewards?(act7Rewards.militaryGold+act7Rewards.optionalGold):0)+pending.gold+(survivorReward?.achieved?survivorReward.gold:0)+(merit?.achieved?merit.gold:0)+(survivalBonus?.achieved?survivalBonus.gold:0),items=[...pending.items,...(merit?.achieved?merit.items:[])];
+ ensure(integer(army.gold+gold));for(const id of items)ensure(integer(army.stock[id]+items.filter(v=>v===id).length,1000000));
+ const receipt={...(state.act4DeploymentVersion===1?{act4DeploymentVersion:1}:{}),...(act4Rewards?{act4Rewards}:{}),...(act5Rewards?{act5Rewards}:{}),...(act6Rewards?{act6Rewards}:{}),...(act7Rewards?{act7Rewards}:{}),...(regularRewards(state)?{regularRewardsVersion:1}:{}),...(survivorReward?{survivorRewardVersion:1,survivorReward:structuredClone(survivorReward)}:{}),...(state.campaignEventsVersion===1?{campaignEventsVersion:1}:{}),...(state.equipmentDropsVersion>0?{equipmentDropsVersion:state.equipmentDropsVersion,equipmentDropActors:equipmentDropActors(state,scenario,pending.sourceUnitIds)}:{}),...(survivalBonus?{survivalBonusVersion:1,survivalBonus:structuredClone(survivalBonus)}:{}),...(state.lootVersion>0?{lootVersion:state.lootVersion}:{}),lootGold:pending.gold,lootItems:[...pending.items],sourceUnitIds:[...pending.sourceUnitIds],merit:merit?{id:merit.id,achieved:merit.achieved,gold:merit.gold,items:[...merit.items],...(merit.variant?{variant:merit.variant}:{})}:null};
+ army.gold+=gold;for(const id of items){army.stock[id]++;army.inventoryTotals[id]++;}
+ if(merit?.achieved&&!army.merits.includes(merit.id)){army.merits.push(merit.id);army.meritPoints++;}
+ army.rewardReceipts[scenario.id]=receipt;state.pendingLoot={gold:0,items:[],sourceUnitIds:[]};state.rewardsSettled=true;state.rewardSummary={gold,items,merit,...(act4Rewards?{act4Rewards}:{}),...(act5Rewards?{act5Rewards}:{}),...(act6Rewards?{act6Rewards}:{}),...(act7Rewards?{act7Rewards}:{}),...(survivorReward?{survivorReward}:{}),...(survivalBonus?{survivalBonus}: {})};return state.rewardSummary;
+}

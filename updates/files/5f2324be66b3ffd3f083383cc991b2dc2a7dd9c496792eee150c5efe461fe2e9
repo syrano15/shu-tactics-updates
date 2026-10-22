@@ -1,0 +1,88 @@
+import {HERO_DATA} from './heroes.js';
+import {CLASS_NAMES} from './balance.js';
+export const SPECIALIZATION_LEVEL=15;
+export const SPECIALIZATION_CHANGE_COST=0;
+const definition=(id,cls,name,bonuses,spirits,description,extra={})=>Object.freeze({id,cls,name,weaponFamily:cls,bonuses:Object.freeze(bonuses),spirits:Object.freeze(spirits),description,...extra});
+export const SPECIALIZATIONS=Object.freeze({
+ infantry_shield:definition('infantry_shield','infantry','방패병',{hp:400,def:5,atk:-5,move:-1},[],'병력과 방어를 높이고 공격과 이동을 낮춥니다.'),
+ infantry_assault:definition('infantry_assault','infantry','돌격병',{atk:7,def:-4,hp:-200},[],'공격을 높이는 대신 방어와 병력이 줄어듭니다.'),
+ spear_guard:definition('spear_guard','spear','수비 창병',{hp:300,def:4,atk:-4,move:-1},[],'길목을 지키는 방어와 병력을 얻고 공격과 이동을 낮춥니다.'),
+ spear_breakthrough:definition('spear_breakthrough','spear','돌파 창병',{atk:6,def:-3,hp:-200},[],'돌파 공격을 높이는 대신 방어와 병력이 줄어듭니다.'),
+ cavalry_heavy:definition('cavalry_heavy','cavalry','중장 기병',{hp:400,def:5,atk:-3,move:-1},[],'병력과 방어를 높이고 공격과 이동을 낮춥니다.'),
+ cavalry_mobile:definition('cavalry_mobile','cavalry','기동 기병',{move:1,def:-3,hp:-300},[],'빠르게 접근하지만 병력과 방어가 줄어듭니다.'),
+ archer_sniper:definition('archer_sniper','archer','저격 궁병',{rangeMax:1,atk:5,move:-1,def:-2},[],'사거리와 공격을 높이고 이동과 방어를 낮춥니다.'),
+ archer_mobile:definition('archer_mobile','archer','기동 궁병',{move:1,atk:-4,hp:-200},[],'위치를 바꾸기 쉬워지는 대신 공격과 병력이 줄어듭니다.'),
+ crossbow_siege:definition('crossbow_siege','crossbow','공성 석궁병',{rangeMax:1,atk:6,move:-1,def:-2},[],'긴 사거리와 공격을 얻고 이동과 방어를 낮춥니다.'),
+ crossbow_mobile:definition('crossbow_mobile','crossbow','기동 석궁병',{move:1,atk:-5,hp:-200},[],'기동성을 얻는 대신 공격과 병력이 줄어듭니다.'),
+ strategist_fire:definition('strategist_fire','strategist','공격 책사',{int:8,def:-3,hp:-200},[],'지력 +8·화공 위력 +12%, 방어 −3·병력 −200. 정예는 화공 위력이 추가로 10% 증가합니다.',{firePower:1.12}),
+ strategist_control:definition('strategist_control','strategist','회복 책사',{rangeMax:1,int:-6,hp:-150},[],'기본 사거리 +1, 지력 −6·병력 −150. 회복량 +25%·보급 SP 20% 절약. 정예는 회복량 +40%·보급 SP 30% 절약·보급·회복 고유기로 혼란/위보 정화.',{healingPower:1.25}),
+});
+export function specializationChoices(cls){return Object.values(SPECIALIZATIONS).filter(s=>s.cls===cls);}
+export function specializationFor(unit){const spec=SPECIALIZATIONS[unit?.specialization];return spec&&unit?.cls===spec.cls?spec:null;}
+export function specializationName(unit){return specializationFor(unit)?.name??'';}
+export function specializationSpiritIds(unit){return [...(specializationFor(unit)?.spirits??[])];}
+export function validateHeroSpecialization(id,hero){
+ const key=hero.specialization,changes=hero.specializationChanges;
+ if(changes!==undefined&&changes!==null&&(!Number.isInteger(changes)||changes<0||changes>100000))throw new Error('전문화 변경 기록이 올바르지 않습니다.');
+ if(key===undefined||key===null)return hero;
+ const spec=SPECIALIZATIONS[key],person=HERO_DATA[id],cls=hero.selectedClass??person?.class;
+ if(!spec||!person||person.guest||spec.cls!==cls||hero.growth?.level<SPECIALIZATION_LEVEL||!Number.isInteger(hero.growth?.level)||!Number.isInteger(changes)||changes<1)throw new Error('전문화 선택 기록이 올바르지 않습니다.');
+ return hero;
+}
+export function effectiveSpecialization(army,id,cls,requirePromotion=true){
+ const hero=army?.heroes?.[id];if(!hero)return null;
+ validateHeroSpecialization(id,hero);
+ const spec=SPECIALIZATIONS[hero.specialization];return (!requirePromotion||(hero.promotion??0)>0)&&spec?.cls===cls?spec:null;
+}
+export function specializationStatus(army,id,key,chapter){
+ const hero=army?.heroes?.[id],person=HERO_DATA[id],spec=SPECIALIZATIONS[key],current=hero?.specialization??null;
+ const cost=0;
+ let reason='';
+ if(!hero||!person||!army.joined?.includes(id))reason='합류한 장수를 선택하세요.';
+ else if(hero.departed)reason='이탈한 장수는 전문화를 변경할 수 없습니다.';
+ else if(person.guest)reason='고정 게스트는 전문화를 선택할 수 없습니다.';
+ else if(!chapter)reason='다음 전투가 있는 출전 준비에서 전문화를 선택합니다.';
+ else if((hero.growth?.level??1)<SPECIALIZATION_LEVEL)reason=`장수 레벨 ${SPECIALIZATION_LEVEL}부터 전문화를 선택할 수 있습니다.`;
+ else if((hero.promotion??0)<1)reason='먼저 강화 승급을 완료하세요. 승급 후 전문화를 선택할 수 있습니다.';
+ else if(!spec)reason='존재하지 않는 전문화입니다.';
+ else if(spec.cls!==(hero.selectedClass??person.class))reason='현재 병과에 맞는 전문화를 선택하세요.';
+
+ return {key,current,cls:hero?.selectedClass??person?.class,name:spec?.name??'',parentName:CLASS_NAMES[spec?.cls]??'',cost,requiredLevel:SPECIALIZATION_LEVEL,available:!reason,reason,changed:current!==key,bonuses:spec?{...spec.bonuses}:null,spirits:spec?[...spec.spirits]:[]};
+}
+export function specializationReason(army,id,key,chapter){return specializationStatus(army,id,key,chapter).reason;}
+export function selectSpecialization(army,id,key,chapter){
+ const status=specializationStatus(army,id,key,chapter);if(status.reason)throw new Error(status.reason);
+ const hero=army.heroes[id];validateHeroSpecialization(id,hero);
+ if(!status.changed)return {...status,id,changed:false};
+ if((hero.specializationChanges??0)>=100000)throw new Error('전문화 변경 기록의 상한에 도달했습니다.');
+ hero.specialization=key;hero.specializationChanges=(hero.specializationChanges??0)+1;
+ return {...status,id,changed:true,specialization:key};
+}
+export function clearHeroSpecialization(hero){if(hero.specialization!==undefined)delete hero.specialization;}
+// Class aptitude is applied first. The branch then makes a flat, explicit trade.
+export function applySpecializationCombatStats(unit){
+ const spec=specializationFor(unit);if(!spec)return unit;const b=spec.bonuses;
+ for(const [stat,delta] of [['atk',b.atk],['baseAtk',b.atk],['def',b.def],['int',b.int]])if(delta)unit[stat]=Math.max(0,unit[stat]+delta);
+ return unit;
+}
+export function applySpecialization(unit,spec,allyHpVersion=1){
+ if(!spec)return unit;
+ if(spec.cls!==unit.cls)throw new Error('전문화와 전투 병과가 일치하지 않습니다.');
+ unit.specialization=spec.id;applySpecializationCombatStats(unit);
+ unit.maxHp=Math.max(1,Math.min(allyHpVersion===1?Infinity:10000,unit.maxHp+(spec.bonuses.hp??0)));unit.hp=unit.maxHp;
+ unit.move=Math.max(1,Math.min(20,unit.move+(spec.bonuses.move??0)));
+ unit.max=Math.max(unit.min,Math.min(8,unit.max+(spec.bonuses.rangeMax??0)));
+ return unit;
+}
+
+// These role effects are derived from the captured branch/rank, never serialized
+// as replacement base statistics. Historical unit/stat references remain exact.
+export function specializationRole(unit){
+ const spec=unit?.team==='ally'?specializationFor(unit):null,elite=!!spec&&(unit?.rank??unit?.promotion??0)>=2,key=spec?.id;
+ return {elite,physicalPower:elite&&['infantry_assault','spear_breakthrough'].includes(key)?1.15:1,physicalGuard:elite&&['infantry_shield','spear_guard','cavalry_heavy'].includes(key)?.85:1,stationaryPower:elite&&['archer_sniper','crossbow_siege'].includes(key)?1.15:1,moveBonus:elite&&['cavalry_mobile','archer_mobile','crossbow_mobile'].includes(key)?1:0,firePower:elite&&key==='strategist_fire'?1.10:1,healingPower:key==='strategist_control'?(elite?1.40:1.25):1,supplySPMultiplier:key==='strategist_control'?(elite ? .70 : .80):1,supportCleanse:elite&&key==='strategist_control'};
+}
+export function specializationPhysicalPower(unit){const role=specializationRole(unit);return role.physicalPower*(unit?.moved?1:role.stationaryPower);}
+export const specializationHealingPower=unit=>specializationRole(unit).healingPower;
+export function specializationRoleDescription(unit){
+ const r=specializationRole(unit),rows=[];if(r.physicalPower>1)rows.push('물리 피해 +15%');if(r.physicalGuard<1)rows.push('받는 물리 피해 −15%');if(r.stationaryPower>1)rows.push('이동하지 않은 물리 공격 피해 +15%');if(r.moveBonus)rows.push('실제 이동 +1');if(r.firePower>1)rows.push('화공 피해 추가 +10%');if(r.healingPower>1)rows.push('병력 회복량 +'+Math.round((r.healingPower-1)*100)+'% · 보급 SP '+Math.round((1-r.supplySPMultiplier)*100)+'% 절약 (최소 SP12)');if(r.supportCleanse)rows.push('보급·회복 고유기로 혼란·위보 정화 · 소모한 행동은 복구하지 않음');return rows;
+}

@@ -1,0 +1,66 @@
+{
+  "version": "0.74.19",
+  "map": "s26_machao",
+  "mapLayoutVersion": 3,
+  "columns": 24,
+  "rows": 18,
+  "width": 2400,
+  "height": 1800,
+  "blockedCells": 40,
+  "forestCells": 22,
+  "gates": [
+    [
+      15,
+      4
+    ],
+    [
+      15,
+      5
+    ],
+    [
+      15,
+      6
+    ],
+    [
+      15,
+      8
+    ],
+    [
+      15,
+      9
+    ],
+    [
+      15,
+      12
+    ],
+    [
+      15,
+      13
+    ],
+    [
+      15,
+      14
+    ]
+  ],
+  "originalMediaPreserved": true,
+  "wholeLandscapeEmbedded": false,
+  "wallOverlayClippedToBlockedCells": true,
+  "files": [
+    {
+      "path": "s26_machao-fortress.webp",
+      "bytes": 891448,
+      "sha256": "9e90523d52dbe231afba20a3a029df8353c6e6665a144aaab6a022f1d215ecb2"
+    },
+    {
+      "path": "s26_machao-fortress.svg",
+      "bytes": 208686,
+      "sha256": "2894fbf0183c0abef0261ad60236c7ebe639196ad38c7e69c437067f1a1a20f2"
+    },
+    {
+      "path": "s26_machao-fortress-edges.svg",
+      "bytes": 184,
+      "sha256": "cd45a8e3f9830e8bd9679ea86970dd84a4d1559f66e4e08cc6dceaf072141423"
+    }
+  ],
+  "edgeFeather": "transparent-valid-mask; base landscape is already continuous"
+}

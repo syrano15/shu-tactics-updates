@@ -1,0 +1,38 @@
+// Purchases are optional, additive records; old armies acquire no new fields.
+import {CHAPTERS} from './campaign.js';
+export const SHOP_HOLD_LIMIT=99;
+export const SHOP_CATALOG=Object.freeze({
+ armor:{price:1200,chapter:1},horse:{price:1800,chapter:1},manual:{price:1400,chapter:1},
+ ironArmor:{price:1800,chapter:7},banner:{price:1600,chapter:7},
+ talisman:{price:2000,chapter:14},silkPouch:{price:2200,chapter:14},
+ largeSupply:{price:6000,chapter:22},famedSword:{price:7000,chapter:22},bloodHorse:{price:8000,chapter:32},
+});
+const object=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
+const ensure=(ok,message='상점 구매 기록이 올바르지 않습니다.')=>{if(!ok)throw new Error(message);};
+export function shopChapterNumber(chapter){const id=typeof chapter==='string'?chapter:chapter?.id;const index=CHAPTERS.findIndex(ch=>ch.id===id);return index<0?0:index+1;}
+export function shopOffers(chapter){const no=shopChapterNumber(chapter);return Object.entries(SHOP_CATALOG).filter(([,offer])=>offer.chapter<=no).map(([part,offer])=>({part,...offer}));}
+function chapterAvailable(army,chapter){const no=shopChapterNumber(chapter);return no>0&&(no===1||army.claimed?.includes(CHAPTERS[no-2].id));}
+export function purchasedItemCounts(army){
+ const counts={};const ledger=army.shopPurchases;if(ledger===undefined)return counts;
+ ensure(object(ledger)&&Object.keys(ledger).length===2&&ledger.version===1&&object(ledger.chapters));
+ ensure(Object.keys(ledger.chapters).length>0&&Object.keys(ledger.chapters).length<=CHAPTERS.length);
+ for(const [chapter,items] of Object.entries(ledger.chapters)){
+  ensure(chapterAvailable(army,chapter)&&object(items)&&Object.keys(items).length>0&&Object.keys(items).length<=Object.keys(SHOP_CATALOG).length);
+  const no=shopChapterNumber(chapter);
+  for(const [part,quantity] of Object.entries(items)){
+   ensure(Object.hasOwn(SHOP_CATALOG,part)&&SHOP_CATALOG[part].chapter<=no&&Number.isSafeInteger(quantity)&&quantity>0&&quantity<=1000000);
+   counts[part]=(counts[part]??0)+quantity;ensure(counts[part]<=1000000);
+  }
+ }
+ return counts;
+}
+export function shopPurchaseLimit(army,chapter,part){
+ const offer=SHOP_CATALOG[part];if(!offer||offer.chapter>shopChapterNumber(chapter)||!chapterAvailable(army,chapter))return 0;
+ return Math.max(0,Math.min(SHOP_HOLD_LIMIT-(army.inventoryTotals?.[part]??0),Math.floor(army.gold/offer.price)));
+}
+export function recordShopPurchase(army,chapter,part,quantity){
+ ensure(Number.isSafeInteger(quantity)&&quantity>0&&quantity<=shopPurchaseLimit(army,chapter,part),'구매 수량·자금·입고 시기와 보유 한도를 확인하세요.');
+ const id=typeof chapter==='string'?chapter:chapter.id,ledger=army.shopPurchases??{version:1,chapters:{}},items=ledger.chapters[id]??{};
+ ensure((items[part]??0)+quantity<=1000000);
+ return {ledger:{version:1,chapters:{...ledger.chapters,[id]:{...items,[part]:(items[part]??0)+quantity}}},cost:SHOP_CATALOG[part].price*quantity};
+}

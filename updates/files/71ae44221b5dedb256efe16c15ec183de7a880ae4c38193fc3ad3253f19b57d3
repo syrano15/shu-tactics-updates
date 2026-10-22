@@ -1,0 +1,67 @@
+import {PARTS} from './equipment.js';
+const hosts=new WeakMap();
+const amount=value=>Number.isSafeInteger(value)&&value>0?value:0;
+const current=options=>typeof options.isCurrent!=='function'||options.isCurrent();
+const names=(items)=>Object.entries(items).map(([id,count])=>`${PARTS[id].name} ×${count}`);
+function entriesFor(result,actor,target){
+ const seen=new Set(),entries=[];
+ const exchanges=result?.exchanges?.length?result.exchanges:[{actor,target,result}];
+ for(const exchange of exchanges)for(const [field,counter] of [['loot',false],['counterLoot',true]]){
+  const units=[exchange.actor,exchange.target],loot=exchange.result?.[field],id=loot?.sourceUnitId;
+  if(typeof id!=='string'||!id||seen.has(id))continue;
+  const items={};for(const item of Array.isArray(loot.items)?loot.items:[])if(Object.hasOwn(PARTS,item))items[item]=(items[item]??0)+1;
+  const gold=amount(loot.gold);if(!gold&&!Object.keys(items).length)continue;
+  seen.add(id);entries.push({sourceUnitId:id,name:units.find(unit=>unit?.id===id)?.name||'적 부대',counter,gold,items});
+ }
+ return entries;
+}
+// Only renders the receipt already produced by the engine. No drop calculation or grant.
+export function lootFeedbackModel(result,actor,target,{alreadyClaimed=false}={}){
+ if(alreadyClaimed)return null;
+ return modelFromEntries(entriesFor(result,actor,target));
+}
+function modelFromEntries(entries){
+ if(!entries.length)return null;
+ const items={},gold=entries.reduce((total,entry)=>total+entry.gold,0);
+ for(const entry of entries)for(const [id,count] of Object.entries(entry.items))items[id]=(items[id]??0)+count;
+ const rewards=[...names(items),...(gold?[`자금 ${gold.toLocaleString('ko-KR')}`]:[])];
+ return {entries,gold,items,rewards,sourceCount:entries.length,title:entries.length>1?'전리품 합계 · '+entries.length+'부대':'전리품 확보!',caption:'승리 시 정산 · 패배하면 지급되지 않습니다.'};
+}
+export function clearLootFeedback(host){
+ const record=hosts.get(host);if(!record)return;
+ record.active?.finish(true);record.seen.clear();hosts.delete(host);
+}
+export function showLootFeedback(host,result,actor,target,options={}){
+ const skipped=reason=>Promise.resolve({shown:false,reason});
+ if(!host||!current(options))return skipped('stale');
+ const model=lootFeedbackModel(result,actor,target,options);if(!model)return skipped(options.alreadyClaimed?'already-claimed':'no-loot');
+ let record=hosts.get(host);if(!record){record={seen:new Set(),active:null};hosts.set(host,record);}
+ const key=entry=>JSON.stringify([options.scenarioId??'',options.epoch??'',entry.sourceUnitId]);
+ const fresh=model.entries.filter(entry=>!record.seen.has(key(entry)));if(!fresh.length)return skipped('duplicate');
+ // Mixed old/new receipts only display the unseen defeated source.
+ const display=modelFromEntries(fresh);
+ record.active?.finish(true);
+ const doc=host.ownerDocument??globalThis.document;if(!doc?.createElement)return skipped('no-dom');
+ const card=doc.createElement('section');card.className='loot-feedback';card.setAttribute('role','status');card.setAttribute('aria-live','polite');card.setAttribute('aria-atomic','true');
+ const duration=options.fast?850:1300;
+ card.dataset.lootSources=fresh.map(entry=>entry.sourceUnitId).join(',');card.dataset.lootGold=String(display.gold);card.dataset.lootDuration=String(duration);
+ const title=doc.createElement('strong');title.className='loot-feedback-title';title.textContent=display.title;
+ const rewards=doc.createElement('p');rewards.className='loot-feedback-rewards';rewards.textContent=display.rewards.join(' · ');
+ const source=doc.createElement('p');source.className='loot-feedback-source';source.textContent=fresh.map(entry=>`${entry.counter?'반격 · ':''}${entry.name} 격파`).join(' / ');
+ const caption=doc.createElement('p');caption.className='loot-feedback-caption';caption.textContent=display.caption;
+ const next=doc.createElement('button');next.type='button';next.className='loot-feedback-dismiss';next.textContent='클릭해 넘기기';next.setAttribute('aria-label','전리품 안내 넘기기');
+ card.append(title,rewards,source,caption,next);host.append(card);for(const entry of fresh)record.seen.add(key(entry));
+ return new Promise(resolve=>{
+  let timer=null,poll=null,finished=false;const cleanup=[];
+  const finish=cancelled=>{if(finished)return;finished=true;clearTimeout(timer);clearTimeout(poll);cleanup.forEach(remove=>remove());card.remove();if(record.active===controller)record.active=null;resolve({shown:true,cancelled:!!cancelled,model:display});};
+  const controller={finish};record.active=controller;
+  const listen=(type,handler)=>{card.addEventListener(type,handler);cleanup.push(()=>card.removeEventListener(type,handler));};
+  const dismiss=event=>{event.preventDefault();event.stopPropagation();finish(!current(options));};
+  // Keep the dismissal gesture on the card, away from battle commands underneath.
+  listen('pointerdown',event=>event.stopPropagation());
+  listen('click',dismiss);
+  listen('keydown',event=>{if(['Enter',' ','Escape'].includes(event.key))dismiss(event);});
+  const check=()=>{if(!current(options)){finish(true);return;}poll=setTimeout(check,80);};
+  timer=setTimeout(()=>finish(!current(options)),duration);poll=setTimeout(check,80);
+ });
+}

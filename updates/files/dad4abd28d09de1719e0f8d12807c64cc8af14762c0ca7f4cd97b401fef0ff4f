@@ -1,0 +1,14 @@
+// Deterministic extra equipment for new loot3 battles, without another RNG draw.
+export const LOOT_VERSION=3;
+const basics=['armor','manual','ironArmor','banner','horse','talisman','silkPouch'];
+const advanced=['largeSupply','famedSword','bloodHorse'];
+const hash=text=>{let n=2166136261;for(const ch of text)n=Math.imul(n^ch.charCodeAt(0),16777619)>>>0;return n;};
+export function additionalLootItems(scenario,entry,{tier,generic,boss,existingItems,parts}){
+ const seed=hash(scenario.id+'|'+entry.id),act=Number(scenario.act)||1;
+ if(boss){
+  if(act>=2&&!existingItems.some(id=>parts[id]?.grade==='advanced'))return [advanced[(Math.max(1,Number(scenario.id.slice(1,3)))+act)%advanced.length]];
+  return existingItems.length?[]:[basics[seed%Math.min(basics.length,act===1?3:basics.length)]];
+ }
+ if(tier==='officer'||!generic&&tier!=='troop'&&tier!=='elite')return existingItems.length?[]:[basics[seed%basics.length]];
+ return !existingItems.length&&seed%6===0?[basics[seed%Math.min(basics.length,act<=2?4:basics.length)]]:[];
+}

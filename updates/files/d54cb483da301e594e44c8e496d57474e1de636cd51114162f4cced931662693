@@ -1,0 +1,15 @@
+import {SPECIALIZATION_LEVEL,specializationChoices,specializationName} from './specializations.js';
+import {specializationPreview} from './specialization-preview.js';
+import {SPIRITS} from './spirits.js';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function specializationPanel(army,id,selected,balance,chapter){
+ if(!chapter)return '';
+ const own=army.heroes[id].specialization;
+ const initial=specializationPreview(army,id,selected??own??'',balance,chapter);
+ const choices=specializationChoices(initial.current.cls),key=choices.some(s=>s.id===selected)?selected:own??choices[0]?.id;
+ if(!key)return '';
+ const model=specializationPreview(army,id,key,balance,chapter),definition=choices.find(s=>s.id===key),current=specializationName(model.current);
+ const cost=!model.changed?'현재 선택':'선택·변경 무료';
+ const spiritText=definition.spirits.map(id=>esc(SPIRITS[id]?.name??id)+' · SP '+(SPIRITS[id]?.cost??'?')).join(' / ');
+ return '<section class="specialization-panel class-change-panel" aria-label="병과 전문화"><div class="class-change-heading"><div><span class="eyebrow gold">06 / 병과 전문화</span><h4>'+esc(model.current.name)+' · '+esc(current||'기본 병과')+'</h4></div><span class="class-free">'+cost+'</span></div><p>강화 승급을 완료하고 Lv'+SPECIALIZATION_LEVEL+'부터 공격·방어·기동·회복 역할을 선택합니다. 현재 병과와 무기 계열, 레벨·개조·승급·개인 정신기를 유지합니다. 병과를 변경하면 전문화는 해제됩니다.</p><div class="specialization-choices" role="group" aria-label="전문화 미리보기">'+choices.map(s=>'<button data-preview-specialization="'+esc(s.id)+'" aria-pressed="'+(s.id===key)+'" class="'+(s.id===key?'class-preview-selected ':'')+(s.id===own?'class-current':'')+'" '+((army.heroes[id].promotion??0)<1?'disabled':'')+'><b>'+esc(s.name)+'</b><small>'+esc(s.description)+'</small></button>').join('')+'</div><div class="class-preview" aria-live="polite"><h4>미리보기 · '+esc(definition.name)+'</h4><b>기본 능력치</b><dl>'+model.rows.map(r=>'<div><dt>'+esc(r.name)+'</dt><dd>'+r.before+' → <b class="'+(r.delta<0?'stat-down':r.delta>0?'stat-up':'')+'">'+r.after+'</b></dd></div>').join('')+'</dl><div class="specialization-role-preview"><b>'+(model.candidate.rank>=2?'정예 전문화 효과':'현재 전문화 효과')+'</b>'+model.candidateRoleEffects.map(t=>'<p>'+esc(t)+'</p>').join('')+(model.candidate.rank<2?'<b>정예 승급 후</b>'+model.eliteRoleEffects.map(t=>'<p>'+esc(t)+'</p>').join(''):'')+'</div><div class="class-skill-preview"><b>개인 정신기 3개 유지</b>'+definition.spirits.map(id=>'<p>'+esc(SPIRITS[id]?.description??'')+'</p>').join('')+(definition.firePower?'<p>화공 피해 +'+Math.round((definition.firePower-1)*100)+'%</p>':'')+(definition.controlChance?'<p>혼란·위보 성공률 +'+definition.controlChance+'%p · 상한 유지</p>':'')+'</div></div>'+(model.reason?'<p class="guest-note">'+esc(model.reason)+'</p>':'')+'<button class="primary" data-shop="specialize" '+(!model.available||!model.changed?'disabled':'')+'>'+(model.changed?'전문화 확정 · '+esc(definition.name):'현재 전문화입니다')+'</button><p class="class-help">미리보기는 저장되지 않습니다. 확정하면 다음 출전에 적용되고 자동 저장됩니다. 전문화 선택·변경은 무료이며 확정하면 자동 저장됩니다.</p></section>';
+}

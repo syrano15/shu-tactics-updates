@@ -1,0 +1,54 @@
+import {specializationFor,specializationRole} from './specializations.js';
+import {spiritTacticPower,spiritTacticBonus,spiritDamageGuard} from './spirits-system.js';
+import {CHAPTERS} from './campaign.js';
+import {zhugeliangIdentity,zhugeliangTacticProfile} from './zhugeliang-balance.js';
+import {guestHeroIdentity} from './guest-allies.js';
+
+export const TACTIC_FIRE_POWER=Object.freeze({version:1,single:1.35,area:1.25});
+export function tacticFireMultiplier(actor,state,area=false){
+ const chapter=CHAPTERS[state?.chapter];
+ const modern=state?.combatProfile==='act2'||chapter?.act===2||chapter?.combatProfile==='act2';
+ return actor?.cls==='strategist'&&modern&&state?.tacticFirePowerVersion===TACTIC_FIRE_POWER.version?TACTIC_FIRE_POWER[area?'area':'single']:1;
+}
+
+const PROFILES=Object.freeze({
+ fazheng:{name:'회복·재정비 책사',firePower:1,areaPower:1,controlChance:0,supplySPCost:16,supplySP:10,supplyMultiplier:1.5,description:'전선 구호 · 보급 회복량 +50% · 기본 SP16 · 다른 아군 SP +10. 구원 진법으로 아군 병력과 혼란·위보를 회복합니다.'},
+ zhugeliang:{name:'S급 진형·범위 책사',firePower:1.10,areaPower:1.15,tacticChance:8,areaSPCost:16,controlChance:0,description:'천재 군략 · 책략 성공 +8%p · 화공 위력 +10% · 범위 화공 추가 위력 +15%·SP16. 책략 숙련과 팔진 화계를 활용합니다.'},
+ pangtong:{name:'연환·밀집 제어 책사',firePower:1.14,areaPower:1.20,tacticChance:4,areaSPCost:18,areaDiagonals:true,controlChance:8,description:'연환 화공 · 주변 대각선까지 9칸에서 최대 5부대 공격 · 범위 SP18 · 화공 위력 +14%·범위 추가 +20% · 혼란·위보 성공 +8%p. 봉추 연화로 밀집한 적을 제압합니다.'},
+ xushu:{name:'정밀·기습 책사',firePower:1.04,areaPower:1,tacticChance:4,controlChance:18,description:'정밀 기습 · 혼란·위보 성공 +18%p · 책략 성공 +4%p · 화공 위력 +4%. 기습 봉쇄는 비에도 적 1부대의 행동을 묶습니다.'},
+ jianyong:{name:'보급·군심 책사',firePower:1,areaPower:1,controlChance:0,supplySPCost:16,supplySP:20,supplyMultiplier:1.25,description:'군수 조율 · 보급 SP16 · 회복량 +25% · 다른 아군 SP +20. 군심 수습으로 병력·혼란·위보와 사기를 회복합니다.'},
+ sunqian:{name:'교란·외교 책사',firePower:1,areaPower:1,controlChance:5,description:'혼란·위보 성공률 +5%p. 책사로 편성하면 적의 행동을 방해하는 데 강점이 있습니다.'},
+});
+const BASIC={name:'일반 책사',firePower:1,areaPower:1,controlChance:0,description:'지력에 비례하는 화공과 혼란·위보를 사용합니다.'};
+export function casterProfile(actor,state=null){
+ const identity=zhugeliangIdentity(actor)?'zhugeliang':guestHeroIdentity(actor)??actor?.id;
+ const baseProfile=actor?.cls==='strategist'&&actor?.team==='ally'?(PROFILES[identity]??BASIC):BASIC;
+ const profile=zhugeliangTacticProfile(actor,baseProfile);
+ const specialization=actor?.cls==='strategist'?specializationFor(actor):null,role=specializationRole(actor);
+ const support={supplySPCost:Math.max(12,Math.round((profile.supplySPCost??20)*role.supplySPMultiplier)),supplyMultiplier:(profile.supplyMultiplier??1)*role.healingPower,supplySP:profile.supplySP??15,supportCleanse:role.supportCleanse};
+ const description=[profile.description,tacticFireMultiplier(actor,state)>1?'책사 화공 강화 · 단일 위력 ×1.35 · 범위·화공 필살기 위력 ×1.25 · 양군 공통.':''].filter(Boolean).join(' ');
+ return {...profile,...support,description,specialization:specialization?.name??'',note:[description,specialization?.firePower?'공격 책사 · 화공 위력 +12%.':'',role.healingPower>1?'회복 책사 · 회복량 +'+Math.round((role.healingPower-1)*100)+'% · 실제 보급 SP'+support.supplySPCost+(role.supportCleanse?' · 회복 시 혼란·위보 정화':''):'',role.firePower>1?'정예 공격 책사 · 화공 추가 +10%.':''].filter(Boolean).join(' ')};
+}
+export const tacticIntFactor=actor=>Math.max(.5,(actor?.int??85)/85);
+export const WATER_TACTIC=Object.freeze({id:'water',name:'수계',range:[2,4],power:.6,description:'첫 승급을 마친 아군 책사 · 비 오는 동안 사용 · 거리 2~4 적 1부대 · 기본 화공 피해의 60%에 지력 적용 · SP 소모 없음 · 반격 없음 · 행동 종료'});
+// Water is a separate normal tactic, so fire terrain/profile bonuses do not apply.
+export const waterTacticDamage=(baseDamage,actor,target)=>Math.max(1,Math.round(baseDamage*WATER_TACTIC.power*tacticIntFactor(actor)*spiritTacticPower(actor)*spiritDamageGuard(target,'tactic')));
+export function tacticAccuracyBonus(actor,kind){
+ const profile=casterProfile(actor),spec=specializationFor(actor);
+ const control=kind!=='fire'?(profile.controlChance+(spec?.controlChance??0)):0;
+ // Existing trait calculation already includes Wisdom. Chant and Wisdom never stack.
+ return (profile.tacticChance??0)+control+Math.max(0,spiritTacticBonus(actor)-(actor?.spirits?.wisdom?20:0));
+}
+// The same unrounded final chance is used by preview and the single attack roll.
+// Equipment and weapon-training bonuses share the captured tacticBonus field.
+export function tacticChanceBreakdown(config,actor,target,{forestBonus=0,traitAndSpiritBonus=0,profileBonus=0,blocked=false,guaranteed=false}={}){
+ const intellectBonus=(actor.int-target.int)*.5,equipmentAndTrainingBonus=actor.tacticBonus??0;
+ const raw=config.baseChance+intellectBonus+forestBonus+traitAndSpiritBonus+equipmentAndTrainingBonus+profileBonus;
+ const chance=blocked?0:guaranteed?1:Math.max(config.minChance,Math.min(config.maxChance,raw))/100;
+ return {base:config.baseChance,intellectBonus,forestBonus,traitAndSpiritBonus,profileBonus,equipmentAndTrainingBonus,min:config.minChance,cap:config.maxChance,raw,chance,capped:!blocked&&!guaranteed&&raw>=config.maxChance,blocked,guaranteed};
+}
+export function tacticDamage(baseDamage,actor,target,power=1,area=false,state=null,fireArea=area){
+ const profile=casterProfile(actor),spec=specializationFor(actor);
+ const role=profile.firePower*(area?profile.areaPower:1);
+ return Math.max(1,Math.round(baseDamage*tacticIntFactor(actor)*role*(spec?.firePower??1)*specializationRole(actor).firePower*power*spiritTacticPower(actor)*spiritDamageGuard(target,'tactic')*tacticFireMultiplier(actor,state,fireArea)));
+}

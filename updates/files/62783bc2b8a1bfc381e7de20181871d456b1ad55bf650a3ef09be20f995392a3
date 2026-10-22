@@ -1,0 +1,13 @@
+import {createUnit} from './engine.js';
+import {SPECIALIZATIONS,SPECIALIZATION_LEVEL,applySpecialization,specializationStatus,specializationRoleDescription} from './specializations.js';
+const STATS=[['병력','maxHp'],['공격','atk'],['방어','def'],['지력','int'],['이동','move'],['최대 사거리','max']];
+export function specializationPreview(army,id,key,balance,chapter){
+ const status=specializationStatus(army,id,key,chapter),current=createUnit(balance,id,'ally',army);
+ const draft=structuredClone(army);delete draft.heroes[id].specialization;
+ let candidate=createUnit(balance,id,'ally',draft);const spec=SPECIALIZATIONS[key];
+ if((draft.heroes[id].promotion??0)>0&&spec?.cls===candidate.cls){
+  if(candidate.level>=SPECIALIZATION_LEVEL){draft.heroes[id].specialization=key;draft.heroes[id].specializationChanges=Math.max(1,draft.heroes[id].specializationChanges??0);candidate=createUnit(balance,id,'ally',draft);}
+  else{applySpecialization(candidate,spec);if(candidate.cls!=='strategist')candidate.move=Math.max(3,candidate.move);}
+ }
+ return {...status,currentRoleEffects:specializationRoleDescription(current),candidateRoleEffects:specializationRoleDescription(candidate),eliteRoleEffects:specializationRoleDescription({...candidate,rank:2,promotion:2}),currentKey:status.current,current,candidate,rows:STATS.map(([name,stat])=>({name,key:stat,before:current[stat],after:candidate[stat],delta:candidate[stat]-current[stat]}))};
+}
