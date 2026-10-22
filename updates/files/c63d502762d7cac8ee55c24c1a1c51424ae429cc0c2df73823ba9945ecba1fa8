@@ -1,0 +1,30 @@
+{
+  "version": "0.74.17",
+  "map": "s24_luofengpo",
+  "mapLayoutVersion": 2,
+  "columns": 24,
+  "rows": 18,
+  "width": 1920,
+  "height": 1440,
+  "blockedCells": 181,
+  "forestCells": 23,
+  "originalMediaPreserved": true,
+  "wholeLandscapeEmbedded": false,
+  "files": [
+    {
+      "path": "s24_luofengpo.webp",
+      "bytes": 918064,
+      "sha256": "3068d4612c91ab1a83260ae3d042d765f2ad068cacf053e8d1b958022a93001c"
+    },
+    {
+      "path": "s24_luofengpo-overlay.svg",
+      "bytes": 72740,
+      "sha256": "2fed23a13f776be5f3790afdd3d2b33197f5ba3aab21034ff8603d002fa30789"
+    },
+    {
+      "path": "s24_luofengpo-edges.svg",
+      "bytes": 3954,
+      "sha256": "3b60c84f381e0fb9d1a054b19b0b34475878d34b55ab30607dc6882dd6b09693"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+// Only a newly started Luofengpo battle uses this versioned ambush layout.
+// Enemy identities, levels, classes, stats, loot, rewards and victory rules stay original.
+const freeze=value=>{if(value&&typeof value==='object'){for(const child of Object.values(value))freeze(child);Object.freeze(value);}return value;};
+export const LUOFENGPO_V2=freeze({
+ "id": "s24_luofengpo",
+ "terrain": [
+  "########################",
+  "########################",
+  "###..F.................#",
+  "#......FFFF.......F....#",
+  "#.....FF...........F...#",
+  "#.F..#####...###.......#",
+  "#....####F...F###......#",
+  "#....####.....###......#",
+  "#....####..............#",
+  "#....####..............#",
+  "#....####.....###......#",
+  "#..F.####F...F###......#",
+  "#....#####...####......#",
+  "#.....FFF..........F...#",
+  "#........FF.........F..#",
+  "###..F.................#",
+  "########################",
+  "########################"
+ ],
+ "allyPositions": [
+  [
+   10,
+   8
+  ],
+  [
+   11,
+   9
+  ],
+  [
+   12,
+   8
+  ],
+  [
+   12,
+   9
+  ],
+  [
+   11,
+   10
+  ],
+  [
+   3,
+   6
+  ],
+  [
+   4,
+   5
+  ],
+  [
+   3,
+   5
+  ],
+  [
+   3,
+   12
+  ],
+  [
+   4,
+   13
+  ],
+  [
+   3,
+   13
+  ],
+  [
+   2,
+   8
+  ],
+  [
+   2,
+   10
+  ]
+ ],
+ "enemyPlacement": {
+  "e_boss": [
+   20,
+   8,
+   "charge",
+   4
+  ],
+  "e01": [
+   17,
+   8,
+   "charge",
+   2
+  ],
+  "e02": [
+   18,
+   7,
+   "hold",
+   3
+  ],
+  "e03": [
+   19,
+   9,
+   "charge",
+   3
+  ],
+  "e04": [
+   16,
+   9,
+   "charge",
+   2
+  ],
+  "e05": [
+   17,
+   7,
+   "charge",
+   2
+  ],
+  "e06": [
+   13,
+   4,
+   "hold",
+   1
+  ],
+  "e07": [
+   17,
+   10,
+   "charge",
+   3
+  ],
+  "e08": [
+   18,
+   11,
+   "hold",
+   3
+  ],
+  "e09": [
+   19,
+   11,
+   "charge",
+   4
+  ],
+  "e10": [
+   16,
+   13,
+   "charge",
+   3
+  ],
+  "e11": [
+   9,
+   2,
+   "charge",
+   1
+  ],
+  "e12": [
+   10,
+   3,
+   "hold",
+   1
+  ],
+  "e13": [
+   14,
+   3,
+   "charge",
+   3
+  ],
+  "e14": [
+   15,
+   4,
+   "hold",
+   2
+  ],
+  "e15": [
+   18,
+   4,
+   "charge",
+   3
+  ],
+  "e16": [
+   9,
+   15,
+   "charge",
+   1
+  ],
+  "e17": [
+   11,
+   14,
+   "charge",
+   1
+  ],
+  "e18": [
+   13,
+   15,
+   "hold",
+   1
+  ],
+  "e19": [
+   16,
+   15,
+   "charge",
+   3
+  ],
+  "e20": [
+   18,
+   14,
+   "hold",
+   2
+  ],
+  "e21": [
+   19,
+   5,
+   "charge",
+   3
+  ],
+  "e22": [
+   20,
+   6,
+   "charge",
+   4
+  ],
+  "e23": [
+   21,
+   10,
+   "charge",
+   4
+  ]
+ }
+});
+export function luofengpoV2Scenario(chapter){
+ if(chapter?.id!==LUOFENGPO_V2.id||chapter.act!==4||chapter.campaignLayoutVersion!==1)throw new Error('낙봉파 협곡 구성에 적용할 수 없는 전투입니다.');
+ if(chapter.enemies.length!==24||chapter.enemies.some(e=>!Object.hasOwn(LUOFENGPO_V2.enemyPlacement,e.id)))throw new Error('낙봉파 원본 적 목록이 다릅니다.');
+ return {...chapter,terrain:[...LUOFENGPO_V2.terrain],allyPositions:LUOFENGPO_V2.allyPositions.map(p=>[...p]),enemies:chapter.enemies.map(e=>{const[x,y,aiMode,advanceRound]=LUOFENGPO_V2.enemyPlacement[e.id];return {...e,position:[x,y],aiMode,advanceRound};}),mapLayoutVersion:2,blockedLabel:'협곡 절벽',brief:'북·남의 매복과 동쪽 추격대에 포위됐다. 구원조로 두 협로 중 하나를 열고 방통을 F3 또는 F16으로 탈출시킨다. 3라운드부터 탈출할 수 있으며 적 전멸은 필요 없다.',intermissionHint:'방통을 중앙 전열 뒤에서 보호하고 서쪽 구원조를 북·남 협로에 나누어 보낸다. 가속·회피·보급을 활용해 추격대가 모이기 전에 탈출한다.'};
+}
