@@ -1,0 +1,53 @@
+import {ACT4_ACT5_LAYOUTS} from './map-layout-v07421-act4-act5.js';
+import {ACT6_ACT7_LAYOUTS} from './map-layout-v07421-act6-act7.js';
+import {applyLayoutDraft} from './map-layout-contract-v07421.js';
+
+const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
+export const POST_LUOFENGPO_MAP_VERSION=4;
+export const POST_LUOFENGPO_LAYOUTS=freeze({...ACT4_ACT5_LAYOUTS,...ACT6_ACT7_LAYOUTS});
+const briefings=freeze({
+ s25_luocheng:'북문과 남문의 수비를 나누어 돌파하세요. 성벽 궁수의 사격을 막고 지휘관을 격파한 뒤 두 거점에서 같은 아군 턴에 행동을 확정하세요.',
+ s26_machao:'세 성문을 나누어 압박하되 문 바깥 측면 기병의 역습에 대비하세요. 장비를 지키며 마초를 격파하면 승리합니다.',
+ s27_chengdu:'서쪽 본대와 동쪽 외곽의 별동대를 편성해 성도 양문 수비를 나누어 공략하세요. 동측의 두 작은 통로를 활용해 수문장을 격파한 뒤 두 거점을 함께 점령하세요.',
+ s28_dangqu:'양쪽 길목의 분견대를 나누어 상대하고 중앙 연결길로 서로 엄호하세요. 장비를 지키며 장합을 격파한 뒤 동쪽 두 거점을 같은 턴에 점령하세요.',
+ s29_dingjun:'절벽 사이 등정로를 따라 측면으로 접근하세요. 능선 궁병과 중턱 창병을 돌파하고 황충을 지키며 하후연을 격파하세요.',
+ s30_hanshui:'세 다리의 적 규모가 다릅니다. 주공 도하군을 막고 강안 예비대의 접근을 살피며 조운을 지켜 적을 모두 격파하세요.',
+ s31_hanzhong:'북쪽 숲길·중앙 길목·남쪽 열린 길의 적 구성이 다릅니다. 서로 엄호하며 지휘관을 격파한 뒤 한중의 세 거점에서 같은 턴에 행동을 확정하세요.',
+ s32_fancheng:'관우가 번성 외곽을 포위 공격합니다. 떨어진 북·남 진지의 주둔군을 돌파하고 두 목표를 함께 점령하세요.',
+ s33_flood:'잔교와 둑을 따라 두 지휘부로 접근하세요. 관우를 지키며 우금과 방덕을 모두 격파해야 합니다.',
+ s34_xuhuang:'북쪽 선봉과 동쪽 우회 부대를 나누어 막으세요. 두 차례 원군의 접근에 대비하며 8라운드 적 턴까지 버티세요.',
+ s35_white_robes:'남쪽 요격군을 돌파하고 북쪽 추격대가 따라붙기 전에 남쪽 퇴로로 빠져나가세요. 지정된 네 장수를 모두 지키세요.',
+ s36_maicheng:'북쪽 복병을 견제하며 서쪽 산길의 차단군을 돌파하세요. 동쪽 추격을 지연시키고 지정된 네 장수를 지켜 서쪽 퇴로에 도달하세요.',
+ s37_jiangling_retake:'두 성문의 수비와 성벽 사격진을 나누어 공략하세요. 유비와 관우를 지키며 여몽을 격파하고 두 성문을 함께 점령하세요.',
+ s38_langzhong:'막사 안 침투 부대와 접근 중인 예비대를 구분해 상대하세요. 장비가 깨어날 때까지 가까운 적을 막고 도착하는 동료와 합류하세요.',
+ s39_wuxia:'굽은 협곡의 길목을 돌파하며 두 전선을 연결하세요. 철수하는 일반병은 5라운드부터 출구로 빠져나가므로 추가 전리품을 원하면 먼저 격파하세요.',
+ s40_yiling:'숲 영채를 향한 견제군과 평지 쪽 주공군을 나누어 막으세요. 3라운드 화공에 대비해 전열을 옮기며 7라운드 적 턴까지 방어하세요.',
+ s41_ruxu:'두 다리 앞의 서로 다른 선봉대를 막고 다리 사이 예비대에 대비하세요. 오군 협력부대와 길을 나누어 지키며 적 선봉장을 격파하세요.',
+ s42_alliance:'서쪽 나루와 동쪽 협력군 앞의 도하 압박을 나누어 막으세요. 3·5라운드 증원에 대비하며 7라운드 적 턴까지 생존하세요.',
+ s43_lushui:'두 도하로를 살피며 북안 선봉과 남안 숲의 매복을 나누어 상대하세요. 독물과 길잡이 안내를 확인하고 맹획 생포와 집결 목표를 달성하세요.',
+ s44_menghuo:'중앙 유인대만 따라가지 말고 북쪽 숲의 측면대를 살피세요. 맹획이 병력 절반에서 물러나는 길과 축융 호위대에 대비하세요.',
+ s45_rattan:'등갑군 본대가 모인 중앙 숲과 북·남 호위를 구분하세요. 3라운드 화공과 북쪽 탈출구를 활용하되 퇴로에 도달한 적은 살려 보냅니다.',
+ s46_tianshui:'북동 진지의 강유와 남동 기병 우회대를 나누어 상대하세요. 유인에 끌려 전열을 흩뜨리지 말고 강유 생포를 준비하세요.',
+ s47_jieting:'산 위 마속과 서쪽 왕평의 두 전선을 유지하세요. 북산 포위와 물길 차단을 견제하며 D11·E11의 서쪽 퇴로를 여세요.',
+ s48_jigu:'중앙 수레의 후미와 북·남 측면을 나누어 엄호하세요. 조운과 군수 수레가 B10·B11에 각각 도달한 뒤 같은 아군 턴에 행동을 확정해야 합니다.',
+ s49_chencang:'성문 접근로의 공격군을 막고 성 안 궁병과 예비대를 돌파하세요. 궁병대장을 격파한 뒤 위연을 M6·N6 중 한 칸으로 보내 행동을 확정하세요.',
+ s50_yinping:'두 요새의 방어군을 나누어 돌파하고 중앙 역습대에 대비하세요. U5·U16의 두 거점에서 같은 아군 턴에 행동을 확정하세요.',
+ s51_wheat:'군량창고의 호위와 보리밭 양쪽 견제대를 나누어 상대하세요. 양군은 화공을 사용할 수 없으며 창고 장수를 격파한 뒤 제갈량이 V11에 도달해야 합니다.',
+ s52_mumen:'아군 상·하 고지를 연결해 장합 종대의 앞과 뒤를 나누어 공격하세요. 골짜기로 들어온 장합을 격파하되 고지의 엄호를 유지하세요.',
+ s53_wuzhangyuan:'세 도하 축을 나누어 견제하며 사마의의 본영 앞에서 전열을 유지하세요. 적 전멸로 끝나지 않으므로 8라운드 적 턴까지 생존하세요.',
+ s54_seven_lamps:'제갈량의 M11 기도 자리와 등불 막사를 지키세요. 서쪽 정면·북쪽 침투·동남 우회의 압박을 나누어 막으며 7라운드 적 턴까지 방어하세요.',
+ s55_weishui:'다리와 상·하류 여울을 나누어 건너며 서로 엄호하세요. E7·M7·V7의 세 거점에서 같은 아군 턴에 행동을 확정하세요.',
+ s56_changan:'서문·동문의 외곽 호위를 나누어 돌파하고 중앙 예비대를 견제하세요. 두 성문 장수를 먼저 격파한 뒤 사마의를 제압하세요.'
+});
+export function postLuofengpoLayoutRow(chapter){return chapter?.campaignLayoutVersion===1&&Object.hasOwn(POST_LUOFENGPO_LAYOUTS,chapter.id)?POST_LUOFENGPO_LAYOUTS[chapter.id]:null;}
+export const postLuofengpoLayoutApplies=chapter=>!!postLuofengpoLayoutRow(chapter);
+export function postLuofengpoLayoutScenario(resolvedLegacyBase,row=postLuofengpoLayoutRow(resolvedLegacyBase)){
+ if(!row)throw new Error('새 전장 배치를 적용할 수 없습니다.');
+ const result=applyLayoutDraft(resolvedLegacyBase,row);
+ return {...result,brief:briefings[row.id],intermissionHint:briefings[row.id]};
+}
+export function validatePostLuofengpoContext(chapter,state={}){
+ const row=postLuofengpoLayoutRow(chapter);
+ if(!row||(state.act4DeploymentVersion??0)!==row.sourceAct4DeploymentVersion)throw new Error('새 전장 배치와 적 편성 표식이 다릅니다.');
+ return row;
+}

@@ -1,0 +1,16 @@
+// Version4 art/labels fail closed until the matching immutable metadata exists.
+// Old map versions are deliberately resolved by the established selector.
+import {MAP_ART_V07421} from './map-art-v07421-data.js';
+export {MAP_ART_V07421};
+function matchingRow(id,geometry){
+ const row=Object.hasOwn(MAP_ART_V07421,id)?MAP_ART_V07421[id]:null;
+ if(!row||geometry?.mapLayoutVersion!==4||geometry.width!==row.columns||geometry.height!==row.rows||!Array.isArray(geometry.terrain)||geometry.terrain.length!==row.rows||geometry.terrain.some(line=>typeof line!=='string'||line.length!==row.columns)||geometry.terrain.join('\n')!==row.terrainKey)return null;
+ return row;
+}
+export function mapArtV07421For(id,geometry){const row=matchingRow(id,geometry);return row?.src?row:null;}
+export function mapBlockedKindV07421For(id,geometry,x,y){
+ const row=matchingRow(id,geometry);if(!row||!Number.isInteger(x)||!Number.isInteger(y)||geometry.terrain[y]?.[x]!=='#')return null;
+ for(const kind of ['water','wall','cliff'])if(row.blockedKinds[kind].some(p=>p[0]===x&&p[1]===y))return kind;
+ return null;
+}
+export function mapBlockedLabelV07421For(id,geometry,x,y){return ({water:'물길',wall:'성벽',cliff:'산악 절벽'})[mapBlockedKindV07421For(id,geometry,x,y)]??null;}

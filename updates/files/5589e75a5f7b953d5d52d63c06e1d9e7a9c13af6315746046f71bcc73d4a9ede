@@ -1,0 +1,53 @@
+// Pure validation and application of approved fresh map4 layouts.
+export const PLANNED_MAP_LAYOUT_VERSION=4;
+const ensure=(ok,message)=>{if(!ok)throw new Error('Planned map layout: '+message);};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const point=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isInteger);
+const cell=p=>p.join(',');
+const allowedRow=['id','chapter','mapLayoutVersion','sourceMapLayoutVersion','sourceAct4DeploymentVersion','sourceTerrainKey','expectedInitialEnemyIds','terrain','allyPositions','enemyOverrides','protectedCells','designNote'];
+export function validateLayoutDraft(base,row,{initialEnemyIds=null}={}){
+ ensure(base&&row&&typeof row==='object','base and row required');
+ ensure(Object.keys(row).every(k=>allowedRow.includes(k))&&allowedRow.every(k=>Object.hasOwn(row,k)),'exact row fields');
+ ensure(row.id===base.id&&Number.isInteger(row.chapter)&&row.chapter>=25&&row.chapter<=56,'chapter/id scope');
+ ensure(row.mapLayoutVersion===4&&[0,1,2,3].includes(row.sourceMapLayoutVersion)&&[0,1].includes(row.sourceAct4DeploymentVersion),'version boundary');
+ ensure((base.mapLayoutVersion??0)===row.sourceMapLayoutVersion&&(base.act4DeploymentVersion??0)===row.sourceAct4DeploymentVersion,'resolved legacy map/roster markers');
+ ensure(row.sourceTerrainKey===base.terrain.join('\n'),'exact resolved source terrain');
+ const width=base.terrain[0].length,height=base.terrain.length;
+ ensure(Array.isArray(row.terrain)&&row.terrain.length===height&&row.terrain.every(r=>typeof r==='string'&&r.length===width&&/^[.#F]+$/.test(r)),'terrain dimensions/alphabet');
+ const inside=p=>point(p)&&p[0]>=0&&p[0]<width&&p[1]>=0&&p[1]<height;
+ const pass=p=>inside(p)&&row.terrain[p[1]][p[0]]!=='#';
+ ensure(Array.isArray(row.allyPositions)&&row.allyPositions.length===base.allyPositions.length&&row.allyPositions.every(pass),'same ally slot count and passable coordinates');
+ ensure(Array.isArray(row.expectedInitialEnemyIds)&&new Set(row.expectedInitialEnemyIds).size===row.expectedInitialEnemyIds.length,'unique actual initial IDs');
+ const enemies=new Map(base.enemies.map(e=>[e.id,e]));
+ ensure(row.expectedInitialEnemyIds.every(id=>enemies.has(id)),'initial ID source subset');
+ if(initialEnemyIds!==null)ensure(same(initialEnemyIds,row.expectedInitialEnemyIds),'actual initial IDs/order unchanged');
+ ensure(row.enemyOverrides&&typeof row.enemyOverrides==='object'&&!Array.isArray(row.enemyOverrides),'enemy override dictionary');
+ for(const[id,override]of Object.entries(row.enemyOverrides)){
+  ensure(row.expectedInitialEnemyIds.includes(id),'only current initial enemies may move: '+id);
+  ensure(override&&Object.keys(override).every(k=>['position','aiMode','advanceRound'].includes(k))&&pass(override.position),'exact position/AI override: '+id);
+  if(Object.hasOwn(override,'aiMode'))ensure(['hold','charge'].includes(override.aiMode),'AI mode');
+  if(Object.hasOwn(override,'advanceRound'))ensure(Number.isInteger(override.advanceRound)&&override.advanceRound>=1&&override.advanceRound<=99,'advance round');
+ }
+ ensure(Array.isArray(row.protectedCells),'protected cells');
+ const protectedKeys=new Set();for(const p of row.protectedCells){
+  ensure(inside([p.x,p.y])&&Array.isArray(p.reasons)&&p.reasons.length>0&&p.reasons.every(r=>typeof r==='string'&&r.length),'protected cell reasons');
+  const key=cell([p.x,p.y]);ensure(!protectedKeys.has(key),'duplicate protected cell');protectedKeys.add(key);
+  ensure(row.terrain[p.y][p.x]===base.terrain[p.y][p.x],'protected terrain char unchanged: '+key);
+ }
+ // Validate every source enemy order, including future and cancelled reserves:
+ // createBattle validates their original positions before applying wave policy.
+ const occupied=new Set();for(const p of [...row.allyPositions,...(base.extraAllies??[]).map(u=>u.position),...base.enemies.map(e=>row.enemyOverrides[e.id]?.position??e.position)]){
+  ensure(pass(p),'all source orders, guests and slots passable: '+cell(p));ensure(!occupied.has(cell(p)),'duplicate source order/slot: '+cell(p));occupied.add(cell(p));
+ }
+ for(const id of base.positionLocked??[]){const i=base.required.indexOf(id);if(i>=0)ensure(same(row.allyPositions[i],base.allyPositions[i]),'locked required slot: '+id);}
+ const start=row.allyPositions[0],seen=new Set([cell(start)]),queue=[start];
+ for(const p of queue)for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){const q=[p[0]+d[0],p[1]+d[1]],key=cell(q);if(pass(q)&&!seen.has(key)){seen.add(key);queue.push(q);}}
+ for(const key of occupied)ensure(seen.has(key),'all orders connected to ally component: '+key);
+ for(const p of row.protectedCells)if(pass([p.x,p.y]))ensure(seen.has(cell([p.x,p.y])),'protected goal/trigger connected');
+ ensure(typeof row.designNote==='string'&&row.designNote.length>0,'design note');
+ return {passed:true,id:row.id,chapter:row.chapter,terrainChangedCells:row.terrain.reduce((n,r,y)=>n+[...r].filter((c,x)=>c!==base.terrain[y][x]).length,0),initialEnemyCount:row.expectedInitialEnemyIds.length,overriddenEnemies:Object.keys(row.enemyOverrides).length,protectedCells:row.protectedCells.length,connectedCells:seen.size};
+}
+export function applyLayoutDraft(base,row,options){
+ validateLayoutDraft(base,row,options);
+ return {...base,mapLayoutVersion:4,terrain:[...row.terrain],allyPositions:row.allyPositions.map(p=>[...p]),enemies:base.enemies.map(e=>({...e,...(row.enemyOverrides[e.id]??{}),position:[...(row.enemyOverrides[e.id]?.position??e.position)]}))};
+}

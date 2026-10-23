@@ -1,0 +1,7581 @@
+// Fresh map4 data. Art and engine integration use the same exact terrain.
+export const ACT6_ACT7_LAYOUTS={
+  "s43_lushui": {
+    "id": "s43_lushui",
+    "chapter": 43,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 1,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........##..............\n..........##..............\n..........##...FFFF.......\n..........##...FFFF.......\n...............FFFF.......\n...............FFFF.......\n..........##...FFFF.......\n..........##...FFFF...FFF.\n..........##..........FFF.\n..........##..........FFF.\n..........##..........FFF.\n..........##...FFFFFF.FFF.\n..........##...FFFFFF.FFF.\n...............FFFFFF.....\n...............FFFFFF.....\n..........##...FFFFFF.....\n..........##...FFFFFF.....\n..........##...FFFFFF.....\n..........##..............\n..........##..............",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e05",
+      "e06",
+      "e07",
+      "e08",
+      "e09",
+      "e10",
+      "e11",
+      "e12",
+      "e13",
+      "e14",
+      "e15",
+      "e16",
+      "e17",
+      "e18",
+      "e19",
+      "e20",
+      "e21",
+      "e22",
+      "e23",
+      "e24",
+      "e25",
+      "e26",
+      "e27",
+      "e28",
+      "e29"
+    ],
+    "terrain": [
+      "..........##....###.......",
+      "..........##....###.......",
+      "..........##...F##FFFF....",
+      "..........##...FFFFFFF....",
+      "...............FFFFFFF....",
+      "...............FFFF.......",
+      "..........##...FFFF.......",
+      "..........##.FFFFFF...FFF.",
+      "..........##.FFFF.....FFF.",
+      "..........##.FFFF.....FFF.",
+      "..........##..........FFF.",
+      "..........##...FFFFFF.FFF.",
+      "..........##...FFFFFF.FFF.",
+      "...............FFFFFF.....",
+      "...............FFFFFF.....",
+      "..........##...FFFFFF.....",
+      "..........##...FFFFF###...",
+      "..........##...FFFFF###...",
+      "..........##........###...",
+      "..........##.............."
+    ],
+    "allyPositions": [
+      [
+        7,
+        5
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        6,
+        14
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          23,
+          9
+        ]
+      },
+      "e01": {
+        "position": [
+          15,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e02": {
+        "position": [
+          14,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e03": {
+        "position": [
+          16,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e04": {
+        "position": [
+          15,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e05": {
+        "position": [
+          15,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e06": {
+        "position": [
+          13,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e07": {
+        "position": [
+          17,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e08": {
+        "position": [
+          14,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e09": {
+        "position": [
+          16,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e10": {
+        "position": [
+          16,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e11": {
+        "position": [
+          15,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e12": {
+        "position": [
+          16,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e13": {
+        "position": [
+          16,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e14": {
+        "position": [
+          14,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e15": {
+        "position": [
+          18,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e16": {
+        "position": [
+          15,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e17": {
+        "position": [
+          17,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e18": {
+        "position": [
+          15,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e19": {
+        "position": [
+          17,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e20": {
+        "position": [
+          22,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e21": {
+        "position": [
+          21,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e22": {
+        "position": [
+          23,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e23": {
+        "position": [
+          22,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e24": {
+        "position": [
+          22,
+          11
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e25": {
+        "position": [
+          20,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e26": {
+        "position": [
+          21,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e27": {
+        "position": [
+          21,
+          11
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e28": {
+        "position": [
+          23,
+          11
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e29": {
+        "position": [
+          22,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 9,
+        "y": 0,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 0,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 0,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 0,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 1,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 1,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 1,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 1,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 2,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 2,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 2,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 2,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "reasons": [
+          "fixed-extra:zhangni"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "reasons": [
+          "fixed-extra:mazhong"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 3,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 3,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 3,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 3,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 4,
+        "reasons": [
+          "act6Objectives.act6Objectives.0.tiles",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 4,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 4,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 4,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 5,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 5,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 5,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 5,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 6,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 6,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 6,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 6,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 7,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 7,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 7,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 7,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 8,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 8,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 8,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 9,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 9,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 9,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 9,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 10,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 10,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 10,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 10,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 10,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 11,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 11,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 11,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 11,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 12,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 12,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 12,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 12,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 13,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 13,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 13,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 13,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 14,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 14,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 14,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 14,
+        "reasons": [
+          "act6Objectives.act6Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 15,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 15,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 15,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 15,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 16,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 16,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 16,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 16,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 17,
+        "reasons": [
+          "act6OptionalObjective.act6OptionalObjective.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 17,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 17,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 17,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 17,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 18,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 18,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 18,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 18,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 19,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 19,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 19,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 19,
+        "reasons": [
+          "existing-river-and-two-crossings"
+        ]
+      }
+    ],
+    "designNote": "노수: 두 맑은 도하로는 그대로 보존. 북안 선봉·남안 숲 매복·집결지 후위로 나누며 동쪽 세로 줄을 나눈다. 독물/길잡이/맹획 생포와 집결 조건은 그대로."
+  },
+  "s44_menghuo": {
+    "id": "s44_menghuo",
+    "chapter": 44,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 1,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "FFFFF...FFFFFFFFF...FFFFFF\nFFFFF...FFFFFFFFF...FFFFFF\nFFFFF...FF####FFF...F###FF\nFFFFF...FF####FFF...F###FF\nFFFFF...FF####FFF...F###FF\nFFFFF...FF####FFF...F###FF\nFFFFF...FFFFFFFFF...FFFFFF\nFFFFF...FFFFFFFFF...FFFFFF\n..........................\n..........................\n..........................\n..........................\nFFFFF...FFFFFFFFF...FFFFFF\nFFFFF...FFFFFFFFF...FFFFFF\nFFFFF...FF####FFF...F###FF\nFFFFF...FF####FFF...F###FF\nFFFFF...FF####FFF...F###FF\nFFFFF...FF####FFF...F###FF\nFFFFF...FFFFFFFFF...FFFFFF\nFFFFF...FFFFFFFFF...FFFFFF",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_zhurong",
+      "e02",
+      "e03",
+      "e04",
+      "e05",
+      "e06",
+      "e07",
+      "e08",
+      "e09",
+      "e10",
+      "e11",
+      "e12",
+      "e13",
+      "e14",
+      "e15",
+      "e16",
+      "e17",
+      "e18",
+      "e19",
+      "e20",
+      "e21",
+      "e22",
+      "e23",
+      "e24",
+      "e25",
+      "e26",
+      "e27",
+      "e28",
+      "e29",
+      "e30",
+      "e31"
+    ],
+    "terrain": [
+      "FFFFF...FFFFF##FF...FFFFFF",
+      "FFFFF...FFFFF##FF...FFFFFF",
+      "FFFFF...FF#####FF...F###FF",
+      "FFFFF...FF#####FF...F###FF",
+      "FFFFF...FF#####FF...F###FF",
+      "FFFFF...FF####FFF...F###FF",
+      "FFFFF...FFFFFFFFF...FFFFFF",
+      "FFFFF...FFFFFFFFF...FFFFFF",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "FFFFF...FFFFFFFFFFF.FFFFFF",
+      "FFFFF...FFFFFFFFFFF.FFFFFF",
+      "FFFFF...FF####FFFFF.F###FF",
+      "FFFFF...FF#####FFFF.F###FF",
+      "FFFFF...FF######F...F###FF",
+      "FFFFF...FF######F...F###FF",
+      "FFFFF...FFFFFF##F...FFFFFF",
+      "FFFFF...FFFFFF##F...FFFFFF"
+    ],
+    "allyPositions": [
+      [
+        8,
+        8
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        5,
+        12
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        6,
+        11
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          22,
+          9
+        ]
+      },
+      "e_zhurong": {
+        "position": [
+          19,
+          14
+        ]
+      },
+      "e02": {
+        "position": [
+          15,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e03": {
+        "position": [
+          14,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e04": {
+        "position": [
+          16,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e05": {
+        "position": [
+          15,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e06": {
+        "position": [
+          15,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e07": {
+        "position": [
+          13,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e08": {
+        "position": [
+          17,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e09": {
+        "position": [
+          14,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e10": {
+        "position": [
+          16,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e11": {
+        "position": [
+          14,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e12": {
+        "position": [
+          18,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e13": {
+        "position": [
+          17,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e14": {
+        "position": [
+          18,
+          13
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e15": {
+        "position": [
+          18,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e16": {
+        "position": [
+          16,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e17": {
+        "position": [
+          20,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e18": {
+        "position": [
+          17,
+          13
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e19": {
+        "position": [
+          19,
+          13
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e20": {
+        "position": [
+          17,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e21": {
+        "position": [
+          19,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e22": {
+        "position": [
+          20,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e23": {
+        "position": [
+          19,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e24": {
+        "position": [
+          20,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e25": {
+        "position": [
+          20,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e26": {
+        "position": [
+          21,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e27": {
+        "position": [
+          18,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e28": {
+        "position": [
+          24,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e29": {
+        "position": [
+          19,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e30": {
+        "position": [
+          19,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e31": {
+        "position": [
+          20,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 7,
+        "y": 9,
+        "reasons": [
+          "act6Objectives.act6Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 9,
+        "reasons": [
+          "act6Objectives.act6Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 9,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 14,
+        "reasons": [
+          "fixed-story-commander:e_zhurong"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 17,
+        "reasons": [
+          "act6Tactics.act6Tactics.retreat.tile"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 17,
+        "reasons": [
+          "act6OptionalObjective.act6OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "맹획: 중앙 유인대·북쪽 숲 측면대·축융 호위대를 분리한다. 맹획 50% 후퇴 지점과 이어지는 생포 서사, 선택 보급로는 고정한다."
+  },
+  "s45_rattan": {
+    "id": "s45_rattan",
+    "chapter": 45,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 1,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "##################...#####\n##################...#####\n##################...#####\n####.....#########.....###\n####.....#########.....###\n####.....#########.....###\n####.....#########.....###\n..........................\n..........FFFFFFFFFF......\n..........FFFFFFFFFF......\n..........FFFFFFFFFF......\n..........FFFFFFFFFF......\n..........................\n####.....#########.....###\n####.....#########.....###\n####.....#########.....###\n####.....#########.....###\n##########################\n##########################\n##########################",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e05",
+      "e06",
+      "e07",
+      "e08",
+      "e09",
+      "e10",
+      "e11",
+      "e12",
+      "e13",
+      "e14",
+      "e15",
+      "e16",
+      "e17",
+      "e18",
+      "e19",
+      "e20",
+      "e21",
+      "e22",
+      "e23",
+      "e24",
+      "e25",
+      "e26",
+      "e27",
+      "e28",
+      "e29",
+      "e30",
+      "e31"
+    ],
+    "terrain": [
+      "##################...#####",
+      "##################...#####",
+      "##################...#####",
+      "####.....#########.....###",
+      "####.....#########.....###",
+      "####.....#########.....###",
+      "####.....#########.....###",
+      ".......FFF................",
+      ".......FFFFFFFFFFFFF......",
+      "..........FFFFFFFFFF......",
+      "..........FFFFFFFFFFFFF...",
+      "..........FFFFFFFFFFFFF...",
+      "..........................",
+      "####.....#########.....###",
+      "####.....#########.....###",
+      "####.....#########.....###",
+      "####.....#########.....###",
+      "##########################",
+      "##########################",
+      "##########################"
+    ],
+    "allyPositions": [
+      [
+        7,
+        5
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        6,
+        14
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          18,
+          9
+        ]
+      },
+      "e01": {
+        "position": [
+          14,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e02": {
+        "position": [
+          13,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e03": {
+        "position": [
+          15,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e04": {
+        "position": [
+          14,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e05": {
+        "position": [
+          14,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e06": {
+        "position": [
+          12,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e07": {
+        "position": [
+          16,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e08": {
+        "position": [
+          13,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e09": {
+        "position": [
+          15,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e10": {
+        "position": [
+          13,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e11": {
+        "position": [
+          15,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e12": {
+        "position": [
+          14,
+          7
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e13": {
+        "position": [
+          20,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e14": {
+        "position": [
+          19,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e15": {
+        "position": [
+          21,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e16": {
+        "position": [
+          20,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e17": {
+        "position": [
+          20,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e18": {
+        "position": [
+          18,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e19": {
+        "position": [
+          22,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e20": {
+        "position": [
+          19,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e21": {
+        "position": [
+          21,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e22": {
+        "position": [
+          21,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e23": {
+        "position": [
+          20,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e24": {
+        "position": [
+          22,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e25": {
+        "position": [
+          21,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e26": {
+        "position": [
+          21,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e27": {
+        "position": [
+          19,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e28": {
+        "position": [
+          22,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e29": {
+        "position": [
+          20,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e30": {
+        "position": [
+          22,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e31": {
+        "position": [
+          21,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 18,
+        "y": 0,
+        "reasons": [
+          "act6Tactics.act6Tactics.escapes.tiles"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 0,
+        "reasons": [
+          "act6Tactics.act6Tactics.escapes.tiles"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 0,
+        "reasons": [
+          "act6Tactics.act6Tactics.escapes.tiles"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 8,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 9,
+        "reasons": [
+          "act6Objectives.act6Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40",
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 9,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 10,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 11,
+        "reasons": [
+          "fixed-round3-fire40"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 13,
+        "reasons": [
+          "act6Objectives.act6Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 15,
+        "reasons": [
+          "act6OptionalObjective.act6OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "등갑군: 중앙 화공 숲과 북쪽 탈출구는 전부 보존. 등갑 본대는 숲 입구에 밀집하고 북·남 호위는 분리한다. 3라운드 화공 40칸/최소 HP1/유한 탈출 규칙은 바꾸지 않는다."
+  },
+  "s46_tianshui": {
+    "id": "s46_tianshui",
+    "chapter": 46,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "............##............\n............##............\n............##............\n............##............\n........FFFF##............\n........FFFF##............\n........FFFF##............\n..........................\n..........................\n..........................\n..........................\n...................#######\n...................#######\n..............FFFF........\n..............FFFF........\n..............FFFF........\n..........................\n..........................\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25"
+    ],
+    "terrain": [
+      "............##.###........",
+      "............##.###........",
+      "............##.###........",
+      "............##............",
+      "........FFFF##............",
+      "........FFFF##............",
+      "........FFFF##............",
+      ".................FFF......",
+      "......FFF........FFF......",
+      "......FFF.................",
+      "......FFF.................",
+      "...................#######",
+      "...................#######",
+      "..............FFFF........",
+      "..............FFFF........",
+      "..............FFFF........",
+      "................###.......",
+      "................###.......",
+      "................###.......",
+      "................###......."
+    ],
+    "allyPositions": [
+      [
+        7,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        6,
+        14
+      ],
+      [
+        5,
+        14
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        6,
+        15
+      ],
+      [
+        4,
+        14
+      ],
+      [
+        8,
+        14
+      ],
+      [
+        5,
+        13
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          22,
+          5
+        ]
+      },
+      "e_01": {
+        "position": [
+          15,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_02": {
+        "position": [
+          14,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_03": {
+        "position": [
+          16,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_04": {
+        "position": [
+          15,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_05": {
+        "position": [
+          15,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_06": {
+        "position": [
+          13,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_07": {
+        "position": [
+          17,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_08": {
+        "position": [
+          14,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_09": {
+        "position": [
+          19,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_10": {
+        "position": [
+          18,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_11": {
+        "position": [
+          20,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_12": {
+        "position": [
+          19,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_13": {
+        "position": [
+          19,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_14": {
+        "position": [
+          17,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_15": {
+        "position": [
+          21,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_16": {
+        "position": [
+          18,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_17": {
+        "position": [
+          21,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_18": {
+        "position": [
+          20,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_19": {
+        "position": [
+          22,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_20": {
+        "position": [
+          21,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_21": {
+        "position": [
+          21,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_22": {
+        "position": [
+          19,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_23": {
+        "position": [
+          23,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_24": {
+        "position": [
+          20,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_25": {
+        "position": [
+          22,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 22,
+        "y": 5,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 10,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 16,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "천수: 강유의 북동 진지와 남동 기병 우회대를 갈라 기린아의 유인전으로 만든다. 강유 생포/고상 합류/기존 아군 수와 성장 조건은 유지한다."
+  },
+  "s47_jieting": {
+    "id": "s47_jieting",
+    "chapter": 47,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "...........###............\n...........###............\n...........###............\n...........###FFFFF.......\n...........###FFFFF.......\n...........###FFFFF.......\n...........###............\n......FFF.................\n......FFF.................\n......FFF......###########\n......FFF......###########\n...............###########\n..........................\n..........................\n..........................\n..........###########.....\n..........###########.....\n..........###########.....\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23"
+    ],
+    "terrain": [
+      "...........###............",
+      "...........###............",
+      "...........###............",
+      "...........###FFFFF.......",
+      "...........###FFFFFFF.....",
+      "...........###FFFFFFF.....",
+      "....FFF....###.....FF.....",
+      "....FFFFF.................",
+      "....FFFFF.................",
+      "......FFF......###########",
+      "......FFF......###########",
+      "...............###########",
+      "..........................",
+      "..........................",
+      "...............####.......",
+      "..........###########.....",
+      "..........###########.....",
+      "..........###########.....",
+      "..........................",
+      ".........................."
+    ],
+    "allyPositions": [
+      [
+        6,
+        12
+      ],
+      [
+        20,
+        3
+      ],
+      [
+        5,
+        11
+      ],
+      [
+        5,
+        12
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        4,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        6,
+        14
+      ],
+      [
+        8,
+        14
+      ],
+      [
+        7,
+        15
+      ],
+      [
+        5,
+        14
+      ],
+      [
+        9,
+        14
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          23,
+          7
+        ]
+      },
+      "e_01": {
+        "position": [
+          17,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_02": {
+        "position": [
+          16,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_03": {
+        "position": [
+          18,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_04": {
+        "position": [
+          17,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_05": {
+        "position": [
+          15,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_06": {
+        "position": [
+          19,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_07": {
+        "position": [
+          11,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_08": {
+        "position": [
+          10,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_09": {
+        "position": [
+          12,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_10": {
+        "position": [
+          11,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_11": {
+        "position": [
+          11,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_12": {
+        "position": [
+          9,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_13": {
+        "position": [
+          7,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_14": {
+        "position": [
+          8,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_15": {
+        "position": [
+          7,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_16": {
+        "position": [
+          5,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_17": {
+        "position": [
+          9,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_18": {
+        "position": [
+          6,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_19": {
+        "position": [
+          19,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_20": {
+        "position": [
+          18,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_21": {
+        "position": [
+          20,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_22": {
+        "position": [
+          19,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_23": {
+        "position": [
+          17,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 20,
+        "y": 3,
+        "reasons": [
+          "locked-required:masu"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 6,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 6,
+        "reasons": [
+          "reserve-or-not-initial:e_25"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 6,
+        "reasons": [
+          "reserve-or-not-initial:e_26"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 6,
+        "reasons": [
+          "reserve-or-not-initial:e_27"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 7,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 9,
+        "reasons": [
+          "reserve-or-not-initial:e_24"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 10,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 10,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 11,
+        "reasons": [
+          "locked-required:wangping"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 11,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 16,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "가정: 마속 산 위·왕평 서쪽 고정 위치를 보존하고 북산 포위대/물길 차단대/남동 추격대로 나눈다. D11/E11 탈출 및 4명 유한 증원 출현 자리를 고정한다."
+  },
+  "s48_jigu": {
+    "id": "s48_jigu",
+    "chapter": 48,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "##########################\n##########################\n##########################\n##########################\n##########################\n.......###......###.......\n.......###......###.......\n....FFF###......###.......\n....FFF...................\n..........................\n..........................\n..........................\n.......###......###.......\n.......###......###.......\n.......###......###.......\n##########################\n##########################\n##########################\n##########################\n##########################",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19"
+    ],
+    "terrain": [
+      "##########################",
+      "##########################",
+      "##########################",
+      "##########################",
+      "##########################",
+      ".##....###.FFFF.###.......",
+      ".##....###.FFFF.###.......",
+      "....FFF###......###.......",
+      "....FFF...................",
+      "..........................",
+      "..........................",
+      "..........................",
+      ".......###......###.......",
+      "..##...###.FFFF.###.......",
+      "..##...###.FFFF.###.......",
+      "##########################",
+      "##########################",
+      "##########################",
+      "##########################",
+      "##########################"
+    ],
+    "allyPositions": [
+      [
+        11,
+        9
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        12,
+        9
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        10
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        13,
+        9
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        13,
+        11
+      ],
+      [
+        15,
+        11
+      ],
+      [
+        14,
+        10
+      ],
+      [
+        14,
+        12
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          24,
+          9
+        ]
+      },
+      "e_01": {
+        "position": [
+          18,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_02": {
+        "position": [
+          17,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_03": {
+        "position": [
+          19,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_04": {
+        "position": [
+          18,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_05": {
+        "position": [
+          16,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_06": {
+        "position": [
+          20,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_07": {
+        "position": [
+          19,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_08": {
+        "position": [
+          20,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_09": {
+        "position": [
+          19,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_10": {
+        "position": [
+          21,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_11": {
+        "position": [
+          20,
+          11
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_12": {
+        "position": [
+          20,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_13": {
+        "position": [
+          22,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_14": {
+        "position": [
+          23,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_15": {
+        "position": [
+          22,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_16": {
+        "position": [
+          24,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_17": {
+        "position": [
+          23,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_18": {
+        "position": [
+          23,
+          7
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_19": {
+        "position": [
+          21,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 4,
+        "y": 6,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 8,
+        "reasons": [
+          "reserve-or-not-initial:e_20"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 9,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 9,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 9,
+        "reasons": [
+          "reserve-or-not-initial:e_21"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 9,
+        "reasons": [
+          "reserve-or-not-initial:e_22"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 9,
+        "reasons": [
+          "reserve-or-not-initial:e_23"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 9,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 10,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 10,
+        "reasons": [
+          "fixed-extra:supply_cart"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 12,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      }
+    ],
+    "designNote": "기곡: 중앙 수레를 사이에 두고 후미 엄호와 북남 측면 추격을 분리한다. 수레 원위치와 B10/B11 같은 턴 확정, 전방의 서쪽 철수 통로 및 증원 4명은 그대로."
+  },
+  "s49_chencang": {
+    "id": "s49_chencang",
+    "chapter": 49,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n####..######..######..####\n####..######..######..####\n..........................\n..........................\nFFFF......................\nFFFF......................\n.....................FFFFF\n.....................FFFFF\n.....................FFFFF\n..........................\n..........................\n..........................\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_archer_lead",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25",
+      "e_26"
+    ],
+    "terrain": [
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "####.................#####",
+      "####.................#####",
+      "####..######..######..####",
+      "####..######..######..####",
+      "..........................",
+      "......FFF.................",
+      "FFFF..FFF.......FFF.......",
+      "FFFF............FFF.......",
+      ".....................FFFFF",
+      ".....................FFFFF",
+      ".....................FFFFF",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      ".........................."
+    ],
+    "allyPositions": [
+      [
+        6,
+        11
+      ],
+      [
+        5,
+        11
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        4,
+        11
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        7,
+        10
+      ],
+      [
+        15,
+        12
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        16,
+        12
+      ],
+      [
+        15,
+        11
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        13,
+        12
+      ],
+      [
+        17,
+        12
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        16,
+        11
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          17,
+          2
+        ]
+      },
+      "e_archer_lead": {
+        "position": [
+          12,
+          4
+        ]
+      },
+      "e_01": {
+        "position": [
+          8,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_02": {
+        "position": [
+          7,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_03": {
+        "position": [
+          9,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_04": {
+        "position": [
+          8,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_05": {
+        "position": [
+          6,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_06": {
+        "position": [
+          10,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_07": {
+        "position": [
+          7,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_08": {
+        "position": [
+          9,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_09": {
+        "position": [
+          16,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_10": {
+        "position": [
+          15,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_11": {
+        "position": [
+          17,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_12": {
+        "position": [
+          16,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_13": {
+        "position": [
+          14,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_14": {
+        "position": [
+          15,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_15": {
+        "position": [
+          17,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_16": {
+        "position": [
+          16,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_17": {
+        "position": [
+          20,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_18": {
+        "position": [
+          19,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_19": {
+        "position": [
+          21,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_20": {
+        "position": [
+          20,
+          1
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_21": {
+        "position": [
+          20,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_22": {
+        "position": [
+          18,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_23": {
+        "position": [
+          22,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_24": {
+        "position": [
+          19,
+          1
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_25": {
+        "position": [
+          21,
+          1
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      },
+      "e_26": {
+        "position": [
+          19,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 4
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 17,
+        "y": 2,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 4,
+        "reasons": [
+          "fixed-story-commander:e_archer_lead"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 5,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 5,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 5,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 9,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 9,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      }
+    ],
+    "designNote": "진창: 성문 세 접근로 앞의 두 공격군과 성 안 궁병/예비대로 분리한다. 학소 전멸은 요구하지 않으며 궁병대장 격파 후 위연 M6/N6 진입 목표와 문칸은 그대로."
+  },
+  "s50_yinping": {
+    "id": "s50_yinping",
+    "chapter": 50,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": ".........###..............\n.........###..............\n.........###..............\n.........###..............\n....FFFF.###..............\n....FFFF.###..............\n....FFFF.###....###.......\n.........###....###.......\n................###.......\n................###.......\n.............FFF###.......\n.............FFF###.......\n.........###.FFF###.......\n.........###.FFF###.......\n.........###..............\n.........###..............\n.........###..............\n.........###..............\n.........###..............\n.........###..............",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25",
+      "e_26",
+      "e_27"
+    ],
+    "terrain": [
+      ".........###..............",
+      ".........###..............",
+      ".........###..............",
+      ".........###.FFF..........",
+      "....FFFF.###.FFF..........",
+      "....FFFF.###.FFF..........",
+      "....FFFF.###....###....###",
+      ".........###....###....###",
+      "................###....###",
+      "................###.......",
+      "...............F###.......",
+      ".............FFF###.......",
+      ".........###.FFF###.......",
+      ".........###.FFF###.......",
+      ".........###..............",
+      ".........###.FF...........",
+      ".........###.FFF..........",
+      ".........###.FFF..........",
+      ".........###........###...",
+      ".........###........###..."
+    ],
+    "allyPositions": [
+      [
+        7,
+        7
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        5,
+        12
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        8,
+        11
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          22,
+          10
+        ]
+      },
+      "e_01": {
+        "position": [
+          17,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_02": {
+        "position": [
+          16,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_03": {
+        "position": [
+          18,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_04": {
+        "position": [
+          17,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_05": {
+        "position": [
+          17,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_06": {
+        "position": [
+          15,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_07": {
+        "position": [
+          19,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_08": {
+        "position": [
+          16,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_09": {
+        "position": [
+          18,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_10": {
+        "position": [
+          16,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_11": {
+        "position": [
+          19,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_12": {
+        "position": [
+          18,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_13": {
+        "position": [
+          19,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_14": {
+        "position": [
+          19,
+          16
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_15": {
+        "position": [
+          17,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_16": {
+        "position": [
+          21,
+          15
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_17": {
+        "position": [
+          18,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_18": {
+        "position": [
+          20,
+          14
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_19": {
+        "position": [
+          18,
+          16
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_20": {
+        "position": [
+          20,
+          16
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_21": {
+        "position": [
+          21,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_22": {
+        "position": [
+          20,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_23": {
+        "position": [
+          21,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_24": {
+        "position": [
+          21,
+          11
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_25": {
+        "position": [
+          19,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_26": {
+        "position": [
+          23,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_27": {
+        "position": [
+          20,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 20,
+        "y": 4,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 5,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 10,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 15,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 15,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 16,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "음평·무도: 두 요새의 상·하 방어군과 중앙 연락/역습대를 구분한다. U5/U16 동시 점령을 위해 진입로를 각각 열고 수/금/승급/보급 규칙을 보존한다."
+  },
+  "s51_wheat": {
+    "id": "s51_wheat",
+    "chapter": 51,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........##..............\n..........##..............\n..........##..............\n..........##..............\n..........##.FFFFFFF......\n..........##.FFFFFFF......\n..........##.FFFFFFF......\n.............FFFFFFF......\n..........................\n..........................\n..........................\n..........................\n.............FFFFFFF......\n..........##.FFFFFFF......\n..........##.FFFFFFF......\n..........##.FFFFFFF......\n..........##..............\n..........##..............\n..........##..............\n..........##..............",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25",
+      "e_26",
+      "e_27"
+    ],
+    "terrain": [
+      "..........##..........###.",
+      "..........##..........###.",
+      "..........##..........###.",
+      "..........##..............",
+      "..........##.FFFFFFF......",
+      "..........##.FFFFFFF......",
+      "..........##.FFFFFFF......",
+      ".............FFFFFFF......",
+      "..............FFF.........",
+      "..............FFF.........",
+      "..................FFF.....",
+      "..................FFF.....",
+      ".............FFFFFFFF.....",
+      "..........##.FFFFFFF......",
+      "..........##.FFFFFFF......",
+      "..........##.FFFFFFF......",
+      "..........##..........###.",
+      "..........##..........###.",
+      "..........##..........###.",
+      "..........##.............."
+    ],
+    "allyPositions": [
+      [
+        6,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        6,
+        12
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          21,
+          9
+        ]
+      },
+      "e_01": {
+        "position": [
+          14,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_02": {
+        "position": [
+          13,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_03": {
+        "position": [
+          15,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_04": {
+        "position": [
+          14,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_05": {
+        "position": [
+          14,
+          10
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_06": {
+        "position": [
+          12,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_07": {
+        "position": [
+          16,
+          9
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_08": {
+        "position": [
+          13,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_09": {
+        "position": [
+          15,
+          8
+        ],
+        "aiMode": "hold",
+        "advanceRound": 3
+      },
+      "e_10": {
+        "position": [
+          17,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_11": {
+        "position": [
+          16,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_12": {
+        "position": [
+          18,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_13": {
+        "position": [
+          17,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_14": {
+        "position": [
+          17,
+          6
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_15": {
+        "position": [
+          15,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_16": {
+        "position": [
+          19,
+          5
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_17": {
+        "position": [
+          16,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_18": {
+        "position": [
+          18,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_19": {
+        "position": [
+          17,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_20": {
+        "position": [
+          19,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_21": {
+        "position": [
+          18,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_22": {
+        "position": [
+          18,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_23": {
+        "position": [
+          16,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_24": {
+        "position": [
+          20,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_25": {
+        "position": [
+          17,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_26": {
+        "position": [
+          19,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      },
+      "e_27": {
+        "position": [
+          17,
+          15
+        ],
+        "aiMode": "charge",
+        "advanceRound": 3
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 7,
+        "y": 3,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 9,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 9,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 10,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      }
+    ],
+    "designNote": "상규: 군량창고 호위와 보리밭 양 측면 견제대를 나눈다. 양군 화공 금지/30% 군량 손실 서사/제갈량 V11/창고 장수 격파를 변경하지 않는다."
+  },
+  "s52_mumen": {
+    "id": "s52_mumen",
+    "chapter": 52,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "##########################\n##########################\n##########################\n..........................\n...FFFFFFFFFFFFFFFFFFF....\n...FFFFFFFFFFFFFFFFFFF....\n###...###...###...###...##\n..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n###...###...###...###...##\n...FFFFFFFFFFFFFFFFFFF....\n...FFFFFFFFFFFFFFFFFFF....\n..........................\n##########################\n##########################\n##########################",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25",
+      "e_26",
+      "e_27"
+    ],
+    "terrain": [
+      "##########################",
+      "##########################",
+      "##########################",
+      "..........................",
+      "...FFFFFFFFFFFFFFFFFFF....",
+      "...FFFFFFFFFFFFFFFFFFF....",
+      "###...###...###...###...##",
+      ".###......................",
+      ".###......................",
+      "..........................",
+      "..........................",
+      ".###......................",
+      ".###......................",
+      "###...###...###...###...##",
+      "...FFFFFFFFFFFFFFFFFFF....",
+      "...FFFFFFFFFFFFFFFFFFF....",
+      "..........................",
+      "##########################",
+      "##########################",
+      "##########################"
+    ],
+    "allyPositions": [
+      [
+        8,
+        4
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        8,
+        14
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        8,
+        15
+      ],
+      [
+        6,
+        14
+      ],
+      [
+        10,
+        14
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        7,
+        15
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          20,
+          9
+        ]
+      },
+      "e_01": {
+        "position": [
+          15,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_02": {
+        "position": [
+          14,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_03": {
+        "position": [
+          16,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_04": {
+        "position": [
+          15,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_05": {
+        "position": [
+          15,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_06": {
+        "position": [
+          13,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_07": {
+        "position": [
+          17,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_08": {
+        "position": [
+          14,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_09": {
+        "position": [
+          16,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_10": {
+        "position": [
+          14,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_11": {
+        "position": [
+          20,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_12": {
+        "position": [
+          19,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_13": {
+        "position": [
+          21,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_14": {
+        "position": [
+          20,
+          11
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_15": {
+        "position": [
+          18,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_16": {
+        "position": [
+          22,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_17": {
+        "position": [
+          19,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_18": {
+        "position": [
+          21,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_19": {
+        "position": [
+          19,
+          11
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_20": {
+        "position": [
+          22,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_21": {
+        "position": [
+          21,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_22": {
+        "position": [
+          23,
+          6
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_23": {
+        "position": [
+          22,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_24": {
+        "position": [
+          22,
+          7
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_25": {
+        "position": [
+          21,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_26": {
+        "position": [
+          23,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_27": {
+        "position": [
+          21,
+          7
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 11,
+        "y": 5,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 9,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 9,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 14,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      }
+    ],
+    "designNote": "목문도: 아군 상·하 고지 두 조와 길게 들어온 장합 종대의 앞/중간/후위를 분리한다. 두 고지 성장 거점과 골짜기 보급, 장합 격파 조건을 고정한다."
+  },
+  "s53_wuzhangyuan": {
+    "id": "s53_wuzhangyuan",
+    "chapter": 53,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n####..######..######..####\n####..######..######..####\n..........................\n..........................\n..........................\n......FFFF.......FFFF.....\n......FFFF.......FFFF.....\n......FFFF.......FFFF.....\n..........................\n..........................\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23"
+    ],
+    "terrain": [
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "####..######..######..####",
+      "####..######..######..####",
+      "..........................",
+      "..........................",
+      ".FFF..................FFF.",
+      ".FFF..FFFF.......FFFF.FFF.",
+      ".FFF..FFFF.......FFFF.FFF.",
+      "......FFFF.......FFFF.....",
+      "..........................",
+      "###....................###",
+      "###....................###",
+      ".........................."
+    ],
+    "allyPositions": [
+      [
+        7,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        5,
+        12
+      ],
+      [
+        13,
+        13
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        14,
+        13
+      ],
+      [
+        13,
+        12
+      ],
+      [
+        13,
+        14
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        20,
+        12
+      ],
+      [
+        19,
+        12
+      ],
+      [
+        21,
+        12
+      ],
+      [
+        20,
+        11
+      ],
+      [
+        20,
+        13
+      ],
+      [
+        18,
+        12
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          12,
+          2
+        ]
+      },
+      "e_01": {
+        "position": [
+          5,
+          5
+        ]
+      },
+      "e_02": {
+        "position": [
+          4,
+          5
+        ]
+      },
+      "e_03": {
+        "position": [
+          6,
+          5
+        ]
+      },
+      "e_04": {
+        "position": [
+          5,
+          4
+        ]
+      },
+      "e_05": {
+        "position": [
+          5,
+          6
+        ]
+      },
+      "e_06": {
+        "position": [
+          3,
+          5
+        ]
+      },
+      "e_07": {
+        "position": [
+          7,
+          5
+        ]
+      },
+      "e_08": {
+        "position": [
+          4,
+          4
+        ]
+      },
+      "e_09": {
+        "position": [
+          13,
+          5
+        ]
+      },
+      "e_10": {
+        "position": [
+          12,
+          5
+        ]
+      },
+      "e_11": {
+        "position": [
+          14,
+          5
+        ]
+      },
+      "e_12": {
+        "position": [
+          13,
+          4
+        ]
+      },
+      "e_13": {
+        "position": [
+          13,
+          6
+        ]
+      },
+      "e_14": {
+        "position": [
+          11,
+          5
+        ]
+      },
+      "e_15": {
+        "position": [
+          15,
+          5
+        ]
+      },
+      "e_16": {
+        "position": [
+          12,
+          4
+        ]
+      },
+      "e_17": {
+        "position": [
+          21,
+          5
+        ]
+      },
+      "e_18": {
+        "position": [
+          20,
+          5
+        ]
+      },
+      "e_19": {
+        "position": [
+          22,
+          5
+        ]
+      },
+      "e_20": {
+        "position": [
+          21,
+          4
+        ]
+      },
+      "e_21": {
+        "position": [
+          21,
+          6
+        ]
+      },
+      "e_22": {
+        "position": [
+          19,
+          5
+        ]
+      },
+      "e_23": {
+        "position": [
+          23,
+          5
+        ]
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 12,
+        "y": 2,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "reasons": [
+          "reserve-or-not-initial:e_24"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "reasons": [
+          "reserve-or-not-initial:e_25"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "reasons": [
+          "reserve-or-not-initial:e_26"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "reasons": [
+          "reserve-or-not-initial:e_27"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 11,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 11,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 16,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "오장원: 세 도하 축의 서로 다른 견제 부대로 대치선을 만들고 사마의 원위치/고정/대기 AI는 보존한다. 8 적 턴 생존·전멸 조기 승리 금지·기존 4명 증원은 그대로."
+  },
+  "s54_seven_lamps": {
+    "id": "s54_seven_lamps",
+    "chapter": 54,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........................\n..........................\n..........................\n..........................\n..........................\n......######..######......\n......#............#......\n......#..FF........#......\n......#..FF........#......\n..........................\n..........................\n......#........FF..#......\n......#........FF..#......\n......#............#......\n......######..######......\n..........................\n..........................\n..........................\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25"
+    ],
+    "terrain": [
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      ".....................FFF..",
+      "......######..######.FFF..",
+      "......#............#.FFF..",
+      "......#..FF........#......",
+      "......#..FF........#......",
+      "..........................",
+      "..........................",
+      "......#........FF..#......",
+      "......#........FF..#......",
+      "..FFF.#............#......",
+      "..FFF.######..######......",
+      "..FFF.....................",
+      "..........................",
+      "####..................###.",
+      "####..................###.",
+      ".........................."
+    ],
+    "allyPositions": [
+      [
+        12,
+        10
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        10,
+        10
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        13,
+        8
+      ],
+      [
+        12,
+        8
+      ],
+      [
+        14,
+        8
+      ],
+      [
+        13,
+        7
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        15,
+        8
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        13,
+        12
+      ],
+      [
+        15,
+        12
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        14,
+        13
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          23,
+          10
+        ]
+      },
+      "e_01": {
+        "position": [
+          4,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_02": {
+        "position": [
+          3,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_03": {
+        "position": [
+          5,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_04": {
+        "position": [
+          4,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_05": {
+        "position": [
+          4,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_06": {
+        "position": [
+          2,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_07": {
+        "position": [
+          3,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_08": {
+        "position": [
+          5,
+          7
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_09": {
+        "position": [
+          13,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_10": {
+        "position": [
+          12,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_11": {
+        "position": [
+          14,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_12": {
+        "position": [
+          13,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_13": {
+        "position": [
+          13,
+          4
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_14": {
+        "position": [
+          11,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_15": {
+        "position": [
+          15,
+          3
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_16": {
+        "position": [
+          12,
+          2
+        ],
+        "aiMode": "charge",
+        "advanceRound": 1
+      },
+      "e_17": {
+        "position": [
+          20,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_18": {
+        "position": [
+          21,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_19": {
+        "position": [
+          20,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_20": {
+        "position": [
+          20,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_21": {
+        "position": [
+          18,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_22": {
+        "position": [
+          22,
+          13
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_23": {
+        "position": [
+          21,
+          12
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_24": {
+        "position": [
+          21,
+          14
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_25": {
+        "position": [
+          20,
+          11
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 7,
+        "y": 9,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 9,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 9,
+        "reasons": [
+          "objective.objective.tiles"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 10,
+        "reasons": [
+          "reserve-or-not-initial:e_26"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 10,
+        "reasons": [
+          "reserve-or-not-initial:e_27"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 10,
+        "reasons": [
+          "reserve-or-not-initial:e_28"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 10,
+        "reasons": [
+          "act7Tactics.act7Tactics.stationary.tile",
+          "locked-required:zhugeliang"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 10,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 10,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 11,
+        "reasons": [
+          "reserve-or-not-initial:e_29"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 12,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "칠성등: 제갈량 M11 고정과 막사 세 진입로를 그대로 두고 서쪽 정면/북쪽 침투/동남 우회로 압박을 분산한다. 등불 수비칸·7라운드·5라운드 증원은 불변."
+  },
+  "s55_weishui": {
+    "id": "s55_weishui",
+    "chapter": 55,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n####..######..#######..###\n####..######..#######..###\n####..######..#######..###\n####..######..#######..###\n..........................\n..........................\n..FFFF............FFFF....\n..FFFF............FFFF....\n..FFFF............FFFF....\n..........................\n..........................\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23"
+    ],
+    "terrain": [
+      "..........................",
+      "..........................",
+      ".......FFF......FFF.......",
+      ".......FFF......FFF.......",
+      ".......FFF......FFF.......",
+      "..........................",
+      "..........................",
+      "####..######..#######..###",
+      "####..######..#######..###",
+      "####..######..#######..###",
+      "####..######..#######..###",
+      "..........................",
+      "..........................",
+      "..FFFF............FFFF....",
+      "..FFFF............FFFF....",
+      "..FFFF............FFFF....",
+      "........FFF....FFF........",
+      "........FFF....FFF........",
+      "........FFF....FFF........",
+      ".........................."
+    ],
+    "allyPositions": [
+      [
+        8,
+        14
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        4,
+        13
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        5,
+        12
+      ],
+      [
+        5,
+        14
+      ],
+      [
+        3,
+        13
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        13,
+        13
+      ],
+      [
+        12,
+        12
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        10,
+        13
+      ],
+      [
+        20,
+        13
+      ],
+      [
+        19,
+        13
+      ],
+      [
+        21,
+        13
+      ],
+      [
+        20,
+        12
+      ],
+      [
+        20,
+        14
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          13,
+          2
+        ]
+      },
+      "e_01": {
+        "position": [
+          4,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_02": {
+        "position": [
+          3,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_03": {
+        "position": [
+          5,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_04": {
+        "position": [
+          4,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_05": {
+        "position": [
+          4,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_06": {
+        "position": [
+          2,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_07": {
+        "position": [
+          6,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_08": {
+        "position": [
+          3,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_09": {
+        "position": [
+          12,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_10": {
+        "position": [
+          11,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_11": {
+        "position": [
+          13,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_12": {
+        "position": [
+          12,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_13": {
+        "position": [
+          12,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_14": {
+        "position": [
+          10,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_15": {
+        "position": [
+          14,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_16": {
+        "position": [
+          11,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_17": {
+        "position": [
+          21,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_18": {
+        "position": [
+          20,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_19": {
+        "position": [
+          22,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_20": {
+        "position": [
+          21,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_21": {
+        "position": [
+          21,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_22": {
+        "position": [
+          19,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      },
+      "e_23": {
+        "position": [
+          23,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 2
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 13,
+        "y": 2,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 6,
+        "reasons": [
+          "objective.objective.tiles",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 6,
+        "reasons": [
+          "objective.objective.tiles",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 6,
+        "reasons": [
+          "objective.objective.tiles",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 25,
+        "y": 6,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 0,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 7,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 7,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 25,
+        "y": 7,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 0,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 8,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 25,
+        "y": 8,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 0,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 9,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 25,
+        "y": 9,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 0,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 10,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 10,
+        "reasons": [
+          "bridgeCells.bridgeCells",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 25,
+        "y": 10,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 0,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 1,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 3,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 4,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 11,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 6,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 7,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 9,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 10,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 11,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 12,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 13,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 14,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 15,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 17,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 18,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 19,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 21,
+        "y": 11,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles",
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 22,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 23,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 24,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 25,
+        "y": 11,
+        "reasons": [
+          "existing-river-three-crossings"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 14,
+        "reasons": [
+          "locked-required:liubei"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 17,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "위수: 본래 다리·상류/하류 여울의 강 지형과 물길 폭을 모두 보존한다. 세 도하별 방어군과 아군 삼분 진입을 명확히 하고 E7/M7/V7 동시 확정·유비 고정·군량 서사는 그대로."
+  },
+  "s56_changan": {
+    "id": "s56_changan",
+    "chapter": 56,
+    "mapLayoutVersion": 4,
+    "sourceMapLayoutVersion": 0,
+    "sourceAct4DeploymentVersion": 0,
+    "sourceTerrainKey": "..........................\n..........................\n..........................\n..........................\n..........................\n..........................\n####..######..######..####\n####..######..######..####\n..........................\n..........................\n..........................\nFFFF.................FFFFF\nFFFF.................FFFFF\nFFFF.................FFFFF\n..........................\n..........................\n..........................\n..........................\n..........................\n..........................",
+    "expectedInitialEnemyIds": [
+      "e_boss",
+      "e_west_gate",
+      "e_east_gate",
+      "e_01",
+      "e_02",
+      "e_03",
+      "e_04",
+      "e_05",
+      "e_06",
+      "e_07",
+      "e_08",
+      "e_09",
+      "e_10",
+      "e_11",
+      "e_12",
+      "e_13",
+      "e_14",
+      "e_15",
+      "e_16",
+      "e_17",
+      "e_18",
+      "e_19",
+      "e_20",
+      "e_21",
+      "e_22",
+      "e_23",
+      "e_24",
+      "e_25",
+      "e_26",
+      "e_27"
+    ],
+    "terrain": [
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "###....................###",
+      "###....................###",
+      "####..######..######..####",
+      "####..######..######..####",
+      "..........................",
+      "..........................",
+      "........FFF...............",
+      "FFFF....FFF.....FFF..FFFFF",
+      "FFFF....FFF.....FFF..FFFFF",
+      "FFFF............FFF..FFFFF",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      "..........................",
+      ".........................."
+    ],
+    "allyPositions": [
+      [
+        2,
+        13
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        5,
+        11
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        4,
+        11
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        7,
+        10
+      ],
+      [
+        18,
+        12
+      ],
+      [
+        17,
+        12
+      ],
+      [
+        19,
+        12
+      ],
+      [
+        18,
+        11
+      ],
+      [
+        18,
+        13
+      ],
+      [
+        16,
+        12
+      ],
+      [
+        20,
+        12
+      ],
+      [
+        17,
+        11
+      ]
+    ],
+    "enemyOverrides": {
+      "e_boss": {
+        "position": [
+          12,
+          2
+        ]
+      },
+      "e_west_gate": {
+        "position": [
+          5,
+          5
+        ]
+      },
+      "e_east_gate": {
+        "position": [
+          20,
+          5
+        ]
+      },
+      "e_01": {
+        "position": [
+          5,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_02": {
+        "position": [
+          4,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_03": {
+        "position": [
+          6,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_04": {
+        "position": [
+          3,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_05": {
+        "position": [
+          7,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_06": {
+        "position": [
+          4,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_07": {
+        "position": [
+          6,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_08": {
+        "position": [
+          4,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_09": {
+        "position": [
+          20,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_10": {
+        "position": [
+          19,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_11": {
+        "position": [
+          21,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_12": {
+        "position": [
+          20,
+          10
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_13": {
+        "position": [
+          18,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_14": {
+        "position": [
+          22,
+          9
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_15": {
+        "position": [
+          19,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_16": {
+        "position": [
+          21,
+          8
+        ],
+        "aiMode": "charge",
+        "advanceRound": 2
+      },
+      "e_17": {
+        "position": [
+          12,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_18": {
+        "position": [
+          11,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_19": {
+        "position": [
+          13,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_20": {
+        "position": [
+          12,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_21": {
+        "position": [
+          12,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_22": {
+        "position": [
+          10,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_23": {
+        "position": [
+          14,
+          4
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_24": {
+        "position": [
+          11,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_25": {
+        "position": [
+          13,
+          3
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_26": {
+        "position": [
+          11,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      },
+      "e_27": {
+        "position": [
+          13,
+          5
+        ],
+        "aiMode": "hold",
+        "advanceRound": 4
+      }
+    },
+    "protectedCells": [
+      {
+        "x": 12,
+        "y": 2,
+        "reasons": [
+          "fixed-story-commander:e_boss"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "reasons": [
+          "fixed-story-commander:e_west_gate"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 5,
+        "reasons": [
+          "fixed-story-commander:e_east_gate"
+        ]
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "reasons": [
+          "act7Objectives.act7Objectives.0.tiles"
+        ]
+      },
+      {
+        "x": 20,
+        "y": 8,
+        "reasons": [
+          "act7Objectives.act7Objectives.1.tiles"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 13,
+        "reasons": [
+          "locked-required:liubei"
+        ]
+      },
+      {
+        "x": 2,
+        "y": 16,
+        "reasons": [
+          "act7OptionalObjective.act7OptionalObjective.tiles"
+        ]
+      }
+    ],
+    "designNote": "장안: 서·동문 외부 호위와 중앙 성내 예비대를 구분한다. 두 성문 장수 및 사마의 원위치, 성문 선행 격파 전 사마의 행동 제한/마지막 승리·보상을 그대로 보존한다."
+  }
+};
