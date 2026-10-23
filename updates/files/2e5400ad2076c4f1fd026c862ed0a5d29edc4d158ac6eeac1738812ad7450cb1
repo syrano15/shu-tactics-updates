@@ -1,0 +1,878 @@
+// Runtime personal commands: three per general, learned at Lv1 / Lv4 / Lv8.
+export const HERO_DATA = {
+  "liubei": {
+    "id": "liubei",
+    "name": "유비",
+    "tier": "1군",
+    "class": "archer",
+    "joinAfterChapter": "start",
+    "growthType": "balanced",
+    "attackBonus": 1,
+    "troopBonus": 400,
+    "intellect": 75,
+    "baseSP": 70,
+    "spirits": [
+      "focus",
+      "spirit",
+      "flash"
+    ],
+    "trait": {
+      "type": "morale_start",
+      "param": 10
+    },
+    "guest": false,
+    "note": "병과 궁병은 이번 확정안"
+  },
+  "guanyu": {
+    "id": "guanyu",
+    "name": "관우",
+    "tier": "1군",
+    "class": "cavalry",
+    "joinAfterChapter": "start",
+    "growthType": "early",
+    "attackBonus": 3,
+    "troopBonus": 200,
+    "intellect": 70,
+    "baseSP": 60,
+    "spirits": [
+      "strike",
+      "accel",
+      "fury"
+    ],
+    "trait": {
+      "type": "class_bonus",
+      "param": "infantry"
+    },
+    "guest": false,
+    "note": "현재 구현 장수"
+  },
+  "zhangfei": {
+    "id": "zhangfei",
+    "name": "장비",
+    "tier": "1군",
+    "class": "infantry",
+    "joinAfterChapter": "start",
+    "growthType": "sturdy",
+    "attackBonus": 3,
+    "troopBonus": 600,
+    "intellect": 40,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "spirit",
+      "fury"
+    ],
+    "trait": {
+      "type": "counter_up",
+      "param": 20
+    },
+    "guest": false,
+    "note": "현재 구현 장수"
+  },
+  "zhaoyun": {
+    "id": "zhaoyun",
+    "name": "조운",
+    "tier": "1군",
+    "class": "spear",
+    "joinAfterChapter": "s11_bowang",
+    "growthType": "balanced",
+    "attackBonus": 2,
+    "troopBonus": 400,
+    "intellect": 70,
+    "baseSP": 60,
+    "spirits": [
+      "accel",
+      "strike",
+      "flash"
+    ],
+    "trait": {
+      "type": "first_guard",
+      "param": 30
+    },
+    "guest": false,
+    "note": "현재 구현 장수"
+  },
+  "zhugeliang": {
+    "id": "zhugeliang",
+    "name": "제갈량",
+    "tier": "1군",
+    "class": "strategist",
+    "joinAfterChapter": "s11_bowang",
+    "growthType": "late",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 95,
+    "baseSP": 80,
+    "spirits": [
+      "wisdom",
+      "focus",
+      "accel"
+    ],
+    "trait": {
+      "type": "stratagem_up",
+      "param": 10
+    },
+    "guest": false,
+    "note": "현재 구현 장수"
+  },
+  "huangzhong": {
+    "id": "huangzhong",
+    "name": "황충",
+    "tier": "1군",
+    "class": "archer",
+    "joinAfterChapter": "s18_changsha",
+    "growthType": "veteran",
+    "attackBonus": 3,
+    "troopBonus": 0,
+    "intellect": 55,
+    "baseSP": 50,
+    "spirits": [
+      "strike",
+      "focus",
+      "fury"
+    ],
+    "trait": {
+      "type": "class_bonus",
+      "param": "cavalry"
+    },
+    "guest": false,
+    "note": "현재 구현 장수"
+  },
+  "weiyan": {
+    "id": "weiyan",
+    "name": "위연",
+    "tier": "1군",
+    "class": "infantry",
+    "joinAfterChapter": "s18_changsha",
+    "growthType": "late",
+    "attackBonus": 4,
+    "troopBonus": 400,
+    "intellect": 55,
+    "baseSP": 55,
+    "spirits": [
+      "spirit",
+      "strike",
+      "fury"
+    ],
+    "trait": {
+      "type": "counter_up",
+      "param": 20
+    },
+    "guest": false,
+    "note": ""
+  },
+  "pangtong": {
+    "id": "pangtong",
+    "name": "방통",
+    "tier": "1군",
+    "class": "strategist",
+    "joinAfterChapter": "s21_jingzhou_hold",
+    "growthType": "fragile",
+    "attackBonus": null,
+    "troopBonus": -200,
+    "intellect": 88,
+    "baseSP": 70,
+    "spirits": [
+      "wisdom",
+      "focus",
+      "flash"
+    ],
+    "trait": {
+      "type": "stratagem_up",
+      "param": 10
+    },
+    "guest": false,
+    "note": ""
+  },
+  "machao": {
+    "id": "machao",
+    "name": "마초",
+    "tier": "1군",
+    "class": "cavalry",
+    "joinAfterChapter": "s26_machao",
+    "growthType": "early",
+    "attackBonus": 5,
+    "troopBonus": 200,
+    "intellect": 50,
+    "baseSP": 60,
+    "spirits": [
+      "accel",
+      "strike",
+      "fury"
+    ],
+    "trait": {
+      "type": "plain_dash",
+      "param": 1
+    },
+    "guest": false,
+    "note": ""
+  },
+  "jiangwei": {
+    "id": "jiangwei",
+    "name": "강유",
+    "tier": "1군",
+    "class": "spear",
+    "joinAfterChapter": "s46_tianshui",
+    "growthType": "balanced",
+    "attackBonus": 4,
+    "troopBonus": 300,
+    "intellect": 80,
+    "baseSP": 65,
+    "spirits": [
+      "strike",
+      "focus",
+      "wall"
+    ],
+    "trait": {
+      "type": "first_guard",
+      "param": 30
+    },
+    "guest": false,
+    "note": ""
+  },
+  "chendao": {
+    "id": "chendao",
+    "name": "진도",
+    "tier": "1.5군",
+    "class": "spear",
+    "joinAfterChapter": "s07_xiapi",
+    "growthType": "balanced",
+    "attackBonus": 2,
+    "troopBonus": 300,
+    "intellect": 60,
+    "baseSP": 55,
+    "spirits": [
+      "wall",
+      "strike",
+      "focus"
+    ],
+    "trait": {
+      "type": "first_guard",
+      "param": 30
+    },
+    "guest": false,
+    "note": "합류 시기 역사 확인 필요"
+  },
+  "xushu": {
+    "id": "xushu",
+    "name": "서서",
+    "tier": "1.5군",
+    "class": "strategist",
+    "joinAfterChapter": "s11_bowang",
+    "growthType": "early",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 86,
+    "baseSP": 65,
+    "spirits": [
+      "wisdom",
+      "focus",
+      "accel"
+    ],
+    "trait": {
+      "type": "stratagem_up",
+      "param": 10
+    },
+    "guest": true,
+    "note": "게스트. s13_changban 승리 후 이탈",
+    "leaveAfterChapter": "s13_changban"
+  },
+  "guanping": {
+    "id": "guanping",
+    "name": "관평",
+    "tier": "1.5군",
+    "class": "spear",
+    "joinAfterChapter": "s17_jingnan",
+    "growthType": "balanced",
+    "attackBonus": 2,
+    "troopBonus": 200,
+    "intellect": 60,
+    "baseSP": 50,
+    "spirits": [
+      "strike",
+      "accel",
+      "wall"
+    ],
+    "trait": {
+      "type": "morale_start",
+      "param": 10
+    },
+    "guest": false,
+    "note": ""
+  },
+  "masu": {
+    "id": "masu",
+    "name": "마속",
+    "tier": "1.5군",
+    "class": "strategist",
+    "joinAfterChapter": "s21_jingzhou_hold",
+    "growthType": "early",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 78,
+    "baseSP": 65,
+    "spirits": [
+      "wisdom",
+      "focus",
+      "accel"
+    ],
+    "trait": {
+      "type": "stratagem_up",
+      "param": 10
+    },
+    "guest": false,
+    "note": ""
+  },
+  "liaohua": {
+    "id": "liaohua",
+    "name": "요화",
+    "tier": "1.5군",
+    "class": "spear",
+    "joinAfterChapter": "s21_jingzhou_hold",
+    "growthType": "sturdy",
+    "attackBonus": 1,
+    "troopBonus": 400,
+    "intellect": 55,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "spirit",
+      "focus"
+    ],
+    "trait": {
+      "type": "terrain_guard",
+      "param": "forest"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "fazheng": {
+    "id": "fazheng",
+    "name": "법정",
+    "tier": "1.5군",
+    "class": "strategist",
+    "joinAfterChapter": "s23_fucheng",
+    "growthType": "early",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 84,
+    "baseSP": 70,
+    "spirits": [
+      "wisdom",
+      "focus",
+      "flash"
+    ],
+    "trait": {
+      "type": "morale_start",
+      "param": 10
+    },
+    "guest": false,
+    "note": ""
+  },
+  "madai": {
+    "id": "madai",
+    "name": "마대",
+    "tier": "1.5군",
+    "class": "cavalry",
+    "joinAfterChapter": "s26_machao",
+    "growthType": "late",
+    "attackBonus": 2,
+    "troopBonus": 0,
+    "intellect": 55,
+    "baseSP": 55,
+    "spirits": [
+      "accel",
+      "focus",
+      "fury"
+    ],
+    "trait": {
+      "type": "plain_dash",
+      "param": 1
+    },
+    "guest": false,
+    "note": "현재 구현 장수(기병)"
+  },
+  "yanyan": {
+    "id": "yanyan",
+    "name": "엄안",
+    "tier": "1.5군",
+    "class": "crossbow",
+    "joinAfterChapter": "s27_chengdu",
+    "growthType": "veteran",
+    "attackBonus": 2,
+    "troopBonus": 200,
+    "intellect": 55,
+    "baseSP": 50,
+    "spirits": [
+      "strike",
+      "focus",
+      "wall"
+    ],
+    "trait": {
+      "type": "first_guard",
+      "param": 30
+    },
+    "guest": false,
+    "note": ""
+  },
+  "huangquan": {
+    "id": "huangquan",
+    "name": "황권",
+    "tier": "1.5군",
+    "class": "strategist",
+    "joinAfterChapter": "s27_chengdu",
+    "growthType": "balanced",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 82,
+    "baseSP": 65,
+    "spirits": [
+      "wisdom",
+      "focus",
+      "flash"
+    ],
+    "trait": {
+      "type": "morale_start",
+      "param": 10
+    },
+    "guest": false,
+    "note": ""
+  },
+  "wangping": {
+    "id": "wangping",
+    "name": "왕평",
+    "tier": "1.5군",
+    "class": "crossbow",
+    "joinAfterChapter": "s29_dingjun",
+    "growthType": "late",
+    "attackBonus": 2,
+    "troopBonus": 300,
+    "intellect": 60,
+    "baseSP": 55,
+    "spirits": [
+      "strike",
+      "focus",
+      "wall"
+    ],
+    "trait": {
+      "type": "terrain_guard",
+      "param": "forest"
+    },
+    "guest": false,
+    "note": "산 지형 구현 후 지형 숙련(산)으로 변경"
+  },
+  "guanxing": {
+    "id": "guanxing",
+    "name": "관흥",
+    "tier": "1.5군",
+    "class": "cavalry",
+    "joinAfterChapter": "s39_wuxia",
+    "growthType": "late",
+    "attackBonus": 3,
+    "troopBonus": 200,
+    "intellect": 60,
+    "baseSP": 55,
+    "spirits": [
+      "accel",
+      "strike",
+      "fury"
+    ],
+    "trait": {
+      "type": "class_bonus",
+      "param": "infantry"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "zhangbao": {
+    "id": "zhangbao",
+    "name": "장포",
+    "tier": "1.5군",
+    "class": "spear",
+    "joinAfterChapter": "s39_wuxia",
+    "growthType": "fragile",
+    "attackBonus": 4,
+    "troopBonus": 0,
+    "intellect": 50,
+    "baseSP": 55,
+    "spirits": [
+      "strike",
+      "flash",
+      "fury"
+    ],
+    "trait": {
+      "type": "class_bonus",
+      "param": "cavalry"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "jianyong": {
+    "id": "jianyong",
+    "name": "간옹",
+    "tier": "2군",
+    "class": "strategist",
+    "joinAfterChapter": "s01_zhuoxian",
+    "growthType": "balanced",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 72,
+    "baseSP": 60,
+    "spirits": [
+      "wisdom",
+      "flash",
+      "focus"
+    ],
+    "trait": {
+      "type": "ration_up",
+      "param": 50
+    },
+    "guest": false,
+    "note": ""
+  },
+  "sunqian": {
+    "id": "sunqian",
+    "name": "손건",
+    "tier": "2군",
+    "class": "strategist",
+    "joinAfterChapter": "s05_xuzhou_relief",
+    "growthType": "balanced",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 74,
+    "baseSP": 60,
+    "spirits": [
+      "wisdom",
+      "accel",
+      "flash"
+    ],
+    "trait": {
+      "type": "morale_start",
+      "param": 10
+    },
+    "guest": false,
+    "note": ""
+  },
+  "mizhu": {
+    "id": "mizhu",
+    "name": "미축",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s05_xuzhou_relief",
+    "growthType": "sturdy",
+    "attackBonus": 0,
+    "troopBonus": 400,
+    "intellect": 65,
+    "baseSP": 55,
+    "spirits": [
+      "focus",
+      "flash",
+      "spirit"
+    ],
+    "trait": {
+      "type": "ration_up",
+      "param": 50
+    },
+    "guest": false,
+    "note": ""
+  },
+  "zhoucang": {
+    "id": "zhoucang",
+    "name": "주창",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s10_thousand_li",
+    "growthType": "sturdy",
+    "attackBonus": 2,
+    "troopBonus": 400,
+    "intellect": 40,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "spirit",
+      "accel"
+    ],
+    "trait": {
+      "type": "counter_up",
+      "param": 20
+    },
+    "guest": false,
+    "note": "연의 인물"
+  },
+  "maliang": {
+    "id": "maliang",
+    "name": "마량",
+    "tier": "2군",
+    "class": "strategist",
+    "joinAfterChapter": "s17_jingnan",
+    "growthType": "fragile",
+    "attackBonus": null,
+    "troopBonus": 0,
+    "intellect": 80,
+    "baseSP": 70,
+    "spirits": [
+      "wisdom",
+      "flash",
+      "focus"
+    ],
+    "trait": {
+      "type": "ration_up",
+      "param": 50
+    },
+    "guest": false,
+    "note": ""
+  },
+  "liufeng": {
+    "id": "liufeng",
+    "name": "유봉",
+    "tier": "2군",
+    "class": "spear",
+    "joinAfterChapter": "s21_jingzhou_hold",
+    "growthType": "early",
+    "attackBonus": 2,
+    "troopBonus": 200,
+    "intellect": 55,
+    "baseSP": 55,
+    "spirits": [
+      "strike",
+      "accel",
+      "wall"
+    ],
+    "trait": {
+      "type": "class_bonus",
+      "param": "cavalry"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "wuyi": {
+    "id": "wuyi",
+    "name": "오의",
+    "tier": "2군",
+    "class": "spear",
+    "joinAfterChapter": "s27_chengdu",
+    "growthType": "balanced",
+    "attackBonus": 1,
+    "troopBonus": 300,
+    "intellect": 60,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "focus",
+      "strike"
+    ],
+    "trait": {
+      "type": "terrain_guard",
+      "param": "forest"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "liyan": {
+    "id": "liyan",
+    "name": "이엄",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s27_chengdu",
+    "growthType": "balanced",
+    "attackBonus": 1,
+    "troopBonus": 400,
+    "intellect": 65,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "spirit",
+      "flash"
+    ],
+    "trait": {
+      "type": "ration_up",
+      "param": 50
+    },
+    "guest": false,
+    "note": ""
+  },
+  "zhangyi": {
+    "id": "zhangyi",
+    "name": "장익",
+    "tier": "2군",
+    "class": "archer",
+    "joinAfterChapter": "s27_chengdu",
+    "growthType": "sturdy",
+    "attackBonus": 1,
+    "troopBonus": 200,
+    "intellect": 60,
+    "baseSP": 50,
+    "spirits": [
+      "strike",
+      "focus",
+      "accel"
+    ],
+    "trait": {
+      "type": "terrain_guard",
+      "param": "forest"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "wuban": {
+    "id": "wuban",
+    "name": "오반",
+    "tier": "2군",
+    "class": "cavalry",
+    "joinAfterChapter": "s27_chengdu",
+    "growthType": "balanced",
+    "attackBonus": 2,
+    "troopBonus": 200,
+    "intellect": 55,
+    "baseSP": 55,
+    "spirits": [
+      "accel",
+      "strike",
+      "fury"
+    ],
+    "trait": {
+      "type": "class_bonus",
+      "param": "infantry"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "fengxi": {
+    "id": "fengxi",
+    "name": "풍습",
+    "tier": "2군",
+    "class": "cavalry",
+    "joinAfterChapter": "s39_wuxia",
+    "growthType": "early",
+    "attackBonus": 3,
+    "troopBonus": 200,
+    "intellect": 50,
+    "baseSP": 55,
+    "spirits": [
+      "accel",
+      "strike",
+      "flash"
+    ],
+    "trait": {
+      "type": "plain_dash",
+      "param": 1
+    },
+    "guest": false,
+    "note": ""
+  },
+  "fudong": {
+    "id": "fudong",
+    "name": "부동",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s39_wuxia",
+    "growthType": "sturdy",
+    "attackBonus": 2,
+    "troopBonus": 500,
+    "intellect": 45,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "spirit",
+      "fury"
+    ],
+    "trait": {
+      "type": "counter_up",
+      "param": 20
+    },
+    "guest": false,
+    "note": ""
+  },
+  "dengzhi": {
+    "id": "dengzhi",
+    "name": "등지",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s42_alliance",
+    "growthType": "balanced",
+    "attackBonus": 0,
+    "troopBonus": 300,
+    "intellect": 75,
+    "baseSP": 55,
+    "spirits": [
+      "focus",
+      "spirit",
+      "flash"
+    ],
+    "trait": {
+      "type": "ration_up",
+      "param": 50
+    },
+    "guest": false,
+    "note": ""
+  },
+  "zhangni": {
+    "id": "zhangni",
+    "name": "장의",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s43_lushui",
+    "growthType": "sturdy",
+    "attackBonus": 2,
+    "troopBonus": 500,
+    "intellect": 60,
+    "baseSP": 50,
+    "spirits": [
+      "wall",
+      "spirit",
+      "fury"
+    ],
+    "trait": {
+      "type": "counter_up",
+      "param": 20
+    },
+    "guest": false,
+    "note": ""
+  },
+  "mazhong": {
+    "id": "mazhong",
+    "name": "마충",
+    "tier": "2군",
+    "class": "crossbow",
+    "joinAfterChapter": "s43_lushui",
+    "growthType": "balanced",
+    "attackBonus": 1,
+    "troopBonus": 200,
+    "intellect": 60,
+    "baseSP": 50,
+    "spirits": [
+      "strike",
+      "focus",
+      "spirit"
+    ],
+    "trait": {
+      "type": "terrain_guard",
+      "param": "forest"
+    },
+    "guest": false,
+    "note": ""
+  },
+  "gaoxiang": {
+    "id": "gaoxiang",
+    "name": "고상",
+    "tier": "2군",
+    "class": "infantry",
+    "joinAfterChapter": "s46_tianshui",
+    "growthType": "balanced",
+    "attackBonus": 2,
+    "troopBonus": 300,
+    "intellect": 55,
+    "baseSP": 55,
+    "spirits": [
+      "wall",
+      "focus",
+      "fury"
+    ],
+    "trait": {
+      "type": "terrain_guard",
+      "param": "forest"
+    },
+    "guest": false,
+    "note": "역사 확인 필요"
+  }
+};

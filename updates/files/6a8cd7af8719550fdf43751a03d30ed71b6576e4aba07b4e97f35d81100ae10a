@@ -1,0 +1,25 @@
+.terrain-inspector[hidden]{display:none!important}
+.terrain-inspector{display:none}
+#battle-scene[data-mobile-ui=true] .terrain-inspector,#battle-scene .terrain-inspector[data-has-goal=true]{
+ display:block;position:absolute;left:8px;top:66px;z-index:23;
+ width:min(420px,calc(100% - 16px));box-sizing:border-box;padding:5px 8px 8px;
+ color:var(--text,#e5e6d5);background:#11271cf5;border:1px solid #8b9871;border-radius:7px;
+ box-shadow:0 3px 12px #0006;pointer-events:none;
+}
+.terrain-inspector-header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
+.terrain-inspector-header strong{font-size:14px;color:var(--gold,#dfbf78)}
+.terrain-inspector-header button{min-width:48px;min-height:44px;padding:5px 8px;font-size:13px;pointer-events:auto}
+.terrain-inspector-body{font-size:12px;line-height:1.45}
+.terrain-inspector-body p{margin:2px 0;overflow-wrap:anywhere}
+.terrain-inspector-body{max-height:min(42dvh,300px);overflow:auto;pointer-events:auto;touch-action:pan-y}
+.terrain-goal-detail{margin:3px 0 7px;padding:6px 7px;border:1px solid #b79b60;border-radius:4px;background:#292e1c}
+.terrain-goal-detail strong{color:#ffe2a0;font-size:12px}.terrain-goal-detail p{margin:4px 0}
+.terrain-inspector-body small{display:block;margin-top:3px;color:#c0c9ac;font-size:10px}
+#battle-scene .terrain-info-open{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin:4px 0;padding:5px 8px;text-align:left;font-size:12px}
+.terrain-info-open span{color:var(--gold,#dfbf78);white-space:nowrap}
+.terrain-prediction-note,.terrain-arrival{margin:5px 0;font-size:11px;line-height:1.45;color:#d6dec5;overflow-wrap:anywhere}
+.terrain-unit-detail{margin:8px 0;padding:7px 9px;border:1px solid var(--line,#4c6148);border-radius:5px;font-size:12px;line-height:1.5}
+.terrain-unit-detail p{margin:3px 0}.terrain-unit-detail small{color:var(--muted,#bdc7b3)}
+@media(orientation:landscape) and (min-width:601px){
+ #battle-scene[data-mobile-ui=true] .terrain-inspector{width:min(420px,calc(100% - 332px));top:64px}
+}

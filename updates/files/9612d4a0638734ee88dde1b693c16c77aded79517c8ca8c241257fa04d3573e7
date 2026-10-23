@@ -1,0 +1,26 @@
+import {HERO_DATA} from './heroes.js';
+export const OFFICER_ROLE_VERSION=1;
+export const LEGACY_OFFICER_CLASSES=Object.freeze({yanyan:'archer',zhangyi:'crossbow'});
+const affected=id=>Object.hasOwn(LEGACY_OFFICER_CLASSES,id);
+export function validateOfficerRoleVersion(version){if(![0,1].includes(version))throw new Error('장수 기본 병과 버전이 올바르지 않습니다.');return version;}
+export function validateOfficerHeroRole(id,hero){if(Object.hasOwn(hero,'officerRoleVersion')&&(!affected(id)||![0,1].includes(hero.officerRoleVersion)))throw new Error('장수 기본 병과 기록이 올바르지 않습니다.');return hero;}
+export function nativeOfficerClass(id,version=OFFICER_ROLE_VERSION){validateOfficerRoleVersion(version);return version===0&&affected(id)?LEGACY_OFFICER_CLASSES[id]:HERO_DATA[id]?.class;}
+// Absence means an already-owned historical hero. No old army is rewritten on load.
+export function officerHeroRoleVersion(army,id,battleVersion=OFFICER_ROLE_VERSION){
+ validateOfficerRoleVersion(battleVersion);const hero=army?.heroes?.[id];if(hero)validateOfficerHeroRole(id,hero);
+ return battleVersion===0?0:affected(id)&&hero?(hero.officerRoleVersion??0):battleVersion;
+}
+export function newOfficerRoleFields(id,level,promotion=0){return affected(id)?{officerRoleVersion:1,...(id==='zhangyi'&&level>=15?{promotion:2}:{promotion})}:{};}
+// Explicit player class/branch choices win. Apply only at a new-sortie boundary,
+// never during save parsing or while reconstructing an existing battle.
+export function applyDefaultOfficerRoles(army){
+ const changed=[];
+ for(const id of Object.keys(LEGACY_OFFICER_CLASSES)){const hero=army?.heroes?.[id];if(!hero)continue;validateOfficerHeroRole(id,hero);
+  if(hero.selectedClass!==undefined||hero.specialization!==undefined&&hero.specialization!==null)continue;
+  let updated=false;
+  if(hero.officerRoleVersion!==1){hero.officerRoleVersion=1;updated=true;}
+  if(id==='zhangyi'&&hero.growth?.level>=15&&(hero.promotion??0)<2){hero.promotion=2;updated=true;}
+  if(updated)changed.push(id);
+ }
+ return changed;
+}

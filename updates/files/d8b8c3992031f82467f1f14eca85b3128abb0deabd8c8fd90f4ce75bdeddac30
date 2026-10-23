@@ -1,0 +1,87 @@
+import {createSpriteMesh} from './sprite-mesh.js';
+import {footBodyMetrics} from './unit-body-metrics.js';
+import {imageSource} from './image-source.js';
+
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const smooth=n=>{const x=clamp(n,0,1);return x*x*(3-2*x);};
+const mix=(a,b,p)=>a+(b-a)*p;
+const point=(x,y)=>({x,y});
+const distance=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],t=clamp(((p.x-a[0])*dx+(p.y-a[1])*dy)/(dx*dx+dy*dy||1),0,1);return {distance:Math.hypot(p.x-a[0]-t*dx,p.y-a[1]-t*dy),t};};
+// These anchors belong to the delivered picture, in its right-facing source
+// coordinates. A changed combat class does not move its painted hands elsewhere.
+const paintedAnchors=src=>{
+ if(/\/units-v07420\/yanyan-crossbow\.webp$/.test(src))return {id:'yanyan-crossbow',grip:'crossbow',pivot:[.46,.32],elbow:[.52,.39],hand:[.63,.405],weaponPoints:[[.81,.405],[.97,.365]],head:[.53,.17],headRadius:[.11,.105],radius:.13,second:{pivot:[.665,.315],elbow:[.72,.405],hand:[.80,.425],radius:.11,gain:.55}};
+ if(/\/units-v07420\/zhangyi-archer\.webp$/.test(src))return {id:'zhangyi-bow',grip:'bow',pivot:[.55,.33],elbow:[.73,.35],hand:[.84,.30],weaponPoints:[[.72,.02],[.84,.30],[.74,.59]],head:[.48,.20],headRadius:[.08,.075],radius:.14,gain:.25,second:{pivot:[.31,.30],elbow:[.36,.34],hand:[.50,.30],radius:.13,gain:1.25}};
+ if(/(?:^|\/)zhoucang\.(?:png|webp)$/.test(src))return {id:'zhoucang-sword',grip:'blade',pivot:[.255,.385],elbow:[.265,.49],hand:[.32,.59],tip:[.94,.75],head:[.535,.245],radius:.19};
+ if(/\/(?:infantry|infantry-r[12])\.webp$/.test(src))return {id:'common-sword-shield',grip:'blade',pivot:[.57,.395],elbow:[.665,.485],hand:[.685,.54],tip:[.89,.705],radius:.18};
+ if(/\/(?:spear|spear-r[12])\.webp$/.test(src))return {id:'common-two-hand-pole',grip:'pole',pivot:[.56,.365],elbow:[.615,.48],hand:[.67,.52],tip:[.80,.045],radius:.19,second:{pivot:[.53,.34],elbow:[.665,.395],hand:[.70,.425],radius:.13,gain:.45}};
+ if(/\/(?:cavalry|cavalry-r[12])\.webp$/.test(src))return {id:'common-mounted-pole',grip:'pole',pivot:[.47,.285],elbow:[.47,.355],hand:[.48,.435],tip:[.91,.055],radius:.18};
+ if(/(?:archer|huangzhong|\/later-yanyan\.)/.test(src))return {id:'painted-bow',grip:'bow'};
+ if(/(?:crossbow|\/later-zhangyi\.)/.test(src))return {id:'painted-crossbow',grip:'crossbow'};
+ if(/(?:strategist|zhugeliang|pangtong|jianyong|sunqian|mizhu|maliang|fazheng)/.test(src))return {id:'painted-gesture',grip:'gesture'};
+ return null;
+};
+
+/** Inspect actual source art, never infer a horse or a weapon from battle rules. */
+export function combatSpriteRigProfile(art,record=null){
+ if(!art?.src||!['foot','mounted','class-portrait'].includes(art.kind)||/(?:x_carriage|supply_cart)/.test(art.src))return null;
+ const src=record?.src??art.src,body=footBodyMetrics(src),kind=art.kind;
+ const top=body?.bodyTop??(kind==='class-portrait'?.08:.16),bottom=body?.bodyBottom??.97,span=bottom-top;
+ const authored=paintedAnchors(src)??{},mounted=kind==='mounted',portrait=kind==='class-portrait';
+ const pivot=authored.pivot??[.54,top+span*(mounted?.19:portrait?.46:.32)];
+ const elbow=authored.elbow??[.655,top+span*(mounted?.29:portrait?.66:.47)];
+ const hand=authored.hand??[.70,top+span*(mounted?.35:portrait?.79:.54)];
+ const grip=portrait?'gesture':authored.grip??(mounted?'pole':'blade');
+ const tip=authored.tip??(grip==='pole'?[.91,top+span*.02]:grip==='blade'?[.91,top+span*.67]:[.80,hand[1]]);
+ const bone={pivot:[...pivot],points:[[...pivot],[...elbow],[...hand],...(authored.weaponPoints??(grip==='pole'||grip==='blade'?[tip]:[]))],radius:authored.radius??(mounted?.17:.19),gain:authored.gain??1};
+ const bones=[bone];
+ if(authored.second)bones.push({...authored.second,points:[authored.second.pivot,authored.second.elbow,authored.second.hand]});
+ else if(grip==='bow'||grip==='crossbow')bones.push({pivot:[.45,top+span*.33],points:[[.45,top+span*.33],[.40,top+span*.43],[.48,top+span*.48]],radius:.17,gain:-.55});
+ return {id:authored.id??(portrait?'portrait-gesture':mounted?'mounted-grip':'painted-arm'),src,kind,grip,facing:(record?.facing??art.facing)==='left'?'left':'right',top,bottom,head:authored.head??[.50,top+span*(mounted?.11:portrait?.23:.13)],headRadius:authored.headRadius??[portrait?.28:.145,span*(portrait?.27:.19)],bodyPin:[.50,top+span*(mounted?.72:.49)],bodyPinRadius:[mounted?.34:.075,span*(mounted?.22:.17)],fixedBelow:mounted?top+span*.49:bottom-span*.12,bones};
+}
+
+/** One shared vertex field bends the painted forearm and its existing weapon. */
+export function combatSpriteRigDeform(profile,progress,{recover=false,motion='blade'}={}){
+ const p=clamp(Number.isFinite(progress)?progress:0,0,1),strength=recover?1-smooth(p):1;
+ const amount=recover?1:p,wind=amount<.52?-Math.sin(amount/.52*Math.PI/2):mix(-1,1,smooth((amount-.52)/.48));
+ const grip=profile?.grip;
+ const angle=(grip==='pole'?(amount<.52?.055*wind:mix(-.055,.15,smooth((amount-.52)/.48))):grip==='blade'?.14*wind:grip==='gesture'?-.055*Math.sin(amount*Math.PI*.75):.035*wind)*strength;
+ const dx=(grip==='pole'?.037*wind:grip==='crossbow'?-.025*Math.sin(amount*Math.PI):grip==='bow'?-.033*Math.sin(amount*Math.PI):motion==='cast'?.018*Math.sin(amount*Math.PI*.75):.006*wind)*strength;
+ const dy=(grip==='gesture'?-.036*Math.sin(amount*Math.PI*.75):grip==='bow'?-.008*Math.sin(amount*Math.PI):0)*strength;
+ // Ready and completed recovery are exact copies, including their source feet.
+ if(!profile||(!recover&&p===0)||(recover&&p===1))return (u,v)=>point(u,v);
+ return (u,v)=>{
+  const x=profile.facing==='left'?1-u:u,y=v;if(y>=profile.fixedBelow)return point(u,v);
+  const head=Math.hypot((x-profile.head[0])/profile.headRadius[0],(y-profile.head[1])/profile.headRadius[1]);
+  const core=Math.hypot((x-profile.bodyPin[0])/profile.bodyPinRadius[0],(y-profile.bodyPin[1])/profile.bodyPinRadius[1]);
+  const protection=smooth((head-.72)/.44)*smooth((core-.60)/.65)*smooth((profile.fixedBelow-y)/.09);
+  if(protection===0)return point(u,v);
+  let weight=0,ox=0,oy=0;
+  for(const bone of profile.bones){
+   let nearest={distance:Infinity,t:0,index:0};for(let i=1;i<bone.points.length;i++){const d=distance(point(x,y),bone.points[i-1],bone.points[i]);if(d.distance<nearest.distance)nearest={...d,index:i};}
+   const w=smooth(1-nearest.distance/bone.radius)*(nearest.index===1?smooth(nearest.t):1)*protection;
+   if(!w)continue;
+   const a=angle*bone.gain,c=Math.cos(a),s=Math.sin(a),px=x-bone.pivot[0],py=y-bone.pivot[1];
+   ox+=(px*c-py*s-px+dx*bone.gain)*w;oy+=(px*s+py*c-py+dy*Math.abs(bone.gain))*w;weight+=w;
+  }
+  const divisor=Math.max(1,weight),nextX=x+ox/divisor,nextY=y+oy/divisor;
+  return point(profile.facing==='left'?1-nextX:nextX,nextY);
+ };
+}
+
+/** The existing exchange clock calls contact/recover; no combat waits are added. */
+export function createCombatSpriteRig({parent,img,art,record,motion,body,duration=300,speed=1,isCurrent=()=>true,reduced=false}={}){
+ const profile=combatSpriteRigProfile(art,record);if(!profile||reduced)return null;
+ const expected=[profile.src,imageSource(profile.src)].map(src=>new URL(src,import.meta.url).href);
+ const mesh=createSpriteMesh(parent,img,{className:'combat-attack-mesh',columns:16,rows:16,padding:.20,expectedSources:expected,sourceBaseURL:import.meta.url});
+ if(!mesh)return null;
+ const win=parent.ownerDocument?.defaultView??globalThis,now=()=>win.performance?.now?.()??performance.now();
+ const raf=win.requestAnimationFrame?.bind(win)??globalThis.requestAnimationFrame?.bind(globalThis),cancel=win.cancelAnimationFrame?.bind(win)??globalThis.cancelAnimationFrame?.bind(globalThis);
+ let frame=null,closed=false,phase='approach',started=now(),period=Math.max(1,duration*speed);
+ const paint=p=>{const value=mesh.paint(combatSpriteRigDeform(profile,p,{recover:phase==='recover',motion:motion?.motion}));if(!value){stop();return false;}mesh.element.dataset.attackRigProfile=profile.id;mesh.element.dataset.attackRigPhase=phase;mesh.element.dataset.attackRigProgress=p.toFixed(4);return true;};
+ const tick=()=>{frame=null;if(closed)return;if(!isCurrent()){stop();return;}const p=Math.min(1,(now()-started)/period);if(!paint(p))return;if(p<1&&raf)frame=raf(tick);};
+ const stop=()=>{if(closed)return;closed=true;if(frame!==null)cancel?.(frame);frame=null;mesh.stop();body?.classList.remove('has-combat-sprite-rig');};
+ const begin=(next,ms)=>{if(closed)return;if(frame!==null)cancel?.(frame);frame=null;phase=next;started=now();period=Math.max(1,ms*speed);if(paint(0)&&raf)frame=raf(tick);};
+ body?.classList.add('has-combat-sprite-rig');if(!paint(0)){stop();return null;}if(raf)frame=raf(tick);
+ return {profile,mesh,contact(){if(closed)return;if(frame!==null)cancel?.(frame);frame=null;phase='contact';paint(1);},recover(ms){begin('recover',ms);},stop};
+}

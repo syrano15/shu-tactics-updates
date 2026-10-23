@@ -1,0 +1,32 @@
+// A named officer keeps one painted identity across promotion/class choices.
+// These are existing officers and approved portraits, not new gameplay branches.
+const records=[
+ ['machao','마초','mounted'],['fazheng','법정','foot'],['yanyan','엄안','foot'],
+ ['huangquan','황권','foot'],['wangping','왕평','foot'],['liyan','이엄','foot'],
+ ['wuban','오반','mounted'],['wuyi','오의','foot'],['zhangyi','장익','foot'],
+ ['zhanghe','장합','mounted'],['xiahouyuan','하후연','mounted'],['zhangren','장임','foot'],
+ ['guanxing','관흥','mounted'],['zhangbao','장포','foot'],['fengxi','풍습','mounted'],
+ ['fudong','부동','foot'],['dengzhi','등지','foot'],['zhangni','장의','foot'],
+ ['mazhong','마충','foot'],['jiangwei','강유','foot'],['gaoxiang','고상','foot'],
+];
+export const LATER_GENERAL_ART=Object.freeze(Object.fromEntries(records.map(([id,name,kind])=>[id,Object.freeze({identity:id,name,src:'art/units-v0728/later-'+id+'.webp',kind,facing:'right',palette:'original',...(kind==='mounted'?{mapScale:.84}:{})})])));
+// The original bow/crossbow identities remain available to old battles and
+// deliberate class choices. Only the two newly assigned weapon classes use these.
+const reassignedWeaponArt={yanyan:{cls:'crossbow',src:'art/units-v07420/yanyan-crossbow.webp'},zhangyi:{cls:'archer',src:'art/units-v07420/zhangyi-archer.webp'}};
+const enemyIdentities=[
+ ['machao',['cavalry'],['yuan']],['zhanghe',['cavalry'],['wei','cao']],
+ ['xiahouyuan',['cavalry'],['wei','cao']],['zhangren',['archer','spear'],['shu']],
+ ['jiangwei',['spear'],['wei','cao']],
+];
+const classes=new Set(['infantry','spear','cavalry','archer','crossbow','strategist']);
+export function laterIdentityArt(unit){
+ if(!unit||unit.generic||unit.nonCombat||!classes.has(unit.cls))return null;
+ if(unit.team==='ally'){
+  const id=unit.extra?unit.guestHeroId:unit.id,record=Object.hasOwn(LATER_GENERAL_ART,id)?LATER_GENERAL_ART[id]:null;
+  const replacement=reassignedWeaponArt[id];
+  return record&&record.name===unit.name?{...record,...(replacement?.cls===unit.cls?{src:replacement.src}: {})}:null;
+ }
+ if(unit.team!=='enemy'||!['officer','boss'].includes(unit.combatTier))return null;
+ const entry=enemyIdentities.find(([id,allowedClasses,factions])=>LATER_GENERAL_ART[id].name===unit.name&&allowedClasses.includes(unit.cls)&&factions.includes(unit.faction));
+ return entry?{...LATER_GENERAL_ART[entry[0]]}:null;
+}
