@@ -1,0 +1,325 @@
+import {survivorRewardStatus} from './survivor-reward.js';
+import {regularRewards,regularMeritAllies,meritRetreatedIds} from './regular-rewards.js';
+import {huarongChaseActive} from './huarong-chase.js';
+import {CHAPTERS} from './campaign.js';
+import {mapLayoutStateScenario} from './map-layout-v07415.js';
+import {guanyuWithdrawalStatus} from './act2-relief-save.js';
+import {escortFollowStatus} from './escort-follow.js';
+import {act2EnemyWaveLimitBrief} from './act2-enemy-wave-limit.js';
+// Read-only battlefield information and presentation; game rules remain in their modules.
+import {equipmentDropSummary} from './equipment-drop-presentation.js';
+import {validateObjective,validateDefeat,objectiveUnits} from './objectives.js';
+import {ACT1_MERITS,ACT2_MERITS,ACT3_MERITS,meritStatus,survivalBonusStatus} from './battle-rewards.js';
+import {PARTS} from './equipment.js';
+import {playSfx,prepareSfx} from './sfx.js';
+import {MAX_LEVEL} from './growth-rules.js';
+
+const pendingEnemyCount=state=>(state.reinforcements?.pending??[]).reduce((n,w)=>n+w.units.filter(u=>u.team==='enemy').length,0);
+const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tile=([x,y])=>String.fromCharCode(65+x)+(y+1);
+const unit=(state,id)=>objectiveUnits(state).find(v=>v.id===id);
+const ratio=(state,id)=>{const u=unit(state,id);return u&&u.maxHp>0?u.hp/u.maxHp:0;};
+const percent=value=>Math.floor(Math.max(0,Math.min(1,value))*100+1e-9)+'%';
+const death=(state,id)=>state.battleRecords?.defeats?.find(d=>d.targetId===id);
+const scenarioFor=state=>mapLayoutStateScenario(state.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state.chapter],state);
+const occupationLabel=goal=>/성문/.test(goal.label??'')?'성문':/요새/.test(goal.label??'')?'요새':/진지/.test(goal.label??'')?'진지':/출구/.test(goal.label??'')?'출구':'거점';
+// Presentation copies only: saved objectives and victory rules keep their original data.
+export const battleObjectiveDisplay=(chapter,goal=chapter?.objective)=>chapter?.id==='s17_jingnan'&&goal?.type==='occupyTiles'?{...goal,label:(goal.label??'형남의 두 거점').replace(/성문/g,'거점')}:goal;
+const reachPresentation=goal=>/승선/.test(goal.label??'')?{purpose:'승선 목표',action:'승선'}:/집결/.test(goal.label??'')?{purpose:'집결 목표',action:'집결'}:/성문|창고/.test(goal.label??'')?{purpose:'진입 목표',action:'진입'}:{purpose:'탈출 목표',action:'탈출'};
+export function battleBriefText(chapter,state=null){
+ let brief=chapter?.brief??chapter?.intermissionHint??chapter?.subtitle;
+ if(typeof brief!=='string')return brief;
+ const sameBattle=state&&(state.chapterId??CHAPTERS[state.chapter]?.id)===chapter.id,goal=sameBattle?state.objective:chapter.objective;
+ if(chapter.id==='s17_jingnan'&&goal?.type==='occupyTiles'&&goal.tiles?.length===2)brief=brief.replace(/\bK3\b/g,tile(goal.tiles[0])).replace(/\bK8\b/g,tile(goal.tiles[1])).replace(/성문/g,'거점');
+ if(chapter.id==='s20_adou_river'&&goal?.type==='reachTile'&&goal.tiles?.length)brief=brief.replace(/\bJ5(?= 승선로)/g,tile(goal.tiles[0]));
+ return brief;
+}
+
+export function battleGoalGuidance(state){
+ const goal=battleObjectiveDisplay(scenarioFor(state),validateObjective(state.objective,objectiveUnits(state),state.terrain)),alive=state.units.filter(u=>u.team==='enemy'&&u.hp>0).length;
+ const result={type:goal.type,headline:'',detail:'',checks:[],tiles:[],waiting:false,turnLabel:'아군 턴 종료',turnDetail:'적군 행동 시작'};
+ if(huarongChaseActive(state)){
+  const escaped=state.huarongChase.escapes.length,killed=state.units.filter(u=>u.team==='enemy'&&u.hp===0&&!u.escaped).length;
+  result.headline='화용도 · 패잔병 추격';result.detail='남은 적 '+alive+'부대 · 격파 '+killed+'부대 · 탈출 '+escaped+'부대';
+  result.note='적은 선공하지 않고 동쪽 퇴로로 도주합니다. 탈출 전에 격파한 적만 경험치·전리품을 줍니다.';
+  result.tiles=state.huarongChase.exits.map(([x,y])=>({x,y,coordinate:tile([x,y]),label:'적 퇴로',ready:true,at:false,aria:'적 퇴로 '+tile([x,y])+' · 적이 도착하면 탈출하여 전리품 없음'}));
+ }else if(goal.type==='defendTiles'){
+  const complete=state.completedRounds??0,remaining=Math.max(0,goal.rounds-complete);
+  result.headline=(goal.label??'막사')+' · '+goal.rounds+'라운드 적 턴까지 방어';result.detail='적 턴 완료 '+complete+'/'+goal.rounds+' · 적이 금색 막사 칸에 들어오면 패배';result.note='일곱 등불을 지키세요. 제갈량은 M11 기도 자리에서 이동하지 않으며, 적 전멸도 방어 시간을 줄이지 않습니다.';
+  result.waiting=!state.result&&alive===0&&remaining>0;if(result.waiting){result.turnLabel='대기 · 다음 턴';result.turnDetail='남은 적 턴 '+remaining+'회';}
+  result.tiles=goal.tiles.map(([x,y])=>({x,y,coordinate:tile([x,y]),label:'등불 막사',ready:true,at:!state.units.some(u=>u.team==='enemy'&&u.hp>0&&u.x===x&&u.y===y),aria:'칠성등 막사 '+tile([x,y])+' · 적 진입 금지'}));
+ }else if(goal.type==='escortUnits'){
+  const escorts=goal.unitIds.map(id=>unit(state,id));
+  result.headline=(goal.label??'퇴로')+' · '+escorts.map(u=>u.name).join('와 ')+' 모두 탈출';result.detail='각 부대를 직접 움직여 '+goal.tiles.map(tile).join('/')+'에 배치하고 같은 아군 턴에 행동을 확정하세요.';result.note='수레도 직접 선택해 이동·대기해야 합니다. 수레가 남아 있으면 조운의 행동을 마쳐도 승리하지 않습니다.';
+  result.checks=escorts.map(u=>({met:u.hp>0&&u.done&&goal.tiles.some(([x,y])=>u.x===x&&u.y===y),text:u.name+' 퇴로 도달·행동 확정'}));
+  result.tiles=goal.tiles.map(([x,y])=>({x,y,coordinate:tile([x,y]),label:'수동 호위 퇴로',ready:true,at:escorts.some(u=>u.hp>0&&u.x===x&&u.y===y),aria:'호위 퇴로 '+tile([x,y])+' · 조운과 수레 각각 도착 후 행동 확정'}));
+ }else if(goal.type==='surviveRounds'){
+  const complete=state.completedRounds??0,remaining=Math.max(0,goal.rounds-complete);
+  result.remaining=remaining;result.headline=goal.alsoWinOnDefeatAll?goal.rounds+'라운드 방어 또는 예정 증원까지 전멸':'지정 퇴각 칸 없음 · '+goal.rounds+'라운드 적 턴 종료까지 생존';
+  result.detail='현재 '+state.round+'라운드 · 적 턴 완료 '+complete+'/'+goal.rounds+' · 남은 적 턴 '+remaining+'회';
+  result.waiting=!state.result&&alive===0&&!goal.alsoWinOnDefeatAll&&remaining>0;
+  if(goal.alsoWinOnDefeatAll)result.detail+=' · 남은 적 '+alive+'부대'+(pendingEnemyCount(state)?' · 예정 증원 '+pendingEnemyCount(state)+'부대':'');
+  result.note=goal.alsoWinOnDefeatAll?'예정 증원까지 모두 격파하면 즉시 승리합니다. 빈 전장에서 턴을 넘길 필요가 없습니다.':result.waiting?'적을 모두 쓰러뜨려도 생존 시간을 채워야 합니다. ‘대기 · 다음 턴’으로 진행하세요.':'지정된 아군을 지키며 적 턴 종료까지 버티세요.';
+  if(result.waiting){result.turnLabel='대기 · 다음 턴';result.turnDetail='남은 적 턴 '+remaining+'회';}
+ }else if(goal.type==='defeatUnit'&&goal.requiredDefeated?.length&&CHAPTERS[state.chapter]?.act===7){
+  const guards=goal.requiredDefeated.map(id=>unit(state,id));result.headline='장안 성문을 열고 사마의 제압';result.detail='서문장과 동문장을 모두 격파한 뒤 사마의를 제압하세요.';result.note='사마의는 성문 장수들이 살아 있는 동안 성루를 지킵니다.';result.checks=[...guards,unit(state,goal.targetId)].map(u=>({met:u.hp<=0,text:u.name+' 제압'}));
+ }else if(goal.type==='defeatUnit'&&goal.requiredDefeated?.length){
+  const targets=[goal.targetId,...goal.requiredDefeated].map(id=>unit(state,id)),first=targets[0],next=targets.find(u=>u.hp>0);
+  result.headline=first.hp>0?'백마의 일격 · 안량 격파':'연진의 추격 · 문추 격파';result.detail='안량 이후 며칠 뒤의 연진 전투로 이어집니다.';result.note='연진의 강변에서 문추가 관우의 길을 막습니다. 문추를 격파해 추격을 물리치십시오.';result.checks=targets.map(u=>({met:u.hp<=0,text:u.name+' 격파'+(!state.units.some(v=>v.id===u.id)?' · 후속 등장':'' )}));
+ }else if(goal.type==='reachTile'){
+  const hero=unit(state,goal.unit),roundReady=state.round>=(goal.notBeforeRound??1),remaining=(goal.requiredDefeated??[]).filter(id=>unit(state,id).hp>0),ready=roundReady&&!remaining.length,at=goal.tiles.some(([x,y])=>hero.x===x&&hero.y===y);
+  result.headline=hero.name+' · '+(goal.label??'출구')+' '+goal.tiles.map(tile).join('/')+'로 이동';
+  result.detail='금색 목표 칸에 도달한 뒤 ‘대기’로 행동을 확정하세요.';
+  result.note=at?(ready?'목표 도달 · '+(hero.done?'행동 확정 완료':'이 부대를 선택해 ‘대기’를 누르세요.'):'목표 도달 · 아래 승리 조건을 먼저 충족하세요.'):'다른 장수의 도착이나 적 전멸만으로는 승리하지 않습니다.';
+  if(goal.notBeforeRound)result.checks.push({met:roundReady,text:goal.notBeforeRound+'라운드부터 '+reachPresentation(goal).action+' · 현재 '+state.round+'라운드'});
+  for(const id of goal.requiredDefeated??[])result.checks.push({met:unit(state,id).hp<=0,text:unit(state,id).name+' 격파'});
+  result.checks.push({met:at,text:hero.name+' 목표 칸 도달'},{met:at&&hero.done,text:'도달 후 대기·공격으로 행동 확정'});
+  result.tiles=goal.tiles.map(([x,y])=>({x,y,coordinate:tile([x,y]),label:goal.label??'출구',ready,at:hero.x===x&&hero.y===y,aria:(goal.label??'출구')+' · '+tile([x,y])+' ('+(x+1)+'열 '+(y+1)+'행) · '+hero.name+' 도달 후 대기로 행동 확정'+(!ready?' · 승리 조건 대기':' · '+reachPresentation(goal).action+' 가능')}));
+ }else if(goal.type==='occupyTiles'){
+  const guards=(goal.requiredDefeated??[]).map(id=>unit(state,id)),ready=guards.every(u=>u.hp<=0),place=occupationLabel(goal);
+  result.headline=(goal.label??'모든 목표')+' · '+goal.tiles.map(tile).join('/')+' 동시 점령';result.detail='각 목표 칸에 서로 다른 정규 장수를 배치한 뒤 같은 아군 턴에 행동을 확정하세요.';result.note='임시 협력부대의 점령이나 적 전멸만으로는 승리하지 않습니다.';
+  result.checks=guards.map(u=>({met:u.hp<=0,text:u.name+' 격파'}));
+  result.tiles=goal.tiles.map(([x,y])=>{const u=state.units.find(v=>v.team==='ally'&&!v.extra&&v.hp>0&&v.x===x&&v.y===y);result.checks.push({met:!!u?.done,text:tile([x,y])+' '+(u?u.name+(u.done?' 행동 확정':' · 대기 필요'):'점령 대기')});return{x,y,coordinate:tile([x,y]),label:place,ready,at:!!u,aria:place+' '+tile([x,y])+' · 모든 목표에 서로 다른 정규 장수를 배치하고 같은 아군 턴에 행동 확정'+(guards.length?' · '+guards.map(u=>u.name).join('·')+' 격파 필요':'')};});
+ }
+ const scenario=scenarioFor(state);
+ if(state.mapLayoutVersion===2&&scenario?.id==='s24_luofengpo')result.note=[result.note,scenario.brief].filter(Boolean).join(' ');
+ const waveLimitBrief=act2EnemyWaveLimitBrief(state,scenario);
+ if(waveLimitBrief||state.act3ReinforcementVictoryPending===true||state.reinforcementPolicy?.victoryPending===true){
+  result.note=waveLimitBrief||'3막 대기 적 증원을 정리했습니다.';
+  if(state.act2EnemyWaveVictoryPending===true||state.act3ReinforcementVictoryPending===true||state.reinforcementPolicy?.victoryPending===true){result.headline='승리 조건 달성 · 정산 대기';result.detail='대기 적 증원 취소 · 다음 아군 행동이나 턴 종료로 승리 확정';result.waiting=false;result.turnLabel='승리 정산';result.turnDetail='턴 진행 없이 승리 확정';}
+  else if(goal.type==='defeatUnit'){result.headline='백마의 일격 · 안량 격파';result.detail='문추의 대기 증원은 취소되었습니다.';result.checks=[{met:unit(state,goal.targetId).hp<=0,text:unit(state,goal.targetId).name+' 격파'}];}
+ }
+ const escort=escortFollowStatus(state);
+ if(escort){result.detail=escort.goalText;result.note='관문장 세 명을 격파하고 수레가 마지막 관문에서 대기하면 승리합니다. 남은 잡병을 모두 쓰러뜨릴 필요는 없습니다.';}
+ if(scenario?.act===4){
+  for(const goal of scenario.act4Objectives??[])for(const [x,y] of goal.tiles){
+   if(result.tiles.some(t=>t.x===x&&t.y===y))continue;
+   const at=state.units.some(u=>u.team==='ally'&&!u.extra&&u.hp>0&&u.x===x&&u.y===y);
+   result.tiles.push({x,y,coordinate:tile([x,y]),label:goal.label,ready:true,at,act4Goal:true,aria:goal.label+' · '+tile([x,y])+' · 도달 후 행동 확정으로 기여 경험치 20'});
+  }
+  for(const [x,y] of scenario.act4OptionalObjective?.tiles??[]){
+   result.tiles.push({x,y,coordinate:tile([x,y]),label:'추가 보급',ready:true,at:!!state.act4OptionalObjectiveAchieved,act4Goal:true,optional:true,aria:scenario.act4OptionalObjective.label+' · '+tile([x,y])+' · 선택 점령 후 승리하면 추가 자금 3,000'});
+  }
+ }
+ if(scenario?.act===5){
+  for(const goal of scenario.act5Objectives??[])for(const [x,y] of goal.tiles){
+   if(result.tiles.some(t=>t.x===x&&t.y===y))continue;
+   const at=state.units.some(u=>u.team==='ally'&&!u.extra&&u.hp>0&&u.x===x&&u.y===y);
+   result.tiles.push({x,y,coordinate:tile([x,y]),label:goal.label,ready:true,at,act5Goal:true,aria:goal.label+' · '+tile([x,y])+' · 도달 후 행동 확정으로 기여 경험치 20'});
+  }
+  for(const [x,y] of scenario.act5OptionalObjective?.tiles??[]){
+   result.tiles.push({x,y,coordinate:tile([x,y]),label:'추가 보급',ready:true,at:!!state.act5OptionalObjectiveAchieved,act5Goal:true,optional:true,aria:scenario.act5OptionalObjective.label+' · '+tile([x,y])+' · 선택 점령 후 승리하면 추가 자금 3,000'});
+  }
+ }
+ if(scenario?.act===7){
+  for(const goal of scenario.act7Objectives??[])for(const[x,y]of goal.tiles){if(result.tiles.some(t=>t.x===x&&t.y===y))continue;result.tiles.push({x,y,coordinate:tile([x,y]),label:goal.label,ready:true,at:state.units.some(u=>u.team==='ally'&&!u.extra&&u.hp>0&&u.x===x&&u.y===y),act7Goal:true,aria:goal.label+' · '+tile([x,y])+' · 도달 후 행동 확정으로 기여 경험치 20'});}
+  for(const[x,y]of scenario.act7OptionalObjective?.tiles??[])result.tiles.push({x,y,coordinate:tile([x,y]),label:'추가 보급',ready:true,at:!!state.act7OptionalObjectiveAchieved,act7Goal:true,optional:true,aria:scenario.act7OptionalObjective.label+' · '+tile([x,y])+' · 선택 점령 후 승리하면 추가 자금 3,000'});
+  result.note=[result.note,scenario.brief].filter(Boolean).join(' ');
+ }
+ if(scenario?.act===6){
+  for(const goal of scenario.act6Objectives??[])for(const [x,y] of goal.tiles){
+   if(result.tiles.some(t=>t.x===x&&t.y===y))continue;
+   const at=state.units.some(u=>u.team==='ally'&&!u.extra&&u.hp>0&&u.x===x&&u.y===y);
+   result.tiles.push({x,y,coordinate:tile([x,y]),label:goal.label,ready:true,at,act6Goal:true,aria:goal.label+' · '+tile([x,y])+' · 도달 후 행동 확정으로 기여 경험치 20'});
+  }
+  for(const [x,y] of scenario.act6OptionalObjective?.tiles??[]){
+   result.tiles.push({x,y,coordinate:tile([x,y]),label:'추가 보급',ready:true,at:!!state.act6OptionalObjectiveAchieved,act6Goal:true,optional:true,aria:scenario.act6OptionalObjective.label+' · '+tile([x,y])+' · 선택 점령 후 승리하면 추가 자금 3,000'});
+  }
+ }
+ if(scenario?.act===6){
+  const tactics=scenario.act6Tactics??{};
+  if(tactics.sleep){const unit=state.units.find(u=>u.id===tactics.sleep.unit);result.note=[result.note,unit?.act6Sleeping?'장비는 잠들어 있습니다. 2턴 기상까지 막사를 지키십시오.':'장비가 깨어났습니다.'].filter(Boolean).join(' ');}
+  if(tactics.retreat)result.note=[result.note,'맹획은 병력이 절반 이하가 되면 숲길로 한 번 재배치합니다.'].filter(Boolean).join(' ');
+  if(tactics.escapes){
+   const southern=scenario.id==='s45_rattan',label=southern?'북쪽 어귀':'동쪽 협곡',from=tactics.escapes.fromRound;
+   result.note=[result.note,from+'턴부터 '+(southern?'북쪽 어귀로 빠져나온 등갑군은 살려 보냅니다.':'오군 선발대가 동쪽 협곡으로 철수합니다.')+' 탈출자는 격파·경험치·전리품에 포함하지 않습니다.'].filter(Boolean).join(' ');
+   for(const [x,y] of tactics.escapes.tiles??[])result.tiles.push({x,y,coordinate:tile([x,y]),label,ready:state.round>=from,at:false,aria:label+' '+tile([x,y])+' · '+from+'턴부터 지정된 적이 도착하면 탈출 · 경험치와 전리품 없음'});
+  }
+ }
+ for(const marker of result.tiles){
+  const enemyExit=huarongChaseActive(state)||(scenario?.act6Tactics?.escapes?.tiles??[]).some(([x,y])=>x===marker.x&&y===marker.y);
+  marker.purpose=marker.optional?'추가 보급 목표':marker.act4Goal||marker.act5Goal||marker.act6Goal||marker.act7Goal?'성장 목표':enemyExit?'적 퇴로':goal.type==='defendTiles'?'방어 목표':goal.type==='reachTile'?reachPresentation(goal).purpose:goal.type==='escortUnits'?'탈출 목표':'승리 목표';
+ }
+ return result;
+}
+
+/** Text only: a map tap never visits a goal, grants EXP or claims supplies. */
+export function battleGoalTileInfo(state,x,y,{unitId=null}={}){
+ if(!Array.isArray(state?.units)||!Array.isArray(state.terrain))return null;
+ const guide=battleGoalGuidance(state),marker=guide.tiles.find(t=>t.x===x&&t.y===y);if(!marker)return null;
+ const scenario=scenarioFor(state),act=scenario?.act,milestone=scenario?.['act'+act+'Objectives']?.find(g=>g.tiles.some(([gx,gy])=>gx===x&&gy===y)),lines=[];
+ const selected=state.units.find(u=>u.id===unitId),growth=state['act'+act+'Growth'],record=growth?.record;
+ let selectedStatus=null;
+ if(marker.optional){
+  lines.push('승리의 필수 조건이 아닌 추가 보급 목표입니다.');
+  if(state['act'+act+'GrowthVersion']!==1||!record||state.replayChapterId){selectedStatus='inactive';lines.push('이번 전투에서는 이 보급소를 확보하거나 추가 자금을 받을 수 없습니다. 이전 규칙 전투와 완료 전투 재도전에는 새 보급 보상이 지급되지 않습니다.');}
+  else{lines.push('정규 장수가 도달한 뒤 행동을 확정하면 보급소를 확보합니다.','확보한 뒤 첫 승리를 정산하면 추가 자금 3,000을 한 번 받습니다. 재도전으로 중복 지급되지 않습니다.');lines.push(state['act'+act+'OptionalObjectiveAchieved']?'보급소 확보 완료 · 승리 정산 대기':'아직 확보하지 않았습니다. 이동 미리보기나 이동 취소로는 확보되지 않습니다.');}
+ }else if(marker.purpose==='성장 목표'){
+  lines.push('승리의 필수 조건이 아닌 성장 거점입니다.','정규 장수마다 이 거점에 도달한 뒤 행동을 확정하면 기본 기여 경험치 20을 한 번 받습니다. 한 전장 기본 합계는 최대 40입니다.');
+ }else{
+  lines.push(marker.aria,guide.detail);
+  if(guide.checks.length)lines.push(guide.checks.map(check=>(check.met?'완료: ':'필요: ')+check.text).join(' · '));
+ }
+ if(milestone){
+  if(marker.purpose!=='성장 목표')lines.push('이 칸은 성장 거점도 겸합니다. 정규 장수마다 행동 확정 시 기본 기여 경험치 20을 한 번 받습니다.');
+  if(state['act'+act+'GrowthVersion']!==1||!record||state.replayChapterId){selectedStatus='inactive';lines.push('이번 전투에는 거점 기여 경험치가 지급되지 않습니다.');}
+  else if(record.sealed){selectedStatus='sealed';lines.push('이 전장의 성장 정산은 끝났습니다.');}
+  else if(selected){
+   const regular=selected.team==='ally'&&!selected.extra&&!selected.generic&&!selected.nonCombat&&selected.hp>0&&!selected.withdrawn&&!selected.escaped;
+   if(!regular){selectedStatus='ineligible';lines.push('선택한 부대는 거점 기여 경험치를 받지 않습니다. 정규 장수를 선택하세요.');}
+   else if(Object.hasOwn(record.objectiveKeys??{},selected.id+'|'+milestone.key)){selectedStatus='claimed';lines.push(selected.name+' · 이 거점의 기여 경험치를 이미 받았습니다.');}
+   else if(selected.level>=MAX_LEVEL){selectedStatus='max-level';lines.push(selected.name+' · 최대 레벨에 도달하여 경험치가 늘지 않습니다.');}
+   else if((record.objectiveSpent?.[selected.id]??0)>=40){selectedStatus='capped';lines.push(selected.name+' · 이 전장의 거점 기여 기본 경험치 한도 40에 도달했습니다.');}
+   else{selectedStatus='available';const base=Math.min(20,40-(record.objectiveSpent?.[selected.id]??0));lines.push(selected.name+' · 도달 후 행동 확정 시 기본 기여 경험치 '+base+' 획득 가능');if(!record.completed&&record.assistedIds?.includes(selected.id)&&selected.startLevel<growth.referenceLevel-1)lines.push('성장 지원 보정이 별도로 적용됩니다.');}
+  }else lines.push('정규 장수를 선택하면 이 장수의 획득 여부를 확인할 수 있습니다. 성장 지원 보정은 별도입니다.');
+ }
+ return {x,y,coordinate:marker.coordinate,label:marker.label,purpose:marker.purpose,lines:[...new Set(lines.filter(Boolean))],selectedUnitId:selected?.id??null,selectedStatus};
+}
+
+function victorySummary(state){
+ const goal=battleObjectiveDisplay(scenarioFor(state),validateObjective(state.objective,objectiveUnits(state),state.terrain));
+ const alive=state.units.filter(v=>v.team==='enemy'&&v.hp>0).length;
+ const defeat=validateDefeat(state.defeat,state.units).map(v=>unit(state,v.unit).name+' 퇴각');
+ let condition,progress;
+ if(huarongChaseActive(state)){condition='후위대 추격 완료';progress='남은 적 '+alive+'부대 · 격파 '+state.units.filter(u=>u.team==='enemy'&&u.hp===0&&!u.escaped).length+'부대 · 탈출 '+state.huarongChase.escapes.length+'부대';}
+ else if(goal.type==='defeatAll'){condition='적 전멸';progress='남은 적 '+alive+'부대';}
+ else if(goal.type==='defeatUnit'){
+  const targets=[goal.targetId,...(goal.requiredDefeated??[])].map(id=>unit(state,id));condition=targets.map(u=>u.name).join(' · ')+' 격파';progress=targets.map(u=>u.name+' '+(u.hp<=0?'격파 완료':state.units.some(v=>v.id===u.id)?'병력 '+percent(u.hp/u.maxHp):'후속 등장 대기')).join(' · ');
+ }else if(goal.type==='defendTiles'){
+  condition=(goal.label??'막사')+' '+goal.rounds+'라운드 방어 · 적 진입 금지';progress='완료 '+(state.completedRounds??0)+'/'+goal.rounds+'라운드';
+ }else if(goal.type==='escortUnits'){
+  condition=goal.unitIds.map(id=>unit(state,id).name).join(' · ')+' 모두 퇴로 도달 후 행동 확정';progress=goal.unitIds.map(id=>{const u=unit(state,id),at=goal.tiles.some(([x,y])=>u.x===x&&u.y===y);return u.name+' '+(at&&u.done?'행동 확정':at?'도착 · 대기 필요':'이동 중');}).join(' · ');
+ }else if(goal.type==='surviveRounds'){
+  condition=goal.rounds+'라운드 적 턴까지 생존'+(goal.alsoWinOnDefeatAll?' 또는 적 전멸':'');
+  progress='완료 '+(state.completedRounds??0)+'/'+goal.rounds+'라운드 · 남은 적 '+alive+'부대'+(goal.alsoWinOnDefeatAll&&pendingEnemyCount(state)?' · 예정 증원 '+pendingEnemyCount(state)+'부대':'');
+ }else if(goal.type==='occupyTiles'){
+  condition=(goal.label??'모든 목표')+' '+goal.tiles.map(tile).join('/')+' 동시 점령 · 행동 확정';const count=goal.tiles.filter(([x,y])=>state.units.some(u=>u.team==='ally'&&!u.extra&&u.hp>0&&u.done&&u.x===x&&u.y===y)).length;progress='점령 '+count+'/'+goal.tiles.length+' · 필수 격파 잔여 '+(goal.requiredDefeated??[]).filter(id=>unit(state,id).hp>0).length;
+ }else{
+  const target=unit(state,goal.unit),at=goal.tiles.some(([x,y])=>target.x===x&&target.y===y);
+  condition=target.name+' '+(goal.label?goal.label+' ':'')+goal.tiles.map(tile).join('/')+' 도달 후 행동 확정'+(goal.notBeforeRound?' · '+goal.notBeforeRound+'라운드 이후':'')+(goal.requiredDefeated?.length?' · 필수 적 격파':'');
+  progress=(at?(target.done?'도달·행동 확정':'도달 · 대기/공격으로 행동 확정 필요'):'현재 '+tile([target.x,target.y]))+(goal.notBeforeRound&&state.round<goal.notBeforeRound?' · 필요 '+goal.notBeforeRound+'라운드':'')+(goal.requiredDefeated?.length?' · 필수 격파 잔여 '+goal.requiredDefeated.filter(id=>(unit(state,id)?.hp??0)>0).length:'');
+ }
+ return {condition,progress,defeat:[...defeat,'아군 전멸'].join(' / '),status:state.result??'ongoing'};
+}
+
+function meritProgress(state,scenario){
+ const remaining=state.units.filter(v=>v.team==='enemy'&&v.hp>0).length;
+ switch(scenario.id){
+  case 's01_zhuoxian':{
+   const ids=['liubei','guanyu','zhangfei'];
+   return {met:ids.every(id=>ratio(state,id)>=.5),impossible:ids.some(id=>!unit(state,id)||unit(state,id).hp<=0),progress:ids.map(id=>(unit(state,id)?.name??id)+' '+percent(ratio(state,id))).join(' · ')};
+  }
+  case 's02_yellow_camp':{
+   const defeated=!!death(state,'e_boss');
+   return {met:state.round<=4&&defeated,impossible:state.round>4,progress:state.round+'/4라운드 · 두목 '+(defeated?'격파 완료':'생존')};
+  }
+  case 's03_hulao':{
+   const killer=death(state,'e_boss'),boss=unit(state,'e_boss');
+   return {met:killer?.actorId==='guanyu',impossible:!!killer&&killer.actorId!=='guanyu'||!killer&&((boss?.hp??0)<=0||(unit(state,'guanyu')?.hp??0)<=0),progress:killer?'화웅 격파자: '+(unit(state,killer.actorId)?.name??killer.actorId):'관우의 마지막 일격 대기'};
+  }
+  case 's04_beihai':return {met:ratio(state,'x_kongrong')>=.7,impossible:(unit(state,'x_kongrong')?.hp??0)<=0,progress:'공융 병력 '+percent(ratio(state,'x_kongrong'))+' / 필요 70%'};
+  case 's05_xuzhou_relief':{
+   const complete=state.completedRounds??0,allDefeated=state.units.filter(v=>v.team==='enemy').every(v=>v.hp===0&&!v.escaped&&!v.withdrawn);
+   return {met:complete<6&&allDefeated,impossible:complete>=6||state.units.some(v=>v.team==='enemy'&&(v.escaped||v.withdrawn)),progress:'남은 적 '+remaining+'부대 · 생존 완료 '+complete+'/6라운드'};
+  }
+  case 's06_xuzhou_fall':{
+   const hero=unit(state,'liubei'),tiles=scenario.objective?.tiles??state.objective?.tiles??[[0,3],[0,4]],at=hero&&tiles.some(([x,y])=>hero.x===x&&hero.y===y);
+   const retreats=Math.max(meritRetreatedIds(state).length,regularMeritAllies(state).filter(v=>v.hp<=0).length);
+   return {met:!!hero&&hero.hp>0&&hero.done&&at&&retreats===0,impossible:retreats>0,progress:(regularRewards(state)?'정규 아군 퇴각 ':'아군 퇴각 ')+retreats+' · '+(at?(hero.done?'서문 행동 확정':'서문 도달 · 행동 확정 필요'):'유비 서문 도달 대기')};
+  }
+  case 's09_baima':{
+   const killer=death(state,'e_boss'),within=state.campaignEventsVersion===1?killer?.round<=5:state.round<=5;
+   return {met:killer?.actorId==='guanyu'&&within,impossible:!!killer&&(killer.actorId!=='guanyu'||!within)||!killer&&state.round>5,progress:killer?'안량 격파: '+killer.round+'라운드 · 격파자 '+(unit(state,killer.actorId)?.name??killer.actorId):state.round+'/5라운드 · 관우의 마지막 일격 대기'};
+  }
+  case 's12_xinye':{
+   const complete=state.completedRounds??0,safe=['liubei','zhugeliang'].every(id=>ratio(state,id)>=.5),allDefeated=state.objective.alsoWinOnDefeatAll&&remaining===0&&pendingEnemyCount(state)===0;
+   return {met:safe&&(complete>=6||allDefeated),impossible:['liubei','zhugeliang'].some(id=>ratio(state,id)===0),progress:'유비 '+percent(ratio(state,'liubei'))+' · 제갈량 '+percent(ratio(state,'zhugeliang'))+' · 방어 '+complete+'/6라운드 · 남은 적 '+remaining+'부대'+(pendingEnemyCount(state)?' · 예정 증원 '+pendingEnemyCount(state)+'부대':'')};
+  }
+  default:{if(scenario?.act===3){const retreat=regularMeritAllies(state,{excludeExtras:true}).filter(u=>u.hp<=0).length;return {met:meritStatus({...state,result:'victory'},scenario)?.achieved??false,impossible:false,progress:state.round+'라운드 · 정규 아군 퇴각 '+retreat+'명 · 보호 대상의 현재 병력으로 판정'};}return {met:false,impossible:false,progress:''};}
+ }
+}
+
+function survivalBonusView(state,scenario,army){
+ const bonus=survivalBonusStatus(state,scenario);if(!bonus)return null;
+ const settled=!!army?.rewardReceipts?.[scenario.id],status=state.result==='victory'?(bonus.achieved?'achieved':'missed'):state.result==='defeat'?'missed':bonus.eligible?'ready':'impossible';
+ return {...bonus,status,statusText:{ready:'현재 충족 · 승리 시 지급',impossible:(regularRewards(state)?'정규 장수 퇴각 · 달성 불가':'아군 퇴각 · 달성 불가'),achieved:'달성',missed:'미달성'}[status],settled,reward:bonus.gold.toLocaleString('ko-KR')+' 자금',progress:(regularRewards(state)?'정규 출전 장수 ':'참전 아군 ')+bonus.participantIds.length+'명 · 퇴각 '+bonus.retreatedIds.length+'명',settlementText:settled?'이 전투 보상은 이미 정산됨 · 재지급 없음':''};
+}
+
+function survivorRewardView(state,scenario,army){
+ const reward=survivorRewardStatus(state,scenario);if(!reward)return null;
+ const settled=!!army?.rewardReceipts?.[scenario.id],status=state.result==='defeat'?'missed':state.result==='victory'?'achieved':'ready';
+ return {...reward,status,settled,statusText:state.result==='defeat'?'패배 · 지급 없음':state.result==='victory'?'정산':'승리 시 지급',settlementText:settled?'이미 정산한 전투 · 재지급 없음':''};
+}
+
+export function battleConditionSummary(state,scenario,{army=null}={}){
+ const survivorReward=survivorRewardView(state,scenario,army),survivalBonus=survivalBonusView(state,scenario,army),victory=victorySummary(state),spec=ACT1_MERITS[scenario?.id]??ACT2_MERITS[scenario?.id]??ACT3_MERITS[scenario?.id];
+ if(!spec)return {victory,merit:null,survivalBonus,survivorReward};
+ const live=meritProgress(state,scenario),settled=!!army?.rewardReceipts?.[scenario.id],award=meritStatus(state,scenario)??spec;
+ let status=live.impossible?'impossible':live.met?'ready':'ongoing';
+ if(state.result==='victory')status=meritStatus(state,scenario).achieved?'achieved':'missed';
+ else if(state.result==='defeat')status='missed';
+ const labels={ready:'현재 충족 · 승리 시 확정',ongoing:'진행 중',impossible:'이번 전투 달성 불가',achieved:'달성',missed:'미달성'};
+ const rewards=['공적 +1',...(award.gold?[award.gold.toLocaleString('ko-KR')+' 자금']:[]),...spec.items.map(id=>PARTS[id].name),...(scenario.id==='s12_xinye'&&state.campaignEventsVersion===1&&state.result===null?['완전 소탕 시 추가 자금 2,000']:[])];
+ return {victory,survivalBonus,survivorReward,merit:{id:spec.id,condition:scenario.id==='s12_xinye'&&!state.objective.alsoWinOnDefeatAll?'6라운드 방어, 유비·제갈량 병력 50% 이상 유지':award.condition,progress:live.progress,status,statusText:scenario?.act===2&&state.result===null?'전투 종료 시 판정':labels[status],reward:rewards.join(' · '),settled,settlementText:settled?'이 전투 보상은 이미 정산됨 · 재지급 없음':''}};
+}
+
+export function renderBattleConditions(host,state,scenario,options={}){
+ if(!host)return null;
+ const summary=battleConditionSummary(state,scenario,options);
+ let panel=host.querySelector('.battle-conditions');
+ if(!panel){panel=document.createElement('section');panel.className='battle-conditions';panel.setAttribute('aria-label','승리와 공적 조건');host.append(panel);}
+ const {victory,merit,survivalBonus,survivorReward}=summary,drops=equipmentDropSummary(state,scenario,options),guide=battleGoalGuidance(state);
+ const withdrawal=guanyuWithdrawalStatus(state,scenario);
+ const withdrawalHTML=withdrawal?`<p class="battle-unit-event ${withdrawal.scheduled?'is-scheduled':'is-complete'}" role="status">${escape(withdrawal.text)}</p>`:'';
+ const checksHTML=guide.checks.length?`<ul class="goal-checks">${guide.checks.map(check=>`<li class="${check.met?'is-met':'is-needed'}">${check.met?'✓':'○'} ${escape(check.text)}</li>`).join('')}</ul>`:'';
+ const guideHTML=guide.headline?`<details class="battle-objective-details"><summary>목표 규칙</summary><p>${escape(guide.detail)}</p><p>${escape(guide.note)}</p></details>`:'';
+ const html=`<div class="battle-goal"><strong>승리</strong><span>${escape(victory.condition)}</span><small>${escape(victory.progress)}</small>${checksHTML}</div><div class="battle-defeat"><strong>패배</strong><span>${escape(victory.defeat)}</span></div>`;
+ const meritHTML=merit?`<div class="battle-merit merit-${escape(merit.status)}"><strong>공적 <em>${escape(merit.statusText)}</em></strong><span>${escape(merit.condition)}</span><small>${escape(merit.progress)}</small><small class="merit-reward">${escape(merit.settled?merit.settlementText:'보상: '+merit.reward)}</small></div>`:'';
+ const bonusHTML=survivalBonus?`<div class="battle-survival merit-${escape(survivalBonus.status)}"><strong>${escape(survivalBonus.name)} <em>${escape(survivalBonus.statusText)}</em></strong><span>${escape(survivalBonus.condition)}</span><small>${escape(survivalBonus.progress)} · ${escape(survivalBonus.settled?survivalBonus.settlementText:'보너스: '+survivalBonus.reward)}</small></div>`:'';
+ const survivorHTML=survivorReward?`<div class="battle-survival battle-survivor-reward merit-${escape(survivorReward.status)}"><strong>생존 부대 보상 <em>${escape(survivorReward.statusText)}</em></strong><span>생존 ${survivorReward.survivorIds.length} / ${survivorReward.participantIds.length}${regularRewards(state)?'명':'부대'} · ${escape(survivorReward.condition)}</span><small>${escape(survivorReward.settled?survivorReward.settlementText:state.result==='defeat'?'패배 시 보상 없음':'현재 '+survivorReward.gold.toLocaleString('ko-KR')+'골 · 일부 퇴각해도 생존 부대 보상 유지')}</small></div>`:'';
+ const dropsHTML=drops.length?'<div class="battle-equipment-drops"><strong>조건 장비</strong><ul>'+drops.map(drop=>'<li class="drop-'+escape(drop.status)+'"><span>'+escape(drop.condition)+'</span><small>'+escape(drop.statusText)+'</small></li>').join('')+'</ul><small>'+escape(guide.type==='reachTile'?'탈출 전 선택 격파는 추가 보상이며 승리 목표를 바꾸지 않습니다.':'표기한 장수의 마지막 일격으로 조건을 달성하면 승리 후 장비를 얻습니다.')+'</small></div>':'';
+ const act4HTML=scenario?.act===4?'<div class="battle-survival"><strong>4막 군수 지원</strong><span>첫 승리 군수금 20,000골 · 기본 승리금 3,000골 별도</span><small>'+escape(scenario.act4OptionalObjective.label)+' '+scenario.act4OptionalObjective.tiles.map(tile).join('/')+' · '+(state.act4OptionalObjectiveAchieved?'확보 완료':'도달 후 행동 확정')+' · 승리 시 추가 3,000골</small><small>성장 거점 · '+scenario.act4Objectives.map(g=>escape(g.label)+' '+g.tiles.map(tile).join('/')).join(' / ')+' · 개인 기여 경험치 최대 40</small></div>':'';
+ const act5HTML=scenario?.act===5?'<div class="battle-survival"><strong>5막 군수 지원</strong><span>첫 승리 군수금 20,000골 · 기본 승리금 3,000골 별도</span><small>'+escape(scenario.act5OptionalObjective.label)+' '+scenario.act5OptionalObjective.tiles.map(tile).join('/')+' · '+(state.act5OptionalObjectiveAchieved?'확보 완료':'도달 후 행동 확정')+' · 승리 시 추가 3,000골</small><small>성장 거점 · '+scenario.act5Objectives.map(g=>escape(g.label)+' '+g.tiles.map(tile).join('/')).join(' / ')+' · 개인 기여 경험치 최대 40</small></div>':'';
+ const act6HTML=scenario?.act===6?'<div class="battle-survival"><strong>6막 군수 지원</strong><span>첫 승리 군수금 20,000골 · 기본 승리금 3,000골 별도</span><small>'+escape(scenario.act6OptionalObjective.label)+' '+scenario.act6OptionalObjective.tiles.map(tile).join('/')+' · '+(state.act6OptionalObjectiveAchieved?'확보 완료':'도달 후 행동 확정')+' · 승리 시 추가 3,000골</small><small>성장 거점 · '+scenario.act6Objectives.map(g=>escape(g.label)+' '+g.tiles.map(tile).join('/')).join(' / ')+' · 개인 기여 경험치 최대 40</small></div>':'';
+ const rewards=meritHTML+survivorHTML+bonusHTML+act4HTML+act5HTML+act6HTML+dropsHTML;
+ const content=html+withdrawalHTML+guideHTML+(rewards?'<details class="battle-rewards"><summary>보상 조건</summary>'+rewards+'</details>':'');
+ panel.battleDetailsHTML=content;
+ const visible=options.compact?`<div class="battle-goal"><strong>승리</strong><span>${escape(victory.condition)}</span><button type="button" class="quiet" data-battle-details>상세</button></div><p class="battle-goal-progress">${escape(guide.waiting?guide.note:victory.progress)}</p>`+withdrawalHTML:content;
+ panel.className=options.compact?'battle-conditions battle-conditions-compact':'battle-conditions';
+ if(panel.innerHTML!==visible)panel.innerHTML=visible;
+ return summary;
+}
+
+const seenTurns=new WeakMap(),activeTransitions=new WeakMap();
+const turnKey=state=>`${state.round}:${state.phase}`;
+export function clearTurnTransition(banner){
+ if(!banner)return;
+ const active=activeTransitions.get(banner);
+ if(active){clearTimeout(active.timer);active.resolve(false);activeTransitions.delete(banner);}
+ banner.hidden=true;banner.classList.remove('turn-transition','turn-enemy','turn-ally');
+}
+
+// Restored games synchronize silently; newly deployed games call show directly.
+export function syncTurnTransition(banner,state){
+ clearTurnTransition(banner);if(state&&typeof state==='object')seenTurns.set(state,turnKey(state));
+}
+
+export function showTurnTransition(banner,state,scenario,{fast=false,reducedMotion=false}={}){
+ if(!banner||!state||state.result||!['ally','enemy'].includes(state.phase)||state.storyEvents?.pending?.length)return Promise.resolve(false);
+ const current=turnKey(state);if(seenTurns.get(state)===current)return Promise.resolve(false);
+ clearTurnTransition(banner);seenTurns.set(state,current);
+ banner.classList.add('turn-transition',state.phase==='enemy'?'turn-enemy':'turn-ally');
+ banner.classList.toggle('turn-reduced-motion',!!reducedMotion);
+ banner.setAttribute('role','status');banner.setAttribute('aria-live','polite');
+ prepareSfx(['attackHit','criticalHit','arrowLaunch','fireCast','heal','levelUp','victory']);
+ void playSfx(state.phase==='enemy'?'turnEnemy':'turnAlly');
+ banner.textContent=(state.phase==='enemy'?armyLabel(null,scenario):'아군')+' 턴 · '+state.round+'라운드';banner.hidden=false;
+ return new Promise(resolve=>{
+  const active={resolve,timer:null};activeTransitions.set(banner,active);
+  active.timer=setTimeout(()=>{
+   if(activeTransitions.get(banner)!==active)return;
+   banner.hidden=true;banner.classList.remove('turn-transition','turn-enemy','turn-ally');activeTransitions.delete(banner);resolve(true);
+  },fast?900:1200);
+ });
+}
+import {armyLabel} from './army-presentation.js';

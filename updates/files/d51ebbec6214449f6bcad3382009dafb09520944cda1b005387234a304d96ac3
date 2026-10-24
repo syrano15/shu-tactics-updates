@@ -1,0 +1,94 @@
+import {percentage as pct} from './percentage.js';
+import {huarongChaseBrief} from './huarong-chase.js';
+import {HERO_DATA} from './heroes.js';
+import {guestHeroIdentity} from './guest-allies.js';
+import {portraitAsset} from './story-assets.js';
+import {spiritSlots,SPIRITS,spRecoveryStatus} from './spirits.js';
+import {PROMOTION_LEVELS} from './promotion.js';
+import {growthProgressHTML,growthMilestonesHTML} from './growth-ui.js';
+import {escortFollowStatus} from './escort-follow.js';
+import {act2EnemyWaveLimitBrief} from './act2-enemy-wave-limit.js';
+import {HERO_MASTERY_PASSIVES} from './hero-mastery.js';
+import {legendarySkillFor,LEGENDARY_LEVEL} from './legendary-skills.js';
+import {battleBriefText} from './battle-chrome.js';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const count=v=>Math.round(v??0).toLocaleString('ko-KR');
+
+export const tierLabel=u=>({troop:'일반병',elite:'정예',officer:'적장',boss:'S급 적장'})[u?.combatTier]??'';
+export function act2BriefHTML(chapter,{next=false,state=null}={}){
+ if(chapter?.act!==2&&chapter?.combatProfile!=='act2')return '';
+ return `<aside class="act2-brief"><span class="eyebrow gold">${next?'NEXT BATTLE / 다음 전장':'TACTICS / 전장 읽기'}</span><b>${esc(chapter.title)}</b><p>${esc(act2EnemyWaveLimitBrief(state,chapter)??huarongChaseBrief(state)??battleBriefText(chapter,state)??'상성을 맞춰 돌파하고, 적장의 반격은 예측창에서 확인하세요.')}</p></aside>`;
+}
+const briefContent=new WeakMap();
+export function renderAct2Brief(host,chapter,state=null){
+ if(!host)return null;
+ const current=host.querySelector('.act2-brief'),html=act2BriefHTML(chapter,{state});
+ if(!html){current?.remove();return null;}
+ if(current&&briefContent.get(current)===html)return current;
+ const box=document.createElement('div');box.innerHTML=html;const next=box.firstElementChild;
+ next.dataset.chapterId=chapter.id;
+ if(current)current.replaceWith(next);else host.append(next);
+ briefContent.set(next,html);return next;
+}
+export function renderEscortFollowUI(host,state){
+ if(!host)return;
+ const model=escortFollowStatus(state),current=host.querySelector('.escort-follow-panel');
+ if(!model){current?.remove();return;}
+ const html=`<strong>천리행 · 수레 직접 조작</strong><p>${esc(model.goalText)}</p><p class="escort-state">${esc(model.statusText)}</p>`;
+ const panel=current??document.createElement('section');
+ panel.className='escort-follow-panel';panel.setAttribute('aria-label','수레 직접 조작');
+ if(panel.innerHTML!==html)panel.innerHTML=html;
+ if(!current)host.append(panel);
+}
+export function growthGoalsHTML(unit,army,chapter){
+ const focus=spRecoveryStatus(unit),act2=chapter?.act===2||chapter?.combatProfile==='act2';
+ const next=spiritSlots(unit,{combatProfile:chapter?.combatProfile}).find(slot=>slot.level>unit.level);
+ return `<section class="act2-growth-goals"><h4>${esc(unit.name)}의 성장 목표</h4>${growthProgressHTML(unit)}${growthMilestonesHTML(unit)}<div class="growth-goal-badges"><span class="sp-growth-skill ${focus.learned?'learned':'locked'}">${esc(focus.name)} · ${esc(focus.description)}</span>${next?`<span>Lv${next.level} · ${esc(SPIRITS[next.id].name)} 해금</span>`:''}<span>${HERO_DATA[unit.id]?.guest?'군단 게스트 · 경험치 성장 가능 · 정비 제한':(army?.heroes?.[unit.id]?.promotion??unit.promotion??0)<2?'Lv'+PROMOTION_LEVELS[(army?.heroes?.[unit.id]?.promotion??unit.promotion??0)+1]+' · '+((army?.heroes?.[unit.id]?.promotion??unit.promotion??0)===0?'강화':'정예')+' 승급':'최종 승급 완료'}</span></div><p>증편은 생존력을 높입니다. 공격형 장수는 무기, 지원형 장수는 SP 운용과 지력에 투자하세요. ${act2?'Lv15부터 병과 전문화를 선택할 수 있습니다. ':''}장수 레벨과 부대 강화는 별도입니다. 무기·병력·방어를 모두 15강으로 올리면 장수 고유 특성이 활성화됩니다.</p></section>`;
+}
+export function unitGrowthPerksHTML(unit,state,{detail=false}={}){
+ const mastery=HERO_MASTERY_PASSIVES[guestHeroIdentity(unit)??unit.id],active=!!mastery&&unit.masteryPassive===mastery.id,rows=[];
+ if(active)rows.push(`<span title="${esc(mastery.description)}">풀강 · ${esc(mastery.name)}${detail?' · '+esc(mastery.description):''}</span>`);
+ for(const effect of unit.legendaryEffects??[]){const skill=legendarySkillFor(effect.skillId);if(skill&&effect.untilRound>state.round)rows.push(`<span title="${esc(skill.description)}">${esc(skill.name)} · ${effect.untilRound-1}턴까지${detail?' · '+esc(skill.description):''}</span>`);}
+ return rows.length?`<div class="spirit-badges growth-perk-badges">${rows.join('')}</div>`:'';
+}
+export function skillPreviewHTML(meta,p,target,{unitName=unit=>unit?.name??''}={}){
+ const rows=p.results??p.exchanges??[];
+ const nameOf=(unit,fallback=target)=>(unit?unitName(unit):'')||(fallback?unitName(fallback):'')||'';
+ let body=`<b>${esc(meta.name)}${target?' · '+esc(nameOf(target)):''}</b><p>${esc(meta.description??'')}</p>`;
+ for(const row of rows){
+  const r=row.result??row,who=row.target??r.target,name=nameOf(who??(row.name!==undefined?row:target));
+  if(r.skipped){body+=`<p>${esc(name)} · ${esc(r.reason)}</p>`;continue;}
+  if((r.amount??r.heal??0)>0)body+=`<p>${esc(name)} · 복귀 병력 <strong>+${count(r.amount??r.heal)}</strong>${(r.after??r.targetHp)!==undefined?' → '+count(r.after??r.targetHp):''}</p>`;
+  else if(r.kind==='support')body+=`<p>${esc(name)} · 지원</p>`;
+  else if(r.hit!==undefined)body+=`<p>${esc(name)} · 명중 ${pct(r.chance)} · 피해 <strong>${count(r.hit)}</strong>${r.matchup!==undefined?' · 상성 '+pct(r.matchup):''}<br>${r.counter?'명중 후 반격 '+count(r.returnHit)+' · 명중 '+pct(r.counterChance):'명중 후 반격 없음'}${r.counterIfMiss&&r.chance<1?'<br>빗나갈 때 반격 '+count(r.returnHitIfMiss):''}</p>`;
+  if(r.spAmount>0)body+=`<p>${esc(name)} · SP <strong>+${count(r.spAmount)}</strong> → ${count(r.spAfter)}</p>`;
+  if(r.buff)body+=`<p>${esc(name)} · ${esc(r.buff)}</p>`;
+ }
+ for(const h of p.heals??[])body+=`<p>${esc(nameOf(h))} · 병력 ${count(h.before)} → <strong>${count(h.after)} (+${count(h.amount)})</strong></p>`;
+ for(const h of p.spHeals??[])body+=`<p>${esc(nameOf(h))} · SP ${count(h.before)} → <strong>${count(h.after)} (+${count(h.amount)})</strong></p>`;
+ for(const move of p.moves??[])body+=`<p>${esc(nameOf(move,null)||move.id)} · ${String.fromCharCode(65+move.from.x)}${move.from.y+1} → ${String.fromCharCode(65+move.to.x)}${move.to.y+1}</p>`;
+ if(!rows.length&&!(p.heals?.length)&&p.hit!==undefined)body+=`<p>명중 ${pct(p.chance)} · 피해 <strong>${count(p.hit)}</strong><br>${p.counter?'명중 후 반격 '+count(p.returnHit):'명중 후 반격 없음'}</p>`;
+ if(p.buffs?.length)body+=`<p>추가 효과 · ${p.buffs.map(v=>esc(nameOf(v,null)||v.id)+(v.detail?' '+esc(v.detail):'')).join(' · ')}</p>`;
+ if(p.bossCounterWarning||rows.some(row=>(row.result??row).bossCounterWarning))body+='<p class="boss-counter-warning">위험 · S급 적장은 강한 반격을 합니다. 기습·상성·생존 병력을 확인하세요.</p>';
+ body+=`<p class="skill-cost">${meta.legendary?`Lv${meta.level??meta.gate.level??LEGENDARY_LEVEL} 고유 필살기 · 전투당 1회 · 사기 ${meta.gate.morale} 이상 · 사기 −${meta.cost.morale} · SP ${meta.cost.sp} · 사용 후 2턴 휴식`:meta.gate?`사기 조건 ${meta.gate.morale} · 사기 −${meta.cost.morale} · ${meta.gate.cooldown-1}턴 휴식 후 재사용`:`${meta.kind==='support'?'보급':'책략'} · SP ${meta.cost.sp}`} · ${meta.afterMoveAllowed===false?'이동 전 사용':'이동 후 사용 가능'} · 행동 종료</p>`;
+ if(p.assumption||p.note||rows.length>1&&meta.kind!=='support')body+=`<p class="skill-assumption">${esc(p.assumption??p.note??'연속 명중·반격 명중 가정. 판정과 피격에 따라 후속 위력이 달라집니다.')}</p>`;
+ if(p.reason)body+=`<p class="skill-reason">${esc(p.reason)}</p>`;
+ return `<div class="prediction skill-prediction">${body}</div>`;
+}
+let cutin=null;
+export function clearSkillCutin(){if(cutin){clearTimeout(cutin.timer);cutin.node.remove();cutin.resolve();cutin=null;}}
+export function playSkillCutin(unit,skill,scenario,{fast=false,enabled=true,isCurrent=()=>true}={}){
+ clearSkillCutin();if(!enabled||!isCurrent()||typeof document==='undefined')return Promise.resolve();
+ const asset=portraitAsset(skill.owner??unit.id,'normal',scenario.id),node=document.createElement('aside');node.className='special-cutin';node.setAttribute('role','status');node.setAttribute('aria-live','polite');
+ node.innerHTML=`<div class="special-cutin-portrait">${asset?`<img src="${esc(asset.url)}" alt="${esc(unit.name)}">`:`<span>${esc(unit.name?.slice(0,1)??'군')}</span>`}</div><div><small>${esc(unit.name)} · 필살기</small><strong>${esc(skill.name)}</strong><p>${esc(skill.line??({guanyu:'이 일격으로 길을 열겠다!',zhangfei:'길을 비켜라!',liubei:'모두의 힘을 모으자!',zhaoyun:'백성을 지키는 창이다!',zhugeliang:'승부는 이미 준비되었습니다.',jianyong:'보급은 내가 맡겠소.'})[skill.owner??unit.id]??'지금이다!')}</p></div>`;
+ node.querySelector('img')?.addEventListener('error',e=>e.target.remove(),{once:true});document.body.append(node);
+ return new Promise(resolve=>{const record={node,resolve,timer:null};cutin=record;record.timer=setTimeout(()=>{if(cutin===record)clearSkillCutin();},fast||matchMedia('(prefers-reduced-motion: reduce)').matches?180:900);});
+}
+export function showSupportResults(host,heals,label='보급'){
+ if(!host||!heals?.length)return;
+ const frame=host.getBoundingClientRect();
+ for(const h of heals){if(!(h.amount>0))continue;const token=host.querySelector(`[data-unit-id="${h.id}"]`);if(!token)continue;const rect=token.getBoundingClientRect(),mark=document.createElement('span');mark.className='battle-result-mark is-support';mark.textContent=`${label} +${count(h.amount)}`;mark.style.left=(rect.left-frame.left+rect.width/2)+'px';mark.style.top=(rect.top-frame.top-12)+'px';mark.setAttribute('aria-hidden','true');host.append(mark);
+  let pulse=null;if(!token.classList?.contains('enemy-token')){pulse=document.createElement('span');pulse.className='support-recovery-pulse';pulse.setAttribute('aria-hidden','true');for(let index=0;index<3;index++){const mote=document.createElement('i');mote.style.setProperty('--support-mote-index',String(index));pulse.append(mote);}token.append(pulse);}
+  setTimeout(()=>{mark.remove();pulse?.remove();},1800);
+ }
+}
