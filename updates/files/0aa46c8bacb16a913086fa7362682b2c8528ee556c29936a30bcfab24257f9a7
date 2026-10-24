@@ -1,0 +1,1919 @@
+// Versioned repaint: original metadata, logical geometry and old layouts remain unchanged.
+import {MAP_ART_V07421} from './map-art-v07421-data.js';
+import {earlyMapArtV07423For} from './map-art-v07423-early.js';
+const replacements=Object.freeze({
+  "s25_luocheng": {
+    "src": "art/maps/v07423/s25_luocheng.svgpack",
+    "bytes": 6238,
+    "sha256": "a088b04a0d739e5ff6027a48acf819203e1908c6424e5cda041f50f3a4811831",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6238,
+    "sourceSha256": "a088b04a0d739e5ff6027a48acf819203e1908c6424e5cda041f50f3a4811831",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-spring.webp",
+        "mime": "image/webp",
+        "bytes": 131820,
+        "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s26_machao": {
+    "src": "art/maps/v07423/s26_machao.svgpack",
+    "bytes": 5675,
+    "sha256": "2772529c8bd6aed621b0f7ad10d6dd187dd2af5d9a93193c2d747187723c9892",
+    "svgEncoding": "gzip",
+    "sourceBytes": 5675,
+    "sourceSha256": "2772529c8bd6aed621b0f7ad10d6dd187dd2af5d9a93193c2d747187723c9892",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s27_chengdu": {
+    "src": "art/maps/v07423/s27_chengdu.svgpack",
+    "bytes": 6017,
+    "sha256": "cda8286f4521751f9e6b33e18a7a28f51726b24cc43042abae69d6254643833a",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6017,
+    "sourceSha256": "cda8286f4521751f9e6b33e18a7a28f51726b24cc43042abae69d6254643833a",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-spring.webp",
+        "mime": "image/webp",
+        "bytes": 131820,
+        "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s28_dangqu": {
+    "src": "art/maps/v07423/s28_dangqu.svgpack",
+    "bytes": 5310,
+    "sha256": "5e2352541ddcdf04c38eac530498ef846fcd44422c392ac3cf091eb88d28a390",
+    "svgEncoding": "gzip",
+    "sourceBytes": 5310,
+    "sourceSha256": "5e2352541ddcdf04c38eac530498ef846fcd44422c392ac3cf091eb88d28a390",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s29_dingjun": {
+    "src": "art/maps/v07423/s29_dingjun.svgpack",
+    "bytes": 4866,
+    "sha256": "7c5df884e35eecb1b8da2650b0bc69847f912bebfcf579c3626cca021956c461",
+    "svgEncoding": "gzip",
+    "sourceBytes": 4866,
+    "sourceSha256": "7c5df884e35eecb1b8da2650b0bc69847f912bebfcf579c3626cca021956c461",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s30_hanshui": {
+    "src": "art/maps/v07423/s30_hanshui.svgpack",
+    "bytes": 8482,
+    "sha256": "168dc08d7f4a28b5a5d7adb9dcd5dc82d9aae0fb99b810cc415a81136158ee4e",
+    "svgEncoding": "gzip",
+    "sourceBytes": 8482,
+    "sourceSha256": "168dc08d7f4a28b5a5d7adb9dcd5dc82d9aae0fb99b810cc415a81136158ee4e",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      },
+      {
+        "src": "art/visual-v0746/ground-camp.webp",
+        "mime": "image/webp",
+        "bytes": 119108,
+        "sha256": "d1a10d63a4850cd8ed65dc202a3a63f2c804f81871fac021ec35c78e1523e4a8"
+      },
+      {
+        "src": "art/map-decor-v0742/cargo.webp",
+        "mime": "image/webp",
+        "bytes": 17568,
+        "sha256": "89a632b9d0efccbe28b7b5b9ce9125762bf4de99108fe8117d84451aa0fa712d"
+      },
+      {
+        "src": "art/visual-v0746/camp-supplies.webp",
+        "mime": "image/webp",
+        "bytes": 88210,
+        "sha256": "5f8ea2946516084b2f953c2ccd4f17f55e99578bb12292b1109f1523b7a7be0d"
+      },
+      {
+        "src": "art/map-props/v07423/tent-small.webp",
+        "mime": "image/webp",
+        "bytes": 70148,
+        "sha256": "41198c4acb0c1a2202d4095a226e83788e4e54c52d4462a253ea954984fd8433"
+      },
+      {
+        "src": "art/map-props/v07423/tent-command.webp",
+        "mime": "image/webp",
+        "bytes": 95998,
+        "sha256": "60ba5b57a9c1cc6ae0b3740b36dea4c5b1c3ff15c56b68bc2c73d33c9fd0bdd7"
+      },
+      {
+        "src": "art/map-props/v07423/camp-gate-open.webp",
+        "mime": "image/webp",
+        "bytes": 79650,
+        "sha256": "9f39ec2fdd80146227b0287ab1bbeb7dc96a50fbc534b53621645b5313b3d8e5"
+      },
+      {
+        "src": "art/map-props/v07423/palisade.webp",
+        "mime": "image/webp",
+        "bytes": 81150,
+        "sha256": "15ff3c1eab5b9ba79c6587713848d99ba71630cecad88689adc9021bf85655fc"
+      },
+      {
+        "src": "art/map-props/v07423/supplies.webp",
+        "mime": "image/webp",
+        "bytes": 77204,
+        "sha256": "ac18d7fe68e73d4d86389b08b0455c148f98aa5fbfeed0f09c9095963a1827ef"
+      },
+      {
+        "src": "art/map-props/v07423/banner-rack.webp",
+        "mime": "image/webp",
+        "bytes": 63886,
+        "sha256": "6b90c819c7d46e0d9d5ec7ba36ec213135996f95ce86e022d0cad9c0707fc2e4"
+      }
+    ]
+  },
+  "s31_hanzhong": {
+    "src": "art/maps/v07423/s31_hanzhong.svgpack",
+    "bytes": 7595,
+    "sha256": "70efb8e09b0ae10677f666ccc9983721516c43e43a671d5ffb0b61bb6b0ea82e",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7595,
+    "sourceSha256": "70efb8e09b0ae10677f666ccc9983721516c43e43a671d5ffb0b61bb6b0ea82e",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s32_fancheng": {
+    "src": "art/maps/v07423/s32_fancheng.svgpack",
+    "bytes": 5604,
+    "sha256": "8488cf016b50588191a8c86584216c758353eddc77d97b5ea5b20ff9e4a531f0",
+    "svgEncoding": "gzip",
+    "sourceBytes": 5604,
+    "sourceSha256": "8488cf016b50588191a8c86584216c758353eddc77d97b5ea5b20ff9e4a531f0",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-spring.webp",
+        "mime": "image/webp",
+        "bytes": 131820,
+        "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s33_flood": {
+    "src": "art/maps/v07423/s33_flood.svgpack",
+    "bytes": 5738,
+    "sha256": "bf25dee628781922e90e619133fa3ae58b259d492e5cde23ad44ca6011da6008",
+    "svgEncoding": "gzip",
+    "sourceBytes": 5738,
+    "sourceSha256": "bf25dee628781922e90e619133fa3ae58b259d492e5cde23ad44ca6011da6008",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s34_xuhuang": {
+    "src": "art/maps/v07423/s34_xuhuang.svgpack",
+    "bytes": 7252,
+    "sha256": "af12a19b69804648f8d59ce1ea0ab6ab922eca6afedeaf3da2ae76372ee9577f",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7252,
+    "sourceSha256": "af12a19b69804648f8d59ce1ea0ab6ab922eca6afedeaf3da2ae76372ee9577f",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-camp.webp",
+        "mime": "image/webp",
+        "bytes": 119108,
+        "sha256": "d1a10d63a4850cd8ed65dc202a3a63f2c804f81871fac021ec35c78e1523e4a8"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s35_white_robes": {
+    "src": "art/maps/v07423/s35_white_robes.svgpack",
+    "bytes": 8714,
+    "sha256": "01a9520d9a9e7fbacfa0349c5df6dc4bced4afc23a5cc79c2f72e4b5c9532150",
+    "svgEncoding": "gzip",
+    "sourceBytes": 8714,
+    "sourceSha256": "01a9520d9a9e7fbacfa0349c5df6dc4bced4afc23a5cc79c2f72e4b5c9532150",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s36_maicheng": {
+    "src": "art/maps/v07423/s36_maicheng.svgpack",
+    "bytes": 5334,
+    "sha256": "e52d10abbd4cc558294fd151c64ffb81e6683e107fc04cfee118d99d83ce2da0",
+    "svgEncoding": "gzip",
+    "sourceBytes": 5334,
+    "sourceSha256": "e52d10abbd4cc558294fd151c64ffb81e6683e107fc04cfee118d99d83ce2da0",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s37_jiangling_retake": {
+    "src": "art/maps/v07423/s37_jiangling_retake.svgpack",
+    "bytes": 5688,
+    "sha256": "8ac3f866cc25628adfc74715f5b2c41a6c03a1b1ce369d05d7357cf1e3657264",
+    "svgEncoding": "gzip",
+    "sourceBytes": 5688,
+    "sourceSha256": "8ac3f866cc25628adfc74715f5b2c41a6c03a1b1ce369d05d7357cf1e3657264",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-spring.webp",
+        "mime": "image/webp",
+        "bytes": 131820,
+        "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s38_langzhong": {
+    "src": "art/maps/v07423/s38_langzhong.svgpack",
+    "bytes": 7763,
+    "sha256": "040af93d5d7b7b99a5c8493720d25bf749c05ca3aba850b97c9cceeea95b4f4e",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7763,
+    "sourceSha256": "040af93d5d7b7b99a5c8493720d25bf749c05ca3aba850b97c9cceeea95b4f4e",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-camp.webp",
+        "mime": "image/webp",
+        "bytes": 119108,
+        "sha256": "d1a10d63a4850cd8ed65dc202a3a63f2c804f81871fac021ec35c78e1523e4a8"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      },
+      {
+        "src": "art/map-decor-v0742/cargo.webp",
+        "mime": "image/webp",
+        "bytes": 17568,
+        "sha256": "89a632b9d0efccbe28b7b5b9ce9125762bf4de99108fe8117d84451aa0fa712d"
+      },
+      {
+        "src": "art/visual-v0746/camp-supplies.webp",
+        "mime": "image/webp",
+        "bytes": 88210,
+        "sha256": "5f8ea2946516084b2f953c2ccd4f17f55e99578bb12292b1109f1523b7a7be0d"
+      },
+      {
+        "src": "art/map-props/v07423/tent-small.webp",
+        "mime": "image/webp",
+        "bytes": 70148,
+        "sha256": "41198c4acb0c1a2202d4095a226e83788e4e54c52d4462a253ea954984fd8433"
+      },
+      {
+        "src": "art/map-props/v07423/tent-command.webp",
+        "mime": "image/webp",
+        "bytes": 95998,
+        "sha256": "60ba5b57a9c1cc6ae0b3740b36dea4c5b1c3ff15c56b68bc2c73d33c9fd0bdd7"
+      },
+      {
+        "src": "art/map-props/v07423/camp-gate-open.webp",
+        "mime": "image/webp",
+        "bytes": 79650,
+        "sha256": "9f39ec2fdd80146227b0287ab1bbeb7dc96a50fbc534b53621645b5313b3d8e5"
+      },
+      {
+        "src": "art/map-props/v07423/palisade.webp",
+        "mime": "image/webp",
+        "bytes": 81150,
+        "sha256": "15ff3c1eab5b9ba79c6587713848d99ba71630cecad88689adc9021bf85655fc"
+      },
+      {
+        "src": "art/map-props/v07423/supplies.webp",
+        "mime": "image/webp",
+        "bytes": 77204,
+        "sha256": "ac18d7fe68e73d4d86389b08b0455c148f98aa5fbfeed0f09c9095963a1827ef"
+      },
+      {
+        "src": "art/map-props/v07423/banner-rack.webp",
+        "mime": "image/webp",
+        "bytes": 63886,
+        "sha256": "6b90c819c7d46e0d9d5ec7ba36ec213135996f95ce86e022d0cad9c0707fc2e4"
+      }
+    ]
+  },
+  "s39_wuxia": {
+    "src": "art/maps/v07423/s39_wuxia.svgpack",
+    "bytes": 4492,
+    "sha256": "89c55225f19fb8eaed0f5f294d2abe3099e7ddb3c663218842ce104e2cf819e6",
+    "svgEncoding": "gzip",
+    "sourceBytes": 4492,
+    "sourceSha256": "89c55225f19fb8eaed0f5f294d2abe3099e7ddb3c663218842ce104e2cf819e6",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s40_yiling": {
+    "src": "art/maps/v07423/s40_yiling.svgpack",
+    "bytes": 9955,
+    "sha256": "792818d4e6ef328e7f3c7071b1aa228dc7b1713d8afdae6bc87cf91e93a7a3ed",
+    "svgEncoding": "gzip",
+    "sourceBytes": 9955,
+    "sourceSha256": "792818d4e6ef328e7f3c7071b1aa228dc7b1713d8afdae6bc87cf91e93a7a3ed",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-camp.webp",
+        "mime": "image/webp",
+        "bytes": 119108,
+        "sha256": "d1a10d63a4850cd8ed65dc202a3a63f2c804f81871fac021ec35c78e1523e4a8"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      },
+      {
+        "src": "art/map-decor-v0742/cargo.webp",
+        "mime": "image/webp",
+        "bytes": 17568,
+        "sha256": "89a632b9d0efccbe28b7b5b9ce9125762bf4de99108fe8117d84451aa0fa712d"
+      },
+      {
+        "src": "art/visual-v0746/camp-supplies.webp",
+        "mime": "image/webp",
+        "bytes": 88210,
+        "sha256": "5f8ea2946516084b2f953c2ccd4f17f55e99578bb12292b1109f1523b7a7be0d"
+      },
+      {
+        "src": "art/map-props/v07423/tent-small.webp",
+        "mime": "image/webp",
+        "bytes": 70148,
+        "sha256": "41198c4acb0c1a2202d4095a226e83788e4e54c52d4462a253ea954984fd8433"
+      },
+      {
+        "src": "art/map-props/v07423/tent-command.webp",
+        "mime": "image/webp",
+        "bytes": 95998,
+        "sha256": "60ba5b57a9c1cc6ae0b3740b36dea4c5b1c3ff15c56b68bc2c73d33c9fd0bdd7"
+      },
+      {
+        "src": "art/map-props/v07423/camp-gate-open.webp",
+        "mime": "image/webp",
+        "bytes": 79650,
+        "sha256": "9f39ec2fdd80146227b0287ab1bbeb7dc96a50fbc534b53621645b5313b3d8e5"
+      },
+      {
+        "src": "art/map-props/v07423/palisade.webp",
+        "mime": "image/webp",
+        "bytes": 81150,
+        "sha256": "15ff3c1eab5b9ba79c6587713848d99ba71630cecad88689adc9021bf85655fc"
+      },
+      {
+        "src": "art/map-props/v07423/supplies.webp",
+        "mime": "image/webp",
+        "bytes": 77204,
+        "sha256": "ac18d7fe68e73d4d86389b08b0455c148f98aa5fbfeed0f09c9095963a1827ef"
+      },
+      {
+        "src": "art/map-props/v07423/banner-rack.webp",
+        "mime": "image/webp",
+        "bytes": 63886,
+        "sha256": "6b90c819c7d46e0d9d5ec7ba36ec213135996f95ce86e022d0cad9c0707fc2e4"
+      }
+    ]
+  },
+  "s41_ruxu": {
+    "src": "art/maps/v07423/s41_ruxu.svgpack",
+    "bytes": 7086,
+    "sha256": "5898357fa1ab2755a167209110623009481f724bd0bc1cac30114b9c5d15e245",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7086,
+    "sourceSha256": "5898357fa1ab2755a167209110623009481f724bd0bc1cac30114b9c5d15e245",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s42_alliance": {
+    "src": "art/maps/v07423/s42_alliance.svgpack",
+    "bytes": 7243,
+    "sha256": "6e0d70f9a6ba002539f359d73a3b5f4bf8edd7f7a5171a53fa22db3f21ca2ce9",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7243,
+    "sourceSha256": "6e0d70f9a6ba002539f359d73a3b5f4bf8edd7f7a5171a53fa22db3f21ca2ce9",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s43_lushui": {
+    "src": "art/maps/v07423/s43_lushui.svgpack",
+    "bytes": 10551,
+    "sha256": "86ed9e3f41167d1e597fea81c4e4b837cd23478d9c60df02346e470139678930",
+    "svgEncoding": "gzip",
+    "sourceBytes": 10551,
+    "sourceSha256": "86ed9e3f41167d1e597fea81c4e4b837cd23478d9c60df02346e470139678930",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s44_menghuo": {
+    "src": "art/maps/v07423/s44_menghuo.svgpack",
+    "bytes": 18407,
+    "sha256": "bdea1feeb3ea282fc314961cf3a3c337ab1da0bc13d1d3979df1ca3508cca0e3",
+    "svgEncoding": "gzip",
+    "sourceBytes": 18407,
+    "sourceSha256": "bdea1feeb3ea282fc314961cf3a3c337ab1da0bc13d1d3979df1ca3508cca0e3",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s45_rattan": {
+    "src": "art/maps/v07423/s45_rattan.svgpack",
+    "bytes": 7047,
+    "sha256": "340065885cb2c035d65bae399bf26801e3ed564abcc741a3112473203be7cfa3",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7047,
+    "sourceSha256": "340065885cb2c035d65bae399bf26801e3ed564abcc741a3112473203be7cfa3",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-camp.webp",
+        "mime": "image/webp",
+        "bytes": 119108,
+        "sha256": "d1a10d63a4850cd8ed65dc202a3a63f2c804f81871fac021ec35c78e1523e4a8"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s46_tianshui": {
+    "src": "art/maps/v07423/s46_tianshui.svgpack",
+    "bytes": 6563,
+    "sha256": "5fc2195326fe302083386d4dadbf2fba7ddde38d1db3627264fda46e1783ec01",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6563,
+    "sourceSha256": "5fc2195326fe302083386d4dadbf2fba7ddde38d1db3627264fda46e1783ec01",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s47_jieting": {
+    "src": "art/maps/v07423/s47_jieting.svgpack",
+    "bytes": 6488,
+    "sha256": "a4eca3183dfb326ae31b4c02fd241ba94ce4b62f6d0bb58a40b7b2466aa174bf",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6488,
+    "sourceSha256": "a4eca3183dfb326ae31b4c02fd241ba94ce4b62f6d0bb58a40b7b2466aa174bf",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s48_jigu": {
+    "src": "art/maps/v07423/s48_jigu.svgpack",
+    "bytes": 4956,
+    "sha256": "0495e91ab0698098f878cd6be60d412fd05b23796121475e4cae8f58df8d12cf",
+    "svgEncoding": "gzip",
+    "sourceBytes": 4956,
+    "sourceSha256": "0495e91ab0698098f878cd6be60d412fd05b23796121475e4cae8f58df8d12cf",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s49_chencang": {
+    "src": "art/maps/v07423/s49_chencang.svgpack",
+    "bytes": 6536,
+    "sha256": "2050a75d0361d1ec1ab079d11b0e3d292eb7f343e4300db32a90d2c662567904",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6536,
+    "sourceSha256": "2050a75d0361d1ec1ab079d11b0e3d292eb7f343e4300db32a90d2c662567904",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-spring.webp",
+        "mime": "image/webp",
+        "bytes": 131820,
+        "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  },
+  "s50_yinping": {
+    "src": "art/maps/v07423/s50_yinping.svgpack",
+    "bytes": 6008,
+    "sha256": "c516b67f7e6e2299ba64203b121f841a05a1fc166d6e9e166ba493aa0d9d781f",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6008,
+    "sourceSha256": "c516b67f7e6e2299ba64203b121f841a05a1fc166d6e9e166ba493aa0d9d781f",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s51_wheat": {
+    "src": "art/maps/v07423/s51_wheat.svgpack",
+    "bytes": 8161,
+    "sha256": "21369069ea8254b6bb82eb738b9cd6b7b879e6299996326d95477052fb7aae1f",
+    "svgEncoding": "gzip",
+    "sourceBytes": 8161,
+    "sourceSha256": "21369069ea8254b6bb82eb738b9cd6b7b879e6299996326d95477052fb7aae1f",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-harvest.webp",
+        "mime": "image/webp",
+        "bytes": 135220,
+        "sha256": "a4786fb3ffa9051045b4e8345d19ae28779bdf26d873afc85b26e49ab807c6ff"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s52_mumen": {
+    "src": "art/maps/v07423/s52_mumen.svgpack",
+    "bytes": 8848,
+    "sha256": "40d3d307809bc5bf36ff77e8e6d1ae67507e763716a92598cf1644da0b3eb82a",
+    "svgEncoding": "gzip",
+    "sourceBytes": 8848,
+    "sourceSha256": "40d3d307809bc5bf36ff77e8e6d1ae67507e763716a92598cf1644da0b3eb82a",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-mountain.webp",
+        "mime": "image/webp",
+        "bytes": 129760,
+        "sha256": "6e0ec5f4e9270e726cc601a1a1644c0769ab1a0df4b1bdef486e2464fb3db258"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      }
+    ]
+  },
+  "s53_wuzhangyuan": {
+    "src": "art/maps/v07423/s53_wuzhangyuan.svgpack",
+    "bytes": 7562,
+    "sha256": "1f7616018102131848d9e1a43fe6538a1a6e70e5c0e4fb3690d35d6554f45e4c",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7562,
+    "sourceSha256": "1f7616018102131848d9e1a43fe6538a1a6e70e5c0e4fb3690d35d6554f45e4c",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s54_seven_lamps": {
+    "src": "art/maps/v07423/s54_seven_lamps.svgpack",
+    "bytes": 6769,
+    "sha256": "3530ba1b5d07f2dc888331d8eadf476bc80cbbdaf4208a4d997580866bebed11",
+    "svgEncoding": "gzip",
+    "sourceBytes": 6769,
+    "sourceSha256": "3530ba1b5d07f2dc888331d8eadf476bc80cbbdaf4208a4d997580866bebed11",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-camp.webp",
+        "mime": "image/webp",
+        "bytes": 119108,
+        "sha256": "d1a10d63a4850cd8ed65dc202a3a63f2c804f81871fac021ec35c78e1523e4a8"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/maps/rock-v0728/material-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 189752,
+        "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+      },
+      {
+        "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+        "mime": "image/webp",
+        "bytes": 172022,
+        "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      },
+      {
+        "src": "art/map-decor-v0742/cargo.webp",
+        "mime": "image/webp",
+        "bytes": 17568,
+        "sha256": "89a632b9d0efccbe28b7b5b9ce9125762bf4de99108fe8117d84451aa0fa712d"
+      },
+      {
+        "src": "art/visual-v0746/camp-supplies.webp",
+        "mime": "image/webp",
+        "bytes": 88210,
+        "sha256": "5f8ea2946516084b2f953c2ccd4f17f55e99578bb12292b1109f1523b7a7be0d"
+      },
+      {
+        "src": "art/map-props/v07423/tent-small.webp",
+        "mime": "image/webp",
+        "bytes": 70148,
+        "sha256": "41198c4acb0c1a2202d4095a226e83788e4e54c52d4462a253ea954984fd8433"
+      },
+      {
+        "src": "art/map-props/v07423/tent-command.webp",
+        "mime": "image/webp",
+        "bytes": 95998,
+        "sha256": "60ba5b57a9c1cc6ae0b3740b36dea4c5b1c3ff15c56b68bc2c73d33c9fd0bdd7"
+      },
+      {
+        "src": "art/map-props/v07423/camp-gate-open.webp",
+        "mime": "image/webp",
+        "bytes": 79650,
+        "sha256": "9f39ec2fdd80146227b0287ab1bbeb7dc96a50fbc534b53621645b5313b3d8e5"
+      },
+      {
+        "src": "art/map-props/v07423/palisade.webp",
+        "mime": "image/webp",
+        "bytes": 81150,
+        "sha256": "15ff3c1eab5b9ba79c6587713848d99ba71630cecad88689adc9021bf85655fc"
+      },
+      {
+        "src": "art/map-props/v07423/supplies.webp",
+        "mime": "image/webp",
+        "bytes": 77204,
+        "sha256": "ac18d7fe68e73d4d86389b08b0455c148f98aa5fbfeed0f09c9095963a1827ef"
+      },
+      {
+        "src": "art/map-props/v07423/banner-rack.webp",
+        "mime": "image/webp",
+        "bytes": 63886,
+        "sha256": "6b90c819c7d46e0d9d5ec7ba36ec213135996f95ce86e022d0cad9c0707fc2e4"
+      }
+    ]
+  },
+  "s55_weishui": {
+    "src": "art/maps/v07423/s55_weishui.svgpack",
+    "bytes": 8174,
+    "sha256": "4f27bd71643a66d39ab91edcb04df077e2b69bccc8870b20c295d2281a18ec55",
+    "svgEncoding": "gzip",
+    "sourceBytes": 8174,
+    "sourceSha256": "4f27bd71643a66d39ab91edcb04df077e2b69bccc8870b20c295d2281a18ec55",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-river.webp",
+        "mime": "image/webp",
+        "bytes": 113012,
+        "sha256": "c3dcda774f1bfdf78018f08528eb2cea6acea7c8657a07e8e91a9ac1a3947f51"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/terrain/water-v0282.webp",
+        "mime": "image/webp",
+        "bytes": 17218,
+        "sha256": "08558e1a0c29b0dad70e817fa8460c7c2fac0f13a0c0e1053eeba665a544273b"
+      },
+      {
+        "src": "art/map-decor-v0742/reeds.webp",
+        "mime": "image/webp",
+        "bytes": 19832,
+        "sha256": "f52542a02c3afccbe5b110b7f9c1778311b3b2c8dc4400dc2e3e6a0dc4b44538"
+      },
+      {
+        "src": "art/terrain/bridge-wood-v0282.png",
+        "mime": "image/png",
+        "bytes": 314458,
+        "sha256": "341effd61c47de8f338948d40ac3cb91cc71d1afec7cf9b7cc39b181e49dd94b"
+      }
+    ]
+  },
+  "s56_changan": {
+    "src": "art/maps/v07423/s56_changan.svgpack",
+    "bytes": 7063,
+    "sha256": "6e7c5fe0930157cfb92a25bcd83e67ee89f6a22b4eec42b4aeb9b2e629bb61cd",
+    "svgEncoding": "gzip",
+    "sourceBytes": 7063,
+    "sourceSha256": "6e7c5fe0930157cfb92a25bcd83e67ee89f6a22b4eec42b4aeb9b2e629bb61cd",
+    "sharedTextureSVG": true,
+    "textureSources": [
+      {
+        "src": "art/visual-v0746/ground-spring.webp",
+        "mime": "image/webp",
+        "bytes": 131820,
+        "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+      },
+      {
+        "src": "art/map-decor-v0742/grass.webp",
+        "mime": "image/webp",
+        "bytes": 5620,
+        "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+      },
+      {
+        "src": "art/map-decor-v0742/pebbles.webp",
+        "mime": "image/webp",
+        "bytes": 6730,
+        "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+      },
+      {
+        "src": "art/terrain/forest-v020.webp",
+        "mime": "image/webp",
+        "bytes": 24972,
+        "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+      },
+      {
+        "src": "art/map-props/v07423/stone-wall.webp",
+        "mime": "image/webp",
+        "bytes": 110116,
+        "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+      },
+      {
+        "src": "art/visual-v0746/ground-city.webp",
+        "mime": "image/webp",
+        "bytes": 105062,
+        "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+      }
+    ]
+  }
+});
+export const MAP_ART_V07423=Object.freeze(Object.fromEntries(Object.entries(replacements).map(([id,row])=>[id,Object.freeze({...MAP_ART_V07421[id],...row,textureSources:Object.freeze(row.textureSources.map(item=>Object.freeze(item))),artRevision:'v07423'})])));
+export function mapArtV07423For(id,geometry){if(![0,1,4].includes(geometry?.mapLayoutVersion))return null;const early=earlyMapArtV07423For(id,geometry);if(early)return early;const row=Object.hasOwn(MAP_ART_V07423,id)?MAP_ART_V07423[id]:null;return row&&geometry.mapLayoutVersion===4&&geometry.width===row.columns&&geometry.height===row.rows&&Array.isArray(geometry.terrain)&&geometry.terrain.length===row.rows&&geometry.terrain.every(line=>typeof line==='string'&&line.length===row.columns)&&geometry.terrain.join('\n')===row.terrainKey?row:null;}

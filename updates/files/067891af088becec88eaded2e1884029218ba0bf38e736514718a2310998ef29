@@ -1,0 +1,28 @@
+// Presentation-only correction of the original playable Act 4 placeholders.
+// Keep event arrays, indices, triggers and effects intact for existing saves.
+const START='북측과 남측 통로가 갈라진다. 중앙 지원로를 따라 각 전선에 보급과 예비대를 보내자.';
+const ROUND='전선의 간격을 살피게. 한쪽만 앞서지 말고 다른 길의 동료도 함께 움직일 수 있게 돕게.';
+const ENGAGE='이 지휘 부대의 깃발은 쉽게 내리지 않는다. 양쪽 전선에서 밀려와도 끝까지 버티겠다.';
+const roundSpeakers=Object.freeze({s26_machao:'zhangfei',s28_dangqu:'zhangfei',s29_dingjun:'huangzhong',s30_hanshui:'zhaoyun'});
+const chapters=Object.freeze({
+ s22_jiameng:{speaker:'hanzhong_captain',text:'유장에게 몸을 의탁한 자가 장로공의 군사까지 가로막는가! 관문 앞이라고 물러설 줄 알지 마라!'},
+ s23_fucheng:{speaker:'fucheng_captain',text:'유장공의 잔을 받은 손으로 부성의 문을 두드리느냐! 이 문은 내 손으로 열어 줄 수 없다!'},
+ s25_luocheng:{speaker:'zhangren',text:'익주에 두 주인을 섬길 장임은 없다. 낙성을 원한다면 이 몸부터 넘어라!'},
+ s26_machao:{speaker:'machao',text:'서량의 창을 피하지 마라. 이 마초가 네 솜씨를 직접 보겠다!'},
+ s27_chengdu:{speaker:'chengdu_captain',text:'우리 뒤에는 성도의 백성이 있다. 항복을 말하기 전에 네 군사들부터 멈추게 하라!'},
+ s28_dangqu:{speaker:'zhanghe',text:'산길에서는 수가 많다고 뜻대로 밀어붙일 수 없다. 이 장합이 쉽게 비켜 줄 줄 알았느냐!'},
+ s29_dingjun:{speaker:'xiahouyuan',text:'정군산을 내주면 한중이 흔들린다. 이 하후연이 지키는 한 고지는 넘보지 마라!'},
+ s30_hanshui:{speaker:'wei_commander',text:'저 열린 영채가 사람을 꺼림칙하게 하는군. 유비군, 허세라면 여기서 드러내 보아라!'},
+ s31_hanzhong:{speaker:'caocao',text:'유비, 한중을 손에 넣으려거든 내 진영을 넘어 보아라. 이 땅을 쉽게 내주지는 않겠다!'},
+});
+export function battleDialogueLines(chapter,event){
+ const lines=event?.lines??[],revision=chapter?.act===4&&Object.hasOwn(chapters,chapter.id)?chapters[chapter.id]:null;
+ // Fail closed if an author adds meaningful dialogue, effects, conditions or visuals.
+ if(!revision||!event||Object.keys(event).some(k=>!['trigger','lines'].includes(k))||lines.length!==1)return lines;
+ const line=lines[0],trigger=event.trigger;
+ if(!line||Object.keys(line).some(k=>!['speaker','text'].includes(k))||!trigger)return lines;
+ if(trigger.type==='battleStart'&&Object.keys(trigger).length===1&&line.speaker==='narrator'&&line.text===START)return [];
+ if(trigger.type==='roundStart'&&Object.keys(trigger).length===2&&trigger.round===3&&line.speaker===(roundSpeakers[chapter.id]??'liubei')&&line.text===ROUND)return [];
+ if(trigger.type==='unitEngaged'&&Object.keys(trigger).length===2&&trigger.unit==='e_boss'&&line.speaker===revision.speaker&&line.text===ENGAGE)return [{...line,text:revision.text}];
+ return lines;
+}
