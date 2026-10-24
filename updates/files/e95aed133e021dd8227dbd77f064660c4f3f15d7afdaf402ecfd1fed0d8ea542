@@ -1,0 +1,329 @@
+// Fancheng's two preserved logical layouts receive separate gate-aware paintings.
+import {MAP_ART_V07424,FANCHENG_FORTIFICATION_ART,mapArtV07424For} from './map-art-v07424.js';
+const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
+const legacy=freeze({...MAP_ART_V07424.s32_fancheng,...{
+  "src": "art/maps/v07425/s32_fancheng.svgpack",
+  "bytes": 7315,
+  "sha256": "bf231c140e9fbd6de694ddff46f581f33125fe394e2e7212ecb43fe154244c77",
+  "sharedTextureSVG": true,
+  "svgEncoding": "gzip",
+  "sourceBytes": 7315,
+  "sourceSha256": "bf231c140e9fbd6de694ddff46f581f33125fe394e2e7212ecb43fe154244c77",
+  "textureSources": [
+    {
+      "src": "art/visual-v0746/ground-spring.webp",
+      "mime": "image/webp",
+      "bytes": 131820,
+      "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+    },
+    {
+      "src": "art/map-decor-v0742/grass.webp",
+      "mime": "image/webp",
+      "bytes": 5620,
+      "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+    },
+    {
+      "src": "art/map-decor-v0742/pebbles.webp",
+      "mime": "image/webp",
+      "bytes": 6730,
+      "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+    },
+    {
+      "src": "art/terrain/forest-v020.webp",
+      "mime": "image/webp",
+      "bytes": 24972,
+      "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+    },
+    {
+      "src": "art/maps/rock-v0728/material-v0728.webp",
+      "mime": "image/webp",
+      "bytes": 189752,
+      "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+    },
+    {
+      "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+      "mime": "image/webp",
+      "bytes": 172022,
+      "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+    },
+    {
+      "src": "art/map-props/v07423/stone-wall.webp",
+      "mime": "image/webp",
+      "bytes": 110116,
+      "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+    },
+    {
+      "src": "art/visual-v0746/ground-city.webp",
+      "mime": "image/webp",
+      "bytes": 105062,
+      "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+    },
+    {
+      "src": "art/terrain/wall-stone-v0384.webp",
+      "mime": "image/webp",
+      "bytes": 14966,
+      "sha256": "11d7d971b70f54eefe8c5b6a9fc41c11b6e59e66f4b43025dcef510d17385a6c"
+    },
+    {
+      "src": "art/visual-v0746/road-earth.webp",
+      "mime": "image/webp",
+      "bytes": 52572,
+      "sha256": "ed921abe991540f1510e60ddfa61d6996cf1923fc84b7f21a8fad5d922caf013"
+    }
+  ],
+  "artRevision": "v07425",
+  "fortificationAssemblyVersion": 2,
+  "gateOverlays": [
+    {
+      "id": "north-city-gate",
+      "label": "북쪽 성문",
+      "src": "art/map-props/v07425/fancheng-open-gate.webp",
+      "x": 2039.4736842105262,
+      "y": 431.7337461300309,
+      "width": 400,
+      "height": 377.0897832817338,
+      "roadDirection": "east-west",
+      "passageCells": [
+        [
+          22,
+          5
+        ],
+        [
+          22,
+          6
+        ],
+        [
+          22,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "south-city-gate",
+      "label": "남쪽 성문",
+      "src": "art/map-props/v07425/fancheng-open-gate.webp",
+      "x": 2039.4736842105262,
+      "y": 1231.733746130031,
+      "width": 400,
+      "height": 377.0897832817338,
+      "roadDirection": "east-west",
+      "passageCells": [
+        [
+          22,
+          13
+        ],
+        [
+          22,
+          14
+        ],
+        [
+          22,
+          15
+        ]
+      ]
+    },
+    {
+      "id": "north-bastion-gate",
+      "label": "북쪽 보루 통로",
+      "src": "art/map-props/v07423/stone-gate-open.webp",
+      "x": 1837.8917378917379,
+      "y": 622.7920227920229,
+      "width": 400,
+      "height": 377.2079772079772,
+      "roadDirection": "north-south",
+      "passageCells": [
+        [
+          20,
+          8
+        ],
+        [
+          21,
+          8
+        ],
+        [
+          20,
+          9
+        ],
+        [
+          21,
+          9
+        ]
+      ]
+    },
+    {
+      "id": "south-bastion-gate",
+      "label": "남쪽 보루 통로",
+      "src": "art/map-props/v07423/stone-gate-open.webp",
+      "x": 1837.8917378917379,
+      "y": 922.7920227920229,
+      "width": 400,
+      "height": 377.2079772079772,
+      "roadDirection": "north-south",
+      "passageCells": [
+        [
+          20,
+          11
+        ],
+        [
+          21,
+          11
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          21,
+          12
+        ]
+      ]
+    }
+  ],
+  "foregroundTextureSources": [
+    {
+      "src": "art/map-props/v07425/fancheng-open-gate.webp",
+      "mime": "image/webp",
+      "bytes": 106354,
+      "sha256": "d194a7587a39b746b3c16c1fec10a59f51c7332c83e8e180123cb6ed2207d613"
+    },
+    {
+      "src": "art/map-props/v07423/stone-gate-open.webp",
+      "mime": "image/webp",
+      "bytes": 138580,
+      "sha256": "301008d0de5b7c11aa70d54592e9b4675fd380d7af41cdbe73ce9beb3f3a7714"
+    }
+  ]
+}});
+export const MAP_ART_V07425=Object.freeze({s32_fancheng:legacy});
+export const FANCHENG_FORTIFICATION_ART_V07425=freeze({...FANCHENG_FORTIFICATION_ART,...{
+  "src": "art/maps/v07425/s32_fancheng-rebuilt.svgpack",
+  "bytes": 7364,
+  "sha256": "1e0f1dad85a6428e1b09597b996f2c11a4d27366695e04827674e81accbf47f1",
+  "sharedTextureSVG": true,
+  "svgEncoding": "gzip",
+  "sourceBytes": 7364,
+  "sourceSha256": "1e0f1dad85a6428e1b09597b996f2c11a4d27366695e04827674e81accbf47f1",
+  "textureSources": [
+    {
+      "src": "art/visual-v0746/ground-spring.webp",
+      "mime": "image/webp",
+      "bytes": 131820,
+      "sha256": "00dadfbd9176f8c022cb0fd5d036625895b81fd2787f2c1a058fd04318a4cc85"
+    },
+    {
+      "src": "art/map-decor-v0742/grass.webp",
+      "mime": "image/webp",
+      "bytes": 5620,
+      "sha256": "28e8283ac585b25f103b89ecef0d7b3b84e32074f127f04ac67385b67d8aff92"
+    },
+    {
+      "src": "art/map-decor-v0742/pebbles.webp",
+      "mime": "image/webp",
+      "bytes": 6730,
+      "sha256": "da95a2d66b0744845a8454c78ce780ce5826d6170c2111fac53820c4e82045de"
+    },
+    {
+      "src": "art/terrain/forest-v020.webp",
+      "mime": "image/webp",
+      "bytes": 24972,
+      "sha256": "267ec3a345e88283d3f70a01ecaa82a211a180221d4586c031f7ed92bd53fd15"
+    },
+    {
+      "src": "art/maps/rock-v0728/material-v0728.webp",
+      "mime": "image/webp",
+      "bytes": 189752,
+      "sha256": "bf2444b68248677385698c5702e9e453145a13fc41af783832d8a245849ef03d"
+    },
+    {
+      "src": "art/maps/rock-v0728/outcrop-v0728.webp",
+      "mime": "image/webp",
+      "bytes": 172022,
+      "sha256": "c9c6ad398364ee4b6e36751d4a8b9be490c222e1321b29416e3da115d49c6c99"
+    },
+    {
+      "src": "art/map-props/v07423/stone-wall.webp",
+      "mime": "image/webp",
+      "bytes": 110116,
+      "sha256": "8d06d371db035e87b6b4de72a22db7a5bc974a84064ab40e37b8f5a037d23978"
+    },
+    {
+      "src": "art/visual-v0746/ground-city.webp",
+      "mime": "image/webp",
+      "bytes": 105062,
+      "sha256": "82585667ea688e365a028df24d44fcee8e6773e5806ed0fc3885d643bc0f6946"
+    },
+    {
+      "src": "art/terrain/wall-stone-v0384.webp",
+      "mime": "image/webp",
+      "bytes": 14966,
+      "sha256": "11d7d971b70f54eefe8c5b6a9fc41c11b6e59e66f4b43025dcef510d17385a6c"
+    },
+    {
+      "src": "art/visual-v0746/road-earth.webp",
+      "mime": "image/webp",
+      "bytes": 52572,
+      "sha256": "ed921abe991540f1510e60ddfa61d6996cf1923fc84b7f21a8fad5d922caf013"
+    }
+  ],
+  "artRevision": "v07425",
+  "fortificationAssemblyVersion": 2,
+  "gateOverlays": [
+    {
+      "id": "north-city-gate",
+      "label": "북쪽 성문",
+      "src": "art/map-props/v07425/fancheng-open-gate.webp",
+      "x": 2039.4736842105262,
+      "y": 431.7337461300309,
+      "width": 400,
+      "height": 377.0897832817338,
+      "roadDirection": "east-west",
+      "passageCells": [
+        [
+          22,
+          5
+        ],
+        [
+          22,
+          6
+        ],
+        [
+          22,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "south-city-gate",
+      "label": "남쪽 성문",
+      "src": "art/map-props/v07425/fancheng-open-gate.webp",
+      "x": 2039.4736842105262,
+      "y": 1231.733746130031,
+      "width": 400,
+      "height": 377.0897832817338,
+      "roadDirection": "east-west",
+      "passageCells": [
+        [
+          22,
+          13
+        ],
+        [
+          22,
+          14
+        ],
+        [
+          22,
+          15
+        ]
+      ]
+    }
+  ],
+  "foregroundTextureSources": [
+    {
+      "src": "art/map-props/v07425/fancheng-open-gate.webp",
+      "mime": "image/webp",
+      "bytes": 106354,
+      "sha256": "d194a7587a39b746b3c16c1fec10a59f51c7332c83e8e180123cb6ed2207d613"
+    }
+  ]
+}});
+export function mapArtV07425For(id,geometry){if(id!=='s32_fancheng')return null;const old=mapArtV07424For(id,geometry);return old===MAP_ART_V07424.s32_fancheng?legacy:old===FANCHENG_FORTIFICATION_ART?FANCHENG_FORTIFICATION_ART_V07425:null;}

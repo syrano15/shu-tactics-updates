@@ -1,0 +1,6 @@
+.map-review-dialog{position:fixed;inset:0;margin:0;padding:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;background:#0d1913;overflow:hidden;box-sizing:border-box}
+.map-review-dialog::backdrop{background:#0d1913}
+.map-review-dialog-bar{height:42px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 10px;border-bottom:1px solid #465346;box-sizing:border-box;color:#e8dfc8;font:15px sans-serif}
+.map-review-launcher-frame{display:block;width:100%;height:calc(100% - 42px);border:0;background:#0d1913}
+.map-review-fallback-close{padding:6px 12px;min-height:32px;border:1px solid #a79764;border-radius:4px;background:#ddc283;color:#132119;font:inherit;cursor:pointer}
+.title-menu .title-map-review{background:#243e33;border-color:#8d9d7d;color:#f1e8cf}

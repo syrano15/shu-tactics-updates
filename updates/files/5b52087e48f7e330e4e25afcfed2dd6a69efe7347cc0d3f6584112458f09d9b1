@@ -1,0 +1,25 @@
+// The atlas lives in a separate document. It never receives the player's army,
+// battle snapshot, saves, authentication or a callback that can write them.
+export function installMapReviewLauncher({canOpen=()=>true,chapter=()=>1,onOpen=()=>{},onClose=()=>{}}={}){
+ const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=new URL('./map-review-launcher.css',import.meta.url).href;document.head.append(stylesheet);
+ const modal=document.createElement('dialog');modal.id='map-review-dialog';modal.className='map-review-dialog';modal.setAttribute('aria-label','전장 둘러보기');
+ const frame=document.createElement('iframe');frame.title='촉한전기 1~56장 전장 둘러보기';frame.className='map-review-launcher-frame';frame.setAttribute('referrerpolicy','no-referrer');
+ const fallback=document.createElement('button');fallback.type='button';fallback.className='map-review-fallback-close';fallback.textContent='게임으로 돌아가기';fallback.setAttribute('aria-label','전장 둘러보기를 닫고 게임으로 돌아가기');
+ const header=document.createElement('header');header.className='map-review-dialog-bar';const label=document.createElement('span');label.textContent='전장 둘러보기';header.append(label,fallback);modal.append(header,frame);document.body.append(modal);
+ let previousFocus=null,opened=false,disposed=false;
+ const close=()=>{if(modal.open)modal.close();};
+ const open=()=>{
+  if(disposed||opened||modal.open||!canOpen())return false;
+  previousFocus=document.activeElement;document.getElementById('settings-dialog')?.close();
+  const requested=Number(chapter()),index=Number.isInteger(requested)&&requested>=1&&requested<=56?requested:1;
+  const url=new URL('./map-review.html',import.meta.url);url.searchParams.set('chapter',String(index));url.searchParams.set('embedded','1');
+  onOpen();opened=true;frame.src=url.href;modal.showModal();return true;
+ };
+ modal.addEventListener('close',()=>{frame.removeAttribute('src');if(opened){opened=false;onClose();}previousFocus?.focus?.({preventScroll:true});});
+ fallback.addEventListener('click',close);
+ const messages=event=>{if(event.source!==frame.contentWindow||!event.data||typeof event.data!=='object'||Object.keys(event.data).length!==1||event.data.type!=='shu-map-review-close')return;close();};
+ window.addEventListener('message',messages);
+ const titleButton=document.createElement('button');titleButton.id='title-map-review';titleButton.type='button';titleButton.className='title-map-review';titleButton.textContent='전장 둘러보기';titleButton.addEventListener('click',open);document.querySelector('.title-menu')?.append(titleButton);
+ const settingsButton=document.createElement('button');settingsButton.id='map-review-open';settingsButton.type='button';settingsButton.className='quiet';settingsButton.textContent='전장 둘러보기 · 1~56장';settingsButton.addEventListener('click',open);document.querySelector('#settings-dialog .settings-player nav')?.append(settingsButton);
+ return {open,close,update(){const disabled=disposed||!canOpen();titleButton.disabled=disabled;settingsButton.disabled=disabled;},destroy(){if(disposed)return;disposed=true;close();window.removeEventListener('message',messages);titleButton.remove();settingsButton.remove();modal.remove();stylesheet.remove();}};
+}

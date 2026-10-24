@@ -1,0 +1,60 @@
+html:has(.map-review-page),body.map-review-page{height:100%;margin:0;overflow:hidden;background:#0d1913}
+.map-review-page{font-family:var(--font-ui,system-ui,sans-serif);color:#e9e7d8}
+.map-review-page *{box-sizing:border-box}
+.map-review-page [hidden]{display:none!important}
+#map-review{height:100dvh;max-width:none;margin:0;padding:12px;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:9px}
+.review-header{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.review-embedded #review-return{display:none}
+.review-header h1{font-size:22px;margin:0;line-height:1.3}.review-header p{font-size:12px;margin:4px 0 0;color:#afbeb2}
+.map-review-page button,.map-review-page select{min-height:40px;padding:7px 12px;font:inherit;font-size:13px;color:inherit;background:#22362a;border:1px solid #586c51;border-radius:5px}
+.map-review-page button{cursor:pointer}.map-review-page button:disabled{opacity:.4;cursor:default}.map-review-page button:focus-visible,.map-review-page select:focus-visible,.map-review-page input:focus-visible{outline:2px solid #e0bf77;outline-offset:2px}
+.review-stage-controls,.review-view-controls{display:flex;align-items:center;gap:9px;min-width:0;flex-wrap:wrap}
+.review-stage-controls label{font-size:12px;display:flex;align-items:center;gap:7px;min-width:0}.review-chapter-label{flex:1}.review-chapter-label select{width:100%;min-width:0}
+.review-view-controls{font-size:13px}.review-view-controls label{display:flex;align-items:center;gap:5px;min-height:36px;cursor:pointer}.review-view-controls input{width:18px;height:18px;accent-color:#d9bc77;margin:0}
+.review-picture-controls{display:flex;gap:4px}.review-picture-controls [aria-pressed=true]{background:#514b2c;border-color:#d8b878;color:#ffe7a6}#review-fit{margin-left:auto}
+.review-workspace{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:12px;min-width:0;min-height:0}
+#battle-scene.review-map-scene{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0;margin:0;background:#14251b;border:1px solid #435840;overflow:hidden;border-radius:6px}
+#review-title{font-size:15px;padding:8px 10px;margin:0;line-height:1.3}
+#review-camera-controls{min-width:0;display:flex}
+.map-review-page .board-navigation{position:static;inset:auto;z-index:auto;width:auto;max-width:none;border:0;padding:0;min-width:0;gap:4px;font-size:11px;background:transparent}
+.map-review-page .board-navigation small,.map-review-page .board-navigation .board-pan{display:none}.map-review-page .board-navigation button{min-height:32px;padding:3px 10px;font-size:12px}
+.map-review-page .board-navigation [data-board-view=fit]{display:none}
+#battle-scene.review-map-scene #board-stage{display:flex;min-height:0;height:100%!important;padding:0;overflow:hidden;position:relative}
+#battle-scene.review-map-scene .board-viewport.expanded-viewport{height:100%!important;min-height:0;max-height:none;border:0;flex:1;min-width:0}
+#battle-scene.review-map-scene .board-viewport.board-fit{display:grid;place-items:center}
+.map-review-page #board{gap:0;max-width:none;flex-shrink:0;border:0}
+.map-review-page #board .cell{position:relative;border:0;border-radius:0;min-width:0;min-height:0;padding:0;aspect-ratio:1;background:#9f9b72;cursor:crosshair;overflow:visible}
+.map-review-page #board[data-board-background=ready]>.cell{background:transparent!important}
+.map-review-page #board .cell:focus-visible{outline:2px solid #ffe19a;outline-offset:-2px;z-index:4}
+.map-review-page #board .cell.review-selected{box-shadow:inset 0 0 0 2px #fff3bc;z-index:3}
+.map-review-page #board.review-grid .cell::after{content:"";position:absolute;inset:0;border:1px solid #fff4c83b;pointer-events:none;z-index:3}
+.map-review-page #board.review-logical .cell{background:#a59b6e!important}.map-review-page #board.review-logical .cell.forest{background:#345d35!important}.map-review-page #board.review-logical .cell.blocked{background:#22323f!important}.map-review-page #board.review-logical .cell.bridge{background:#417f87!important}
+.review-logical-label{position:absolute;inset:0;display:grid;place-items:center;color:#f6f0d3;font-size:clamp(6px,calc(var(--board-cell-size,32px)*.25),12px);line-height:1;pointer-events:none}
+.map-review-page .token{position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
+#map-review #board .unit-name{position:absolute;bottom:0;left:50%;right:auto;transform:translateX(-50%);width:max-content;min-width:2em;max-width:none;white-space:nowrap;overflow:visible;text-overflow:unset;text-align:center;font-size:clamp(8px,calc(var(--board-cell-size,32px)*.25),12px);line-height:1.1;padding:0 2px;background:#143024ed;color:#ecf3dc;z-index:2;border:0;border-bottom:1px solid #7ec39f}
+#map-review #board .enemy-token .unit-name{background:#3b291bed;border-color:#dc9975}.map-review-page .battle-sprite{pointer-events:none}
+.review-goal-marker{position:absolute;inset:1px;box-shadow:inset 0 0 0 2px #f0d581;z-index:2;pointer-events:none}.review-goal-marker span{display:block;position:absolute;top:1px;left:1px;right:1px;color:#ffe9a1;background:#30371de6;text-align:center;font-size:8px;line-height:1.1;overflow:hidden;white-space:nowrap}
+.review-details{min-width:0;overflow:auto;background:#16271f;border:1px solid #435840;border-radius:6px;padding:12px;font-size:13px;line-height:1.6}
+.review-details section{border-top:1px solid #3c5142;padding-top:9px;margin-top:12px}.review-details h3{font-size:14px;color:#e2c98f;margin:0 0 5px}.review-details p{margin:5px 0}.review-army-note{font-size:11px;color:#b4c2b7}.review-help{margin-top:15px;font-size:12px}.review-help summary{cursor:pointer;color:#dbc58c}
+#review-status{color:#d9d5ad;font-size:12px}#review-status[data-error=true]{color:#ffd1b0}
+@media(max-width:850px){#map-review{padding:8px;gap:6px}.review-workspace{grid-template-columns:minmax(0,1fr) 205px;gap:7px}.review-header h1{font-size:19px}.review-header p{max-width:430px;font-size:11px}.review-details{padding:9px}}
+@media(max-width:620px){
+ #map-review{padding:6px;gap:5px}.review-header{gap:7px}.review-header p{display:none}.review-header h1{font-size:18px}
+ .map-review-page button,.map-review-page select{min-height:40px;font-size:12px;padding:6px 8px}
+ .review-stage-controls{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:5px}
+ .review-stage-controls>.review-chapter-label{order:0;grid-row:1;grid-column:2;display:block;min-width:0;font-size:0}
+ .review-chapter-label select{width:100%;min-width:0;min-height:40px;font-size:12px}
+ #review-previous,#review-next{grid-row:1;font-size:0;min-width:0;min-height:40px;padding:0}
+ #review-previous{grid-column:1}#review-next{grid-column:3}
+ #review-previous::before{content:"←";font-size:18px}#review-next::before{content:"→";font-size:18px}
+ .review-stage-controls #review-layout-control{order:0;grid-row:2;grid-column:1/-1;display:block;min-width:0;font-size:0}
+ .review-stage-controls #review-layout{width:100%;min-width:0;max-width:none;min-height:36px;font-size:12px}
+ .review-workspace{display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:5px}
+ .review-details{max-height:120px;padding:7px 9px;display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;font-size:12px}
+ .review-details #review-status,.review-details .review-army-note,.review-details .review-help{grid-column:1/-1}.review-details section{margin:0;padding-top:4px}
+ .review-army-note{font-size:10px;margin:0!important}.review-details h3{font-size:12px}
+ .review-view-controls{gap:5px 10px;font-size:12px}.review-view-controls label{min-height:28px}.review-view-controls button{min-height:34px}
+ .review-picture-controls{gap:3px}.review-picture-controls button{padding-inline:9px}#review-fit{margin-left:0}#review-title{font-size:13px;padding:6px 8px}
+ .map-review-page .board-navigation{padding:3px 5px}.map-review-page .board-navigation button{min-height:30px}.map-review-page .board-navigation output{font-size:10px;min-width:40px}
+}
+@media(max-height:460px){.review-header p,.review-army-note,.review-help{display:none}#map-review{gap:4px;padding:5px}.review-stage-controls>.review-chapter-label{order:0;flex-basis:auto}.review-workspace{grid-template-columns:minmax(0,1fr) 180px;grid-template-rows:1fr}.review-details{display:block;max-height:none}.review-details section{margin-top:7px}.review-header h1{font-size:17px}.map-review-page button,.map-review-page select{min-height:32px;padding:4px 8px}.review-view-controls label{min-height:26px}}

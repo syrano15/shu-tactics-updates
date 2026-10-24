@@ -1,0 +1,35 @@
+import {mapArtV07425For} from './map-art-v07425.js';
+
+const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const key=point=>point&&Number.isInteger(point.x)&&Number.isInteger(point.y)?point.x+','+point.y:null;
+// Passage tiles describe movement. Cover tiles instead describe the painted
+// rectangle, with half a tile for sprites that extend beyond their own cell.
+// They affect scenery opacity only, including the approach to an open gate.
+const coverCells=(gate,art,terrain)=>{
+ const height=terrain.length,width=terrain[0].length,tileWidth=art.width/width,tileHeight=art.height/height;
+ const left=Math.max(0,Math.floor(gate.x/tileWidth-.5)),right=Math.min(width,Math.ceil((gate.x+gate.width)/tileWidth+.5));
+ const top=Math.max(0,Math.floor(gate.y/tileHeight-.5)),bottom=Math.min(height,Math.ceil((gate.y+gate.height)/tileHeight+.5)),cells=[];
+ for(let y=top;y<bottom;y++)for(let x=left;x<right;x++)cells.push({x,y});
+ return cells;
+};
+export function fanchengGateModel(state,scenarioId,{point=null}={}){
+ const terrain=state?.terrain;if(!Array.isArray(terrain)||!terrain.length)return [];
+ const art=mapArtV07425For(scenarioId,{terrain,width:terrain[0].length,height:terrain.length,mapLayoutVersion:state.mapLayoutVersion??0});
+ if(!art?.gateOverlays)return [];
+ const occupied=new Set((state.units??[]).filter(unit=>unit.hp>0&&!unit.escaped&&!unit.withdrawn).map(key)),inspected=key(point);
+ return art.gateOverlays.map(gate=>{
+  const covered=coverCells(gate,art,terrain);
+  return {id:gate.id,label:gate.label,src:gate.src,left:gate.x/art.width*100,top:gate.y/art.height*100,width:gate.width/art.width*100,height:gate.height/art.height*100,passageCells:gate.passageCells.map(([x,y])=>({x,y})),coverCells:covered,dimmed:covered.some(point=>occupied.has(key(point))||inspected===key(point))};
+ });
+}
+export function fanchengGateOverlayHTML(state,scenarioId,options){
+ const gates=fanchengGateModel(state,scenarioId,options);if(!gates.length)return '';
+ return '<div class="fancheng-gate-layer" aria-hidden="true">'+gates.map(gate=>'<img alt="" draggable="false" decoding="async" src="'+esc(gate.src)+'" data-gate-id="'+esc(gate.id)+'" data-gate-dimmed="'+gate.dimmed+'" data-gate-passage="'+gate.passageCells.map(key).join(';')+'" data-gate-cover="'+gate.coverCells.map(key).join(';')+'" style="left:'+gate.left+'%;top:'+gate.top+'%;width:'+gate.width+'%;height:'+gate.height+'%">').join('')+'</div>';
+}
+// Only scenery opacity changes. The actual movement path is passed by the
+// existing animation; no route, unit, terrain or saved preference is modified.
+export function fadeFanchengGatesForRoute(board,route){
+ const cells=new Set((route??[]).map(key)),changed=[];
+ for(const image of board?.querySelectorAll?.('img[data-gate-cover]')??[]){if(!image.dataset.gateCover.split(';').some(cell=>cells.has(cell)))continue;const before=image.getAttribute('data-gate-route');image.setAttribute('data-gate-route','true');changed.push([image,before]);}
+ return ()=>{for(const [image,before]of changed){if(before===null)image.removeAttribute('data-gate-route');else image.setAttribute('data-gate-route',before);}};
+}

@@ -1,0 +1,74 @@
+// Offline paintings share their original raster textures. Expand only the
+// reviewed, byte-checked sources before decoding an SVG as a browser image.
+const ART_PATH=/^art\/[A-Za-z0-9_./-]+\.(?:webp|png|jpg|jpeg)$/;
+const MAP_PATH=/^art\/maps\/v0742[345]\/[A-Za-z0-9_-]+\.svgpack$/;
+const HASH=/^[a-f0-9]{64}$/;
+const MAX_PACK=1024*1024,MAX_SVG=8*1024*1024,MAX_TEXTURE=8*1024*1024;
+const safePath=(path,pattern)=>typeof path==='string'&&pattern.test(path)&&!path.split('/').some(part=>part==='..'||part==='.'||!part);
+const toBase64=bytes=>{
+ let binary='';for(let i=0;i<bytes.length;i+=16384)binary+=String.fromCharCode(...bytes.subarray(i,i+16384));
+ return btoa(binary);
+};
+async function boundedBytes(response,limit){
+ const advertised=Number(response.headers?.get?.('content-length'));
+ if(Number.isFinite(advertised)&&advertised>limit)throw new Error('전장 그림 용량 오류');
+ if(!response.body?.getReader){const bytes=new Uint8Array(await response.arrayBuffer());if(bytes.length>limit)throw new Error('전장 그림 용량 오류');return bytes;}
+ const reader=response.body.getReader(),parts=[];let length=0;
+ try{while(true){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>limit)throw new Error('전장 그림 용량 오류');parts.push(value);}}
+ catch(error){await reader.cancel().catch(()=>{});throw error;}
+ finally{reader.releaseLock();}
+ const bytes=new Uint8Array(length);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}return bytes;
+}
+export function createSharedMapTextureLoader({fetcher=globalThis.fetch,crypto=globalThis.crypto,urlAPI=globalThis.URL,Decompress=globalThis.DecompressionStream,baseURL=import.meta.url,cacheLimit=16*1024*1024,cacheEntries=48}={}){
+ const cache=new Map(),pending=new Map();let cacheBytes=0,active=0;
+ const queue=[];
+ const schedule=task=>new Promise((resolve,reject)=>{queue.push({task,resolve,reject});pump();});
+ function pump(){while(active<4&&queue.length){const job=queue.shift();active++;Promise.resolve().then(job.task).then(job.resolve,job.reject).finally(()=>{active--;pump();});}}
+ const digest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
+ async function checked(source,limit){
+  const response=await fetcher(new URL(source.src,new URL('./',baseURL)).href,{credentials:'same-origin',cache:'default'});
+  if(!response.ok)throw new Error('전장 그림 읽기 실패');
+  const bytes=await boundedBytes(response,limit);
+  if(bytes.length!==source.bytes||await digest(bytes)!==source.sha256)throw new Error('전장 그림 무결성 오류');return bytes;
+ }
+ async function texture(source){
+  const key=source.src+'|'+source.sha256+'|'+source.bytes;
+  if(cache.has(key)){const entry=cache.get(key);cache.delete(key);cache.set(key,entry);return entry.value;}
+  if(pending.has(key))return pending.get(key);
+  const task=schedule(async()=>{
+   const bytes=await checked(source,MAX_TEXTURE),value='data:'+source.mime+';base64,'+toBase64(bytes),cost=value.length*2;
+   if(cost<=cacheLimit&&cacheEntries>0){while(cache.size&&(cacheBytes+cost>cacheLimit||cache.size>=cacheEntries)){const first=cache.keys().next().value;cacheBytes-=cache.get(first).cost;cache.delete(first);}cache.set(key,{value,cost});cacheBytes+=cost;}
+   return value;
+  });
+  pending.set(key,task);try{return await task;}finally{pending.delete(key);}
+ }
+ async function prepare(art){
+  if(art?.sharedTextureSVG!==true||art.svgEncoding!=='gzip'||!safePath(art.src,MAP_PATH)||!Number.isSafeInteger(art.sourceBytes)||art.sourceBytes<1||art.sourceBytes>MAX_PACK||!HASH.test(art.sourceSha256)||!Array.isArray(art.textureSources)||art.textureSources.length<1||art.textureSources.length>48)throw new Error('전장 그림 설정 오류');
+  if(typeof fetcher!=='function'||!crypto?.subtle||typeof Decompress!=='function'||typeof urlAPI?.createObjectURL!=='function')throw new Error('전장 그림을 읽을 수 없는 환경');
+  const unique=new Set();
+  for(const source of art.textureSources){
+   if(!safePath(source.src,ART_PATH)||unique.has(source.src)||!['image/webp','image/png','image/jpeg'].includes(source.mime)||!Number.isSafeInteger(source.bytes)||source.bytes<1||source.bytes>MAX_TEXTURE||!HASH.test(source.sha256))throw new Error('전장 질감 설정 오류');unique.add(source.src);
+  }
+  const packed=await checked({src:art.src,bytes:art.sourceBytes,sha256:art.sourceSha256},MAX_PACK);
+  const stream=new Blob([packed]).stream().pipeThrough(new Decompress('gzip'));
+  const expanded=await boundedBytes(new Response(stream),MAX_SVG);
+  let svg=new TextDecoder('utf-8',{fatal:true}).decode(expanded);
+  if(!/^<svg[\s>]/.test(svg.trimStart())||!/<\/svg>\s*$/.test(svg)||/<(?:script|foreignObject|iframe|style)\b|\bon[a-z]+\s*=|<!DOCTYPE|<!ENTITY/i.test(svg))throw new Error('전장 그림 형식 오류');
+  const references=[];
+  svg.replace(/<image\b[^>]*>/g,tag=>{
+   const href=/\shref="([^"]+)"/.exec(tag)?.[1],known=/\sdata-runtime-asset-src="([^"]+)"/.exec(tag)?.[1];
+   if(!href||href!==known||!unique.has(href)||/xlink:href/.test(tag))throw new Error('알 수 없는 전장 질감');references.push(href);return tag;
+  });
+  if(!references.length||new Set(references).size!==unique.size)throw new Error('전장 질감 목록 오류');
+  // A signed painting must contain no other external resource reference.
+  const referenceCheck=svg.replace(/<image\b[^>]*>/g,tag=>tag.replace(/\s(?:href|data-runtime-asset-src)="[^"]+"/g,''));
+  for(const match of referenceCheck.matchAll(/\b(?:href|src)\s*=\s*(["'])(.*?)\1/gi))if(!match[2].startsWith('#'))throw new Error('외부 전장 그림 참조 오류');
+  for(const match of referenceCheck.matchAll(/url\(\s*([^)]*)\)/gi))if(!match[1].trim().replace(/^["']|["']$/g,'').startsWith('#'))throw new Error('외부 전장 그림 참조 오류');
+  const values=new Map(await Promise.all(art.textureSources.map(async source=>[source.src,await texture(source)])));
+  svg=svg.replace(/<image\b[^>]*>/g,tag=>{const source=/\shref="([^"]+)"/.exec(tag)[1];return tag.replace('href="'+source+'"','href="'+values.get(source)+'"');});
+  const source=urlAPI.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));let released=false;
+  return {source,release(){if(!released){released=true;urlAPI.revokeObjectURL(source);}}};
+ }
+ return Object.freeze({prepare,clearCache(){cache.clear();cacheBytes=0;},cacheStats:()=>({entries:cache.size,bytes:cacheBytes,pending:pending.size})});
+}
+export const sharedMapTextureLoader=createSharedMapTextureLoader();

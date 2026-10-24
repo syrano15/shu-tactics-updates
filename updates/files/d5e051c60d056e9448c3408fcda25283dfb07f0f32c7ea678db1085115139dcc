@@ -1,0 +1,124 @@
+import {loadMapReviewCatalogue} from './map-review-catalogue-loader.js';
+import {createMapReviewModel,mapReviewLocation,mapReviewOptions,mapReviewCell} from './map-review-model.js';
+import {installBoardRenderer} from './board-renderer.js';
+import {installBoardBackground} from './board-background.js';
+import {installBoardNavigation} from './board-navigation.js';
+import {terrainHTML,createTerrainRenderContext,loadStageMapArt,stageMapDisplayFor,installTerrainArtFallback} from './terrain-art.js';
+import {spriteHTML,installPaletteFilters} from './unit-art.js';
+import {installImageSourceFallback} from './image-source.js';
+import {fanchengGateOverlayHTML} from './fancheng-gates.js';
+
+// A newly selected map must fit its final viewport, not the dimensions from
+// before layout/media/scrollbar updates. This controller owns camera intent only.
+export function createMapReviewFitController({navigation,readModel,requestFrame=callback=>requestAnimationFrame(callback)}){
+ let ticket=0,wanted=true;
+ const markReady=value=>{const board=navigation.viewport.querySelector('.board');if(board?.dataset)board.dataset.reviewFitReady=String(value);};
+ const measurable=()=>navigation.viewport.clientWidth>0&&navigation.viewport.clientHeight>0;
+ const needsFit=()=>{
+  if(navigation.viewport.dataset.boardView!=='fit')return true;
+  const viewport=navigation.viewport.getBoundingClientRect(),board=navigation.viewport.querySelector('.board')?.getBoundingClientRect();
+  return !board||board.left<viewport.left-1||board.top<viewport.top-1||board.right>viewport.right+1||board.bottom>viewport.bottom+1;
+ };
+ function request(){
+  wanted=true;markReady(false);const at=++ticket;
+  const apply=remaining=>requestFrame(()=>{
+   const current=readModel();if(at!==ticket||!wanted||!current||!measurable())return;
+   navigation.update(current.state,null);navigation.toolbar.querySelector('[data-board-view="fit"]')?.click();
+   if(remaining)apply(remaining-1);else markReady(!needsFit());
+  });
+  apply(1);
+ }
+ return {request,cancel(){wanted=false;ticket++;markReady(false);},viewportChanged(){if(wanted&&readModel()&&measurable()&&needsFit())request();}};
+}
+
+const $=id=>document.getElementById(id),esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const board=$('board'),stage=$('board-stage'),renderer=installBoardRenderer(board),background=installBoardBackground(board),navigation=installBoardNavigation(stage,board);
+$('review-camera-controls').append(navigation.toolbar);
+document.body.classList.toggle('review-embedded',window.parent!==window);
+let catalogue=[],model=null,options=mapReviewOptions(),selected=null,generation=0;
+const fitController=createMapReviewFitController({navigation,readModel:()=>model});
+const fitObserver=typeof ResizeObserver==='function'?new ResizeObserver(()=>fitController.viewportChanged()):null;
+fitObserver?.observe(navigation.viewport);
+window.addEventListener('resize',()=>fitController.viewportChanged());
+navigation.toolbar.addEventListener('click',event=>{const control=event.target.closest('button');if(control?.dataset.boardView==='normal'||control?.dataset.boardZoom)fitController.cancel();});
+navigation.viewport.addEventListener('pointermove',event=>{if(event.pointerType==='touch'&&navigation.viewport.dataset.boardView==='normal')fitController.cancel();},{passive:true});
+installImageSourceFallback(document);installTerrainArtFallback(document);installPaletteFilters();
+
+function returnToGame(){
+ if(window.parent!==window){window.parent.postMessage({type:'shu-map-review-close'},location.origin==='null'?'*':location.origin);return;}
+ location.href=new URL('./index.html',import.meta.url).href;
+}
+$('review-return').addEventListener('click',returnToGame);
+function fit(){if(model)fitController.request();}
+$('review-fit').addEventListener('click',fit);
+function geometry(){return {terrain:model.state.terrain,width:model.width,height:model.height,mapLayoutVersion:model.state.mapLayoutVersion??0,shared:true};}
+function paintStatus(){
+ if(!model)return;
+ const allies=model.state.units.filter(u=>u.team==='ally'&&u.hp>0).length,enemies=model.state.units.filter(u=>u.team==='enemy'&&u.hp>0).length;
+ const art=stageMapDisplayFor(model.scenario.id,geometry());
+ const message=!options.picture?'통행 지형 표시':art?.status==='failed'?'그림을 불러오지 못했습니다. 통행 지형으로도 확인해 주세요.':art?.status==='ready'?'그림 준비 완료':'그림을 불러오고 있습니다.';
+ $('review-status').textContent=message+' · '+model.width+'×'+model.height+'칸 · 아군 '+allies+' / 적군 '+enemies;
+ $('review-status').dataset.error=String(options.picture&&art?.status==='failed');
+}
+function cellHTML(x,y,terrainView){
+ const cell=mapReviewCell(model,x,y),u=options.units?cell.unit:null,goal=options.goals?cell.goal:null;
+ const classes=['cell',cell.profile.blocked?'blocked':'',cell.profile.kind==='forest'?'forest':'',cell.profile.kind==='bridge'?'bridge':'',u?'has-unit':'',selected?.x===x&&selected?.y===y?'review-selected':''].filter(Boolean).join(' ');
+ const name=u?(u.name??u.id):'',label=[cell.coordinate,cell.description,u?(u.team==='ally'?'아군 ':'적군 ')+name+' · '+cell.unitClass:'',goal?goal.label:''].filter(Boolean).join(' · ');
+ const image=options.picture?terrainHTML(model.state.terrain[y][x],model.scenario.id,{...terrainView,x,y}):'<span class="review-logical-label" aria-hidden="true">'+esc(cell.profile.blocked?cell.profile.name:cell.profile.kind==='bridge'?'다리':cell.profile.kind==='forest'?'숲':'')+'</span>';
+ const shortName=u&&(u.generic||u.team==='enemy'&&['troop','elite'].includes(u.combatTier))&&!u.specialistId?model.state.balance.classes[u.cls]?.name??name:name;
+ const token=u?'<span class="token sprite-token '+(u.team==='enemy'?'enemy-token':'')+'" data-unit-id="'+esc(u.id)+'">'+spriteHTML(u,'',model.scenario)+'<span class="unit-name">'+esc(shortName)+'</span></span>':'';
+ const marker=goal?'<span class="review-goal-marker" aria-hidden="true"><span>'+esc(goal.label)+'</span></span>':'';
+ return '<button type="button" class="'+classes+'" data-x="'+x+'" data-y="'+y+'" aria-label="'+esc(label)+'" title="'+esc(label)+'">'+image+marker+token+'</button>';
+}
+function render(){
+ if(!model)return;
+ board.classList.toggle('review-logical',!options.picture);board.classList.toggle('review-grid',options.grid);
+ board.style.gridTemplateColumns='repeat('+model.width+',1fr)';board.setAttribute('aria-label',model.chapter+'장 '+model.title+' · '+model.width+'열 '+model.height+'행');
+ board.dataset.reviewChapter=String(model.chapter);board.dataset.reviewLayout=model.layout;
+ const terrainView=createTerrainRenderContext(model.scenario.id,geometry()),cells=model.state.terrain.flatMap((row,y)=>[...row].map((_,x)=>cellHTML(x,y,terrainView)));
+ renderer.render({key:model.chapter+':'+model.layout+':'+model.state.terrain.join('\n'),cells,overlayHTML:options.picture?fanchengGateOverlayHTML(options.units?model.state:{...model.state,units:[]},model.scenario.id,{point:selected}):''});
+ if(options.picture)background.update({scenarioId:model.scenario.id,...geometry()});else background.clear();
+ $('review-picture').setAttribute('aria-pressed',String(options.picture));$('review-logic').setAttribute('aria-pressed',String(!options.picture));
+ for(const key of ['units','goals','grid'])$('review-'+key).checked=options[key];
+ navigation.update(model.state,null);paintStatus();renderCellDetails();
+}
+function renderCellDetails(){
+ const host=$('review-cell-details'),cell=selected&&model?mapReviewCell(model,selected.x,selected.y):null;
+ if(!cell){host.innerHTML='<h3>칸 정보</h3><p>지도에서 칸을 누르면 실제 통행 여부와 부대 정보를 확인할 수 있습니다.</p>';return;}
+ host.innerHTML='<h3>'+esc(cell.coordinate+' · '+cell.profile.name)+'</h3><p>'+esc(cell.description)+'</p>'+(cell.unit?'<p><b>'+esc((cell.unit.team==='ally'?'아군 · ':'적군 · ')+cell.unit.name)+'</b><br>'+esc(cell.unitClass)+' · Lv'+cell.unit.level+'<br>병력 '+cell.unit.hp.toLocaleString()+' / '+cell.unit.maxHp.toLocaleString()+'</p>':'<p>배치된 부대 없음</p>')+(cell.goal?'<p><b>'+esc(cell.goal.label)+'</b><br>'+esc(cell.goal.detail)+'</p>':'');
+}
+function updateURL(){const url=new URL(location.href);url.searchParams.set('chapter',String(model.chapter));if(model.layout==='previous')url.searchParams.set('layout','previous');else url.searchParams.delete('layout');history.replaceState(null,'',url);}
+function selectChapter(chapter,layout='current'){
+ const number=Math.max(1,Math.min(catalogue.length,Number(chapter)||1)),at=++generation;
+ model=createMapReviewModel(number,{layout:number===32&&layout==='previous'?'previous':'current'});selected=null;
+ $('review-title').textContent=model.act+'막 · '+model.chapter+'장 | '+model.title;
+ $('review-chapter').value=String(number);$('review-layout-control').hidden=number!==32;$('review-layout').value=model.layout;
+ $('review-previous').disabled=number===1;$('review-next').disabled=number===catalogue.length;$('review-goal').textContent=model.goals.text;
+ document.title=model.chapter+'장 '+model.title+' · 전장 둘러보기';updateURL();render();fit();
+ void loadStageMapArt(model.scenario.id,document,Image,geometry()).then(()=>{if(at===generation)paintStatus();}).catch(()=>{if(at===generation)paintStatus();});
+ document.documentElement.dataset.reviewReady='true';
+}
+$('review-previous').addEventListener('click',()=>{if(model&&model.chapter>1)selectChapter(model.chapter-1);});
+$('review-next').addEventListener('click',()=>{if(model&&model.chapter<catalogue.length)selectChapter(model.chapter+1);});
+$('review-chapter').addEventListener('change',event=>selectChapter(Number(event.target.value)));
+$('review-layout').addEventListener('change',event=>{if(model)selectChapter(model.chapter,event.target.value);});
+function setOptions(patch){options=mapReviewOptions(options,patch);render();}
+$('review-picture').addEventListener('click',()=>setOptions({picture:true}));$('review-logic').addEventListener('click',()=>setOptions({picture:false}));
+for(const key of ['units','goals','grid'])$('review-'+key).addEventListener('change',event=>setOptions({[key]:event.target.checked}));
+board.addEventListener('click',event=>{const cell=event.target.closest('button[data-x][data-y]');if(!cell||!model)return;selected={x:Number(cell.dataset.x),y:Number(cell.dataset.y)};render();});
+document.addEventListener('keydown',event=>{
+ if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||event.target.closest('input,select,textarea,[contenteditable=true]'))return;
+ if(event.key==='Escape'){event.preventDefault();returnToGame();return;}
+ if(!model)return;
+ if(event.key==='PageUp'&&model.chapter>1){event.preventDefault();selectChapter(model.chapter-1);}
+ if(event.key==='PageDown'&&model.chapter<catalogue.length){event.preventDefault();selectChapter(model.chapter+1);}
+});
+window.addEventListener('popstate',()=>{if(catalogue.length){const next=mapReviewLocation(location.search);selectChapter(next.chapter,next.layout);}});
+window.addEventListener('pagehide',()=>{fitController.cancel();fitObserver?.disconnect();background.destroy();},{once:true});
+try{
+ catalogue=await loadMapReviewCatalogue();
+ const groups=new Map();catalogue.forEach((chapter,index)=>{if(!groups.has(chapter.act))groups.set(chapter.act,[]);groups.get(chapter.act).push('<option value="'+(index+1)+'">'+(index+1)+'장 · '+esc(chapter.title)+'</option>');});
+ $('review-chapter').innerHTML=[...groups].map(([act,items])=>'<optgroup label="'+act+'막">'+items.join('')+'</optgroup>').join('');$('review-chapter').disabled=false;
+ const initial=mapReviewLocation(location.search);selectChapter(initial.chapter,initial.layout);
+ if(window.parent===window&&window.shuUpdates?.ready)void window.shuUpdates.ready().catch(()=>{});
+}catch(error){$('review-title').textContent='전장을 불러오지 못했습니다.';$('review-status').textContent=error.message;$('review-status').dataset.error='true';document.documentElement.dataset.reviewReady='false';}
