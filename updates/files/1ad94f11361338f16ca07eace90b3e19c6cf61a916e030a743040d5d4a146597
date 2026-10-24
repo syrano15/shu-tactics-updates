@@ -1,0 +1,12 @@
+import {ACT4_INTERMISSION_STORY} from './intermission-story-v07424-data.js';
+
+// Only the short playable Act 4 manuscript receives expanded display text.
+// Keep source arrays, line cursors, speakers and visual fields unchanged. A
+// different manuscript or later authored line must fail closed to its own text.
+export function intermissionStoryLine(chapter,stage,lines,index){
+ const line=lines?.[index],phase=stage==='preDialogue'?'pre':stage==='postDialogue'?'post':null;
+ const scene=phase&&chapter?.act===4&&chapter.rosterMode==='story'&&ACT4_INTERMISSION_STORY[chapter.id]?.[phase];
+ if(!line||!scene||!Array.isArray(lines)||lines.length!==scene.length)return line;
+ if(!lines.every((source,i)=>source&&source.speaker===scene[i].speaker&&source.text===scene[i].source&&Object.keys(source).every(key=>['speaker','text','face','bg','cg','cutin'].includes(key))))return line;
+ return {...line,text:scene[index].text};
+}

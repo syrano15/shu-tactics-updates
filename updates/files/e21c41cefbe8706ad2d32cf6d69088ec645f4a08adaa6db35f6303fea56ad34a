@@ -1,0 +1,31 @@
+// Fresh chapter-31 encounter only. Saved battles keep their captured version.
+export const CAOCAO_BOSS_POWER_VERSION=1;
+export const CAOCAO_BOSS_TROOPS=30000;
+export const CAOCAO_BOSS_ATTACK=165;
+export const CAOCAO_TIGER_TROOPS=13500;
+export const CAOCAO_TIGER_POSITIONS=Object.freeze([[24,9],[23,11],[24,16],[22,15]].map(Object.freeze));
+export const CAOCAO_TIGER_IDS=Object.freeze(CAOCAO_TIGER_POSITIONS.map((_,i)=>'e_tiger_'+(i+1)));
+
+export function caoCaoBossPowerApplies(scenario){
+ return scenario?.id==='s31_hanzhong'&&scenario.act===4;
+}
+
+export function applyCaoCaoBossPower(unit,scenario,version=CAOCAO_BOSS_POWER_VERSION){
+ if(![0,CAOCAO_BOSS_POWER_VERSION].includes(version))throw new Error('조조 결전 능력치 버전이 올바르지 않습니다.');
+ if(version!==CAOCAO_BOSS_POWER_VERSION||!caoCaoBossPowerApplies(scenario)||unit?.team!=='enemy')return unit;
+ if(unit.specialistId==='tiger-cavalry'&&unit.generic===true&&unit.combatTier==='elite'&&unit.cls==='cavalry'&&unit.faction==='wei'&&['e01',...CAOCAO_TIGER_IDS].includes(unit.id))return {...unit,maxHp:CAOCAO_TIGER_TROOPS,hp:CAOCAO_TIGER_TROOPS};
+ if(unit.id!=='e_boss'||unit.name!=='조조'||unit.cls!=='cavalry'||unit.generic||unit.combatTier!=='boss'||!['wei','cao'].includes(unit.faction))return unit;
+ return {...unit,maxHp:CAOCAO_BOSS_TROOPS,hp:CAOCAO_BOSS_TROOPS,baseAtk:CAOCAO_BOSS_ATTACK,atk:CAOCAO_BOSS_ATTACK};
+}
+
+export function caoCaoFinaleScenario(scenario,version=0){
+ if(![0,CAOCAO_BOSS_POWER_VERSION].includes(version))throw new Error('조조 결전 편성 버전이 올바르지 않습니다.');
+ if(version!==1||!caoCaoBossPowerApplies(scenario))return scenario;
+ const present=CAOCAO_TIGER_IDS.filter(id=>scenario.enemies.some(order=>order.id===id));
+ if(present.length){if(present.length===4&&scenario.caoCaoFinaleVersion===1)return scenario;throw new Error('조조 호표기 편성이 중복됩니다.');}
+ const occupied=new Set([...scenario.enemies.map(order=>order.position),...scenario.allyPositions,...(scenario.extraAllies??[]).map(order=>order.position)].map(point=>point.join(',')));
+ for(const [x,y]of CAOCAO_TIGER_POSITIONS)if(!scenario.terrain[y]?.[x]||scenario.terrain[y][x]==='#'||occupied.has(x+','+y))throw new Error('조조 호표기의 출전 위치가 올바르지 않습니다.');
+ const guards=CAOCAO_TIGER_POSITIONS.map((position,i)=>({id:CAOCAO_TIGER_IDS[i],templateId:'act4_s31_elite_cavalry',position:[...position],level:34,rank:2,aiMode:'charge',advanceRound:i<2?1:2,faction:'wei',combatTier:'elite',gold:870}));
+ const enemies=[...scenario.enemies,...guards];
+ return {...scenario,caoCaoFinaleVersion:1,enemies,act4EnemyGoldTotal:enemies.reduce((sum,order)=>sum+order.gold,0),...(scenario.campaignLayout?{campaignLayout:{...scenario.campaignLayout,enemyTotal:enemies.length}}:{})};
+}

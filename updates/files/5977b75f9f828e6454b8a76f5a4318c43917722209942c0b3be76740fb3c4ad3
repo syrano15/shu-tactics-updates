@@ -1,0 +1,89 @@
+// Read-only combat guidance. Every number comes from the selected battle unit
+// or its battle's rules; this module never changes class or combat statistics.
+import {CLASS_IDS,CLASS_NAMES,DEFAULT_BALANCE} from './balance.js';
+import {movement,maxRange} from './spirits-system.js';
+import {matchupMultiplier} from './engine.js';
+import {specializationFor,specializationRoleDescription} from './specializations.js';
+import {specialistIdentity,SPECIALIST_NAMES} from './special-troops.js';
+import {enemySpecialistName} from './campaign-enemy-balance.js';
+import {legendaryStatModifiers} from './legendary-skills.js';
+
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const finite=(value,fallback=0)=>Number.isFinite(value)?value:fallback;
+const ratio=value=>Number(value.toFixed(2)).toString();
+const range=(min,max)=>min===max?String(min):min+'~'+max;
+const direct=new Set(['infantry','spear','cavalry']);
+const specialistClass={'tiger-cavalry':'cavalry','armored-cavalry':'cavalry',sniper:null,'shield-infantry':'infantry','long-spear':'spear'};
+const roleNames={infantry:'근접 전선',cavalry:'기마 돌격',spear:'직선 창격',archer:'활 사격',crossbow:'쇠뇌 사격',strategist:'책략·지원'};
+const branchRoles={infantry_shield:'방어 중심 보병',infantry_assault:'공격 중심 보병',spear_guard:'길목 수비 창병',spear_breakthrough:'공격 중심 창병',cavalry_heavy:'방어 중심 기병',cavalry_mobile:'기동 중심 기병',archer_sniper:'사거리 중심 활병',archer_mobile:'기동 중심 활병',crossbow_siege:'사거리 중심 석궁병',crossbow_mobile:'기동 중심 석궁병',strategist_fire:'화공 특화 책사',strategist_control:'회복·보급 책사'};
+const specialRoles={'tiger-cavalry':'빠른 돌격 기병','armored-cavalry':'중장갑 기병',sniper:'고정 진지 사격','shield-infantry':'기병 돌격을 막는 보병','long-spear':'긴 창으로 기병 견제'};
+function specialistFor(unit,state){
+ if(![1,2].includes(state?.campaignEnemyBalanceVersion))return null;
+ const id=specialistIdentity(unit);if(id)return id;
+ if(unit?.team!=='enemy'||unit.combatTier!=='elite')return null;
+ // Historical saves predate specialistId. Match their real class as well as
+ // their authored name; a borrowed name alone must not invent another class.
+ const name=enemySpecialistName(unit),legacy=Object.keys(SPECIALIST_NAMES).find(key=>SPECIALIST_NAMES[key]===name);
+ return legacy&&(legacy==='sniper'?['archer','crossbow'].includes(unit.cls):specialistClass[legacy]===unit.cls)?legacy:null;
+}
+function matchups(unit,state){
+ const strong=[],weak=[];
+ if(unit.cls==='strategist'||unit.nonCombat)return {strong,weak};
+ for(const cls of CLASS_IDS.filter(id=>id!=='strategist')){
+  const target={cls},out=matchupMultiplier(unit,target,state),incoming=matchupMultiplier(target,unit,state);
+  if(out>1)strong.push({cls,name:CLASS_NAMES[cls],multiplier:out});
+  if(incoming>1)weak.push({cls,name:CLASS_NAMES[cls],multiplier:incoming});
+ }
+ return {strong,weak};
+}
+export function classRoleModel(unit,state=null){
+ if(!unit||!CLASS_IDS.includes(unit.cls))return null;
+ const spec=specializationFor(unit),specialist=specialistFor(unit,state),min=finite(unit.min,1),max=finite(maxRange(unit)+legendaryStatModifiers(unit).rangeBonus,min),move=finite(movement(unit,state));
+ const {strong,weak}=matchups(unit,state),notes=[];
+ const rangedRole=unit.cls==='archer'?(move>=3?'기동 활 사격':'활 사격'):unit.cls==='crossbow'?(max>=4?'장거리 석궁 사격':'석궁 사격'):null;
+ let role=unit.nonCombat?'호위·이동 대상':specialRoles[specialist]??branchRoles[spec?.id]??rangedRole??roleNames[unit.cls];
+ if(!unit.nonCombat&&unit.cls==='spear'&&strong.some(row=>row.cls==='cavalry')&&!spec&&!specialist)role='기병 견제 창병';
+ if(unit.nonCombat)notes.push('공격할 수 없는 보호 대상입니다. 호위 조건을 확인하세요.');
+ else if(unit.cls==='strategist')notes.push('일반 공격·반격 불가 · 책략과 지원으로 행동합니다.');
+ else{
+  notes.push(direct.has(unit.cls)?'상하좌우 직선으로 공격합니다.':'가로+세로 거리로 사격합니다.');
+  if(min>1)notes.push('거리 '+(min===2?'1':'1~'+(min-1))+'에서는 공격·반격할 수 없습니다.');
+  notes.push(unit.attackAfterMove?'이동 후 공격 가능':'이동 후 공격 불가');
+  if(max!==maxRange(unit,true))notes.push('반격 사거리 '+range(min,maxRange(unit,true))+' · 사거리 증가 효과는 공격에만 적용');
+ }
+ if(strong.length)notes.push('공격 상성 · '+strong.map(row=>row.name+' 상대 ×'+ratio(row.multiplier)).join(' / '));
+ if(weak.length)notes.push('주의할 상성 · '+weak.map(row=>row.name+'에게 받는 피해 ×'+ratio(row.multiplier)).join(' / '));
+ if(spec){notes.push(spec.description,...specializationRoleDescription(unit));}
+ const compactNote=unit.nonCombat?'공격 불가':unit.cls==='strategist'?'일반 반격 불가':min>1?'근접 '+(min-1)+'칸 사격 불가':weak.length?weak[0].name+' 주의':strong.length?strong[0].name+'에 유리':'';
+ const metrics=unit.nonCombat?'이동 '+move:'사거리 '+range(min,max)+' · 이동 '+move;
+ return {cls:unit.cls,className:CLASS_NAMES[unit.cls],role,specialist,specialization:spec?.id??null,min,max,move,metrics,compactNote,strong,weak,notes};
+}
+export function classRoleSummaryHTML(unit,state){
+ const model=classRoleModel(unit,state);if(!model)return '';
+ return '<section class="unit-class-role" aria-label="병과 역할"><div><b>'+esc(model.role)+'</b><button type="button" class="quiet class-guide-open" data-action="class-guide" aria-haspopup="dialog">병과 안내</button></div><p>'+esc([model.metrics,model.compactNote].filter(Boolean).join(' · '))+'</p></section>';
+}
+export function classRoleDetailHTML(unit,state){
+ const model=classRoleModel(unit,state);if(!model)return '';
+ return '<section class="class-role-detail"><h4>'+esc(model.role)+'</h4><p>'+esc(model.metrics)+'</p><ul>'+model.notes.map(note=>'<li>'+esc(note)+'</li>').join('')+'</ul><button type="button" data-dialog="class-guide">다른 병과와 비교</button></section>';
+}
+const baseRole=(cls,rules)=>{
+ if(cls==='archer')return rules.classes.archer.move>rules.classes.crossbow.move?'기동·활 사격':'활 사격';
+ if(cls==='crossbow')return rules.classes.crossbow.max>rules.classes.archer.max?'장거리·쇠뇌 사격':'쇠뇌 사격';
+ return roleNames[cls];
+};
+export function classGuideHTML(state=null,selected=null){
+ const rules=state?.balance??DEFAULT_BALANCE,model=selected?classRoleModel(selected,state):null;
+ const base=CLASS_IDS.map(cls=>{
+  const c=rules.classes[cls],unit={id:'class-guide-'+cls,team:'enemy',cls,min:c.min,max:c.max,move:c.move,attackAfterMove:c.attackAfterMove,spirits:{},promotion:0},guide=classRoleModel(unit,{...state,balance:rules});
+  return '<article><h4>'+esc(CLASS_NAMES[cls])+' <small>'+esc(baseRole(cls,rules))+'</small></h4><p>'+esc((cls==='strategist'?'지력 '+c.int:'공격 '+c.atk)+' · '+guide.metrics)+'</p><p>'+esc(cls==='strategist'?'책략과 지원 · 일반 공격·반격 불가':(c.min>1?'근접 '+(c.min-1)+'칸 공격 불가 · ':'')+(c.attackAfterMove?'이동 후 공격 가능':'이동 후 공격 불가'))+'</p>'+(guide.strong.length?'<p class="class-role-strength">'+esc(guide.strong.map(row=>row.name+' 상대 ×'+ratio(row.multiplier)).join(' · '))+'</p>':'')+'</article>';
+ }).join('');
+ const specialDescriptions={
+  'tiger-cavalry':'빠르게 파고드는 기병입니다. 이동이 길고 방어가 낮은 편이라 측면 접근에 주의하세요.',
+  'armored-cavalry':'기동·공격을 일부 줄이고 방어를 높인 기병입니다. 정면 물리전보다 책략도 함께 활용하세요.',
+  sniper:'먼 곳을 노리는 사수입니다. 이동한 턴에는 사격할 수 없고, 가까이 붙으면 사격·반격할 수 없습니다.',
+  'shield-infantry':'기병 돌격에 대비한 보병입니다. 기병의 대보병 상성 피해를 1배로 낮춥니다.',
+  'long-spear':'일반 창병보다 먼 직선까지 견제합니다. 기병 상대 상성 피해는 2배지만 이동은 짧습니다.',
+ };
+ const specials=Object.keys(SPECIALIST_NAMES).map(id=>'<article><h4>'+esc(SPECIALIST_NAMES[id])+' <small>'+esc(specialRoles[id])+'</small></h4><p>'+esc(specialDescriptions[id])+'</p></article>').join('');
+ return '<section class="class-guide"><div class="class-guide-heading"><h3>병과 안내</h3><button type="button" data-dialog="close">닫기</button></div>'+(model?'<div class="class-guide-current"><small>선택한 부대 · 현재 능력</small><h4>'+esc((selected.name??model.className)+' · '+model.role)+'</h4><p>'+esc(model.metrics)+'</p><ul>'+model.notes.map(note=>'<li>'+esc(note)+'</li>').join('')+'</ul></div>':'')+'<p>활병과 석궁병은 서로 다른 병과입니다. 석궁병이 활병의 상위 단계는 아닙니다. 아래 기본 공격·이동·사거리를 비교해 역할을 고르세요.</p><h4>기본 병과 비교</h4><p class="class-guide-note">현재 전투의 기본 설정입니다. 장수·승급·전문화·장비·정신기를 더한 실제 수치는 위 선택 부대와 전투 예측을 확인하세요.</p><div class="class-guide-grid">'+base+'</div><details class="class-guide-special"><summary>호표기·장창병 등 특수 정예</summary><div class="class-guide-grid">'+specials+'</div></details><p class="class-guide-note">상성은 같은 능력일 때의 피해 배율입니다. 실제 피해는 공격·방어·사기·지형 등에 따라 달라집니다.</p><div class="dialog-actions"><button type="button" class="primary" data-dialog="close">닫기</button></div></section>';
+}

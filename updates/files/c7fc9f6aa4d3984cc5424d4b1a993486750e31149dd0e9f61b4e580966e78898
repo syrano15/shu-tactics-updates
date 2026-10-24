@@ -1,0 +1,23 @@
+import {POST_LUOFENGPO_LAYOUTS} from './map-layout-v07421.js';
+
+export const FORTIFICATION_LAYOUT_VERSION=1;
+export const FANCHENG_FORTIFICATION_CELLS=Object.freeze([8,9,11,12].flatMap(y=>[20,21].map(x=>Object.freeze([x,y]))));
+export const FANCHENG_FORTIFICATION_SOURCE=Object.freeze([...POST_LUOFENGPO_LAYOUTS.s32_fancheng.terrain]);
+const rebuilt=FANCHENG_FORTIFICATION_SOURCE.map((line,y)=>[...line].map((c,x)=>FANCHENG_FORTIFICATION_CELLS.some(p=>p[0]===x&&p[1]===y)?'#':c).join(''));
+export const FANCHENG_FORTIFICATION_TERRAIN=Object.freeze(rebuilt);
+const sourceKey=FANCHENG_FORTIFICATION_SOURCE.join('\n'),rebuiltKey=rebuilt.join('\n');
+export function fortificationLayoutApplies(scenario){
+ return scenario?.id==='s32_fancheng'&&scenario.act===5&&scenario.mapLayoutVersion===4&&Array.isArray(scenario.terrain)&&[sourceKey,rebuiltKey].includes(scenario.terrain.join('\n'));
+}
+
+// Only fresh map4 Fancheng connects the two forward outworks to their central
+// wall. Historical unmarked battles retain their original terrain and routes.
+export function fortificationLayoutScenario(scenario,version=FORTIFICATION_LAYOUT_VERSION){
+ if(![0,FORTIFICATION_LAYOUT_VERSION].includes(version))throw new Error('번성 성곽 배치 버전이 올바르지 않습니다.');
+ if(version===0||!fortificationLayoutApplies(scenario)||scenario.terrain.join('\n')===rebuiltKey)return scenario;
+ const protectedCells=POST_LUOFENGPO_LAYOUTS.s32_fancheng.protectedCells;
+ const points=[...scenario.allyPositions,...(scenario.extraAllies??[]).map(unit=>unit.position),...scenario.enemies.map(unit=>unit.position),...(scenario.bridgeCells??[]),...protectedCells.map(p=>[p.x,p.y])];
+ if(points.some(([x,y])=>rebuilt[y]?.[x]==='#'&&scenario.terrain[y]?.[x]!=='#'))throw new Error('번성 성곽이 출발·증원·임무 위치와 겹칩니다.');
+ const brief='관우가 번성 외곽을 포위 공격합니다. 중앙 보루를 돌아 북·남의 열린 성문으로 접근하고, 두 외곽 방어 거점을 같은 아군 턴에 점령하세요.';
+ return {...scenario,terrain:[...rebuilt],fortificationLayoutVersion:FORTIFICATION_LAYOUT_VERSION,brief,intermissionHint:brief};
+}

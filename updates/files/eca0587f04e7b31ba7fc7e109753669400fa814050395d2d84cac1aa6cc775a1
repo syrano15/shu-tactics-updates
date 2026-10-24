@@ -1,0 +1,45 @@
+import {createUnit} from './engine.js';
+import {sortieInfo} from './campaign.js';
+const ensure=(ok,message)=>{if(!ok)throw new Error('고정 동행 저장 오류: '+message);};
+const active=new Set(['preDialogue','deployment','battle']);
+function freeGuestPosition(state,chapter){
+ const preferred=chapter.allyPositions.at(-1),occupied=new Set(state.units.filter(u=>u.hp>0).map(u=>u.x+','+u.y)),cells=[];
+ for(let y=0;y<chapter.terrain.length;y++)for(let x=0;x<chapter.terrain[y].length;x++){
+  if(chapter.terrain[y][x]==='#'||occupied.has(x+','+y))continue;
+  cells.push({x,y,d:Math.abs(x-preferred[0])+Math.abs(y-preferred[1])});
+ }
+ cells.sort((a,b)=>a.d-b.d||a.y-b.y||a.x-b.x);
+ ensure(cells.length>0,'동행 장수가 설 안전한 빈칸이 없습니다.');
+ return cells[0];
+}
+// Add only a missing fixed companion to old unfinished snapshots. Other units,
+// completed battles, departure receipts and the saved random stream remain intact.
+export function normalizeFixedGuestSave(value,chapter){
+ const info=sortieInfo(chapter),version=value.fixedGuestVersion;
+ ensure(version===undefined||version===1&&info.fixedGuests.length>0,'지원하지 않는 동행 저장 버전입니다.');
+ if(!info.fixedGuests.length)return value;
+ const state=value.state,c=value.campaign;
+ ensure(Array.isArray(state?.units),'부대 목록이 없습니다.');
+ const unfinished=active.has(c?.stage)&&c.result===null&&state.result===null;
+ if(unfinished){
+  const missing=info.fixedGuests.filter(id=>!state.units.some(u=>u.id===id));
+  const draftMissing=c.stage==='deployment'&&Array.isArray(c.draft)?info.fixedGuests.filter(id=>!c.draft.includes(id)):[];
+  ensure(version===undefined||missing.length===0&&draftMissing.length===0,'필수 동행 장수가 누락되었습니다.');
+  for(const id of missing){
+   ensure(value.army?.joined?.includes(id)&&value.army.heroes[id]&&!value.army.heroes[id].departed,'미합류 또는 이탈 장수를 복원할 수 없습니다.');
+   const unit=createUnit(value.balance,id,'ally',value.army,id,1,0,null,1,1,1,1,10000,1,1,1,1,1,1,state.manualEquipmentVersion??0),position=freeGuestPosition(state,chapter);
+   Object.assign(unit,{x:position.x,y:position.y,specialReadyRound:0});
+   if(c.stage==='battle'&&state.units.filter(u=>u.team==='ally'&&u.hp>0).every(u=>u.done))unit.done=true;
+   state.units.push(unit);
+   if(state.battleRecords?.minHpRatios)state.battleRecords.minHpRatios[id]=1;
+   if(Array.isArray(c.sortie))c.sortie.push(id);
+  }
+  for(const id of draftMissing)c.draft.push(id);
+  if(missing.length||draftMissing.length){
+   const notice='서서를 정규 출전과 별도로 고정 동행시켰습니다. 기존 부대의 병력·위치·턴·성장과 진행 기록은 유지했습니다.';
+   value.migrationNotice=(value.migrationNotice?value.migrationNotice+' ':'')+notice;
+  }
+ }
+ value.fixedGuestVersion=1;
+ return value;
+}

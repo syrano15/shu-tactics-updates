@@ -1,0 +1,100 @@
+import {HERO_DATA} from './heroes.js';
+import {UNIT_TEMPLATES} from './roster.js';
+
+export const GUEST_ALLIES_VERSION=1;
+const active=new Set(['preDialogue','deployment','battle']);
+const fail=message=>{throw new Error('동행 장수 계승 기록 오류: '+message);};
+export function guestTemplateHero(template){
+ if(!template?.extra||template.nonCombat)return null;
+ const person=Object.values(HERO_DATA).find(hero=>hero.name===template.name&&hero.spirits?.length);
+ return person?.id??null;
+}
+// Saved guest IDs remain the scenario's IDs. This identity is only the source
+// of their existing personal preparation and commands, never another unit ID.
+export function guestHeroIdentity(unit){
+ const hero=HERO_DATA[unit?.guestHeroId];
+ return unit?.team==='ally'&&unit.extra&&!unit.nonCombat&&hero?.spirits?.length?hero.id:null;
+}
+export const inheritedGuest=unit=>!!guestHeroIdentity(unit)&&unit.guestInherited===true;
+const sourceHeroFields=['level','troopLevel','slots','promotion','growth','departed','selectedClass','specialization','specializationChanges','fourthSpirit','modifications'];
+// JSON object key order is a serialization detail; array order is gameplay data.
+export function guestValueEqual(a,b){
+ if(a===b)return true;
+ if(a===null||b===null||typeof a!=='object'||typeof b!=='object')return false;
+ if(Array.isArray(a)||Array.isArray(b))return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((value,index)=>guestValueEqual(value,b[index]));
+ const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(key=>Object.hasOwn(b,key)&&guestValueEqual(a[key],b[key]));
+}
+const object=value=>!!value&&typeof value==='object'&&!Array.isArray(value);
+const integer=(value,min,max)=>Number.isInteger(value)&&value>=min&&value<=max;
+export function guestPreparationSource(army,id){
+ const hero=army?.heroes?.[id];if(!hero)return null;
+ return {version:1,hero:Object.fromEntries(sourceHeroFields.filter(key=>Object.hasOwn(hero,key)).map(key=>[key,structuredClone(hero[key])])),meritPoints:army.meritPoints??0};
+}
+export function guestSourceArmy(army,id,source){return {...army,heroes:{...army?.heroes,[id]:source.hero},meritPoints:source.meritPoints};}
+export function savedGuestSources(state){
+ return Object.fromEntries([...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)].filter(unit=>guestHeroIdentity(unit)&&Object.hasOwn(unit,'guestSource')).map(unit=>[unit.id,unit.guestSource]));
+}
+// A source contains preparation inputs, never unchecked derived battle stats.
+// Current inventory is separate: equipment worn at an earlier sortie is not
+// counted again after that battle has settled and the player changes equipment.
+export function validateGuestSource(source){
+ if(source===null)return;
+ if(!object(source)||Object.keys(source).sort().join(',')!=='hero,meritPoints,version'||source.version!==1||!integer(source.meritPoints,0,1000)||!object(source.hero))fail('출전 원천 형식');
+ const hero=source.hero;
+ if(Object.keys(hero).some(key=>!sourceHeroFields.includes(key))||!['level','troopLevel','slots','promotion','growth','departed'].every(key=>Object.hasOwn(hero,key))||!integer(hero.level,0,10)||!integer(hero.troopLevel,0,20)||typeof hero.departed!=='boolean'||!object(hero.growth)||Object.keys(hero.growth).sort().join(',')!=='exp,level')fail('출전 장수 기록');
+}
+export function createGuestAlly(legacy,{templateId,army,createHero,version=GUEST_ALLIES_VERSION,recordedSource}={}){
+ if(version!==GUEST_ALLIES_VERSION)return legacy;
+ const hero=guestTemplateHero(UNIT_TEMPLATES[templateId]);if(!hero)return legacy;
+ const source=recordedSource===undefined?guestPreparationSource(army,hero):structuredClone(recordedSource),inherited=source!==null;
+ const unit=inherited?{...createHero(hero,source),id:legacy.id,team:'ally',extra:true,faction:legacy.faction??'shu'}:{...legacy};
+ Object.assign(unit,{guestHeroId:hero,guestInherited:inherited,guestSource:source});delete unit.generic;
+ if(!inherited){unit.maxSp=HERO_DATA[hero].baseSP+unit.level-1;unit.sp=unit.maxSp;}
+ return unit;
+}
+export function validateGuestAllies(value,chapter){
+ const state=value.state,version=state.guestAlliesVersion,orders=new Map((chapter.extraAllies??[]).map(order=>[order.id,order]));
+ if(version!==undefined&&version!==GUEST_ALLIES_VERSION)fail('지원하지 않는 버전');
+ if(state.guestAlliesSourceVersion!==undefined&&(state.guestAlliesSourceVersion!==0||version!==GUEST_ALLIES_VERSION))fail('이행 출처가 다릅니다.');
+ const units=[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+ for(const unit of units){
+  const order=orders.get(unit.id),hero=order&&guestTemplateHero(UNIT_TEMPLATES[order.templateId]);
+  if(version===GUEST_ALLIES_VERSION&&hero){
+   if(unit.team!=='ally'||!unit.extra||unit.nonCombat||unit.guestHeroId!==hero||typeof unit.guestInherited!=='boolean')fail('동행 원본과 인물이 다릅니다.');
+   if(!Object.hasOwn(unit,'guestSource'))fail('출전 원천이 없습니다.');validateGuestSource(unit.guestSource);
+   if(unit.guestInherited!==(unit.guestSource!==null))fail('출전 원천과 계승 여부가 다릅니다.');
+   if(active.has(value.campaign.stage)&&!guestValueEqual(unit.guestSource,guestPreparationSource(value.army,hero)))fail('이전 육성 기록과 계승 여부가 다릅니다.');
+  }else if(unit.guestHeroId!==undefined||unit.guestInherited!==undefined||unit.guestSource!==undefined)fail('개인 정신기가 없는 부대의 계승 표식');
+ }
+ return value;
+}
+const profileFields=['guestHeroId','guestInherited','guestSource','generic','name','han','cls','rank','promotion','cavalryDamageReceived','cavalryDamageDealt','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','atk','def','int','move','min','max','attackAfterMove','level','exp','startLevel','battleExp','maxSp','equipmentSpBonus','classAptitude','classTraining','specialization','masteryPassive','fourthSpirit','allyHpVersion','zhugeliangBalanceVersion'];
+export function validateGuestProfile(unit,reference){
+ if(!guestHeroIdentity(unit)||!reference)return;
+ for(const key of profileFields)if(!guestValueEqual(unit[key],reference[key]))fail('출전 원천과 '+key+' 값이 다릅니다.');
+}
+const ratioHp=(hp,max,nextMax)=>hp===0?0:Math.max(1,Math.min(nextMax,Math.round(hp/max*nextMax)));
+// Called only after the complete historical snapshot has validated. A guest's
+// capacity/profile changes once; every action/position/status and other unit stays.
+export function upgradeValidatedGuestAllies(value,chapter,nextRefs){
+ const state=value.state;if(state.guestAlliesVersion===GUEST_ALLIES_VERSION||state.result!==null||state.rewardsSettled||!active.has(value.campaign.stage))return false;
+ if(state.guestAlliesVersion!==undefined)fail('지원하지 않는 이행 버전');
+ const units=[...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];let changed=false;
+ for(const unit of units){
+  const next=nextRefs.find(reference=>reference.id===unit.id&&guestHeroIdentity(reference));if(!next)continue;
+  const hp=ratioHp(unit.hp,unit.maxHp,next.maxHp),spent=unit.maxSp-unit.sp;
+  for(const key of profileFields){if(Object.hasOwn(next,key))unit[key]=structuredClone(next[key]);else delete unit[key];}
+  unit.hp=hp;unit.sp=Math.max(0,unit.maxSp-spent);changed=true;
+  const basis=state.bossCleanup?.status==='pending'&&state.bossCleanup.basis.units.find(reference=>reference.id===unit.id);if(basis){basis.hp=ratioHp(basis.hp,basis.maxHp,next.maxHp);basis.maxHp=next.maxHp;}
+ }
+ if(changed){state.guestAlliesVersion=GUEST_ALLIES_VERSION;state.guestAlliesSourceVersion=0;}
+ return changed;
+}
+// A confirmed cleanup keeps its already secured merit snapshot. The old guest
+// capacity may exceed its inherited capacity; only the shipped template value
+// from an explicitly migrated checkpoint is accepted as that historical basis.
+export function historicalGuestCapacity(state,chapter,unit,capacity){
+ if(state.guestAlliesVersion!==GUEST_ALLIES_VERSION||state.guestAlliesSourceVersion!==0||!inheritedGuest(unit))return false;
+ const order=chapter?.extraAllies?.find(entry=>entry.id===unit.id),template=UNIT_TEMPLATES[order?.templateId];
+ return guestTemplateHero(template)===guestHeroIdentity(unit)&&capacity===template?.baseStats?.hp;
+}

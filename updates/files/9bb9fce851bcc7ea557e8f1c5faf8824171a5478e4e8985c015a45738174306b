@@ -1,0 +1,34 @@
+import {MANUAL_EQUIPMENT_VERSION} from './equipment.js';
+import {baseSP} from './spirits.js';
+import {guestHeroIdentity,inheritedGuest} from './guest-allies.js';
+
+const fail=message=>{throw new Error('병법서 저장 오류: '+message);};
+const equippedAlly=unit=>unit.team==='ally'&&(!unit.extra||inheritedGuest(unit));
+const bonus=unit=>Object.hasOwn(unit,'equipmentSpBonus')?unit.equipmentSpBonus:0;
+const active=value=>['preDialogue','deployment','battle'].includes(value.campaign.stage);
+
+// The captured bonus belongs to the battle, not the current intermission army.
+// Equipping or selling a book after victory must not rewrite that old snapshot.
+export function manualEquipmentMaxSP(state,unit){
+ if(state.manualEquipmentVersion!==MANUAL_EQUIPMENT_VERSION||!equippedAlly(unit))return undefined;
+ return baseSP(guestHeroIdentity(unit)??unit.id)+unit.level-1+bonus(unit);
+}
+
+export function validateManualEquipment(value,refs=null){
+ const state=value.state,version=state.manualEquipmentVersion;
+ if(version!==undefined&&version!==0&&version!==MANUAL_EQUIPMENT_VERSION)fail('지원하지 않는 버전입니다.');
+ for(const unit of [...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)]){
+  if(version!==MANUAL_EQUIPMENT_VERSION||!equippedAlly(unit)){
+   if(Object.hasOwn(unit,'equipmentSpBonus'))fail('장비 효과가 없는 부대에 SP 보너스가 있습니다.');
+   continue;
+  }
+  const amount=bonus(unit);
+  if(!Number.isInteger(amount)||amount<0||amount>30||amount%10!==0)fail('장비 SP 보너스가 올바르지 않습니다.');
+  if(unit.maxSp!==manualEquipmentMaxSP(state,unit))fail('최대 SP와 출전 장비 기록이 다릅니다.');
+  const ref=refs?.find(reference=>reference.id===unit.id);
+  // Pending guest reserves are also compared against their full reference by
+  // validateReinforcementRecord; refs here may contain only already-active units.
+  if(active(value)&&ref&&amount!==bonus(ref))fail('출전 장비의 SP 보너스가 다릅니다.');
+ }
+ return true;
+}

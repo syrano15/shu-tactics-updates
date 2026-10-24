@@ -1,0 +1,21 @@
+.unit-class-role{margin:6px 0;padding:5px 0;border-top:1px solid #526047;border-bottom:1px solid #526047;min-width:0;line-height:1.4}
+.unit-class-role>div{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.unit-class-role b{font-size:12px;color:#e7d39f;overflow-wrap:anywhere}
+.unit-class-role p{margin:2px 0 0;font-size:11px;color:#d0dac6;overflow-wrap:anywhere}
+#battle-scene #unit-ui .class-guide-open{flex:none;min-width:0;min-height:28px;padding:3px 6px;font-size:11px;line-height:1.35;border:1px solid #75815d;border-radius:4px;background:#283c2d;color:#ece3c0}
+.class-role-detail{margin:12px 0;padding:10px;border:1px solid #657452;border-radius:5px;background:#182a21}
+.class-role-detail h4{margin:0 0 5px;color:#e7d39f}.class-role-detail p{margin:5px 0}.class-role-detail ul{margin:5px 0 10px;padding-left:20px}
+.class-guide{max-width:900px;min-width:0;line-height:1.55;color:var(--text,#e6ebdf)}
+.class-guide-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.class-guide-heading h3{margin:0;color:var(--gold,#e5ca88)}
+.class-guide-current{margin:12px 0;padding:12px;border:1px solid #b99b55;border-radius:5px;background:#253c2c}
+.class-guide-current small{color:#d4c693}.class-guide-current h4{margin:3px 0;color:#f0dea6}.class-guide-current p{margin:5px 0}.class-guide-current ul{margin:6px 0;padding-left:20px}
+.class-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+.class-guide-grid article{padding:11px;border:1px solid #657452;border-radius:5px;background:#1b3026;min-width:0;overflow-wrap:anywhere}
+.class-guide-grid h4{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 5px;color:#f0dea6}.class-guide-grid h4 small{font-weight:400;color:#c2d0b6;font-size:12px}
+.class-guide-grid p{margin:4px 0;font-size:13px}.class-guide-note{font-size:12px;color:#bdc9b2}.class-role-strength{color:#d6e6b6}
+.class-guide-special{margin-top:14px}.class-guide-special>summary{cursor:pointer;min-height:44px;box-sizing:border-box;padding:10px 0;color:#e5ca88}
+#battle-scene[data-mobile-ui=true] .unit-class-role{margin:4px 0;padding:3px 0}
+#battle-scene[data-mobile-ui=true] .unit-class-role b{font-size:12px}
+#battle-scene[data-mobile-ui=true] .unit-class-role p{font-size:12px;margin:0}
+#battle-scene[data-mobile-ui=true][data-command-placement=context] .battle-unit-side #unit-ui.unit-ui .class-guide-open{min-height:44px;min-width:64px;padding:6px;font-size:12px;line-height:1.35}
+@media(max-width:600px){.class-guide-grid{grid-template-columns:minmax(0,1fr)}.class-guide button,.class-role-detail button{min-height:44px}.class-guide-current{padding:10px}.class-guide{font-size:13px}.class-guide h3{font-size:20px}}
