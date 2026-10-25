@@ -1,0 +1,53 @@
+import {CHAPTERS,sortieIds} from './campaign.js';
+import {createArmy} from './equipment.js';
+import {applyRosterVictory} from './roster-events.js';
+import {createBattle} from './engine.js';
+import {DEFAULT_BALANCE} from './balance.js';
+import {mapLayoutStateScenario} from './map-layout-v07415.js';
+import {terrainProfile,terrainDescription} from './terrain-effects.js';
+import {objectiveText} from './objectives.js';
+import {promotionName} from './promotion.js';
+
+export const MAP_REVIEW_LEVEL=60;
+export const MAP_REVIEW_DEFAULTS=Object.freeze({picture:true,units:true,goals:true,grid:false});
+export const mapReviewCoordinate=(x,y)=>String.fromCharCode(65+x)+(y+1);
+export function mapReviewLocation(search=''){
+ const params=new URLSearchParams(search),raw=Number(params.get('chapter')??1);
+ const chapter=Number.isInteger(raw)&&raw>=1&&raw<=56?raw:1;
+ return {chapter,layout:chapter===32&&params.get('layout')==='previous'?'previous':'current'};
+}
+export function mapReviewOptions(previous=MAP_REVIEW_DEFAULTS,patch={}){
+ const next={...MAP_REVIEW_DEFAULTS,...previous};
+ for(const key of Object.keys(MAP_REVIEW_DEFAULTS))if(typeof patch[key]==='boolean')next[key]=patch[key];
+ return next;
+}
+export function createMapReviewModel(chapter,{layout='current'}={}){
+ if(!Number.isInteger(chapter)||chapter<1||chapter>CHAPTERS.length)throw new RangeError('전장 번호를 확인하세요.');
+ if(!['current','previous'].includes(layout)||layout==='previous'&&chapter!==32)throw new Error('이전 배치는 번성에서 비교할 수 있습니다.');
+ const index=chapter-1,base=CHAPTERS[index],army=createArmy({story:true,level:MAP_REVIEW_LEVEL});
+ for(const prior of CHAPTERS.slice(0,index))applyRosterVictory(army,prior.rosterEventId??prior.id);
+ for(const hero of Object.values(army.heroes))hero.growth={level:MAP_REVIEW_LEVEL,exp:0};
+ const state=createBattle(DEFAULT_BALANCE,index,army,sortieIds(base,army),layout==='previous'?{mapLayoutVersion:4,fortificationLayoutVersion:0}:{});
+ const scenario=mapLayoutStateScenario(base,state);
+ const model={chapter,index,layout,scenario,state,army,title:base.title,act:base.act,width:state.terrain[0].length,height:state.terrain.length};
+ model.goals=mapReviewGoals(model);return model;
+}
+export function mapReviewGoals({state,scenario}){
+ const markers=[],seen=new Set(),add=(tiles,label,detail,kind='victory')=>{
+  for(const [x,y] of tiles??[]){const key=x+','+y;if(seen.has(key))continue;seen.add(key);markers.push({x,y,coordinate:mapReviewCoordinate(x,y),label,detail,kind});}
+ };
+ const goal=state.objective??{type:'defeatAll'};
+ const label=goal.label??(goal.type==='occupyTiles'?'거점':goal.type==='escortUnits'?'호위 퇴로':'목표');
+ add(goal.tiles,goal.type==='defendTiles'?'방어 목표':label,objectiveText(state));
+ if(state.huarongChase?.exits)add(state.huarongChase.exits,'적 퇴로','적이 도착하면 전장을 떠나는 곳입니다.','exit');
+ for(const act of [4,5,6,7]){
+  for(const row of scenario['act'+act+'Objectives']??[])add(row.tiles,row.label,'도착 후 행동을 마치면 성장에 도움이 되는 목표입니다.','growth');
+  const optional=scenario['act'+act+'OptionalObjective'];if(optional)add(optional.tiles,'추가 보급',optional.label??'선택해서 점령할 수 있는 보급 목표입니다.','supply');
+ }
+ return {text:objectiveText(state),markers};
+}
+export function mapReviewCell(model,x,y){
+ if(!Number.isInteger(x)||!Number.isInteger(y)||x<0||y<0||x>=model.width||y>=model.height)return null;
+ const profile=terrainProfile(model.state,x,y),unit=model.state.units.find(u=>u.hp>0&&u.x===x&&u.y===y)??null;
+ return {x,y,coordinate:mapReviewCoordinate(x,y),profile,description:terrainDescription(model.state,x,y),unit,unitClass:unit?promotionName(unit.cls,unit.rank,unit.specialization):null,goal:model.goals.markers.find(row=>row.x===x&&row.y===y)??null};
+}

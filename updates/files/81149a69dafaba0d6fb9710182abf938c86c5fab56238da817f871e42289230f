@@ -1,0 +1,77 @@
+import {BATTLEFIELD_LAYOUTS_V07427} from './map-layout-v07427-data.js';
+
+// A new sortie opts in to version 5. Historical map 0–4 checkpoints and their
+// reward ledgers remain on their original scenario; no load-time relocation.
+export const BATTLEFIELD_LAYOUT_VERSION=5;
+export const BATTLEFIELD_REDESIGN_CHAPTERS=Object.freeze([3,14,16,22,23,25,26,27,28,29,30,31,32,34,35,36,37,38,40,41,42,44,45,46,47,49,50,51,52,53,54,56]);
+const ensure=(ok,message)=>{if(!ok)throw new Error('전장 재설계: '+message);};
+const pair=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isInteger);
+const key=p=>p.join(',');
+export function battlefieldLayoutRowV07427(chapter){
+ const row=chapter?.campaignLayoutVersion===1&&BATTLEFIELD_LAYOUTS_V07427[chapter.id];
+ return row&&row.id===chapter.id&&BATTLEFIELD_REDESIGN_CHAPTERS.includes(row.chapter)?row:null;
+}
+export const battlefieldLayoutAppliesV07427=chapter=>!!battlefieldLayoutRowV07427(chapter);
+export function battlefieldGeometryRowV07427(id,geometry){
+ const row=BATTLEFIELD_LAYOUTS_V07427[id];
+ if(!row||geometry?.mapLayoutVersion!==5||geometry.width!==row.terrain[0].length||geometry.height!==row.terrain.length||!Array.isArray(geometry.terrain)||geometry.terrain.join('\n')!==row.terrain.join('\n'))return null;
+ return row;
+}
+export function battlefieldBlockedKindV07427(id,geometry,x,y){
+ const row=battlefieldGeometryRowV07427(id,geometry);
+ if(!row||!Number.isInteger(x)||!Number.isInteger(y)||row.terrain[y]?.[x]!=='#')return null;
+ return row.terrainKinds[key([x,y])]??null;
+}
+export function battlefieldBlockedLabelV07427(id,geometry,x,y){
+ const kind=battlefieldBlockedKindV07427(id,geometry,x,y);
+ return kind==='wall'?(BATTLEFIELD_LAYOUTS_V07427[id].fortificationKind==='palisade'?'목책':'성벽'):kind==='rock'?'산맥·절벽':kind==='water'?'강':null;
+}
+export function validateBattlefieldLayoutV07427(base,row){
+ ensure(base&&row&&base.id===row.id&&battlefieldLayoutRowV07427(base)===row,'장과 배치 원본');
+ ensure((base.mapLayoutVersion??0)===row.sourceMapLayoutVersion&&(base.act4DeploymentVersion??0)===row.sourceAct4DeploymentVersion,'이전 배치 표식');
+ ensure(base.terrain.join('\n')===row.sourceTerrainKey,'이전 지형 서명');
+ const width=base.terrain[0].length,height=base.terrain.length;
+ ensure(Array.isArray(row.terrain)&&row.terrain.length===height&&row.terrain.every(line=>typeof line==='string'&&line.length===width&&/^[.#F]+$/.test(line)),'지형 크기와 문자');
+ const inside=p=>pair(p)&&p[0]>=0&&p[0]<width&&p[1]>=0&&p[1]<height;
+ const pass=p=>inside(p)&&row.terrain[p[1]][p[0]]!=='#';
+ ensure(Array.isArray(row.allyPositions)&&row.allyPositions.length===base.allyPositions.length&&row.allyPositions.every(pass),'아군 출발 칸');
+ // positionLocked keeps the required hero in this new authored slot during
+ // deployment; its previous layout coordinate belongs only to old saves.
+ ensure(row.enemyPositions&&typeof row.enemyPositions==='object'&&!Array.isArray(row.enemyPositions),'적 좌표 목록');
+ const additions=row.enemyAdditions??[],orders=[...base.enemies,...additions],ids=orders.map(order=>order.id);
+ ensure(new Set(ids).size===ids.length&&ids.length<=80,'적 식별자와 총수');
+ ensure(Object.keys(row.enemyPositions).every(id=>ids.includes(id)),'알 수 없는 이동 대상');
+ for(const[id,override]of Object.entries(row.enemyOverrides??{})){
+  ensure(ids.includes(id)&&override&&Object.keys(override).every(field=>['aiMode','advanceRound'].includes(field)),'적 행동 변경 대상');
+  if(Object.hasOwn(override,'aiMode'))ensure(['hold','charge'].includes(override.aiMode),'적 행동 방식');
+  if(Object.hasOwn(override,'advanceRound'))ensure(Number.isInteger(override.advanceRound)&&override.advanceRound>=1&&override.advanceRound<=99,'적 행동 시점');
+ }
+ for(const order of additions)ensure(typeof order.id==='string'&&order.id.startsWith('v07427_')&&typeof order.templateId==='string'&&order.templateId.length>0&&pass(row.enemyPositions[order.id]??order.position),'새 적 병력');
+ const points=[...row.allyPositions,...(base.extraAllies??[]).map(order=>order.position),...orders.map(order=>row.enemyPositions[order.id]??order.position)];
+ ensure(points.every(pass)&&new Set(points.map(key)).size===points.length,'겹치거나 막힌 부대 출발 칸');
+ ensure(row.terrainKinds&&typeof row.terrainKinds==='object'&&!Array.isArray(row.terrainKinds),'불가 지형 의미');
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(row.terrain[y][x]==='#')ensure(['wall','rock','water'].includes(row.terrainKinds[key([x,y])]),'불가 지형 의미 누락 '+x+','+y);
+ for(const[kindCell,kind]of Object.entries(row.terrainKinds)){const p=kindCell.split(',').map(Number);ensure(inside(p)&&row.terrain[p[1]][p[0]]==='#'&&['wall','rock','water'].includes(kind),'불가 지형 의미 불일치');}
+ ensure(Array.isArray(row.bridgeCells)&&row.bridgeCells.every(pass)&&new Set(row.bridgeCells.map(key)).size===row.bridgeCells.length,'교량 위치');
+ if(row.huarongExits!==undefined)ensure(base.id==='s16_huarong'&&Array.isArray(row.huarongExits)&&row.huarongExits.length>0&&row.huarongExits.every(pass)&&new Set(row.huarongExits.map(key)).size===row.huarongExits.length,'화용도 퇴로');
+ if(row.act4OptionalObjectiveTiles!==undefined)ensure(base.act===4&&base.act4OptionalObjective&&(['s22_jiameng','s25_luocheng'].includes(base.id)&&JSON.stringify(row.act4OptionalObjectiveTiles)==='[[15,5]]'||base.id==='s31_hanzhong'&&JSON.stringify(row.act4OptionalObjectiveTiles)==='[[17,5]]')&&row.act4OptionalObjectiveTiles.every(pass),'재설계 성곽의 새 보급 위치');
+ if(row.objectiveTiles!==undefined)ensure(base.id==='s31_hanzhong'&&base.objective?.type==='occupyTiles'&&JSON.stringify(base.objective.tiles)==='[[23,3],[23,9],[23,16]]'&&JSON.stringify(row.objectiveTiles)==='[[23,3],[23,9],[23,15]]'&&row.objectiveTiles.every(pass),'한중 남측 점령 위치');
+ // Existing mission and event coordinates remain authored anchors. Gameplay
+ // terrain may change around them, but cannot swallow an objective or effect.
+ const anchors=[];const add=value=>{if(pair(value))anchors.push(value);else if(Array.isArray(value))value.forEach(add);};
+ const visit=value=>{if(!value||typeof value!=='object')return;for(const[field,child]of Object.entries(value)){if(['tile','tiles','cells'].includes(field))add(child);else if(child&&typeof child==='object')visit(child);}};
+ for(const[field,value]of Object.entries(base))if(field==='objective'||/Objectives$|OptionalObjective$|Tactics$/.test(field)||field==='events')visit(field==='objective'&&row.objectiveTiles?{...value,tiles:row.objectiveTiles}:field==='act4OptionalObjective'&&row.act4OptionalObjectiveTiles?{...value,tiles:row.act4OptionalObjectiveTiles}:value);
+ ensure(anchors.every(pass),'임무·사건 좌표가 막힘');
+ const seen=new Set([key(row.allyPositions[0])]),queue=[row.allyPositions[0]];
+ for(const[x,y]of queue)for(const[dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){const p=[x+dx,y+dy];if(pass(p)&&!seen.has(key(p))){seen.add(key(p));queue.push(p);}}
+ ensure([...points,...anchors,...(row.huarongExits??base.huarongExits??[])].every(p=>seen.has(key(p))),'전열·퇴로·임무가 끊김');
+ ensure(typeof row.brief==='string'&&row.brief.length>0&&typeof row.designNote==='string'&&row.designNote.length>0,'전장 의도와 안내');
+ return {passed:true,id:row.id,chapter:row.chapter,addedEnemies:additions.length,connectedCells:seen.size};
+}
+export function applyBattlefieldLayoutV07427(base,row=battlefieldLayoutRowV07427(base)){
+ validateBattlefieldLayoutV07427(base,row);
+ const enemies=[...base.enemies,...(row.enemyAdditions??[])].map(order=>({...order,...(row.enemyOverrides?.[order.id]??{}),position:[...(row.enemyPositions[order.id]??order.position)]}));
+ const next={...base,mapLayoutVersion:5,terrain:[...row.terrain],allyPositions:row.allyPositions.map(p=>[...p]),enemies,bridgeCells:row.bridgeCells.map(p=>[...p]),brief:row.brief,intermissionHint:row.brief,...(row.huarongExits?{huarongExits:row.huarongExits.map(p=>[...p])}:{}),...(row.objectiveTiles?{objective:{...base.objective,tiles:row.objectiveTiles.map(p=>[...p])}}:{}),...(row.act4OptionalObjectiveTiles?{act4OptionalObjective:{...base.act4OptionalObjective,tiles:row.act4OptionalObjectiveTiles.map(p=>[...p])}}:{}),...(base.campaignLayout?{campaignLayout:{...base.campaignLayout,enemyTotal:enemies.length}}:{})};
+ delete next.fortificationLayoutVersion;
+ return next;
+}

@@ -1,0 +1,149 @@
+import {campaignWaves,previousCampaignWaves,campaignEnemyOrder} from './campaign-events.js';
+import {initializeReinforcementPolicy,validateReinforcementPolicy} from './reinforcement-policy.js';
+import {validateAct2Relief} from './act2-relief-save.js';
+import {UNIT_TEMPLATES} from './roster.js';
+import {GUEST_ALLIES_VERSION,guestHeroIdentity,guestTemplateHero,validateGuestProfile,guestValueEqual} from './guest-allies.js';
+import {battleOutcome} from './objectives.js';
+import {progressionEnemyOrder,enemyHealthCapacity} from './enemy-progression.js';
+import {applyCampaignEnemyBalance,historicalCampaignEnemyCapacity} from './campaign-enemy-balance.js';
+import {specialTroopOrders} from './special-troops.js';
+import {initializeBaimaReinforcementLimit,validateBaimaReinforcementLimit} from './baima-reinforcement-limit.js';
+import {initializeThousandLiReinforcementLimit,validateThousandLiReinforcementLimit} from './thousand-li-reinforcement-limit.js';
+import {initializeAct2EnemyWaveLimit,validateAct2EnemyWaveLimit} from './act2-enemy-wave-limit.js';
+import {initializeAct3ReinforcementLimit,validateAct3ReinforcementLimit} from './act3-reinforcement-limit.js';
+import {initializeChangshaReinforcementLimit,validateChangshaReinforcementLimit} from './changsha-reinforcement-limit.js';
+import {alliedReinforcementMorale} from './reinforcement-morale.js';
+import {mapLayoutStateScenario} from './map-layout-v07415.js';
+const layoutChapter=(state,chapter)=>state?.mapLayoutVersion===5&&chapter?.mapLayoutVersion!==5?mapLayoutStateScenario(chapter,state):chapter;
+// Fresh battles capture reserve statistics once. Old marker-less saves never acquire a wave.
+const fail=message=>{throw new Error('증원 기록 오류: '+message);};
+const same=(a,b)=>a.length===b.length&&new Set(a).size===a.length&&a.every(id=>b.includes(id));
+export function initReinforcements(state,chapter,limitOptions={}){
+ if(chapter?.rosterMode!=='story'||![2,3,5,6,7].includes(chapter.act)||chapter.battleEventsVersion!==1)return;
+ state.battleEventsVersion=1;
+ initializeBaimaReinforcementLimit(state,chapter,limitOptions);initializeThousandLiReinforcementLimit(state,chapter,limitOptions);
+ initializeAct2EnemyWaveLimit(state,chapter,limitOptions);
+ initializeAct3ReinforcementLimit(state,chapter,limitOptions);
+ initializeChangshaReinforcementLimit(state,chapter,limitOptions);
+ initializeReinforcementPolicy(state,chapter,previousCampaignWaves(state,chapter),limitOptions);
+ const waves=campaignWaves(state,chapter);if(!waves.length)return;
+ const ids=new Set(waves.flatMap(wave=>wave.unitIds));
+ state.reinforcements={version:1,spawned:[],pending:waves.map(wave=>({id:wave.id,units:state.units.filter(u=>wave.unitIds.includes(u.id)).map(u=>structuredClone(u))}))};
+ state.units=state.units.filter(u=>!ids.has(u.id));
+}
+export function enemyCountCondition(state,trigger){
+ if(state.round<(trigger.minRound??1))return false;
+ if(trigger.unit&&!state.units.some(u=>u.id===trigger.unit&&u.hp>0))return false;
+ const count=state.units.filter(u=>u.team==='enemy'&&u.hp>0).length;
+ return count<=trigger.count||Number.isInteger(trigger.fallbackRound)&&state.round>=trigger.fallbackRound;
+}
+export function reinforcementReferenceUnits(state){
+ return [...state.units,...(state.reinforcements?.pending??[]).flatMap(wave=>wave.units)];
+}
+function ready(state,chapter,wave,{boundary=false,validation=false}={}){
+ const projected=boundary?{...state,phase:'ally',round:state.round+1}:state;
+ const empty=!state.units.some(unit=>unit.team==='enemy'&&unit.hp>0);
+ const cleanup=state.bossCleanupVersion===1&&state.bossCleanup?.status==='cleanup'&&empty;
+ if(cleanup&&wave.team!=='ally')return true;
+ if(wave.trigger.type==='roundStart')return projected.phase==='ally'&&projected.round>=wave.trigger.round||validation&&state.round>=wave.trigger.round;
+ if(wave.trigger.type==='unitDefeated')return state.units.some(unit=>unit.id===wave.trigger.unit&&unit.hp===0);
+ // A blocked eligible wave remains eligible after another wave has arrived. Those
+ // finite arrivals are the only additions that can raise the recorded enemy count.
+ const checked=validation?{...projected,units:projected.units.filter(unit=>!(state.reinforcements?.spawned??[]).some(id=>campaignWaves(state,chapter).find(entry=>entry.id===id)?.unitIds.includes(unit.id)))}:projected;
+ return enemyCountCondition(checked,wave.trigger);
+}
+function queueReady(state,chapter,boundary=false){
+ const policy=state.reinforcementPolicy,record=state.reinforcements;if(!policy||!record)return;
+ const eligible=new Set(policy.eligible);
+ for(const wave of campaignWaves(state,chapter))if(wave.team!=='ally'&&record.pending.some(entry=>entry.id===wave.id)&&ready(state,chapter,wave,{boundary}))eligible.add(wave.id);
+ policy.eligible=campaignWaves(state,chapter).filter(wave=>eligible.has(wave.id)).map(wave=>wave.id);
+}
+export function applyEnemyReinforcements(state,chapter){
+ chapter=layoutChapter(state,chapter);
+ const record=state.reinforcements;if(state.battleEventsVersion!==1||!record||state.result||battleOutcome(state))return [];
+ if(state.reinforcementPolicy){queueReady(state,chapter);return arrive(state,chapter,wave=>wave.team==='ally'&&ready(state,chapter,wave));}
+ return arrive(state,chapter,wave=>{
+  const wipedOut=chapter.id==='s12_xinye'&&state.campaignEventsVersion===1&&!state.units.some(u=>u.team==='enemy'&&u.hp>0);
+  return wipedOut||ready(state,chapter,wave);
+ });
+}
+// Called only after the existing enemy actions, immediately before the ally phase.
+// Reserves stay separate throughout that enemy turn, including save/resume.
+export function finishEnemyReinforcements(state,chapter){
+ chapter=layoutChapter(state,chapter);
+ if(state.phase!=='enemy'||!state.reinforcementPolicy||!state.reinforcements||state.result||battleOutcome(state))return [];
+ queueReady(state,chapter,true);
+ return arrive(state,chapter,wave=>wave.team!=='ally'&&state.reinforcementPolicy.eligible.includes(wave.id));
+}
+function arrive(state,chapter,condition){
+ const record=state.reinforcements;
+ const arrived=[];
+ for(const wave of campaignWaves(state,chapter)){
+  const pending=record.pending.find(entry=>entry.id===wave.id);
+  if(!pending||!condition(wave))continue;
+  const occupied=new Set(state.units.filter(u=>u.hp>0).map(u=>u.x+','+u.y)),places=[];
+  for(const unit of pending.units){
+   const cells=[];for(let y=0;y<state.terrain.length;y++)for(let x=0;x<state.terrain[0].length;x++){
+    const distance=Math.abs(x-unit.x)+Math.abs(y-unit.y);
+    if(distance<=2&&state.terrain[y][x]!=='#'&&!occupied.has(x+','+y))cells.push({x,y,distance});
+   }
+   cells.sort((a,b)=>a.distance-b.distance||a.y-b.y||a.x-b.x);
+   const place=cells[0];if(!place)break;places.push(place);occupied.add(place.x+','+place.y);
+  }
+  // A blocked entrance postpones the whole finite wave, without overwriting any unit.
+  if(places.length!==pending.units.length)continue;
+  const morale=alliedReinforcementMorale(state,chapter,wave);
+  pending.units.forEach((unit,i)=>state.units.push({...structuredClone(unit),...(morale===null?{}:{morale}),x:places[i].x,y:places[i].y,done:false,moved:false,moveOrigin:null}));
+  if(state.battleRecords)for(const unit of pending.units)state.battleRecords.minHpRatios[unit.id]=unit.hp/unit.maxHp;
+  record.pending=record.pending.filter(entry=>entry.id!==wave.id);record.spawned.push(wave.id);arrived.push(wave.id);
+  if(state.reinforcementPolicy)state.reinforcementPolicy.eligible=state.reinforcementPolicy.eligible.filter(id=>id!==wave.id);
+ }
+ return arrived;
+}
+export function validateReinforcementRecord(state,chapter,refs=null){
+ chapter=layoutChapter(state,chapter);
+ validateAct2Relief(state,chapter);
+ validateBaimaReinforcementLimit(state,chapter);
+ validateThousandLiReinforcementLimit(state,chapter);
+ validateAct2EnemyWaveLimit(state,chapter);
+ validateAct3ReinforcementLimit(state,chapter);
+ validateChangshaReinforcementLimit(state,chapter);
+ validateReinforcementPolicy(state,chapter,previousCampaignWaves(state,chapter),(current,wave,options)=>ready(current,chapter,wave,options));
+ if(state.battleEventsVersion===undefined){if(state.reinforcements!==undefined)fail('구 전투에 증원을 추가할 수 없습니다.');return;}
+ if(state.battleEventsVersion!==1||chapter?.rosterMode!=='story'||![2,3,5,6,7].includes(chapter.act))fail('전투 버전');
+ const waves=campaignWaves(state,chapter),record=state.reinforcements;
+ if(!waves.length){if(record!==undefined)fail('증원 없는 전장');return;}
+ if(!record||record.version!==1||!Array.isArray(record.spawned)||!Array.isArray(record.pending)||Object.keys(record).some(key=>!['version','spawned','pending'].includes(key)))fail('형식');
+ if(!same([...record.spawned,...record.pending.map(w=>w.id)],waves.map(w=>w.id)))fail('누락·중복 증원');
+ const active=state.units.map(u=>u.id);
+ const currentOrders=new Map(specialTroopOrders(chapter,chapter.enemies.map(order=>progressionEnemyOrder(chapter,campaignEnemyOrder(chapter,order,state.campaignEventsVersion??0),state.enemyProgressionVersion??1,state.act2EnemyDifficultyVersion??0)),state.campaignEnemyBalanceVersion??0).map(order=>[order.id,order]));
+ for(const wave of waves){
+  const pending=record.pending.find(entry=>entry.id===wave.id);
+  if(pending){
+   const reserveHp=unit=>{const hit=state.enemyProgressionVersion===3&&state.shipFire?.hits.find(h=>h.unitId===unit.id);if(!hit)return unit.maxHp;return historicalCampaignEnemyCapacity(state,chapter,unit,hit.maxHp)?Math.max(1,Math.min(unit.maxHp,Math.round(hit.afterHp/hit.maxHp*unit.maxHp))):hit.afterHp;};
+   if(Object.keys(pending).some(key=>!['id','units'].includes(key))||!Array.isArray(pending.units)||!same(pending.units.map(u=>u.id),wave.unitIds)||pending.units.some(u=>u.team!==(wave.team??'enemy')||u.hp!==reserveHp(u)||u.done||u.moved||u.status!==null||active.includes(u.id)))fail('대기 부대');
+   for(const unit of pending.units){
+    const allied=wave.team==='ally',rawOrder=(allied?chapter.extraAllies:chapter.enemies).find(e=>e.id===unit.id),order=allied?rawOrder:currentOrders.get(unit.id),template=UNIT_TEMPLATES[order?.templateId];
+    if(allied){
+     const ref=refs?.find(r=>r.id===unit.id);
+     const personal=state.guestAlliesVersion===GUEST_ALLIES_VERSION&&guestHeroIdentity(unit)===guestTemplateHero(template)&&!!guestHeroIdentity(unit);
+     if(personal){
+      validateGuestProfile(unit,ref);
+      if(!template?.extra||!unit.extra||unit.team!=='ally'||typeof unit.guestInherited!=='boolean'||unit.battleExp!==0||unit.startLevel!==unit.level||unit.sp!==unit.maxSp||unit.x!==order.position[0]||unit.y!==order.position[1]||unit.moveOrigin!==null||unit.firstGuardUsed!==false||unit.confusionLost!==false||unit.ralliedRound!==0||unit.morale<50||unit.morale>150||Object.keys(unit.spirits).length)fail('개인 장수 대기 원본');
+      if(ref)for(const key of ['guestHeroId','guestInherited','level','exp','startLevel','maxSp','equipmentSpBonus','cls','protectedFromFaction','nonCombat','generic','rank','promotion','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','hp','atk','def','int','move','min','max','attackAfterMove','classAptitude','classTraining','specialization','masteryPassive','fourthSpirit','allyHpVersion'])if(!guestValueEqual(unit[key],ref[key]))fail('개인 장수 대기 능력치');
+      continue;
+     }
+     if(!template?.extra||!unit.extra||unit.team!=='ally'||unit.level!==1||unit.exp!==0||unit.battleExp!==0||unit.startLevel!==1||unit.sp!==0||unit.maxSp!==0||unit.cls!==template.cls||unit.x!==order.position[0]||unit.y!==order.position[1]||unit.moveOrigin!==null||unit.firstGuardUsed!==false||unit.confusionLost!==false||unit.ralliedRound!==0||unit.promotion!==0||unit.morale!==100||Object.keys(unit.spirits).length)fail('아군 대기 원본');
+     if(ref)for(const key of ['protectedFromFaction','nonCombat','generic','rank','promotion','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','hp','atk','def','int','move','min','max','attackAfterMove'])if(unit[key]!==ref[key])fail('아군 대기 능력치');
+     continue;
+    }
+    const attackAfterMove=applyCampaignEnemyBalance({...unit,attackAfterMove:true},chapter,state.campaignEnemyBalanceVersion??0).attackAfterMove;
+    if(!template||unit.cls!==template.cls||unit.extra||unit.nonCombat||!!unit.generic!==!!template.generic||unit.moveOrigin!==null||unit.attackAfterMove!==attackAfterMove||unit.firstGuardUsed!==false||unit.confusionLost!==false||unit.ralliedRound!==0)fail('대기 병과·행동');
+    if(unit.level!==order.level||unit.startLevel!==unit.level||unit.exp!==0||unit.battleExp!==0||unit.sp!==0||unit.maxSp!==0||unit.promotion!==(order.rank??0)||unit.combatTier!==order.combatTier||unit.faction!==order.faction||unit.x!==order.position[0]||unit.y!==order.position[1])fail('대기 원본');
+    for(const key of ['maxHp','hp','atk','def','int','baseAtk','move','min','max'])if(!Number.isInteger(unit[key])||unit[key]<(['maxHp','hp','move','min','max'].includes(key)?1:0)||unit[key]>({maxHp:enemyHealthCapacity(state,unit),hp:enemyHealthCapacity(state,unit),move:20,min:8,max:8}[key]??1000))fail('대기 능력치');
+    if(refs){const ref=refs.find(r=>r.id===unit.id);if(!ref)fail('대기 참조');for(const key of ['specialistId','attackAfterMove','promotion','rank','baseAtk','evasionBonus','criticalBonus','moraleBonus','tacticBonus','maxHp','atk','def','int','move','min','max'])if(unit[key]!==ref[key])fail('대기 원본 능력치');}
+    if(unit.min>unit.max||unit.hp!==reserveHp(unit)||Object.keys(unit.spirits).length||unit.morale<50||unit.morale>150)fail('대기 상태');
+   }
+  }else if(!wave.unitIds.every(id=>active.includes(id)))fail('등장 부대');
+ }
+}
