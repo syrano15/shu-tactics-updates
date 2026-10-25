@@ -1,0 +1,174 @@
+import {mapLayoutBlockedLabel} from './map-layout-v07415.js';
+import {CHAPTERS} from './campaign.js';
+import {historicalCampaignEnemyCapacity} from './campaign-enemy-balance.js';
+import {CHIBI_ENEMY_FIRE_RATIO} from './enemy-progression.js';
+import {historicalAct2EnemyCapacity} from './act2-enemy-history.js';
+import {act3FireHistoryUnits} from './act3-reinforcement-limit.js';
+import {jiangxiaFerry} from './ferry-navigation.js';
+import {mapTerrainBlockedLabelV07426For} from './map-terrain-meaning-v07426.js';
+export const TERRAIN_RULES=Object.freeze({version:1,forestEvasion:5,forestFireMultiplier:1.4,bridgeDefense:-3,bridgeHitBonus:5,floodFootCost:2,floodCavalryCost:3,floodFireMultiplier:.75,killMorale:5,allyKillMorale:2});
+export const modernTerrain=state=>state?.terrainRulesVersion===TERRAIN_RULES.version;
+const cell=(state,x,y)=>state?.terrain?.[y]?.[x];
+const pairKey=([x,y])=>x+','+y;
+export function initTerrainEffects(state,chapter,version=1){
+ if(![0,1].includes(version))throw new Error('지형 규칙 버전이 올바르지 않습니다.');
+ if(version===1&&chapter?.rosterMode==='story')state.terrainRulesVersion=1;
+}
+const bridgeCells={s07_xiapi:[[7,2],[7,4],[7,5],[7,7]],s09_baima:[[6,4],[6,5]],s12_xinye:[[6,4],[6,5]],s13_changban:[[7,4],[7,5]],s15_chibi:[[5,4],[5,5]],s20_adou_river:[[5,4],[6,4],[5,5],[6,5]],s21_jingzhou_hold:[[6,2],[6,3],[6,6],[6,7]]};
+const terrainChapter=state=>state?.chapterId?CHAPTERS.find(ch=>ch.id===state.chapterId):CHAPTERS[state?.chapter];
+export function isBridge(state,x,y){
+ if(cell(state,x,y)!=='.')return false;
+ const chapter=terrainChapter(state);
+ // Buildings and cliff corridors use the same # glyph as rivers, but are not bridges.
+ if(chapter)return (chapter.campaignLayoutVersion===1?chapter.bridgeCells??[]:bridgeCells[chapter.id]??[]).some(p=>p[0]===x&&p[1]===y);
+ const water=(dx,dy)=>[1,2].some(n=>cell(state,x+dx*n,y+dy*n)==='#');
+ return water(0,-1)&&water(0,1)||water(-1,0)&&water(1,0);
+}
+export function terrainProfile(state,x,y){
+ const code=cell(state,x,y);
+ if(code==='#')return {kind:'river',name:mapTerrainBlockedLabelV07426For(terrainChapter(state)?.id,{terrain:state.terrain,width:state.terrain[0].length,height:state.terrain.length,mapLayoutVersion:state.mapLayoutVersion??0},x,y)??mapLayoutBlockedLabel(state,terrainChapter(state),x,y)??terrainChapter(state)?.blockedLabel??'강',blocked:true};
+ if(modernTerrain(state)&&state.flood?.cells?.some(p=>p[0]===x&&p[1]===y))return {kind:'flood',name:'침수',blocked:false};
+ if(modernTerrain(state)&&state.shipFire?.cells?.some(p=>p[0]===x&&p[1]===y))return {kind:'burned',name:'화공지대',blocked:false};
+ if(code==='F')return {kind:'forest',name:['s15_chibi','s20_adou_river'].includes(terrainChapter(state)?.id)?'적재함 엄폐':'숲',blocked:false};
+ if(modernTerrain(state)&&isBridge(state,x,y))return {kind:'bridge',name:'다리',blocked:false};
+ return {kind:'plain',name:'평지',blocked:false};
+}
+export function terrainMovementCost(state,unit,x,y){
+ const type=terrainProfile(state,x,y).kind;
+ if(type==='river')return jiangxiaFerry(state,unit)?1:Infinity;
+ if(type==='flood')return unit.cls==='cavalry'?TERRAIN_RULES.floodCavalryCost:TERRAIN_RULES.floodFootCost;
+ return type==='forest'&&unit.cls==='cavalry'?state.balance.terrain.forestCost:1;
+}
+export function terrainPhysicalDefense(state,unit){
+ const type=terrainProfile(state,unit.x,unit.y).kind;
+ return type==='forest'?(state?.balance?.terrain?.forestDefense??3):modernTerrain(state)&&type==='bridge'?TERRAIN_RULES.bridgeDefense:0;
+}
+export function terrainHitAdjustment(state,unit){
+ if(!modernTerrain(state))return 0;
+ const type=terrainProfile(state,unit.x,unit.y).kind;
+ return type==='forest'?-TERRAIN_RULES.forestEvasion:type==='bridge'?TERRAIN_RULES.bridgeHitBonus:0;
+}
+export function terrainFireMultiplier(state,unit){
+ if(!modernTerrain(state))return 1;
+ const type=terrainProfile(state,unit.x,unit.y).kind;
+ return type==='forest'?TERRAIN_RULES.forestFireMultiplier:type==='flood'?TERRAIN_RULES.floodFireMultiplier:1;
+}
+export function terrainDescription(state,x,y){
+ const profile=terrainProfile(state,x,y),cost=state?.balance?.terrain?.forestCost??2,def=state?.balance?.terrain?.forestDefense??3;
+ const descriptions={
+ burned:'화공지대 · 일회성 화공 피해 적용 완료 · 이동 비용 1 · 숲 방어·은폐 상실 · 추가 턴 피해 없음',
+ plain:'평지 · 이동 비용 1',
+ river:terrainChapter(state)?.id==='s14_jiangxia'?'강 · 육상 부대 진입 불가 · 피난선 이동 가능':profile.name+' · 진입 불가'+(profile.name==='강'?' · 다리로 건너야 합니다':''),
+ forest:modernTerrain(state)?profile.name+' · 방어 +'+def+' · 물리 회피 +5%p · 화공 성공 +'+(state.balance.fire.forestBonus??20)+'%p / 피해 140% · 기병 이동 비용 '+cost:'숲 · 방어 +'+def+' · 기병 이동 비용 '+cost,
+ bridge:'다리 · 이동 비용 1 · 방어 −3 · 피격 확률 +5%p',
+ flood:'침수 · 보병 이동 비용 2 / 기병 3 · 화공 피해 75% · 숲 은폐 상실'
+ };
+ return descriptions[profile.kind];
+}
+const fail=message=>{throw new Error('지형 효과 오류: '+message);};
+const exact=(value,keys)=>value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===keys.length&&Object.keys(value).every(k=>keys.includes(k));
+export function validateTerrainEffect(effect,unitIds,terrain=null){
+ if(!exact(effect,['type','source','cells','damageRatio'])||!['flood','fire'].includes(effect.type)||!unitIds.includes(effect.source)||effect.damageRatio!==(effect.type==='fire'?.35:.2))fail('수공 원본');
+ const width=terrain?.[0]?.length??12,height=terrain?.length??12;
+ if(!Array.isArray(effect.cells)||!effect.cells.length||effect.cells.length>40||effect.cells.some(p=>!Array.isArray(p)||p.length!==2||p.some((n,i)=>!Number.isInteger(n)||n<0||n>=(i===0?width:height)))||new Set(effect.cells.map(pairKey)).size!==effect.cells.length)fail('수공 좌표');
+ if(terrain&&effect.cells.some(([x,y])=>!terrain[y]?.[x]||terrain[y][x]==='#'))fail('수공 지형');
+ return effect;
+}
+export function applyStoryTerrainEffect(state,event,index){
+ const effect=event.terrainEffect;
+ if(effect?.type==='fire')return applyShipFire(state,event,index);
+ if(!modernTerrain(state)||!effect||event.trigger?.type!=='roundStart'||state.round!==event.trigger.round||state.phase!=='ally'||state.flood||state.result||!state.units.some(u=>u.id===effect.source&&u.hp>0)||!state.units.some(u=>u.team==='enemy'&&u.hp>0))return false;
+ validateTerrainEffect(effect,state.units.map(u=>u.id),state.terrain);
+ const selected=new Set(effect.cells.map(pairKey)),hits=[];
+ for(const unit of state.units.filter(u=>u.hp>0&&selected.has(u.x+','+u.y))){
+  const beforeHp=unit.hp,damage=Math.min(beforeHp-1,Math.floor(unit.maxHp*effect.damageRatio));unit.hp-=damage;
+  hits.push({unitId:unit.id,maxHp:unit.maxHp,beforeHp,damage,afterHp:unit.hp});
+  if(state.battleRecords?.minHpRatios&&state.units.includes(unit))state.battleRecords.minHpRatios[unit.id]=Math.min(state.battleRecords.minHpRatios[unit.id]??1,unit.hp/unit.maxHp);
+ }
+ state.flood={event:index,round:state.round,cells:structuredClone(effect.cells),hits};
+ return true;
+}
+export function validateTerrainEffectsRecord(state,chapter){
+ validateShipFireRecord(state,chapter);
+ if(state.terrainRulesVersion===undefined){if(state.flood!==undefined)fail('구 전투의 수공 기록');return;}
+ if(state.terrainRulesVersion!==1||chapter?.rosterMode!=='story')fail('저장 버전');
+ const record=state.flood;
+ if(record===undefined){
+  const due=chapter?.events?.some((event,index)=>event.terrainEffect?.type==='flood'&&state.storyEvents?.fired.includes(index)&&state.units?.some(u=>u.id===event.terrainEffect.source&&u.hp>0)&&state.units?.some(u=>u.team==='enemy'&&u.hp>0)&&!state.result);
+  if(due)fail('발동 후 수공 기록 누락');return;
+ }
+ if(!exact(record,['event','round','cells','hits']))fail('저장 항목');
+ const event=chapter?.events?.[record.event],effect=event?.terrainEffect;
+ if(!Number.isInteger(record.event)||effect?.type!=='flood'||event.trigger.type!=='roundStart'||record.round!==event.trigger.round||record.round>state.round||!state.storyEvents?.fired.includes(record.event))fail('저장 발동 시점');
+ validateTerrainEffect(effect,state.units.map(u=>u.id),state.terrain);
+ if(JSON.stringify(record.cells)!==JSON.stringify(effect.cells)||!Array.isArray(record.hits)||record.hits.length>state.units.length||new Set(record.hits.map(h=>h.unitId)).size!==record.hits.length)fail('저장 범위');
+ for(const hit of record.hits){
+  const unit=state.units.find(u=>u.id===hit.unitId);
+  if(!exact(hit,['unitId','maxHp','beforeHp','damage','afterHp'])||!unit||!Number.isInteger(hit.maxHp)||hit.maxHp<1||hit.maxHp>unit.maxHp&&!historicalAct2EnemyCapacity(state,chapter,unit,hit.maxHp)||!Number.isInteger(hit.beforeHp)||hit.beforeHp<1||hit.beforeHp>hit.maxHp||hit.damage!==Math.min(hit.beforeHp-1,Math.floor(hit.maxHp*effect.damageRatio))||hit.afterHp!==hit.beforeHp-hit.damage)fail('저장 피해');
+ }
+}
+
+// Fixed legacy saves retain the original linear troop-strength multiplier.
+export function troopPowerFactor(state,unit){
+ if(state?.armyBalanceVersion===1)return 1;
+ const ratio=Math.max(0,unit.hp)/4000;
+ return modernTerrain(state)?Math.min(1.5,Math.sqrt(ratio)):ratio;
+}
+
+export function terrainBattleNote(state,chapter){
+ const fire=chapter?.events?.find(e=>e.terrainEffect?.type==='fire');
+ if(fire&&chapter?.id==='s15_chibi'&&state?.act3StageRevisionVersion===1&&state.shipFire&&state.shipFire.rulesVersion!==1)return '기존 적벽 화공 피해와 현재 병력을 보존했습니다 · 아군 화공 100% 성공 · 같은 화공 피해를 다시 적용하지 않습니다.';
+ if(fire&&chapter?.id==='s15_chibi'&&state?.act3StageRevisionVersion===1)return state.shipFire?'적벽 화공 발동 완료 · 새 화공은 적 전원 남은 병력에서 최대 3,000 일회 피해 · 적 사기 60 이하 · 적군 한 턴 혼란 · 아군 화공 100% 성공 · 추가 턴 피해 없음':'2턴 동남풍 → 3턴 아군 시작 대화공(황개 퇴각과 무관): 적 전원 남은 병력에서 최대 3,000 일회 피해·적 사기 60 이하·적군 한 턴 혼란. 이후 아군 화공은 100% 성공합니다. 불길 구역 아군 35% 피해는 유지됩니다.';
+ if(fire&&chapter?.act===6){const when=fire.trigger.type==='enemyCountBelow'?`적 ${fire.trigger.count}부대 이하 또는 ${fire.trigger.fallbackRound}라운드`:`${fire.trigger.round}라운드`;return state?.shipFire?'화공 발동 완료 · 불길 '+state.shipFire.cells.length+'칸 · 범위 안 양 진영 최대병력 35% 일회 피해 · 병력 1 보존 · 추가 턴 피해 없음':when+' 화공: 표시 구역의 양 진영 최대병력 35% 일회 피해(병력 1 보존). 불길 구역의 숲 방어·은폐가 사라집니다.';}
+ if(fire&&state?.enemyProgressionVersion===3){const when=fire.trigger.type==='enemyCountBelow'?`적 ${fire.trigger.count}부대 이하 또는 ${fire.trigger.fallbackRound}라운드`:`${fire.trigger.round}라운드`,shock=state.campaignLayoutVersion===1?' · 적 사기 60 이하로 하락':'';return state.shipFire?'적벽 화공 발동 완료 · 적 선단과 대기 호위대 최대병력 75% 일회 피해'+shock+' · 범위 안 아군 35% 피해 · 병력 1 보존 · 잔당을 정리하세요.':when+'에 황개 화공: 적 선단과 대기 호위대 전체에 최대병력 75% 일회 피해'+shock+', 표시 구역의 아군에는 35% 피해(병력 1 보존). 아군은 불길 구역에서 벗어나세요.';}
+ if(fire){if(state?.shipFire)return '적벽 화공 발동 완료 · 화공지대 '+state.shipFire.cells.length+'칸 · 양 진영 최대병력 35% 일회 피해(병력 1 보존) · 추가 턴 피해 없음';const t=fire.trigger;return (t.type==='enemyCountBelow'?`적 ${t.count}부대 이하 또는 ${t.fallbackRound}라운드`:`${t.round}라운드`)+'에 황개 화공: 표시 구역의 양 진영 최대병력 35% 일회 피해(병력 1 보존). 아군은 불길 구역에서 벗어나세요. 발동 후 숲 방어·은폐가 사라집니다.';}
+ const event=chapter?.events?.find(e=>e.terrainEffect?.type==='flood');if(!event)return '';
+ if(state&&!modernTerrain(state))return '기존 진행 기록: 수공은 연출만 적용됩니다. 침수 피해와 새 지형 효과는 다음 새 전투부터 적용됩니다.';
+ if(state?.flood)return '수공 발동 완료 · 침수 '+state.flood.cells.length+'칸 · 이동 비용 보병 2 / 기병 3 · 화공 피해 75%';
+ return event.trigger.round+'라운드 수공: 다리와 동쪽 두 열의 22칸에 양 진영 최대병력 20% 피해(병력 1 보존). 아군도 물길에서 벗어나세요. 이후 침수는 보병 이동 2 / 기병 3, 화공 피해 75%입니다.';
+}
+
+// Environmental fire settles once and never grants loot or draws RNG.
+// The current Chibi revision can finish wounded enemies; historical records retain their old nonlethal ratio.
+function applyShipFire(state,event,index){
+ const effect=event.terrainEffect,revised=state.act3StageRevisionVersion===1&&terrainChapter(state)?.id==='s15_chibi';
+ if(!modernTerrain(state)||state.shipFire||state.result||!revised&&!state.units.some(u=>u.id===effect.source&&u.hp>0)||!state.units.some(u=>u.team==='enemy'&&u.hp>0))return false;
+ validateTerrainEffect(effect,state.units.map(u=>u.id),state.terrain);
+ const selected=new Set(effect.cells.map(pairKey)),hits=[];
+ const fleet=revised||state.enemyProgressionVersion===3&&terrainChapter(state)?.act!==6;
+ const units=fleet?[...state.units,...(state.reinforcements?.pending??[]).flatMap(w=>w.units)]:state.units;
+ for(const unit of units.filter(u=>u.hp>0&&(fleet&&u.team==='enemy'||selected.has(u.x+','+u.y)))){
+  const ratio=fleet&&unit.team==='enemy'?CHIBI_ENEMY_FIRE_RATIO:effect.damageRatio;
+  const beforeHp=unit.hp,damage=revised&&unit.team==='enemy'?Math.min(beforeHp,3000):Math.min(beforeHp-1,Math.floor(unit.maxHp*ratio));unit.hp-=damage;
+  if(revised&&unit.team==='enemy'){if(unit.hp>0){unit.chibiFireConfusionRound=state.round;if(state.phase==='enemy'){unit.done=true;unit.moveOrigin=null;}}else{unit.status=null;unit.confusionLost=false;unit.done=true;unit.moveOrigin=null;}} 
+  // The expanded fleet loses its fighting spirit once when the fire strikes.
+  // This environmental shock is independent of the fixed troop-strength rule.
+  if(fleet&&state.campaignLayoutVersion===1&&unit.team==='enemy')unit.morale=Math.min(unit.morale,60);
+  hits.push({unitId:unit.id,maxHp:unit.maxHp,beforeHp,damage,afterHp:unit.hp});
+  if(state.battleRecords?.minHpRatios&&state.units.includes(unit))state.battleRecords.minHpRatios[unit.id]=Math.min(state.battleRecords.minHpRatios[unit.id]??1,unit.hp/unit.maxHp);
+ }
+ state.shipFire={event:index,round:state.round,cells:structuredClone(effect.cells),hits,...(revised?{rulesVersion:1}:{})};return true;
+}
+function validateShipFireRecord(state,chapter){
+ const record=state.shipFire;
+ for(const unit of state.units??[])if(unit.chibiFireConfusionRound!==undefined){
+  if(state.act3StageRevisionVersion!==1||chapter?.id!=='s15_chibi'||record?.rulesVersion!==1||unit.team!=='enemy'||!Number.isInteger(unit.chibiFireConfusionRound)||unit.chibiFireConfusionRound!==state.round||unit.chibiFireConfusionRound!==record.round||!record.hits?.some(h=>h.unitId===unit.id&&h.afterHp>0))fail('화공 혼란 출처/시점');
+ }
+ if(record===undefined){
+  if(modernTerrain(state)&&chapter?.events?.some((e,i)=>e.terrainEffect?.type==='fire'&&state.storyEvents?.fired.includes(i)&&(state.act3StageRevisionVersion===1&&chapter.id==='s15_chibi'||state.units.some(u=>u.id===e.terrainEffect.source&&u.hp>0))&&state.units.some(u=>u.team==='enemy'&&u.hp>0)&&!state.result))fail('발동 후 화공 기록 누락');return;
+ }
+ if(!modernTerrain(state)||![3,6].includes(chapter?.act)||!exact(record,record.rulesVersion===1?['event','round','cells','hits','rulesVersion']:['event','round','cells','hits']))fail('화공 저장 항목');
+ if(record.rulesVersion!==undefined&&(record.rulesVersion!==1||state.act3StageRevisionVersion!==1||chapter.id!=='s15_chibi'))fail('화공 개정 버전');
+ if(record.rulesVersion===1&&(record.round<3||!state.storyEvents?.fired.includes(0)))fail('화공 일정/동남풍 기록');
+ const event=chapter.events?.[record.event],effect=event?.terrainEffect;
+ if(!Number.isInteger(record.event)||effect?.type!=='fire'||!state.storyEvents?.fired.includes(record.event)||!Number.isInteger(record.round)||record.round<1||record.round>state.round||event.trigger.type==='roundStart'&&record.round!==event.trigger.round||event.trigger.type==='enemyCountBelow'&&record.round<(event.trigger.minRound??1))fail('화공 저장 발동 시점');
+ validateTerrainEffect(effect,state.units.map(u=>u.id),state.terrain);
+ const fleet=state.enemyProgressionVersion===3&&chapter.act!==6;
+ const units=fleet?[...state.units,...(state.reinforcements?.pending??[]).flatMap(w=>w.units),...act3FireHistoryUnits(state)]:state.units;
+ if(JSON.stringify(record.cells)!==JSON.stringify(effect.cells)||!Array.isArray(record.hits)||record.hits.length>units.length||new Set(record.hits.map(h=>h.unitId)).size!==record.hits.length)fail('화공 저장 범위');
+ if(record.rulesVersion===1&&(!record.hits.some(h=>units.some(u=>u.id===h.unitId&&u.team==='enemy'))||state.units.some(u=>u.team==='enemy'&&u.hp>0&&!record.hits.some(h=>h.unitId===u.id))))fail('화공 적 전체 기록 누락');
+ if(record.rulesVersion===1&&record.round===state.round&&state.units.some(u=>u.team==='enemy'&&u.hp>0&&u.chibiFireConfusionRound!==record.round))fail('화공 혼란 기록 누락');
+ for(const hit of record.hits){const unit=units.find(u=>u.id===hit.unitId),ratio=fleet&&unit?.team==='enemy'?CHIBI_ENEMY_FIRE_RATIO:.35;
+  if(!exact(hit,['unitId','maxHp','beforeHp','damage','afterHp'])||!unit||!Number.isInteger(hit.maxHp)||hit.maxHp<1||([1,2].includes(state.campaignEnemyBalanceVersion)&&unit.team==='enemy'?hit.maxHp!==unit.maxHp&&!historicalCampaignEnemyCapacity(state,chapter,unit,hit.maxHp):hit.maxHp>unit.maxHp)||!Number.isInteger(hit.beforeHp)||hit.beforeHp<1||hit.beforeHp>hit.maxHp||hit.damage!==(record.rulesVersion===1&&unit.team==='enemy'?Math.min(hit.beforeHp,3000):Math.min(hit.beforeHp-1,Math.floor(hit.maxHp*ratio)))||hit.afterHp!==hit.beforeHp-hit.damage)fail('화공 저장 피해');
+ }
+}
