@@ -1,0 +1,3 @@
+import {BATTLEFIELD_EARLY_V07428} from './map-layout-v07428-early-data.js';
+import {BATTLEFIELD_LATE_V07428} from './map-layout-v07428-late-data.js';
+export const BATTLEFIELD_LAYOUTS_V07428={...BATTLEFIELD_EARLY_V07428,...BATTLEFIELD_LATE_V07428};

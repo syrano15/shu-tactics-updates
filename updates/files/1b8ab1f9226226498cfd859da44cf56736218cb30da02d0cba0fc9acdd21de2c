@@ -1,0 +1,57 @@
+import {BATTLEFIELD_LAYOUTS_V07428} from './map-layout-v07428-data.js';
+
+// Only newly launched sorties select6. Published0–5 retain their own captured
+// geometry, deployment slots, enemy origins, mission anchors and reward source.
+export const BATTLEFIELD_LAYOUT_VERSION_V07428=6;
+export const BATTLEFIELD_REDESIGN_CHAPTERS_V07428=Object.freeze([5,6,19,27,42,43,45,48]);
+const ensure=(ok,message)=>{if(!ok)throw new Error('전장 보완: '+message);};
+const pair=point=>Array.isArray(point)&&point.length===2&&point.every(Number.isInteger),key=point=>point.join(',');
+export function battlefieldLayoutRowV07428(chapter){
+ const row=chapter?.campaignLayoutVersion===1&&BATTLEFIELD_LAYOUTS_V07428[chapter.id];
+ return row&&row.id===chapter.id&&BATTLEFIELD_REDESIGN_CHAPTERS_V07428.includes(row.chapter)?row:null;
+}
+export const battlefieldLayoutAppliesV07428=chapter=>!!battlefieldLayoutRowV07428(chapter);
+export function battlefieldGeometryRowV07428(id,geometry){
+ const row=BATTLEFIELD_LAYOUTS_V07428[id];
+ return row&&geometry?.mapLayoutVersion===6&&geometry.width===row.terrain[0].length&&geometry.height===row.terrain.length&&Array.isArray(geometry.terrain)&&geometry.terrain.join('\n')===row.terrain.join('\n')?row:null;
+}
+export function battlefieldBlockedKindV07428(id,geometry,x,y){
+ const row=battlefieldGeometryRowV07428(id,geometry);
+ return row&&Number.isInteger(x)&&Number.isInteger(y)&&row.terrain[y]?.[x]==='#'?row.terrainKinds[key([x,y])]??null:null;
+}
+export function battlefieldBlockedLabelV07428(id,geometry,x,y){
+ const kind=battlefieldBlockedKindV07428(id,geometry,x,y);
+ return kind==='wall'?(BATTLEFIELD_LAYOUTS_V07428[id].fortificationKind==='palisade'?'목책':'성벽'):kind==='rock'?'산맥·절벽':kind==='water'?'강':kind==='building'?'건물':null;
+}
+export function validateBattlefieldLayoutV07428(base,row){
+ ensure(base&&row&&base.id===row.id&&battlefieldLayoutRowV07428(base)===row,'장과 원본');
+ ensure([0,4,5].includes(row.sourceMapLayoutVersion)&&(base.mapLayoutVersion??0)===row.sourceMapLayoutVersion&&(base.act4DeploymentVersion??0)===row.sourceAct4DeploymentVersion,'원본 지도·편성 표식');
+ ensure(base.terrain.join('\n')===row.sourceTerrainKey,'원본 지형 서명');
+ const width=base.terrain[0].length,height=base.terrain.length,inside=point=>pair(point)&&point[0]>=0&&point[0]<width&&point[1]>=0&&point[1]<height;
+ ensure(Array.isArray(row.terrain)&&row.terrain.length===height&&row.terrain.every(line=>typeof line==='string'&&line.length===width&&/^[.#F]+$/.test(line)),'지형 크기와 문자');
+ const pass=point=>inside(point)&&row.terrain[point[1]][point[0]]!=='#';
+ ensure(Array.isArray(row.allyPositions)&&row.allyPositions.length===base.allyPositions.length&&row.allyPositions.every(pass),'아군 출발 칸');
+ const ids=base.enemies.map(order=>order.id);
+ ensure(row.enemyPositions&&typeof row.enemyPositions==='object'&&!Array.isArray(row.enemyPositions)&&Object.keys(row.enemyPositions).length===ids.length&&Object.keys(row.enemyPositions).every(id=>ids.includes(id)),'기존 적 좌표 명단');
+ ensure(row.enemyAdditions===undefined&&row.enemyOverrides===undefined&&row.objectiveTiles===undefined&&row.act4OptionalObjectiveTiles===undefined,'수치·병력·임무의 불필요한 변경');
+ const points=[...row.allyPositions,...(base.extraAllies??[]).map(order=>order.position),...ids.map(id=>row.enemyPositions[id])];
+ ensure(points.every(pass)&&new Set(points.map(key)).size===points.length,'겹치거나 막힌 초기 부대');
+ ensure(row.terrainKinds&&typeof row.terrainKinds==='object'&&!Array.isArray(row.terrainKinds),'불가 지형 의미');
+ const kinds=['wall','rock','water','building'];
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(row.terrain[y][x]==='#')ensure(kinds.includes(row.terrainKinds[key([x,y])]),'불가 지형 의미 누락');
+ for(const [cell,kind] of Object.entries(row.terrainKinds)){const point=cell.split(',').map(Number);ensure(inside(point)&&row.terrain[point[1]][point[0]]==='#'&&kinds.includes(kind),'불가 지형 의미 불일치');}
+ ensure(Array.isArray(row.bridgeCells)&&row.bridgeCells.every(point=>pass(point)&&row.terrain[point[1]][point[0]]==='.')&&new Set(row.bridgeCells.map(key)).size===row.bridgeCells.length,'실제 교량 칸');
+ const anchors=[],add=value=>{if(pair(value))anchors.push(value);else if(Array.isArray(value))value.forEach(add);};
+ const visit=value=>{if(!value||typeof value!=='object')return;for(const [field,child] of Object.entries(value)){if(['tile','tiles','cells'].includes(field))add(child);else if(child&&typeof child==='object')visit(child);}};
+ for(const [field,value] of Object.entries(base))if(field==='objective'||/Objectives$|OptionalObjective$|Tactics$/.test(field)||field==='events')visit(value);
+ ensure(anchors.every(pass),'보존한 임무·사건 칸이 막힘');
+ const seen=new Set([key(row.allyPositions[0])]),queue=[row.allyPositions[0]];
+ for(const [x,y] of queue)for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const point=[x+dx,y+dy];if(pass(point)&&!seen.has(key(point))){seen.add(key(point));queue.push(point);}}
+ ensure([...points,...anchors].every(point=>seen.has(key(point))),'초기 부대와 임무가 끊김');
+ ensure(typeof row.brief==='string'&&row.brief.length>0&&typeof row.designNote==='string'&&row.designNote.length>0,'전장 안내');
+ return {id:row.id,chapter:row.chapter,passed:true,connectedCells:seen.size};
+}
+export function applyBattlefieldLayoutV07428(base,row=battlefieldLayoutRowV07428(base)){
+ validateBattlefieldLayoutV07428(base,row);
+ return {...base,mapLayoutVersion:6,terrain:[...row.terrain],allyPositions:row.allyPositions.map(point=>[...point]),enemies:base.enemies.map(order=>({...order,position:[...row.enemyPositions[order.id]]})),bridgeCells:row.bridgeCells.map(point=>[...point]),brief:row.brief,intermissionHint:row.brief};
+}
